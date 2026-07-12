@@ -23,7 +23,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'dhira — The calm that stays up with you',
+  title: 'Dhira — The calm that stays up with you',
   description: 'Dhira is a private, anonymous emotional support companion that listens, remembers, and reaches out — never advising, always present.',
   icons: {
     icon: [{ url: '/favicon.ico', type: 'image/x-icon' }],

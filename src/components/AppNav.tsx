@@ -37,7 +37,7 @@ export default function AppNav() {
         }}
       >
         <Link href="/" className="wordmark text-2xl tracking-tight" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--color-text)' }}>
-          dhira
+          Dhira
         </Link>
 
         <div className="flex items-center gap-1">
@@ -86,7 +86,7 @@ export default function AppNav() {
         }}
       >
         <Link href="/" className="wordmark text-xl" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--color-text)' }}>
-          dhira
+          Dhira
         </Link>
         <div className="flex items-center gap-2">
           <button

@@ -15,7 +15,7 @@ export default function LandingFooter() {
               className="wordmark text-2xl mb-3"
               style={{ fontFamily: 'var(--font-display)', fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--color-text)' }}
             >
-              dhira
+              Dhira
             </p>
             <p style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: 'var(--color-text-muted)', lineHeight: 1.65, maxWidth: '240px' }}>
               The calm that stays up with you. Private, anonymous, Hinglish-first.
@@ -75,10 +75,10 @@ export default function LandingFooter() {
           style={{ borderTop: '1px solid var(--color-border)' }}
         >
           <p style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-subtle)' }}>
-            © 2026 dhira · Made with care in India
+            © 2026 Dhira · Made with care in India
           </p>
           <p style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-subtle)' }}>
-            dhira is a listening companion, not a therapist or crisis service.
+            Dhira is a listening companion, not a therapist or crisis service.
           </p>
         </div>
       </div>

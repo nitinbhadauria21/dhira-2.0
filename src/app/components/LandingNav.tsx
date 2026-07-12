@@ -33,7 +33,7 @@ export default function LandingNav() {
             className="wordmark text-2xl"
             style={{ fontFamily: 'var(--font-display)', fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--color-text)' }}
           >
-            dhira
+            Dhira
           </Link>
 
           {/* Desktop nav links */}
