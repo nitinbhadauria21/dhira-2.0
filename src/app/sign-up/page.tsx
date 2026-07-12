@@ -305,13 +305,15 @@ function SignUpContent() {
                 onClick={() => setAgreedTerms(!agreedTerms)}
               >
                 Do you agree with the{' '}
-                <a
-                  href="#"
+                <Link
+                  href="/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   onClick={(e) => e?.stopPropagation()}
                   style={{ color: 'var(--color-primary)', fontWeight: 500, textDecoration: 'underline' }}
                 >
                   terms and conditions
-                </a>{' '}
+                </Link>{' '}
                 of Dhira?
               </span>
             </label>
