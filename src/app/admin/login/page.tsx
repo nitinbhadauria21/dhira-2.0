@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Shield, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { getAdminSession, setAdminSession } from '@/lib/adminAuth';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -12,12 +13,19 @@ export default function AdminLoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // If already authenticated as admin, skip login
+  useEffect(() => {
+    const session = getAdminSession();
+    if (session?.role === 'admin') {
+      router.replace('/admin/overview');
+    }
+  }, [router]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    // Demo: accept any non-empty credentials
     await new Promise((r) => setTimeout(r, 800));
 
     if (!email || !password) {
@@ -26,9 +34,20 @@ export default function AdminLoginPage() {
       return;
     }
 
-    // Store admin session flag
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('dhira_admin_session', 'true');
+    /**
+     * Role assignment logic:
+     * - Any valid login is granted 'admin' role.
+     * - To simulate a non-admin user for testing, use email containing "+viewer"
+     *   e.g. test+viewer@dhira.app → role: 'viewer'
+     * Replace this block with a real backend/Supabase auth call in production.
+     */
+    const role: 'admin' | 'viewer' = email.includes('+viewer') ? 'viewer' : 'admin';
+    setAdminSession(email, role);
+
+    if (role !== 'admin') {
+      setError('Access denied. Your account does not have admin privileges.');
+      setLoading(false);
+      return;
     }
 
     router.push('/admin/overview');
@@ -157,9 +176,7 @@ export default function AdminLoginPage() {
             >
               {loading ? (
                 <span className="flex items-center gap-2">
-                  <span
-                    className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
-                  />
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Signing in…
                 </span>
               ) : (

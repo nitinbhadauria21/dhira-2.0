@@ -3,9 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, ShieldAlert, Zap, BookHeart, BarChart3, Lock, Users, SlidersHorizontal, UserCog, LogOut, Menu, ChevronRight,  } from 'lucide-react';
-import Icon from '@/components/ui/AppIcon';
-
+import {
+  LayoutDashboard, ShieldAlert, Zap, BookHeart, BarChart3,
+  Lock, Users, SlidersHorizontal, UserCog, LogOut, Menu, ChevronRight, ShieldOff,
+} from 'lucide-react';
+import { getAdminSession, clearAdminSession, AdminSession } from '@/lib/adminAuth';
 
 interface NavItem {
   label: string;
@@ -27,6 +29,8 @@ const navItems: NavItem[] = [
   { label: 'Roles & Access', href: '/admin/roles', icon: UserCog },
 ];
 
+type AuthState = 'checking' | 'authorized' | 'unauthorized' | 'forbidden';
+
 interface AdminLayoutProps {
   children: React.ReactNode;
   title: string;
@@ -37,23 +41,95 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [authState, setAuthState] = useState<AuthState>('checking');
+  const [session, setSession] = useState<AdminSession | null>(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const session = localStorage.getItem('dhira_admin_session');
-      if (!session) {
-        router.push('/admin/login');
-      }
+    const s = getAdminSession();
+    if (!s) {
+      // No session at all → redirect to sign-in
+      setAuthState('unauthorized');
+      router.replace('/admin/login');
+      return;
     }
+    if (s.role !== 'admin') {
+      // Authenticated but not an admin
+      setAuthState('forbidden');
+      setSession(s);
+      return;
+    }
+    setSession(s);
+    setAuthState('authorized');
   }, [router]);
 
   const handleLogout = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('dhira_admin_session');
-    }
+    clearAdminSession();
     router.push('/admin/login');
   };
 
+  // ── Loading / redirect state ──────────────────────────────────────────────
+  if (authState === 'checking' || authState === 'unauthorized') {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: 'var(--color-bg)' }}
+      >
+        <span
+          className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin"
+          style={{ borderColor: 'var(--color-primary)' }}
+        />
+      </div>
+    );
+  }
+
+  // ── Access Denied (authenticated but wrong role) ──────────────────────────
+  if (authState === 'forbidden') {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center px-4"
+        style={{ backgroundColor: 'var(--color-bg)' }}
+      >
+        <div
+          className="fixed top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at center, rgba(220,38,38,0.08) 0%, transparent 70%)' }}
+        />
+        <div className="w-full max-w-sm text-center">
+          <div
+            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6"
+            style={{ backgroundColor: 'var(--color-crisis-surface)', border: '1px solid var(--color-crisis)' }}
+          >
+            <ShieldOff size={28} style={{ color: 'var(--color-crisis)' }} />
+          </div>
+          <h1
+            className="mb-2"
+            style={{ fontFamily: 'var(--font-display)', fontSize: '24px', fontWeight: 700, color: 'var(--color-text)' }}
+          >
+            Access Denied
+          </h1>
+          <p
+            className="mb-1"
+            style={{ fontFamily: 'var(--font-ui)', fontSize: '15px', color: 'var(--color-text-muted)' }}
+          >
+            Your account (<strong>{session?.email}</strong>) does not have admin privileges.
+          </p>
+          <p
+            className="mb-8"
+            style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: 'var(--color-text-subtle)' }}
+          >
+            Contact your team administrator to request access.
+          </p>
+          <button
+            onClick={handleLogout}
+            className="btn-primary"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Authorised admin view ─────────────────────────────────────────────────
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       {/* Logo */}
@@ -86,7 +162,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
           Demo Day
         </p>
         {navItems.filter(i => i.demo).map((item) => {
-          const Icon = item.icon;
+          const NavIcon = item.icon;
           const active = pathname === item.href;
           return (
             <Link
@@ -102,7 +178,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
                 fontWeight: active ? 600 : 400,
               }}
             >
-              <Icon size={16} />
+              <NavIcon size={16} />
               {item.label}
               {active && <ChevronRight size={14} className="ml-auto" style={{ color: 'var(--color-primary)' }} />}
             </Link>
@@ -116,7 +192,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
           Soon / Later
         </p>
         {navItems.filter(i => !i.demo).map((item) => {
-          const Icon = item.icon;
+          const NavIcon = item.icon;
           const active = pathname === item.href;
           return (
             <Link
@@ -132,7 +208,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
                 fontWeight: active ? 600 : 400,
               }}
             >
-              <Icon size={16} />
+              <NavIcon size={16} />
               {item.label}
               {active && <ChevronRight size={14} className="ml-auto" style={{ color: 'var(--color-primary)' }} />}
             </Link>
@@ -140,8 +216,16 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
         })}
       </nav>
 
-      {/* Footer */}
+      {/* Footer — show logged-in email + sign out */}
       <div className="px-3 py-4" style={{ borderTop: '1px solid var(--color-border)' }}>
+        {session?.email && (
+          <p
+            className="px-3 mb-2 truncate"
+            style={{ fontFamily: 'var(--font-ui)', fontSize: '12px', color: 'var(--color-text-subtle)' }}
+          >
+            {session.email}
+          </p>
+        )}
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 px-3 py-2.5 rounded-xl w-full transition-all duration-150"
