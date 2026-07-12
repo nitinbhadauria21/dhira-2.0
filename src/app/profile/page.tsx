@@ -62,7 +62,69 @@ function ProfileContent() {
   ];
 
   return (
-    <div className="max-w-screen-lg mx-auto px-6 lg:px-10 py-8">
+    <div className="relative min-h-screen">
+      {/* ── Illustrated background for profile ── */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true" style={{ zIndex: 0 }}>
+        {/* Organic blob top-right */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            width: '500px',
+            height: '450px',
+            background: 'radial-gradient(ellipse 55% 60% at 60% 40%, rgba(174, 161, 218, 0.12) 0%, transparent 65%)',
+            filter: 'blur(55px)',
+            borderRadius: '40% 60% 55% 45% / 50% 45% 55% 50%',
+          }}
+        />
+        {/* Organic blob bottom-left */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            width: '420px',
+            height: '380px',
+            background: 'radial-gradient(ellipse, rgba(99, 161, 131, 0.09) 0%, transparent 65%)',
+            filter: 'blur(60px)',
+            borderRadius: '55% 45% 40% 60% / 45% 55% 50% 50%',
+          }}
+        />
+        {/* Illustrated SVG */}
+        <svg className="absolute inset-0 w-full h-full" style={{ opacity: 0.2 }}>
+          <defs>
+            <pattern id="profile-dots" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
+              <circle cx="1.5" cy="1.5" r="0.8" fill="var(--color-border)" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#profile-dots)" />
+          <path
+            d="M 0 150 Q 400 80 800 150 Q 1200 220 1600 150"
+            fill="none"
+            stroke="var(--color-lavender)"
+            strokeWidth="1"
+            opacity="0.18"
+            strokeDasharray="6 16"
+          />
+          {[
+            { x: 80, y: 300, size: 5, color: 'var(--color-lavender)', opacity: 0.22 },
+            { x: 1500, y: 200, size: 5, color: 'var(--color-primary)', opacity: 0.18 },
+            { x: 900, y: 80, size: 6, color: 'var(--color-sage)', opacity: 0.2 },
+          ]?.map((star: { x: number; y: number; size: number; color: string; opacity: number }, i: number) => (
+            <g key={`prof-star-${i}`} transform={`translate(${star.x}, ${star.y})`} opacity={star.opacity}>
+              <line x1={-star.size} y1="0" x2={star.size} y2="0" stroke={star.color} strokeWidth="1.2" />
+              <line x1="0" y1={-star.size} x2="0" y2={star.size} stroke={star.color} strokeWidth="1.2" />
+              <line x1={-star.size * 0.7} y1={-star.size * 0.7} x2={star.size * 0.7} y2={star.size * 0.7} stroke={star.color} strokeWidth="0.8" />
+              <line x1={star.size * 0.7} y1={-star.size * 0.7} x2={-star.size * 0.7} y2={star.size * 0.7} stroke={star.color} strokeWidth="0.8" />
+            </g>
+          ))}
+          <circle cx="1550" cy="400" r="16" fill="none" stroke="var(--color-lavender)" strokeWidth="1" opacity="0.15" />
+          <circle cx="50" cy="500" r="12" fill="none" stroke="var(--color-sage)" strokeWidth="1" opacity="0.15" />
+        </svg>
+      </div>
+
+    <div className="relative z-10 max-w-screen-lg mx-auto px-6 lg:px-10 py-8">
       {/* Page header */}
       <div className="mb-8">
         <h1
@@ -378,6 +440,7 @@ function ProfileContent() {
           )}
         </div>
       </div>
+    </div>
     </div>
   );
 }

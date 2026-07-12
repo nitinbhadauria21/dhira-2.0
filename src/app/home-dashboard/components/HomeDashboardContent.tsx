@@ -14,32 +14,50 @@ export default function HomeDashboardContent() {
 
   return (
     <div className="relative min-h-screen">
-      {/* Rich background visuals */}
+      {/* ── Organic blob 1: indigo top-right ── */}
       <div
         className="absolute top-0 right-0 pointer-events-none"
         style={{
-          width: '500px',
-          height: '500px',
-          background: 'radial-gradient(ellipse, rgba(90, 103, 184, 0.1) 0%, transparent 65%)',
-          filter: 'blur(60px)',
+          width: '600px',
+          height: '550px',
+          background: 'radial-gradient(ellipse 55% 60% at 60% 40%, rgba(90, 103, 184, 0.13) 0%, rgba(174, 161, 218, 0.06) 55%, transparent 75%)',
+          filter: 'blur(50px)',
+          borderRadius: '40% 60% 55% 45% / 50% 45% 55% 50%',
           zIndex: 0,
         }}
         aria-hidden="true"
       />
+      {/* ── Organic blob 2: amber bottom-left ── */}
       <div
         className="absolute bottom-0 left-0 pointer-events-none"
         style={{
-          width: '400px',
-          height: '400px',
-          background: 'radial-gradient(ellipse, rgba(239, 169, 74, 0.08) 0%, transparent 65%)',
-          filter: 'blur(70px)',
+          width: '480px',
+          height: '420px',
+          background: 'radial-gradient(ellipse 60% 55% at 40% 60%, rgba(239, 169, 74, 0.1) 0%, transparent 65%)',
+          filter: 'blur(60px)',
+          borderRadius: '55% 45% 40% 60% / 45% 55% 50% 50%',
           zIndex: 0,
         }}
         aria-hidden="true"
       />
+      {/* ── Organic blob 3: sage mid-center ── */}
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          top: '35%',
+          left: '30%',
+          width: '350px',
+          height: '280px',
+          background: 'radial-gradient(ellipse, rgba(99, 161, 131, 0.07) 0%, transparent 65%)',
+          filter: 'blur(55px)',
+          zIndex: 0,
+        }}
+        aria-hidden="true"
+      />
+      {/* ── Illustrated SVG background ── */}
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"
-        style={{ opacity: 0.15, zIndex: 0 }}
+        style={{ opacity: 0.22, zIndex: 1 }}
         aria-hidden="true"
       >
         <defs>
@@ -48,8 +66,56 @@ export default function HomeDashboardContent() {
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill="url(#dash-dots)" />
-      </svg>
 
+        {/* Illustrated organic curves */}
+        <path
+          d="M 0 200 Q 400 120 800 200 Q 1200 280 1600 200"
+          fill="none"
+          stroke="var(--color-primary)"
+          strokeWidth="1"
+          opacity="0.15"
+          strokeDasharray="6 18"
+        />
+        <path
+          d="M 0 600 Q 500 520 1000 600 Q 1300 650 1600 580"
+          fill="none"
+          stroke="var(--color-lavender)"
+          strokeWidth="1"
+          opacity="0.12"
+          strokeDasharray="5 20"
+        />
+
+        {/* Organic shapes */}
+        <ellipse cx="100" cy="150" rx="20" ry="13" fill="var(--color-lavender)" opacity="0.1" transform="rotate(-15, 100, 150)" />
+        <ellipse cx="1500" cy="300" rx="18" ry="11" fill="var(--color-accent)" opacity="0.1" transform="rotate(12, 1500, 300)" />
+        <ellipse cx="800" cy="700" rx="22" ry="14" fill="var(--color-sage)" opacity="0.08" />
+
+        {/* Asterisk accents */}
+        {[
+          { x: 250, y: 400, size: 6, color: 'var(--color-lavender)', opacity: 0.22 },
+          { x: 1400, y: 150, size: 5, color: 'var(--color-primary)', opacity: 0.2 },
+          { x: 700, y: 100, size: 6, color: 'var(--color-accent)', opacity: 0.18 },
+          { x: 1200, y: 600, size: 5, color: 'var(--color-sage)', opacity: 0.2 },
+        ]?.map((star, i) => (
+          <g key={`dash-star-${i}`} transform={`translate(${star?.x}, ${star?.y})`} opacity={star?.opacity}>
+            <line x1={-star?.size} y1="0" x2={star?.size} y2="0" stroke={star?.color} strokeWidth="1.5" />
+            <line x1="0" y1={-star?.size} x2="0" y2={star?.size} stroke={star?.color} strokeWidth="1.5" />
+            <line x1={-star?.size * 0.7} y1={-star?.size * 0.7} x2={star?.size * 0.7} y2={star?.size * 0.7} stroke={star?.color} strokeWidth="1" />
+            <line x1={star?.size * 0.7} y1={-star?.size * 0.7} x2={-star?.size * 0.7} y2={star?.size * 0.7} stroke={star?.color} strokeWidth="1" />
+          </g>
+        ))}
+
+        {/* Decorative rings */}
+        <circle cx="1550" cy="500" r="18" fill="none" stroke="var(--color-lavender)" strokeWidth="1" opacity="0.15" />
+        <circle cx="50" cy="500" r="14" fill="none" stroke="var(--color-sage)" strokeWidth="1" opacity="0.15" />
+
+        {/* Scattered dots */}
+        {[
+          [400, 80], [900, 350], [1300, 80], [200, 650], [1100, 700], [600, 500], [1450, 400],
+        ]?.map(([cx, cy], i) => (
+          <circle key={`dash-dot-${i}`} cx={cx} cy={cy} r={1.5} fill="var(--color-primary)" opacity={0.18} />
+        ))}
+      </svg>
       <div
         className="relative z-10 max-w-screen-xl mx-auto px-6 lg:px-10 2xl:px-16 py-8"
       >

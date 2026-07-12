@@ -1,0 +1,179 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="100%" height="100%">
+  <defs>
+    <!-- Gradients for Blobs -->
+    <linearGradient id="grad-lavender" x1="10%" y1="10%" x2="90%" y2="90%">
+      <stop offset="0%" stop-color="#C5BBE4" />
+      <stop offset="50%" stop-color="#AEA1DA" />
+      <stop offset="100%" stop-color="#9384C4" />
+    </linearGradient>
+    
+    <linearGradient id="grad-amber" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#EFA94A" />
+      <stop offset="100%" stop-color="#F6C88A" />
+    </linearGradient>
+    
+    <linearGradient id="grad-sage" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#8ABF9F" />
+      <stop offset="100%" stop-color="#63A183" />
+    </linearGradient>
+
+    <!-- Background Vignette -->
+    <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+      <stop offset="50%" stop-color="#FAF6EF" stop-opacity="0" />
+      <stop offset="100%" stop-color="#E5DCD0" stop-opacity="0.6" />
+    </radialGradient>
+
+    <!-- Filters -->
+    <filter id="hand-drawn" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+
+    <filter id="heavy-blur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="60" />
+    </filter>
+
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
+      <feColorMatrix type="matrix" values="1 0 0 0 0, 0 1 0 0 0, 0 0 1 0 0, 0 0 0 0.08 0" />
+    </filter>
+  </defs>
+
+  <style><![CDATA[
+/* Base Styles */
+    .bg { fill: #FAF6EF; }
+    .stroke-indigo { stroke: #5A67B8; }
+    .stroke-lavender { stroke: #AEA1DA; }
+    .fill-indigo { fill: #5A67B8; }
+    .fill-lavender { fill: #AEA1DA; }
+    .fill-amber { fill: #EFA94A; }
+    .fill-sage { fill: #63A183; }
+
+    /* Animations */
+    .blob-lav {
+      animation: float-lav 12s ease-in-out infinite alternate;
+      transform-origin: 250px 250px;
+    }
+    .blob-amb {
+      animation: float-amb 10s ease-in-out infinite alternate;
+      transform-origin: 950px 600px;
+    }
+    .blob-sag {
+      animation: float-sag 14s ease-in-out infinite alternate;
+      transform-origin: 250px 600px;
+    }
+    
+    .float-fast { animation: float-element 7s ease-in-out infinite alternate; }
+    .float-slow { animation: float-element 11s ease-in-out infinite alternate; }
+    .float-reverse { animation: float-reverse 9s ease-in-out infinite alternate; }
+    
+    .pulse { animation: pulse 5s ease-in-out infinite alternate; }
+    .draw-line {
+      stroke-dasharray: 1500;
+      stroke-dashoffset: 1500;
+      animation: draw 20s ease-in-out infinite alternate;
+    }
+
+    /* Keyframes */
+    @keyframes float-lav {
+      0% { transform: translate(0px, 0px) rotate(0deg) scale(1); }
+      100% { transform: translate(25px, -30px) rotate(3deg) scale(1.02); }
+    }
+    @keyframes float-amb {
+      0% { transform: translate(0px, 0px) rotate(0deg) scale(1); }
+      100% { transform: translate(-35px, 20px) rotate(-4deg) scale(0.98); }
+    }
+    @keyframes float-sag {
+      0% { transform: translate(0px, 0px) rotate(0deg) scale(1); }
+      100% { transform: translate(20px, 35px) rotate(5deg) scale(1.03); }
+    }
+    @keyframes float-element {
+      0% { transform: translateY(0px) translateX(0px); }
+      100% { transform: translateY(-20px) translateX(15px); }
+    }
+    @keyframes float-reverse {
+      0% { transform: translateY(0px) translateX(0px); }
+      100% { transform: translateY(25px) translateX(-15px); }
+    }
+    @keyframes pulse {
+      0% { opacity: 0.3; transform: scale(0.9); }
+      100% { opacity: 0.9; transform: scale(1.1); }
+    }
+    @keyframes draw {
+      0% { stroke-dashoffset: 1500; }
+      100% { stroke-dashoffset: 0; }
+    }
+]]></style>
+
+  <!-- Background -->
+  <rect class="bg" width="100%" height="100%" />
+
+  <!-- Soft Atmospheric Glows -->
+  <g filter="url(#heavy-blur)">
+    <circle cx="200" cy="150" r="350" fill="#AEA1DA" opacity="0.2" />
+    <circle cx="1050" cy="650" r="400" fill="#EFA94A" opacity="0.15" />
+    <circle cx="150" cy="700" r="300" fill="#63A183" opacity="0.1" />
+    <circle cx="600" cy="400" r="450" fill="#FFFFFF" opacity="0.5" />
+  </g>
+
+  <!-- Connecting Organic Lines -->
+  <g fill="none" stroke-width="1.5" stroke-linecap="round" filter="url(#hand-drawn)" opacity="0.5">
+    <path class="draw-line stroke-indigo" d="M 120 280 C 350 150, 550 500, 980 520" />
+    <path class="draw-line stroke-lavender" style="animation-delay: -7s; stroke-width: 2;" d="M 280 700 C 450 850, 750 550, 1080 350" />
+    <path class="draw-line stroke-indigo" style="animation-delay: -14s;" d="M 400 120 C 550 350, 850 250, 1150 700" stroke-dasharray="8 12" />
+    <path class="draw-line stroke-lavender" style="animation-delay: -3s;" d="M 50 500 C 250 450, 400 200, 700 100" />
+  </g>
+
+  <!-- Main Abstract Blobs -->
+  <g filter="url(#hand-drawn)">
+    <!-- Lavender Blob (Top-Left) -->
+    <path class="blob-lav" fill="url(#grad-lavender)" opacity="0.9" 
+          d="M 240 100 C 480 -10, 620 260, 500 440 C 380 620, 140 540, 50 410 C -40 280, 0 210, 240 100 Z" />
+          
+    <!-- Amber Teardrop (Bottom-Right) -->
+    <path class="blob-amb" fill="url(#grad-amber)" opacity="0.9" 
+          d="M 960 320 C 1040 480, 1220 560, 1140 740 C 1060 920, 800 870, 750 730 C 700 590, 880 480, 960 320 Z" />
+          
+    <!-- Sage Crescent (Mid-Left) -->
+    <path class="blob-sag" fill="url(#grad-sage)" opacity="0.9" 
+          d="M 260 460 C 440 400, 540 580, 460 760 C 380 940, 100 890, 60 750 C 180 810, 340 680, 260 460 Z" />
+  </g>
+
+  <!-- Scattered Hand-Drawn Details -->
+  <g filter="url(#hand-drawn)">
+    <!-- Outlined Circles -->
+    <circle class="float-fast stroke-indigo" cx="680" cy="220" r="22" fill="none" stroke-width="2" />
+    <circle class="float-slow stroke-indigo" cx="880" cy="140" r="14" fill="none" stroke-width="1.5" />
+    <circle class="float-reverse stroke-indigo" cx="380" cy="680" r="28" fill="none" stroke-width="2" />
+    <circle class="float-fast stroke-indigo" cx="1080" cy="580" r="10" fill="none" stroke-width="2" />
+    
+    <circle class="float-slow stroke-lavender" cx="480" cy="160" r="18" fill="none" stroke-width="2.5" />
+    <circle class="float-reverse stroke-lavender" cx="780" cy="660" r="24" fill="none" stroke-width="2" />
+    <circle class="float-fast stroke-lavender" cx="160" cy="580" r="12" fill="none" stroke-width="1.5" />
+
+    <!-- Abstract Scribbles / Pluses -->
+    <path class="float-fast stroke-indigo" d="M 820 420 L 844 420 M 832 408 L 832 432" stroke-width="2.5" stroke-linecap="round" />
+    <path class="float-slow stroke-amber" d="M 320 220 L 336 220 M 328 212 L 328 228" stroke-width="2" stroke-linecap="round" />
+    <path class="float-reverse stroke-lavender" d="M 600 720 L 616 720 M 608 712 L 608 728" stroke-width="2" stroke-linecap="round" />
+    
+    <!-- Looped Scribble -->
+    <path class="float-slow stroke-indigo" d="M 840 180 C 910 140, 940 230, 880 260 C 820 290, 790 200, 860 170" fill="none" stroke-width="1.5" />
+  </g>
+
+  <!-- Floating Solid Dots -->
+  <g>
+    <circle class="pulse fill-indigo" cx="580" cy="360" r="7" />
+    <circle class="pulse fill-lavender" style="animation-delay: -2s;" cx="920" cy="290" r="9" />
+    <circle class="pulse fill-amber" style="animation-delay: -4s;" cx="420" cy="520" r="6" />
+    <circle class="pulse fill-sage" style="animation-delay: -1s;" cx="720" cy="510" r="8" />
+    <circle class="pulse fill-indigo" style="animation-delay: -3s;" cx="270" cy="310" r="5" />
+    <circle class="pulse fill-lavender" style="animation-delay: -5s;" cx="1020" cy="780" r="7" />
+    <circle class="pulse fill-sage" style="animation-delay: -2.5s;" cx="120" cy="180" r="6" />
+  </g>
+
+  <!-- Vignette Overlay -->
+  <rect width="100%" height="100%" fill="url(#vignette)" pointer-events="none" />
+
+  <!-- Painterly Grain Texture Overlay -->
+  <rect width="100%" height="100%" filter="url(#grain)" style="mix-blend-mode: multiply;" opacity="0.35" pointer-events="none" />
+</svg>

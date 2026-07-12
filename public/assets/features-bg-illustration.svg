@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="100%" height="100%">
+  <defs>
+    <!-- Hand-drawn style 4-point star -->
+    <path id="star" d="M 0 -12 C 1.5 -4, 4 -1.5, 12 0 C 4 1.5, 1.5 4, 0 12 C -1.5 4, -4 1.5, -12 0 C -4 -1.5, -1.5 -4, 0 -12 Z" />
+    
+    <!-- Hand-drawn style asterisk -->
+    <path id="asterisk" d="M -1 -10 L 1 10 M -9 -5 L 8 6 M -8 6 L 9 -4" stroke-width="1.5" stroke-linecap="round" />
+    
+    <!-- Small hollow bubble -->
+    <circle id="bubble" cx="0" cy="0" r="4" fill="none" stroke-width="1.5" />
+    
+    <!-- Tiny solid dot -->
+    <circle id="dot" cx="0" cy="0" r="1.5" />
+
+    <!-- Hand-drawn scribble accent -->
+    <path id="scribble" d="M -10 5 Q -5 -8, 0 2 T 10 -5 T 18 4" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+  </defs>
+
+  <!-- ========================================== -->
+  <!-- ORGANIC BLOB SHAPES                        -->
+  <!-- ========================================== -->
+
+  <!-- Large Indigo Ellipse (Top-Right) -->
+  <path 
+    d="M 1050 -150 C 1400 -100, 1600 200, 1450 500 C 1300 800, 950 600, 800 350 C 650 100, 700 -200, 1050 -150 Z" 
+    fill="#5A67B8" 
+    opacity="0.08" 
+  />
+
+  <!-- Amber Circle (Bottom-Left) -->
+  <path 
+    d="M -80 550 C 150 450, 450 600, 400 850 C 350 1100, 50 1050, -150 950 C -350 850, -310 650, -80 550 Z" 
+    fill="#EFA94A" 
+    opacity="0.06" 
+  />
+
+  <!-- Sage Squiggle (Mid-Center) -->
+  <path 
+    d="M 480 420 C 580 320, 720 360, 800 480 C 880 600, 1020 540, 1080 420 C 1120 360, 1200 400, 1140 490 C 1050 630, 850 680, 740 530 C 650 420, 520 400, 420 520 C 370 580, 380 480, 480 420 Z" 
+    fill="#63A183" 
+    opacity="0.07" 
+  />
+
+  <!-- ========================================== -->
+  <!-- HAND-DRAWN DASHED LINES                    -->
+  <!-- ========================================== -->
+  
+  <g fill="none" stroke="#AEA1DA" stroke-linecap="round" opacity="0.10">
+    <!-- Weaving Line 1: Top-Left to Bottom-Right -->
+    <path 
+      d="M -50 180 C 250 120, 450 400, 800 350 C 1150 300, 1300 150, 1500 250" 
+      stroke-width="2" 
+      stroke-dasharray="8 12 10 16 6 14" 
+    />
+    
+    <!-- Weaving Line 2: Bottom-Left sweeping up -->
+    <path 
+      d="M 150 -50 C 100 250, 350 550, 250 850 C 150 1150, -50 1000, -100 900" 
+      stroke-width="1.5" 
+      stroke-dasharray="6 10 12 14" 
+    />
+    
+    <!-- Weaving Line 3: Right side looping down -->
+    <path 
+      d="M 1550 700 C 1100 800, 900 500, 550 600 C 200 700, 50 900, -50 850" 
+      stroke-width="1.5" 
+      stroke-dasharray="10 15 5 12 8 18" 
+    />
+    
+    <!-- Weaving Line 4: Subtle center loop -->
+    <path 
+      d="M 1100 -50 C 1000 250, 1400 450, 1200 700 C 1000 950, 650 800, 750 1000" 
+      stroke-width="2" 
+      stroke-dasharray="4 8 6 10" 
+    />
+  </g>
+
+  <!-- ========================================== -->
+  <!-- SCATTERED ACCENTS (STARS, ASTERISKS, DOTS) -->
+  <!-- ========================================== -->
+  
+  <g fill="#AEA1DA" stroke="#AEA1DA" opacity="0.10">
+    
+    <!-- Top Left Region -->
+    <use href="#star" x="180" y="240" transform="rotate(15 180 240) scale(0.9)" fill="#AEA1DA" stroke="none" />
+    <use href="#dot" x="220" y="190" stroke="none" />
+    <use href="#dot" x="140" y="280" stroke="none" />
+    <use href="#bubble" x="320" y="150" />
+    <use href="#asterisk" x="450" y="220" transform="rotate(-20 450 220)" fill="none" />
+    
+    <!-- Top Center/Right Region -->
+    <use href="#star" x="850" y="120" transform="rotate(-10 850 120) scale(0.7)" fill="#AEA1DA" stroke="none" />
+    <use href="#scribble" x="980" y="180" transform="rotate(45 980 180)" />
+    <use href="#dot" x="1150" y="140" stroke="none" />
+    <use href="#bubble" x="1280" y="260" transform="scale(1.2)" />
+    <use href="#asterisk" x="1350" y="150" transform="rotate(10 1350 150) scale(1.1)" fill="none" />
+
+    <!-- Mid Center Region -->
+    <use href="#asterisk" x="650" y="450" transform="rotate(45 650 450) scale(0.8)" fill="none" />
+    <use href="#dot" x="780" y="380" stroke="none" />
+    <use href="#bubble" x="520" y="580" transform="scale(0.8)" />
+    <use href="#star" x="950" y="520" transform="rotate(25 950 520) scale(0.85)" fill="#AEA1DA" stroke="none" />
+    <use href="#dot" x="1020" y="480" stroke="none" />
+
+    <!-- Bottom Left Region -->
+    <use href="#asterisk" x="120" y="720" transform="rotate(-15 120 720) scale(1.2)" fill="none" />
+    <use href="#scribble" x="280" y="820" transform="rotate(-30 280 820)" />
+    <use href="#dot" x="350" y="750" stroke="none" />
+    <use href="#star" x="480" y="850" transform="rotate(5 480 850) scale(0.7)" fill="#AEA1DA" stroke="none" />
+
+    <!-- Bottom Right Region -->
+    <use href="#star" x="1250" y="780" transform="rotate(-25 1250 780)" fill="#AEA1DA" stroke="none" />
+    <use href="#bubble" x="1120" y="850" />
+    <use href="#dot" x="1380" y="680" stroke="none" />
+    <use href="#dot" x="1350" y="710" stroke="none" />
+    <use href="#asterisk" x="880" y="820" transform="rotate(30 880 820) scale(0.9)" fill="none" />
+    <use href="#scribble" x="720" y="780" transform="rotate(15 720 780)" />
+
+  </g>
+</svg>

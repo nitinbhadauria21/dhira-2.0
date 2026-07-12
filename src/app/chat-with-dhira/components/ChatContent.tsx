@@ -144,7 +144,7 @@ export default function ChatContent() {
 
   return (
     <div
-      className="flex flex-col"
+      className="flex flex-col relative"
       style={{
         height: 'calc(100vh - 144px)',
         maxWidth: '800px',
@@ -152,15 +152,83 @@ export default function ChatContent() {
         width: '100%',
       }}
     >
+      {/* ── Illustrated background for chat ── */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true" style={{ zIndex: 0 }}>
+        {/* Organic blob top-right */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '-40px',
+            right: '-40px',
+            width: '300px',
+            height: '280px',
+            background: 'radial-gradient(ellipse 55% 60% at 60% 40%, rgba(90, 103, 184, 0.1) 0%, transparent 65%)',
+            filter: 'blur(40px)',
+            borderRadius: '40% 60% 55% 45% / 50% 45% 55% 50%',
+          }}
+        />
+        {/* Organic blob bottom-left */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '60px',
+            left: '-30px',
+            width: '260px',
+            height: '240px',
+            background: 'radial-gradient(ellipse, rgba(239, 169, 74, 0.08) 0%, transparent 65%)',
+            filter: 'blur(45px)',
+            borderRadius: '55% 45% 40% 60% / 45% 55% 50% 50%',
+          }}
+        />
+        {/* Illustrated SVG */}
+        <svg
+          className="absolute inset-0 w-full h-full"
+          style={{ opacity: 0.18 }}
+        >
+          <defs>
+            <pattern id="chat-dots" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+              <circle cx="1.5" cy="1.5" r="0.8" fill="var(--color-border)" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#chat-dots)" />
+          {/* Subtle organic curve */}
+          <path
+            d="M 0 100 Q 200 60 400 100 Q 600 140 800 100"
+            fill="none"
+            stroke="var(--color-lavender)"
+            strokeWidth="1"
+            opacity="0.2"
+            strokeDasharray="5 15"
+          />
+          {/* Asterisk accents */}
+          {[
+            { x: 30, y: 200, size: 5, color: 'var(--color-lavender)', opacity: 0.2 },
+            { x: 760, y: 150, size: 4, color: 'var(--color-primary)', opacity: 0.18 },
+            { x: 400, y: 50, size: 5, color: 'var(--color-accent)', opacity: 0.15 },
+          ]?.map((star, i) => (
+            <g key={`chat-star-${i}`} transform={`translate(${star.x}, ${star.y})`} opacity={star.opacity}>
+              <line x1={-star.size} y1="0" x2={star.size} y2="0" stroke={star.color} strokeWidth="1.2" />
+              <line x1="0" y1={-star.size} x2="0" y2={star.size} stroke={star.color} strokeWidth="1.2" />
+              <line x1={-star.size * 0.7} y1={-star.size * 0.7} x2={star.size * 0.7} y2={star.size * 0.7} stroke={star.color} strokeWidth="0.8" />
+              <line x1={star.size * 0.7} y1={-star.size * 0.7} x2={-star.size * 0.7} y2={star.size * 0.7} stroke={star.color} strokeWidth="0.8" />
+            </g>
+          ))}
+        </svg>
+      </div>
+
       {/* Chat header */}
-      <ChatHeader messageCount={messages.length} />
+      <div className="relative z-10">
+        <ChatHeader messageCount={messages.length} />
+      </div>
 
       {/* Memory banner */}
-      <ChatMemoryBanner />
+      <div className="relative z-10">
+        <ChatMemoryBanner />
+      </div>
 
       {/* Crisis demo shortcut */}
       <div
-        className="px-4 py-2 flex items-center gap-2"
+        className="px-4 py-2 flex items-center gap-2 relative z-10"
         style={{ backgroundColor: 'var(--color-surface-alt)', borderBottom: '1px solid var(--color-border)' }}
       >
         <span style={{ fontFamily: 'var(--font-ui)', fontSize: '12px', color: 'var(--color-text-subtle)' }}>
@@ -182,7 +250,7 @@ export default function ChatContent() {
       </div>
 
       {/* Thread */}
-      <div className="flex-1 overflow-y-auto px-4 py-6" style={{ scrollBehavior: 'smooth' }}>
+      <div className="flex-1 overflow-y-auto px-4 py-6 relative z-10" style={{ scrollBehavior: 'smooth' }}>
         <ChatThread messages={messages} isTyping={isTyping} />
         <div ref={threadEndRef} />
       </div>
@@ -190,7 +258,7 @@ export default function ChatContent() {
       {/* Mood save nudge */}
       {moodSaved && (
         <div
-          className="px-4 py-3 flex items-center justify-between fade-in"
+          className="px-4 py-3 flex items-center justify-between fade-in relative z-10"
           style={{ backgroundColor: 'var(--color-primary-soft)', borderTop: '1px solid var(--color-primary)' }}
         >
           <p style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: 'var(--color-text-muted)' }}>
@@ -206,7 +274,9 @@ export default function ChatContent() {
       )}
 
       {/* Input bar */}
-      <ChatInputBar onSend={handleSendMessage} disabled={isTyping} />
+      <div className="relative z-10">
+        <ChatInputBar onSend={handleSendMessage} disabled={isTyping} />
+      </div>
     </div>
   );
 }
