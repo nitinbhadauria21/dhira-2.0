@@ -83,7 +83,7 @@ const riskEvents: RiskEvent[] = [
 
 const riskColors: Record<RiskLevel, { bg: string; text: string; dot: string }> = {
   high: { bg: 'rgba(197,107,92,0.12)', text: 'var(--color-crisis)', dot: '#C56B5C' },
-  medium: { bg: 'rgba(239,169,74,0.12)', text: 'var(--color-accent)', dot: '#EFA94A' },
+  medium: { bg: 'rgba(239,169,74,0.12)', text: 'var(--color-accent-text)', dot: '#EFA94A' },
   low: { bg: 'rgba(99,161,131,0.12)', text: 'var(--color-sage)', dot: '#63A183' },
 };
 
@@ -105,10 +105,10 @@ export default function AdminSafetyPage() {
       {/* Summary cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'High-risk events', value: counts.high, color: 'var(--color-crisis)', bg: 'rgba(197,107,92,0.08)' },
-          { label: 'Medium-risk events', value: counts.medium, color: 'var(--color-accent)', bg: 'rgba(239,169,74,0.08)' },
-          { label: 'Low-risk events', value: counts.low, color: 'var(--color-sage)', bg: 'rgba(99,161,131,0.08)' },
-          { label: 'Hand-offs fired', value: counts.handoffs, color: 'var(--color-primary)', bg: 'var(--color-primary-soft)' },
+          { label: 'High-risk events', value: counts.high, color: 'var(--color-crisis)', textColor: 'var(--color-crisis)', bg: 'rgba(197,107,92,0.08)' },
+          { label: 'Medium-risk events', value: counts.medium, color: 'var(--color-accent)', textColor: 'var(--color-accent-text)', bg: 'rgba(239,169,74,0.08)' },
+          { label: 'Low-risk events', value: counts.low, color: 'var(--color-sage)', textColor: 'var(--color-sage)', bg: 'rgba(99,161,131,0.08)' },
+          { label: 'Hand-offs fired', value: counts.handoffs, color: 'var(--color-primary)', textColor: 'var(--color-primary)', bg: 'var(--color-primary-soft)' },
         ].map((c) => (
           <div
             key={c.label}
@@ -116,7 +116,7 @@ export default function AdminSafetyPage() {
             style={{ borderLeft: `3px solid ${c.color}` }}
           >
             <p
-              style={{ fontFamily: 'var(--font-display)', fontSize: '36px', fontWeight: 600, color: c.color, lineHeight: 1 }}
+              style={{ fontFamily: 'var(--font-display)', fontSize: '36px', fontWeight: 600, color: c.textColor, lineHeight: 1 }}
             >
               {c.value}
             </p>

@@ -266,7 +266,7 @@ export default function LandingHero() {
               opacity: visible ? 1 : 0,
               transition: 'opacity 0.35s ease',
               backdropFilter: 'blur(8px)',
-              backgroundColor: 'rgba(255,255,255,0.7)',
+              backgroundColor: 'var(--color-glass)',
             }}
           >
             <DhiraAvatar size={32} variant="softer" />

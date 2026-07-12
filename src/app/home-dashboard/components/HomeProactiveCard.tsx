@@ -27,7 +27,7 @@ export default function HomeProactiveCard() {
         >
           <Bell size={13} color="#26263A" />
         </div>
-        <p style={{ fontFamily: 'var(--font-ui)', fontSize: '12px', fontWeight: 600, color: 'var(--color-accent)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+        <p style={{ fontFamily: 'var(--font-ui)', fontSize: '12px', fontWeight: 600, color: 'var(--color-text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
           Dhira checked in
         </p>
       </div>

@@ -147,7 +147,7 @@ export default function LandingTestimonials() {
             <div
               key={t?.key}
               className="dhira-card p-6 flex flex-col gap-5 feature-card-hover relative overflow-hidden"
-              style={{ backdropFilter: 'blur(4px)', backgroundColor: 'rgba(255,255,255,0.72)' }}
+              style={{ backdropFilter: 'blur(4px)', backgroundColor: 'var(--color-glass)' }}
             >
               {/* Card mood glow */}
               <div

@@ -61,7 +61,7 @@ const initialCards: HelplineCard[] = [
 const typeColors = {
   national: { bg: 'rgba(90,103,184,0.12)', text: 'var(--color-primary)', label: 'National' },
   counsellor: { bg: 'rgba(99,161,131,0.12)', text: 'var(--color-sage)', label: 'Counsellor' },
-  ngo: { bg: 'rgba(174,161,218,0.15)', text: 'var(--color-lavender)', label: 'NGO' },
+  ngo: { bg: 'rgba(174,161,218,0.15)', text: 'var(--color-lavender-text)', label: 'NGO' },
 };
 
 export default function AdminResourcesPage() {

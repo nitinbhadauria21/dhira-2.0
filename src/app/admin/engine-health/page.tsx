@@ -35,7 +35,7 @@ const runHistory: RunRecord[] = [
 
 const statusConfig = {
   success: { label: 'Success', color: 'var(--color-sage)', bg: 'rgba(99,161,131,0.12)', icon: CheckCircle },
-  partial: { label: 'Partial', color: 'var(--color-accent)', bg: 'rgba(239,169,74,0.12)', icon: AlertTriangle },
+  partial: { label: 'Partial', color: 'var(--color-accent-text)', bg: 'rgba(239,169,74,0.12)', icon: AlertTriangle },
   failed: { label: 'Failed', color: 'var(--color-crisis)', bg: 'rgba(197,107,92,0.12)', icon: XCircle },
 };
 
@@ -90,7 +90,7 @@ export default function AdminEngineHealthPage() {
           </p>
         </div>
         <div className="dhira-card p-5" style={{ borderLeft: '3px solid var(--color-accent)' }}>
-          <p style={{ fontFamily: 'var(--font-display)', fontSize: '32px', fontWeight: 600, color: 'var(--color-accent)', lineHeight: 1 }}>
+          <p style={{ fontFamily: 'var(--font-display)', fontSize: '32px', fontWeight: 600, color: 'var(--color-accent-text)', lineHeight: 1 }}>
             2×
           </p>
           <p style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-muted)', marginTop: '4px' }}>

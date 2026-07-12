@@ -107,7 +107,7 @@ export default function LandingHowItWorks() {
         <div className="text-center mb-16">
           <p
             className="mb-3 uppercase tracking-widest"
-            style={{ fontFamily: 'var(--font-ui)', fontSize: '12px', color: 'var(--color-lavender)', fontWeight: 600, letterSpacing: '0.12em' }}
+            style={{ fontFamily: 'var(--font-ui)', fontSize: '12px', color: 'var(--color-text-muted)', fontWeight: 600, letterSpacing: '0.12em' }}
           >
             How it works
           </p>

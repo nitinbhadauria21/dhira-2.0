@@ -24,7 +24,7 @@ export default function AdminCohortsPage() {
           <p style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-muted)', marginTop: '4px' }}>Avg D7 retention</p>
         </div>
         <div className="dhira-card p-5" style={{ borderLeft: '3px solid var(--color-accent)' }}>
-          <p style={{ fontFamily: 'var(--font-display)', fontSize: '32px', fontWeight: 600, color: 'var(--color-accent)', lineHeight: 1 }}>4.0</p>
+          <p style={{ fontFamily: 'var(--font-display)', fontSize: '32px', fontWeight: 600, color: 'var(--color-accent-text)', lineHeight: 1 }}>4.0</p>
           <p style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-muted)', marginTop: '4px' }}>Avg sessions per user</p>
         </div>
       </div>
@@ -59,7 +59,7 @@ export default function AdminCohortsPage() {
             </div>
             <span style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: 'var(--color-text)' }}>{c?.users}</span>
             <span style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: 'var(--color-text)' }}>{c?.avgSessions}</span>
-            <span style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: c?.retentionD7 >= 70 ? 'var(--color-sage)' : 'var(--color-accent)', fontWeight: 600 }}>
+            <span style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: c?.retentionD7 >= 70 ? 'var(--color-sage)' : 'var(--color-accent-text)', fontWeight: 600 }}>
               {c?.retentionD7}%
             </span>
             <span style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-muted)' }}>{c?.mood}</span>

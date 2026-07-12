@@ -158,7 +158,7 @@ export default function LandingFeatures() {
         <div className="text-center mb-16">
           <p
             className="mb-3 uppercase tracking-widest"
-            style={{ fontFamily: 'var(--font-ui)', fontSize: '12px', color: 'var(--color-accent)', fontWeight: 600, letterSpacing: '0.12em' }}
+            style={{ fontFamily: 'var(--font-ui)', fontSize: '12px', color: 'var(--color-text-muted)', fontWeight: 600, letterSpacing: '0.12em' }}
           >
             What Dhira does
           </p>
@@ -175,7 +175,7 @@ export default function LandingFeatures() {
             <div
               key={f?.key}
               className={`dhira-card feature-card-hover p-6 flex flex-col gap-4 relative overflow-hidden ${f?.span}`}
-              style={{ backdropFilter: 'blur(4px)', backgroundColor: 'rgba(255,255,255,0.75)' }}
+              style={{ backdropFilter: 'blur(4px)', backgroundColor: 'var(--color-glass)' }}
             >
               {/* Card accent glow */}
               <div
