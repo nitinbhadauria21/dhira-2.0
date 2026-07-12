@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, MessageCircle, BarChart2, Settings, Moon, Sun, Menu, X } from 'lucide-react';
+import { Home, MessageCircle, BarChart2, Moon, Sun, Menu, X, User } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 import Icon from '@/components/ui/AppIcon';
 
@@ -12,7 +12,7 @@ const navItems = [
   { label: 'Home', href: '/home-dashboard', icon: Home, key: 'nav-home' },
   { label: 'Chat', href: '/chat-with-dhira', icon: MessageCircle, key: 'nav-chat' },
   { label: 'Timeline', href: '/home-dashboard#timeline', icon: BarChart2, key: 'nav-timeline' },
-  { label: 'Settings', href: '/home-dashboard#settings', icon: Settings, key: 'nav-settings' },
+  { label: 'Profile', href: '/profile', icon: User, key: 'nav-profile' },
 ];
 
 export default function AppNav() {

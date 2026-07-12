@@ -55,7 +55,7 @@ export default function LandingNav() {
             ))}
 
             <Link
-              href="/onboarding"
+              href="/sign-in"
               className="transition-colors duration-200"
               style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-ui)', fontSize: '15px' }}
               onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-text)')}
@@ -64,7 +64,7 @@ export default function LandingNav() {
               Sign In
             </Link>
 
-            <Link href="/onboarding" className="btn-primary" style={{ fontSize: '14px', padding: '8px 20px' }}>
+            <Link href="/sign-up" className="btn-primary" style={{ fontSize: '14px', padding: '8px 20px' }}>
               Get Started
             </Link>
 
@@ -108,8 +108,8 @@ export default function LandingNav() {
             <div className="px-6 py-4 flex flex-col gap-4">
               <a href="#features" onClick={() => setMobileOpen(false)} style={{ color: 'var(--color-text)', fontFamily: 'var(--font-ui)', fontSize: '16px' }}>Features</a>
               <a href="#safety" onClick={() => setMobileOpen(false)} style={{ color: 'var(--color-text)', fontFamily: 'var(--font-ui)', fontSize: '16px' }}>Safety</a>
-              <Link href="/onboarding" onClick={() => setMobileOpen(false)} style={{ color: 'var(--color-text)', fontFamily: 'var(--font-ui)', fontSize: '16px' }}>Sign In</Link>
-              <Link href="/onboarding" onClick={() => setMobileOpen(false)} className="btn-primary w-full justify-center">Get Started</Link>
+              <Link href="/sign-in" onClick={() => setMobileOpen(false)} style={{ color: 'var(--color-text)', fontFamily: 'var(--font-ui)', fontSize: '16px' }}>Sign In</Link>
+              <Link href="/sign-up" onClick={() => setMobileOpen(false)} className="btn-primary w-full justify-center">Get Started</Link>
             </div>
           </div>
         )}

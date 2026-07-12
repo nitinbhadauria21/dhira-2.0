@@ -5,10 +5,34 @@ export default function LandingCTA() {
   return (
     <section
       id="safety"
-      className="py-24 px-6 lg:px-10"
+      className="py-24 px-6 lg:px-10 relative overflow-hidden"
       style={{ backgroundColor: 'var(--color-surface-alt)' }}
     >
-      <div className="max-w-2xl mx-auto text-center">
+      {/* Background decorative elements */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+        style={{
+          width: '600px',
+          height: '400px',
+          background: 'radial-gradient(ellipse, rgba(239, 169, 74, 0.12) 0%, transparent 65%)',
+          filter: 'blur(50px)',
+        }}
+        aria-hidden="true"
+      />
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        style={{ opacity: 0.15, zIndex: 0 }}
+        aria-hidden="true"
+      >
+        <defs>
+          <pattern id="cta-dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+            <circle cx="1.5" cy="1.5" r="1" fill="var(--color-accent)" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#cta-dots)" />
+      </svg>
+
+      <div className="max-w-2xl mx-auto text-center relative z-10">
         {/* Amber glow orb */}
         <div
           className="w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-8"
@@ -45,7 +69,7 @@ export default function LandingCTA() {
           Dhira is already there. Anonymous, private, and ready to listen — no sign-up friction, no real name required.
         </p>
 
-        <Link href="/onboarding" className="btn-accent" style={{ fontSize: '17px', padding: '16px 40px' }}>
+        <Link href="/sign-up" className="btn-accent" style={{ fontSize: '17px', padding: '16px 40px' }}>
           Begin now — it&apos;s free
         </Link>
 

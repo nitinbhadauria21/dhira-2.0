@@ -8,7 +8,7 @@ const rotatingLines = [
   'Aaj thoda heavy lag raha hai kya?',
   "I\'m here. Tell me more.",
   'Yeh kaafi heavy lag raha hai. Main sun raha hoon.',
-  'What\'s sitting with you right now?',
+  "What\'s sitting with you right now?",
   'That sounds heavy. Take your time.',
 ];
 
@@ -32,27 +32,106 @@ export default function LandingHero() {
       className="relative min-h-screen flex flex-col items-center justify-center px-6 lg:px-10 pt-24 pb-20 overflow-hidden"
       style={{ backgroundColor: 'var(--color-bg)' }}
     >
-      {/* Ambient background glow */}
+      {/* ── Rich background layer 1: large indigo radial glow ── */}
       <div
-        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
+        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
         style={{
-          width: '600px',
-          height: '400px',
-          background: 'radial-gradient(ellipse, rgba(90, 103, 184, 0.12) 0%, transparent 70%)',
-          filter: 'blur(40px)',
+          width: '800px',
+          height: '600px',
+          background: 'radial-gradient(ellipse, rgba(90, 103, 184, 0.16) 0%, rgba(174, 161, 218, 0.06) 45%, transparent 70%)',
+          filter: 'blur(30px)',
         }}
         aria-hidden="true"
       />
+      {/* ── Layer 2: amber glow bottom-right ── */}
       <div
-        className="absolute bottom-1/4 right-1/4 rounded-full pointer-events-none"
+        className="absolute bottom-1/4 right-1/4 pointer-events-none"
         style={{
-          width: '300px',
-          height: '300px',
-          background: 'radial-gradient(ellipse, rgba(239, 169, 74, 0.08) 0%, transparent 70%)',
+          width: '400px',
+          height: '400px',
+          background: 'radial-gradient(ellipse, rgba(239, 169, 74, 0.12) 0%, transparent 65%)',
           filter: 'blur(50px)',
         }}
         aria-hidden="true"
       />
+      {/* ── Layer 3: sage green accent top-left ── */}
+      <div
+        className="absolute top-0 left-0 pointer-events-none"
+        style={{
+          width: '350px',
+          height: '350px',
+          background: 'radial-gradient(ellipse, rgba(99, 161, 131, 0.08) 0%, transparent 65%)',
+          filter: 'blur(60px)',
+        }}
+        aria-hidden="true"
+      />
+      {/* ── Decorative SVG: floating constellation dots ── */}
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        style={{ opacity: 0.35, zIndex: 0 }}
+        aria-hidden="true"
+      >
+        <defs>
+          <radialGradient id="hero-dot-fade" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.6" />
+            <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        {/* Scattered dots — constellation feel */}
+        {[
+          [80, 120], [160, 60], [240, 180], [340, 90], [420, 200],
+          [520, 70], [620, 150], [720, 50], [820, 180], [920, 100],
+          [100, 320], [280, 380], [460, 290], [640, 360], [800, 300],
+          [150, 500], [350, 560], [550, 480], [750, 540], [950, 460],
+          [50, 650], [250, 700], [450, 620], [650, 680], [850, 600],
+        ]?.map(([cx, cy], i) => (
+          <circle
+            key={`hero-dot-${i}`}
+            cx={cx}
+            cy={cy}
+            r={i % 3 === 0 ? 2 : 1.2}
+            fill="var(--color-primary)"
+            opacity={i % 4 === 0 ? 0.5 : 0.25}
+          />
+        ))}
+        {/* Thin connecting lines between some dots */}
+        <line x1="80" y1="120" x2="160" y2="60" stroke="var(--color-primary)" strokeWidth="0.5" opacity="0.15" />
+        <line x1="160" y1="60" x2="340" y2="90" stroke="var(--color-primary)" strokeWidth="0.5" opacity="0.12" />
+        <line x1="520" y1="70" x2="620" y2="150" stroke="var(--color-lavender)" strokeWidth="0.5" opacity="0.15" />
+        <line x1="100" y1="320" x2="280" y2="380" stroke="var(--color-lavender)" strokeWidth="0.5" opacity="0.12" />
+        <line x1="460" y1="290" x2="640" y2="360" stroke="var(--color-primary)" strokeWidth="0.5" opacity="0.1" />
+      </svg>
+      {/* ── Decorative SVG: soft wave arcs ── */}
+      <svg
+        className="absolute bottom-0 left-0 right-0 w-full pointer-events-none"
+        style={{ height: '200px', opacity: 0.18, zIndex: 0 }}
+        viewBox="0 0 1440 200"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path
+          d="M0,100 C240,160 480,40 720,100 C960,160 1200,40 1440,100 L1440,200 L0,200 Z"
+          fill="var(--color-primary)"
+        />
+        <path
+          d="M0,130 C360,80 720,170 1080,120 C1260,95 1380,140 1440,130 L1440,200 L0,200 Z"
+          fill="var(--color-lavender)"
+          opacity="0.5"
+        />
+      </svg>
+      {/* ── Grain texture overlay ── */}
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        style={{ opacity: 0.025, zIndex: 1, mixBlendMode: 'overlay' }}
+        aria-hidden="true"
+      >
+        <filter id="hero-noise">
+          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
+          <feColorMatrix type="saturate" values="0" />
+        </filter>
+        <rect width="100%" height="100%" filter="url(#hero-noise)" />
+      </svg>
+      {/* ── Content ── */}
       <div className="relative z-10 max-w-3xl mx-auto text-center">
         {/* Avatar */}
         <div className="flex justify-center mb-8">
@@ -107,9 +186,8 @@ export default function LandingHero() {
 
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          {/* Amber accent CTA — ONE per screen */}
           <Link
-            href="/home-dashboard"
+            href="/sign-up"
             className="btn-accent pulse-amber"
             style={{ fontSize: '17px', padding: '14px 32px', fontWeight: 600 }}
           >
@@ -135,7 +213,7 @@ export default function LandingHero() {
       {/* Scroll indicator */}
       <div
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-        style={{ color: 'var(--color-text-subtle)', fontSize: '12px', fontFamily: 'var(--font-ui)' }}
+        style={{ color: 'var(--color-text-subtle)', fontSize: '12px', fontFamily: 'var(--font-ui)', zIndex: 10 }}
       >
         <div
           className="w-5 h-8 rounded-full flex items-start justify-center pt-1.5"
