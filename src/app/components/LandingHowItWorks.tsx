@@ -61,7 +61,7 @@ export default function LandingHowItWorks() {
       {/* ── Illustrated SVG decorations ── */}
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"
-        style={{ opacity: 0.28, zIndex: 1 }}
+        style={{ opacity: 0.14, zIndex: 1 }}
         aria-hidden="true"
       >
         {/* Horizontal flowing line connecting steps */}

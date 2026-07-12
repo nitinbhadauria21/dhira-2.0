@@ -57,7 +57,7 @@ export default function HomeDashboardContent() {
       {/* ── Illustrated SVG background ── */}
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"
-        style={{ opacity: 0.22, zIndex: 1 }}
+        style={{ opacity: 0.12, zIndex: 1 }}
         aria-hidden="true"
       >
         <defs>

@@ -39,7 +39,7 @@ export default function LandingHero() {
           src="/assets/landing-hero-illustration.svg"
           alt=""
           fill
-          style={{ objectFit: 'cover', opacity: 0.55 }}
+          style={{ objectFit: 'cover', opacity: 0.2 }}
           priority
         />
       </div>
@@ -103,7 +103,7 @@ export default function LandingHero() {
       {/* ── Illustrated SVG: floating organic shapes + constellation ── */}
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"
-        style={{ opacity: 0.45, zIndex: 1 }}
+        style={{ opacity: 0.2, zIndex: 1 }}
         aria-hidden="true"
       >
         <defs>
@@ -203,7 +203,7 @@ export default function LandingHero() {
       {/* ── Wave arc at bottom ── */}
       <svg
         className="absolute bottom-0 left-0 right-0 w-full pointer-events-none"
-        style={{ height: '220px', opacity: 0.22, zIndex: 1 }}
+        style={{ height: '220px', opacity: 0.12, zIndex: 1 }}
         viewBox="0 0 1440 220"
         preserveAspectRatio="none"
         aria-hidden="true"
@@ -215,12 +215,12 @@ export default function LandingHero() {
         <path
           d="M0,145 C360,90 720,185 1080,135 C1260,108 1380,155 1440,145 L1440,220 L0,220 Z"
           fill="var(--color-lavender)"
-          opacity="0.55"
+          opacity="0.35"
         />
         <path
           d="M0,175 C300,155 600,195 900,170 C1100,152 1300,180 1440,175 L1440,220 L0,220 Z"
           fill="var(--color-sage)"
-          opacity="0.3"
+          opacity="0.2"
         />
       </svg>
       {/* ── Grain texture overlay ── */}

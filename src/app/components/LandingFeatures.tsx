@@ -53,7 +53,7 @@ export default function LandingFeatures() {
           src="/assets/features-bg-illustration.svg"
           alt=""
           fill
-          style={{ objectFit: 'cover', opacity: 0.5 }}
+          style={{ objectFit: 'cover', opacity: 0.18 }}
         />
       </div>
       {/* ── Organic blob: top-right lavender ── */}

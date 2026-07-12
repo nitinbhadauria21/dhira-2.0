@@ -54,7 +54,7 @@ function SignUpContent() {
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"
         aria-hidden="true"
-        style={{ zIndex: 0, opacity: 0.28 }}
+        style={{ zIndex: 0, opacity: 0.14 }}
       >
         <defs>
           <pattern id="signup-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">

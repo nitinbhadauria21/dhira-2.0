@@ -48,7 +48,7 @@ export default function LandingCTA() {
       {/* ── Illustrated SVG decorations ── */}
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"
-        style={{ opacity: 0.3, zIndex: 1 }}
+        style={{ opacity: 0.15, zIndex: 1 }}
         aria-hidden="true"
       >
         <defs>

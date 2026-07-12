@@ -92,7 +92,7 @@ function ProfileContent() {
           }}
         />
         {/* Illustrated SVG */}
-        <svg className="absolute inset-0 w-full h-full" style={{ opacity: 0.2 }}>
+        <svg className="absolute inset-0 w-full h-full" style={{ opacity: 0.1 }}>
           <defs>
             <pattern id="profile-dots" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
               <circle cx="1.5" cy="1.5" r="0.8" fill="var(--color-border)" />

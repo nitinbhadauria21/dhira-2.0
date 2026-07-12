@@ -183,7 +183,7 @@ export default function ChatContent() {
         {/* Illustrated SVG */}
         <svg
           className="absolute inset-0 w-full h-full"
-          style={{ opacity: 0.18 }}
+          style={{ opacity: 0.1 }}
         >
           <defs>
             <pattern id="chat-dots" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
