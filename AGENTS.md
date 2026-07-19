@@ -1,6 +1,7 @@
 # AGENTS.md — dhira
 
-Project-specific guidance lives in `CLAUDE.md` (routes, safety framing, backend notes). Read it first.
+Project-specific guidance lives in `CLAUDE.md` (routes, safety framing, backend notes). Read it first.  
+Team Demo Day completed-vs-pending snapshot: `DEMO_DAY_STATUS.md`. Setup for humans: `README.md`.
 
 ## Cursor Cloud specific instructions
 
