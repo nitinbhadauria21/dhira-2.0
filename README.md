@@ -1,91 +1,107 @@
-# Next.js
+# Dhira
 
-A modern Next.js 15 application built with TypeScript and Tailwind CSS.
+A private, Hinglish-first AI **listening companion** for mental wellness (India-first).  
+Dhira *listens, never advises*, and always surfaces **Tele-MANAS 14416** in crisis.
 
-## 🚀 Features
+Stack: **Next.js 15 · React 19 · TypeScript · Tailwind · Supabase Auth + Postgres · Anthropic Claude (optional)**
 
-- **Next.js 15** - Latest version with improved performance and features
-- **React 19** - Latest React version with enhanced capabilities
-- **Tailwind CSS** - Utility-first CSS framework for rapid UI development
+> Team status snapshot (completed vs pending): see **[DEMO_DAY_STATUS.md](./DEMO_DAY_STATUS.md)**  
+> Cloud-agent notes: **[AGENTS.md](./AGENTS.md)** · Product routes/safety: **[CLAUDE.md](./CLAUDE.md)** · Data model: **[supabase/DATA_MODEL.md](./supabase/DATA_MODEL.md)**
 
-## 🛠️ Installation
+---
 
-1. Install dependencies:
-  ```bash
-  npm install
-  # or
-  yarn install
-  ```
+## Quick start (any teammate)
 
-2. Start the development server:
-  ```bash
-  npm run dev
-  # or
-  yarn dev
-  ```
-3. Open [http://localhost:4028](http://localhost:4028) with your browser to see the result.
-
-## 📁 Project Structure
-
-```
-nextjs/
-├── public/             # Static assets
-├── src/
-│   ├── app/            # App router components
-│   │   ├── layout.tsx  # Root layout component
-│   │   └── page.tsx    # Main page component
-│   ├── components/     # Reusable UI components
-│   ├── styles/         # Global styles and Tailwind configuration
-├── next.config.mjs     # Next.js configuration
-├── package.json        # Project dependencies and scripts
-├── postcss.config.js   # PostCSS configuration
-└── tailwind.config.js  # Tailwind CSS configuration
-
+```bash
+npm install
+cp .env.example .env.local   # then paste real keys (never commit .env.local)
+npm run dev                  # http://localhost:4028
 ```
 
-## 🧩 Page Editing
+With **no keys**, the app still runs in offline/demo mode (local JSON store + offline brain).
 
-You can start editing the page by modifying `src/app/page.tsx`. The page auto-updates as you edit the file.
+Check live mode: open `http://localhost:4028/api/status`  
+Expect something like:
 
-## 🎨 Styling
+```json
+{ "liveBrain": false, "supabase": true, "supabaseAuth": true, "supabaseStore": true }
+```
 
-This project uses Tailwind CSS for styling with the following features:
-- Utility-first approach for rapid development
-- Custom theme configuration
-- Responsive design utilities
-- PostCSS and Autoprefixer integration
+---
 
-## 📦 Available Scripts
+## Environment keys (`.env.local` only)
 
-- `npm run dev` - Start development server on port 4028
-- `npm run build` - Build the application for production
-- `npm run start` - Start the development server
-- `npm run serve` - Start the production server
-- `npm run lint` - Run ESLint to check code quality
-- `npm run lint:fix` - Fix ESLint issues automatically
-- `npm run format` - Format code with Prettier
+| Variable | What it does |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Publishable key (`sb_publishable_...`) — browser Auth |
+| `SUPABASE_SERVICE_ROLE_KEY` | Secret key (`sb_secret_...`) — **server only**, cloud DB writes |
+| `ANTHROPIC_API_KEY` | Real Claude brain (`sk-...`). Without it → offline brain |
+| `EMERGENT_NOTIFY_WEBHOOK_URL` | Optional email/WhatsApp delivery via Emergent |
+| `EMERGENT_WEBHOOK_SECRET` | Shared secret for Emergent callbacks |
+| `WHATSAPP_ENABLED` | `true` only after WhatsApp Business approval |
+| `CHECKIN_SECRET` | Protects scheduled `/api/checkin` triggers |
+| `APP_URL` | Public app URL for callbacks |
 
-## 📱 Deployment
+**Never commit** `.env.local` or secret keys. `.gitignore` already blocks them.
 
-Build the application for production:
+### Supabase project setup (once per project)
 
-  ```bash
-  npm run build
-  ```
+1. Create/open the Supabase project.
+2. **SQL Editor** → paste & run [`supabase/schema.sql`](./supabase/schema.sql).
+3. **Authentication → Providers → Email** → enable Email.  
+   For Demo Day: turn **Confirm email OFF** (avoids email rate limits / confirmation loops).
+4. **Project Settings → API Keys** → copy URL, publishable key, secret key into `.env.local`.
+5. Restart `npm run dev`.
 
-## 📚 Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## What the product includes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial
+| Area | Routes / pieces |
+|---|---|
+| Auth | `/sign-up`, `/sign-in` — email+password and phone+OTP (phone needs SMS provider) |
+| Onboarding | `/onboarding` |
+| Home | `/home-dashboard` — mood, streak, proactive check-in |
+| Chat | `/chat-with-dhira` — six-agent flow + crisis handoff |
+| My Dhira | `/timeline` — weekly charts, journal search, chat history, notification inbox |
+| Profile | `/profile` — prefs, channel opt-ins, export JSON, sign out |
+| Admin | `/admin/*` — safety, mood insights, weekly analytics (placeholder admin gate) |
 
-You can check out the [Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+API routes live under `src/app/api/*`. Protected pages use `src/middleware.ts` (`dhira_session` cookie).
 
-## 🙏 Acknowledgments
+---
 
-- Built with [Rocket.new](https://rocket.new)
-- Powered by Next.js and React
-- Styled with Tailwind CSS
+## Scripts
 
-Built with ❤️ on Rocket.new
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Dev server on **port 4028** |
+| `npm run build` | Production build |
+| `npm run serve` | `next start` (after build) |
+| `npm run type-check` | TypeScript (run this — build ignores TS/ESLint errors by config) |
+| `npm run lint` / `lint:fix` | ESLint |
+| `npm run format` | Prettier |
+
+---
+
+## Architecture (short)
+
+- **Dual mode:** offline local store (`.data/dhira-store.json`) **or** Supabase Postgres when service-role key is set.
+- **Auth:** Supabase Auth when URL + publishable key are set; otherwise local/dev auth APIs.
+- **Brain:** Anthropic six agents in `src/agents/*` when `ANTHROPIC_API_KEY` is a real `sk-` key; else `src/lib/localBrain.ts`.
+- **Safety:** Escalation + Monitor + Tele-MANAS 14416; every outbound chat/notification is monitor-gated.
+- **Notifications:** `src/lib/notify.ts` → Emergent webhook (or `dev-simulated` without webhook).
+
+---
+
+## Deploy (Demo Day URL)
+
+Deploy to Vercel/Netlify with the same env vars as `.env.local`.  
+`@netlify/plugin-nextjs` is already a dependency. Someone with the hosting account must click deploy.
+
+---
+
+## Safety promise (do not drop)
+
+Dhira listens and does not advise. Crisis paths must keep the Tele-MANAS **14416** hand-off visible. See `/terms` and `CrisisHandoff`.
