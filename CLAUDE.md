@@ -1,6 +1,7 @@
 # CLAUDE.md — dhira
 
-Guidance specific to this project. See the workspace root `../CLAUDE.md` for shared conventions.
+Guidance specific to this project. See the workspace root `../CLAUDE.md` for shared conventions.  
+For teammates: setup is in `README.md`; completed vs pending is in `DEMO_DAY_STATUS.md`.
 
 ## What this is
 
