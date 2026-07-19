@@ -10,13 +10,13 @@ interface Props {
 const promises = [
   {
     icon: '🔒',
-    title: 'Completely anonymous',
-    body: 'No real name, no phone number, no email required. You choose what to share.',
+    title: 'Private by default',
+    body: 'Use an alias — never your real name. Share email or phone only if you want check-ins. You choose what to share.',
   },
   {
     icon: '🤫',
     title: 'Private by design',
-    body: 'Your conversations stay yours. We store only mood metadata — never your words.',
+    body: 'Your conversations stay yours. We keep them so Dhira can remember — and you can export or leave anytime.',
   },
   {
     icon: '🎛️',
