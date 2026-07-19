@@ -11,7 +11,7 @@ import Icon from '@/components/ui/AppIcon';
 const navItems = [
   { label: 'Home', href: '/home-dashboard', icon: Home, key: 'nav-home' },
   { label: 'Chat', href: '/chat-with-dhira', icon: MessageCircle, key: 'nav-chat' },
-  { label: 'Timeline', href: '/home-dashboard#timeline', icon: BarChart2, key: 'nav-timeline' },
+  { label: 'Timeline', href: '/timeline', icon: BarChart2, key: 'nav-timeline' },
   { label: 'Profile', href: '/profile', icon: User, key: 'nav-profile' },
 ];
 

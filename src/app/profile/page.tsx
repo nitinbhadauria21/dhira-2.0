@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import AppLayout from '@/components/AppLayout';
 import DhiraAvatar from '@/components/DhiraAvatar';
 import { User, Globe, Bell, Shield, ChevronRight, Check } from 'lucide-react';
-import Icon from '@/components/ui/AppIcon';
+import { signOut } from '@/lib/authClient';
 
 
 type Language = 'english' | 'hinglish';
@@ -26,6 +27,7 @@ interface ProfileData {
 }
 
 function ProfileContent() {
+  const router = useRouter();
   const [profile, setProfile] = useState<ProfileData>({
     alias: 'Friend',
     language: 'hinglish',
@@ -98,6 +100,11 @@ function ProfileContent() {
     }
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push('/sign-in');
   };
 
   const sections = [
@@ -505,13 +512,15 @@ function ProfileContent() {
 
               <div className="flex flex-col gap-2">
                 {[
-                  { label: 'Change email address', sub: 'Update your login email' },
-                  { label: 'Change password', sub: 'Keep your account secure' },
-                  { label: 'Export my data', sub: 'Download everything Dhira knows about you' },
-                  { label: 'Privacy settings', sub: 'Control what Dhira stores' },
+                  { label: 'Export my data', sub: 'Download everything Dhira has stored about you (JSON)', action: 'export' as const },
+                  { label: 'Sign out', sub: 'Sign out of Dhira on this device', action: 'signout' as const },
                 ].map((item) => (
                   <button
                     key={item.label}
+                    onClick={() => {
+                      if (item.action === 'export') window.location.href = '/api/export';
+                      if (item.action === 'signout') handleSignOut();
+                    }}
                     className="flex items-center justify-between p-4 rounded-card transition-all duration-200 text-left w-full"
                     style={{
                       border: '1px solid var(--color-border)',

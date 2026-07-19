@@ -34,7 +34,7 @@ export default function HomeJournalRecent({ entries }: HomeJournalRecentProps) {
           Recent entries
         </p>
         <Link
-          href="/home-dashboard#timeline"
+          href="/timeline"
           style={{ fontFamily: 'var(--font-ui)', fontSize: '12px', color: 'var(--color-primary)' }}
         >
           All

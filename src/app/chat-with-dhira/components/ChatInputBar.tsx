@@ -13,9 +13,14 @@ export default function ChatInputBar({ onSend, disabled = false }: ChatInputBarP
   const [isRecording, setIsRecording] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
-    setVoiceSupported(typeof window !== 'undefined' && 'SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+    if (typeof window === 'undefined') return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    setVoiceSupported(Boolean(SR));
   }, []);
 
   // Auto-resize textarea
@@ -44,8 +49,35 @@ export default function ChatInputBar({ onSend, disabled = false }: ChatInputBarP
 
   const toggleRecording = () => {
     if (!voiceSupported) return;
-    setIsRecording((prev) => !prev);
-    // Backend integration point: use Web Speech API SpeechRecognition to capture voice and set value
+
+    // Stop if already recording.
+    if (isRecording && recognitionRef.current) {
+      recognitionRef.current.stop();
+      return;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SR) return;
+    const recognition = new SR();
+    recognition.lang = 'en-IN'; // Hinglish speakers are understood well by en-IN
+    recognition.interimResults = false;
+    recognition.continuous = false;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    recognition.onresult = (event: any) => {
+      const transcript = Array.from(event.results)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .map((r: any) => r[0].transcript)
+        .join(' ');
+      setValue((prev) => (prev ? `${prev} ${transcript}` : transcript));
+    };
+    recognition.onend = () => setIsRecording(false);
+    recognition.onerror = () => setIsRecording(false);
+
+    recognitionRef.current = recognition;
+    setIsRecording(true);
+    recognition.start();
   };
 
   const canSend = value.trim().length > 0 && !disabled;

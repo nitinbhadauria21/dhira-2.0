@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
-import { Users, MessageSquare, BookOpen, AlertTriangle, CheckCircle, Clock, Activity,  } from 'lucide-react';
-import Icon from '@/components/ui/AppIcon';
+import { Users, MessageSquare, BookOpen, AlertTriangle } from 'lucide-react';
 
 
 interface StatCardProps {
@@ -61,22 +60,13 @@ function StatCard({ label, value, sub, icon: Icon, accent, trend, trendUp }: Sta
   );
 }
 
-const moodData = [
-  { label: 'Calm', pct: 28, color: '#63A183' },
-  { label: 'Anxious', pct: 22, color: '#AEA1DA' },
-  { label: 'Sad', pct: 18, color: '#5A67B8' },
-  { label: 'Hopeful', pct: 16, color: '#EFA94A' },
-  { label: 'Overwhelmed', pct: 10, color: '#C56B5C' },
-  { label: 'Other', pct: 6, color: '#918EA0' },
-];
+const MOOD_COLORS: Record<string, string> = {
+  happy: '#F0C46B', calm: '#8FBCA4', hopeful: '#79C2C4', neutral: '#B9B2A4', stressed: '#E0A94F',
+  anxious: '#8794DA', lonely: '#A99BC9', overwhelmed: '#9C6B8E', sad: '#7089B0', angry: '#C56B5C',
+};
 
-const recentActivity = [
-  { time: '2 min ago', event: 'Check-in sent to 3 users', type: 'info' },
-  { time: '14 min ago', event: 'Risk event flagged — hand-off fired', type: 'warning' },
-  { time: '1 hr ago', event: 'Mood tagging agent processed 47 entries', type: 'success' },
-  { time: '3 hr ago', event: 'Memory agent summarised 12 sessions', type: 'success' },
-  { time: '6 hr ago', event: 'Proactive engine ran — 18 sent, 0 failed', type: 'success' },
-];
+interface WeekPoint { label: string; checkins: number; activeUsers: number; crisisEvents: number }
+interface MoodDist { mood: string; count: number }
 
 interface AdminStats {
   totalUsers: number;
@@ -89,25 +79,35 @@ interface AdminStats {
 
 export default function AdminOverviewPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
+  const [series, setSeries] = useState<WeekPoint[]>([]);
+  const [moodMix, setMoodMix] = useState<MoodDist[]>([]);
 
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
       try {
-        const res = await fetch('/api/admin/safety');
-        const data = await res.json();
-        if (!cancelled && data.stats) setStats(data.stats as AdminStats);
+        const [safety, weekly] = await Promise.all([
+          fetch('/api/admin/safety').then((r) => r.json()),
+          fetch('/api/admin/weekly').then((r) => r.json()),
+        ]);
+        if (cancelled) return;
+        if (safety.stats) setStats(safety.stats as AdminStats);
+        if (weekly.series) setSeries(weekly.series as WeekPoint[]);
+        if (weekly.moodDistribution) setMoodMix(weekly.moodDistribution as MoodDist[]);
       } catch {
-        /* leave stats null */
+        /* leave nulls */
       }
     };
     load();
-    const t = setInterval(load, 5000);
+    const t = setInterval(load, 6000);
     return () => {
       cancelled = true;
       clearInterval(t);
     };
   }, []);
+
+  const maxCheckins = Math.max(1, ...series.map((s) => s.checkins));
+  const totalMoods = moodMix.reduce((s, m) => s + m.count, 0) || 1;
 
   const fmt = (n?: number) => (n == null ? '—' : n.toLocaleString('en-IN'));
 
@@ -145,86 +145,54 @@ export default function AdminOverviewPage() {
         />
       </div>
 
-      {/* Two-column: Mood mix + Activity */}
+      {/* Two-column: Weekly check-ins + Mood mix */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-6">
-        {/* Mood mix */}
-        <div className="dhira-card p-5 lg:col-span-2">
-          <h2
-            className="text-h3 mb-4"
-            style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}
-          >
-            Mood mix (7d)
+        {/* Weekly check-ins (last 8 weeks) */}
+        <div className="dhira-card p-5 lg:col-span-3">
+          <h2 className="text-h3 mb-4" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}>
+            Weekly check-ins (8 weeks)
           </h2>
-          <div className="flex flex-col gap-3">
-            {moodData.map((m) => (
-              <div key={m.label} className="flex items-center gap-3">
-                <span
-                  style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-muted)', width: '90px', flexShrink: 0 }}
-                >
-                  {m.label}
-                </span>
-                <div
-                  className="flex-1 rounded-full overflow-hidden"
-                  style={{ height: '8px', backgroundColor: 'var(--color-surface-alt)' }}
-                >
+          {series.some((s) => s.checkins > 0) ? (
+            <div className="flex items-end gap-3" style={{ height: 180 }}>
+              {series.map((w) => (
+                <div key={w.label} className="flex-1 flex flex-col items-center justify-end gap-2" style={{ height: '100%' }}>
+                  <span style={{ fontFamily: 'var(--font-ui)', fontSize: '11px', color: 'var(--color-text-subtle)' }}>{w.checkins}</span>
                   <div
-                    className="h-full rounded-full"
-                    style={{ width: `${m.pct}%`, backgroundColor: m.color, transition: 'width 0.6s ease' }}
+                    className="w-full rounded-t"
+                    style={{ height: `${(w.checkins / maxCheckins) * 130}px`, backgroundColor: 'var(--color-primary)', minHeight: w.checkins ? 4 : 0, transition: 'height 0.5s ease' }}
+                    title={`${w.checkins} check-ins · ${w.activeUsers} users · ${w.crisisEvents} crisis`}
                   />
+                  <span style={{ fontFamily: 'var(--font-ui)', fontSize: '10px', color: 'var(--color-text-subtle)' }}>{w.label}</span>
                 </div>
-                <span
-                  style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-subtle)', width: '32px', textAlign: 'right', flexShrink: 0 }}
-                >
-                  {m.pct}%
-                </span>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <p style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: 'var(--color-text-muted)' }}>
+              Weekly check-ins will appear here as users log moods.
+            </p>
+          )}
         </div>
 
-        {/* Recent activity */}
-        <div className="dhira-card p-5 lg:col-span-3">
-          <h2
-            className="text-h3 mb-4"
-            style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}
-          >
-            Recent activity
+        {/* Mood mix (30d) — real distribution */}
+        <div className="dhira-card p-5 lg:col-span-2">
+          <h2 className="text-h3 mb-4" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}>
+            Mood mix (30d)
           </h2>
-          <div className="flex flex-col gap-3">
-            {recentActivity.map((a, i) => (
-              <div
-                key={i}
-                className="flex items-start gap-3 pb-3"
-                style={{ borderBottom: i < recentActivity.length - 1 ? '1px solid var(--color-border)' : 'none' }}
-              >
-                <div
-                  className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-                  style={{
-                    backgroundColor:
-                      a.type === 'warning' ?'rgba(197,107,92,0.12)'
-                        : a.type === 'success' ?'rgba(99,161,131,0.12)' :'var(--color-primary-soft)',
-                  }}
-                >
-                  {a.type === 'warning' ? (
-                    <AlertTriangle size={13} style={{ color: 'var(--color-crisis)' }} />
-                  ) : a.type === 'success' ? (
-                    <CheckCircle size={13} style={{ color: 'var(--color-sage)' }} />
-                  ) : (
-                    <Activity size={13} style={{ color: 'var(--color-primary)' }} />
-                  )}
+          {moodMix.length > 0 ? (
+            <div className="flex flex-col gap-3">
+              {moodMix.slice(0, 6).map((m) => (
+                <div key={m.mood} className="flex items-center gap-3">
+                  <span style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-muted)', width: '90px', flexShrink: 0, textTransform: 'capitalize' }}>{m.mood}</span>
+                  <div className="flex-1 rounded-full overflow-hidden" style={{ height: '8px', backgroundColor: 'var(--color-surface-alt)' }}>
+                    <div className="h-full rounded-full" style={{ width: `${Math.round((m.count / totalMoods) * 100)}%`, backgroundColor: MOOD_COLORS[m.mood] ?? 'var(--color-primary)', transition: 'width 0.6s ease' }} />
+                  </div>
+                  <span style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-subtle)', width: '32px', textAlign: 'right', flexShrink: 0 }}>{m.count}</span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: 'var(--color-text)' }}>
-                    {a.event}
-                  </p>
-                  <p style={{ fontFamily: 'var(--font-ui)', fontSize: '12px', color: 'var(--color-text-subtle)', marginTop: '2px' }}>
-                    <Clock size={11} className="inline mr-1" />
-                    {a.time}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <p style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: 'var(--color-text-muted)' }}>No mood data yet.</p>
+          )}
         </div>
       </div>
 

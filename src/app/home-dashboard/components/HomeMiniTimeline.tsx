@@ -57,7 +57,7 @@ export default function HomeMiniTimeline({ last7 }: HomeMiniTimelineProps) {
           </p>
         </div>
         <Link
-          href="/home-dashboard#timeline"
+          href="/timeline"
           className="flex items-center gap-1"
           style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-primary)', fontWeight: 500 }}
         >

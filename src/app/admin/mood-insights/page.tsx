@@ -1,123 +1,154 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import AdminLayout from '../components/AdminLayout';
-import { Tag } from 'lucide-react';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, Line,
+} from 'recharts';
 
-const moodTrend = [
-  { day: 'Mon', calm: 30, anxious: 20, sad: 15, hopeful: 20, other: 15 },
-  { day: 'Tue', calm: 25, anxious: 25, sad: 18, hopeful: 18, other: 14 },
-  { day: 'Wed', calm: 28, anxious: 22, sad: 20, hopeful: 16, other: 14 },
-  { day: 'Thu', calm: 32, anxious: 18, sad: 16, hopeful: 22, other: 12 },
-  { day: 'Fri', calm: 35, anxious: 20, sad: 14, hopeful: 20, other: 11 },
-  { day: 'Sat', calm: 38, anxious: 17, sad: 12, hopeful: 22, other: 11 },
-  { day: 'Sun', calm: 28, anxious: 24, sad: 18, hopeful: 18, other: 12 },
-];
+// Brand mood palette (matches tailwind.config.js / styles/tailwind.css).
+const MOOD_COLORS: Record<string, string> = {
+  happy: '#F0C46B', calm: '#8FBCA4', hopeful: '#79C2C4', neutral: '#B9B2A4', stressed: '#E0A94F',
+  anxious: '#8794DA', lonely: '#A99BC9', overwhelmed: '#9C6B8E', sad: '#7089B0', angry: '#C56B5C',
+};
+const BRAND = { primary: '#5A67B8', accent: '#EFA94A', sage: '#63A183', border: '#E7DFD1', text: '#5E5C6E' };
 
-const topTopics = [
-  { label: 'Work stress', count: 284, color: '#AEA1DA' },
-  { label: 'Relationships', count: 231, color: '#5A67B8' },
-  { label: 'Loneliness', count: 198, color: '#EFA94A' },
-  { label: 'Sleep issues', count: 167, color: '#63A183' },
-  { label: 'Family pressure', count: 143, color: '#C56B5C' },
-  { label: 'Academic stress', count: 121, color: '#918EA0' },
-];
+interface WeekPoint { label: string; checkins: number; activeUsers: number; avgValence: number; crisisEvents: number; proactiveSends: number; delivered: number }
+interface Dist { mood?: string; topic?: string; count: number }
+interface Params {
+  totalUsers: number; avgCheckinsPerUser: number; emailOptInPct: number; whatsappOptInPct: number;
+  memoryOptInPct: number; hinglishPct: number; deliverySuccessPct: number; crisisTotal: number;
+}
+interface Data { series: WeekPoint[]; moodDistribution: Dist[]; topicDistribution: Dist[]; hourHistogram: { hour: number; count: number }[]; params: Params }
 
 export default function AdminMoodInsightsPage() {
-  const maxCount = Math.max(...topTopics?.map((t) => t?.count));
+  const [data, setData] = useState<Data | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const res = await fetch('/api/admin/weekly');
+        const json = await res.json();
+        if (!cancelled && !json.error) setData(json);
+      } catch { /* ignore */ }
+    };
+    load();
+    const t = setInterval(load, 8000);
+    return () => { cancelled = true; clearInterval(t); };
+  }, []);
+
+  const maxMood = Math.max(1, ...(data?.moodDistribution.map((d) => d.count) ?? [1]));
 
   return (
-    <AdminLayout title="Mood & Topic Insights" subtitle="Aggregate, anonymous mood and topic trends — no personal data">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        {/* Mood trend chart */}
+    <AdminLayout title="Mood Insights" subtitle="Weekly check-in analytics — anonymous, aggregate only">
+      {/* Parameter cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <Param label="Avg check-ins / user" value={data ? String(data.params.avgCheckinsPerUser) : '—'} />
+        <Param label="Hinglish users" value={data ? `${data.params.hinglishPct}%` : '—'} />
+        <Param label="Memory opt-in" value={data ? `${data.params.memoryOptInPct}%` : '—'} />
+        <Param label="Notif. delivery" value={data ? `${data.params.deliverySuccessPct}%` : '—'} />
+      </div>
+
+      {/* Weekly check-ins + valence */}
+      <div className="dhira-card p-5 mb-6">
+        <h2 className="mb-4" style={{ fontFamily: 'var(--font-display)', fontSize: '18px', fontWeight: 500, color: 'var(--color-text)' }}>
+          Weekly check-ins &amp; mood valence (8 weeks)
+        </h2>
+        <div style={{ width: '100%', height: 260 }}>
+          <ResponsiveContainer>
+            <ComposedChart data={data?.series ?? []} margin={{ top: 10, right: 8, bottom: 0, left: -20 }}>
+              <CartesianGrid stroke={BRAND.border} strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="label" tick={{ fill: BRAND.text, fontSize: 12 }} tickLine={false} axisLine={{ stroke: BRAND.border }} />
+              <YAxis allowDecimals={false} tick={{ fill: BRAND.text, fontSize: 12 }} tickLine={false} axisLine={false} />
+              <Tooltip contentStyle={{ borderRadius: 12, border: `1px solid ${BRAND.border}`, fontFamily: 'var(--font-ui)', fontSize: 13 }} />
+              <Bar dataKey="checkins" name="Check-ins" fill={BRAND.primary} radius={[6, 6, 0, 0]} maxBarSize={34} />
+              <Bar dataKey="activeUsers" name="Active users" fill={BRAND.sage} radius={[6, 6, 0, 0]} maxBarSize={34} />
+              <Line dataKey="avgValence" name="Avg valence" stroke={BRAND.accent} strokeWidth={2} dot={{ r: 3, fill: BRAND.accent }} />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Mood distribution */}
         <div className="dhira-card p-5">
-          <h2 className="text-h3 mb-1" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}>
-            Mood trend (7d)
+          <h2 className="mb-4" style={{ fontFamily: 'var(--font-display)', fontSize: '18px', fontWeight: 500, color: 'var(--color-text)' }}>
+            Mood mix (30 days)
           </h2>
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-subtle)', marginBottom: '20px' }}>
-            % of sessions per mood per day
-          </p>
-          <div className="flex items-end gap-2 h-40">
-            {moodTrend?.map((d) => (
-              <div key={d?.day} className="flex-1 flex flex-col items-center gap-1">
-                <div className="w-full flex flex-col-reverse rounded-lg overflow-hidden" style={{ height: '120px' }}>
-                  {[
-                    { key: 'calm', color: '#63A183', val: d?.calm },
-                    { key: 'hopeful', color: '#EFA94A', val: d?.hopeful },
-                    { key: 'anxious', color: '#AEA1DA', val: d?.anxious },
-                    { key: 'sad', color: '#5A67B8', val: d?.sad },
-                    { key: 'other', color: '#918EA0', val: d?.other },
-                  ]?.map((seg) => (
-                    <div
-                      key={seg?.key}
-                      style={{ height: `${seg?.val}%`, backgroundColor: seg?.color, transition: 'height 0.4s ease' }}
-                    />
-                  ))}
+          {data && data.moodDistribution.length > 0 ? (
+            <div className="flex flex-col gap-3">
+              {data.moodDistribution.map((d) => (
+                <div key={d.mood} className="flex items-center gap-3">
+                  <span style={{ width: 90, fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-muted)', textTransform: 'capitalize' }}>{d.mood}</span>
+                  <div className="flex-1 rounded-full overflow-hidden" style={{ height: 8, backgroundColor: 'var(--color-surface-alt)' }}>
+                    <div className="h-full rounded-full" style={{ width: `${(d.count / maxMood) * 100}%`, backgroundColor: MOOD_COLORS[d.mood ?? 'neutral'] ?? BRAND.primary }} />
+                  </div>
+                  <span style={{ width: 28, textAlign: 'right', fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-subtle)' }}>{d.count}</span>
                 </div>
-                <span style={{ fontFamily: 'var(--font-ui)', fontSize: '11px', color: 'var(--color-text-subtle)' }}>
-                  {d?.day}
-                </span>
-              </div>
-            ))}
-          </div>
-          {/* Legend */}
-          <div className="flex flex-wrap gap-3 mt-4">
-            {[
-              { label: 'Calm', color: '#63A183' },
-              { label: 'Hopeful', color: '#EFA94A' },
-              { label: 'Anxious', color: '#AEA1DA' },
-              { label: 'Sad', color: '#5A67B8' },
-              { label: 'Other', color: '#918EA0' },
-            ]?.map((l) => (
-              <div key={l?.label} className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: l?.color }} />
-                <span style={{ fontFamily: 'var(--font-ui)', fontSize: '12px', color: 'var(--color-text-subtle)' }}>
-                  {l?.label}
-                </span>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyNote />
+          )}
         </div>
 
-        {/* Top topics */}
+        {/* Topic distribution */}
         <div className="dhira-card p-5">
-          <h2 className="text-h3 mb-1" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}>
-            Top topics
+          <h2 className="mb-4" style={{ fontFamily: 'var(--font-display)', fontSize: '18px', fontWeight: 500, color: 'var(--color-text)' }}>
+            Topics (30 days)
           </h2>
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-subtle)', marginBottom: '20px' }}>
-            Most discussed themes (all time)
-          </p>
-          <div className="flex flex-col gap-3">
-            {topTopics?.map((t) => (
-              <div key={t?.label} className="flex items-center gap-3">
-                <div className="flex items-center gap-2 w-36 flex-shrink-0">
-                  <Tag size={12} style={{ color: t?.color }} />
-                  <span style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-muted)' }}>
-                    {t?.label}
-                  </span>
-                </div>
-                <div className="flex-1 rounded-full overflow-hidden" style={{ height: '8px', backgroundColor: 'var(--color-surface-alt)' }}>
-                  <div
-                    className="h-full rounded-full"
-                    style={{ width: `${(t?.count / maxCount) * 100}%`, backgroundColor: t?.color }}
-                  />
-                </div>
-                <span style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-subtle)', width: '36px', textAlign: 'right' }}>
-                  {t?.count}
+          {data && data.topicDistribution.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {data.topicDistribution.map((d) => (
+                <span key={d.topic} className="px-3 py-1.5 rounded-full" style={{ backgroundColor: 'var(--color-primary-soft)', color: 'var(--color-primary)', fontFamily: 'var(--font-ui)', fontSize: '13px', textTransform: 'capitalize' }}>
+                  {d.topic} · {d.count}
                 </span>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyNote />
+          )}
         </div>
       </div>
-      <div
-        className="px-5 py-4 rounded-2xl"
-        style={{ backgroundColor: 'var(--color-primary-soft)', border: '1px solid var(--color-border)' }}
-      >
-        <p style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-muted)' }}>
-          All data is aggregate and anonymous. No individual user can be identified. Topics are tagged by the Mood Tagging Agent — never by reading message content directly.
+
+      {/* Time-of-day */}
+      <div className="dhira-card p-5">
+        <h2 className="mb-1" style={{ fontFamily: 'var(--font-display)', fontSize: '18px', fontWeight: 500, color: 'var(--color-text)' }}>
+          When people reach out (time of day)
+        </h2>
+        <p className="mb-4" style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-subtle)' }}>
+          Validates Dhira&apos;s &ldquo;2 AM companion&rdquo; thesis.
         </p>
+        <div style={{ width: '100%', height: 200 }}>
+          <ResponsiveContainer>
+            <BarChart data={data?.hourHistogram ?? []} margin={{ top: 10, right: 8, bottom: 0, left: -20 }}>
+              <CartesianGrid stroke={BRAND.border} strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="hour" tick={{ fill: BRAND.text, fontSize: 11 }} tickLine={false} axisLine={{ stroke: BRAND.border }} />
+              <YAxis allowDecimals={false} tick={{ fill: BRAND.text, fontSize: 12 }} tickLine={false} axisLine={false} />
+              <Tooltip contentStyle={{ borderRadius: 12, border: `1px solid ${BRAND.border}`, fontFamily: 'var(--font-ui)', fontSize: 13 }} labelFormatter={(h) => `${h}:00`} />
+              <Bar dataKey="count" name="Check-ins" fill={BRAND.accent} radius={[4, 4, 0, 0]} maxBarSize={20} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </AdminLayout>
+  );
+}
+
+function Param({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="dhira-card p-5" style={{ borderLeft: '3px solid var(--color-primary)' }}>
+      <p style={{ fontFamily: 'var(--font-display)', fontSize: '28px', fontWeight: 600, color: 'var(--color-text)', lineHeight: 1 }}>{value}</p>
+      <p style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-muted)', marginTop: '4px' }}>{label}</p>
+    </div>
+  );
+}
+
+function EmptyNote() {
+  return (
+    <p style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: 'var(--color-text-muted)' }}>
+      No check-in data yet — this fills in as users log moods and chat.
+    </p>
   );
 }
