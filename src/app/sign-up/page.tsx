@@ -419,7 +419,7 @@ function SignUpContent() {
               transition: 'all 0.2s ease',
             }}
           >
-            <label className="flex items-start gap-3 cursor-pointer">
+            <label htmlFor="terms-checkbox" className="flex items-start gap-3 cursor-pointer">
               <div className="relative flex-shrink-0 mt-0.5">
                 <input
                   type="checkbox"
@@ -428,17 +428,14 @@ function SignUpContent() {
                   onChange={(e) => setAgreedTerms(e?.target?.checked)}
                   className="sr-only"
                 />
+                {/* Visual only — label/htmlFor toggles the real checkbox (avoid double-toggle). */}
                 <div
-                  className="w-5 h-5 rounded flex items-center justify-center transition-all duration-200"
+                  className="w-5 h-5 rounded flex items-center justify-center transition-all duration-200 pointer-events-none"
+                  aria-hidden="true"
                   style={{
                     backgroundColor: agreedTerms ? 'var(--color-primary)' : 'var(--color-surface)',
                     border: `2px solid ${agreedTerms ? 'var(--color-primary)' : 'var(--color-border)'}`,
                   }}
-                  onClick={() => setAgreedTerms(!agreedTerms)}
-                  role="checkbox"
-                  aria-checked={agreedTerms}
-                  tabIndex={0}
-                  onKeyDown={(e) => e?.key === ' ' && setAgreedTerms(!agreedTerms)}
                 >
                   {agreedTerms && (
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
