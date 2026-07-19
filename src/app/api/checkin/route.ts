@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getOrCreateUid } from '@/lib/session';
+import { getUserId } from '@/lib/auth';
 import { runProactiveCheckin } from '@/lib/proactiveFlow';
 
 export const runtime = 'nodejs';
@@ -29,8 +29,9 @@ export async function POST(req: NextRequest) {
       uid = typeof body.userId === 'string' ? body.userId : null;
       if (!uid) return NextResponse.json({ error: 'userId is required' }, { status: 400 });
     } else {
-      // Dev/demo mode: no secret set → act for the current browser session.
-      uid = await getOrCreateUid();
+      // Dev/demo mode: no secret set → act for the current signed-in session.
+      uid = await getUserId();
+      if (!uid) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
     }
 
     const result = await runProactiveCheckin(uid);

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getOrCreateUid } from '@/lib/session';
+import { getUserId } from '@/lib/auth';
 import { runChatTurn } from '@/lib/chatFlow';
 
 export const runtime = 'nodejs';
@@ -14,7 +14,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'message is required' }, { status: 400 });
     }
 
-    const uid = await getOrCreateUid();
+    const uid = await getUserId();
+    if (!uid) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
     const result = await runChatTurn({ uid, userMessage: message });
     return NextResponse.json(result);
   } catch (err) {

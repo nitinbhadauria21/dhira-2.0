@@ -2,9 +2,18 @@
 node_modules/
 package-lock.json
 
-# Local secrets (never commit real keys — .env holds placeholders only)
+# --- Secrets / env files (never commit real keys) ---
+# Placeholders may live in the tracked `.env` file; put real keys only in
+# `.env.local` (or any of the patterns below).
 .env.local
 .env*.local
+.env.development.local
+.env.test.local
+.env.production.local
+# Extra safety nets for accidental secret dumps
+*.pem
+secrets/
+.secrets/
 
 # Local dev data store (used when Supabase is not configured)
 .data/

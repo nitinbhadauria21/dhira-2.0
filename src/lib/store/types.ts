@@ -4,6 +4,9 @@ import type {
   MoodLogRecord,
   MemoryRecord,
   RiskEventRecord,
+  AuthUser,
+  NotificationRecord,
+  NotificationStatus,
 } from '@/lib/types';
 
 /** Aggregate numbers for the Admin Console (anonymous, no PII). */
@@ -39,5 +42,23 @@ export interface DhiraStore {
   addRiskEvent(record: RiskEventRecord): Promise<void>;
   getRiskEvents(limit?: number): Promise<RiskEventRecord[]>;
 
+  // Notifications
+  addNotification(record: NotificationRecord): Promise<void>;
+  updateNotificationStatus(
+    id: string,
+    status: NotificationStatus,
+    providerMessageId?: string | null,
+  ): Promise<void>;
+  getNotifications(profileId: string, limit?: number): Promise<NotificationRecord[]>;
+
+  // Dev-mode auth (only used when Supabase Auth is not configured)
+  createAuthUser(user: AuthUser): Promise<void>;
+  getAuthUserByEmail(email: string): Promise<AuthUser | null>;
+  getAuthUserByPhone(phoneE164: string): Promise<AuthUser | null>;
+
   adminStats(): Promise<AdminStats>;
+  allProfiles(): Promise<Profile[]>;
+  allMoods(): Promise<MoodLogRecord[]>;
+  allRiskEvents(): Promise<RiskEventRecord[]>;
+  allNotifications(): Promise<NotificationRecord[]>;
 }

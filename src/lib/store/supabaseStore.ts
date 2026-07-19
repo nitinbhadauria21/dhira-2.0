@@ -5,6 +5,9 @@ import type {
   MoodLogRecord,
   MemoryRecord,
   RiskEventRecord,
+  AuthUser,
+  NotificationRecord,
+  NotificationStatus,
 } from '@/lib/types';
 import type { DhiraStore, AdminStats } from './types';
 
@@ -33,12 +36,31 @@ const toProfile = (r: any): Profile => ({
   alias: r.alias,
   avatar: r.avatar,
   language: r.language,
+  email: r.email ?? null,
+  phoneE164: r.phone_e164 ?? null,
+  preferredChannel: r.preferred_channel ?? 'email',
+  emailOptIn: r.email_opt_in ?? true,
+  whatsappOptIn: r.whatsapp_opt_in ?? false,
+  timezone: r.timezone ?? 'Asia/Kolkata',
   consentCheckin: r.consent_checkin,
   consentMemory: r.consent_memory,
   checkinFrequency: r.checkin_frequency,
   checkinWindow: r.checkin_window,
   createdAt: r.created_at,
   updatedAt: r.updated_at,
+});
+
+const toNotification = (r: any): NotificationRecord => ({
+  id: r.id,
+  profileId: r.profile_id,
+  channel: r.channel,
+  type: r.type,
+  content: r.content,
+  status: r.status,
+  providerMessageId: r.provider_message_id ?? null,
+  scheduledFor: r.scheduled_for ?? null,
+  sentAt: r.sent_at ?? null,
+  createdAt: r.created_at,
 });
 
 const toMessage = (r: any): ChatMessageRecord => ({
@@ -92,6 +114,12 @@ export class SupabaseStore implements DhiraStore {
       alias: 'Friend',
       avatar: 'moon',
       language: 'hinglish',
+      email: null,
+      phone_e164: null,
+      preferred_channel: 'email',
+      email_opt_in: true,
+      whatsapp_opt_in: false,
+      timezone: 'Asia/Kolkata',
       consent_checkin: true,
       consent_memory: true,
       checkin_frequency: 'daily',
@@ -111,6 +139,12 @@ export class SupabaseStore implements DhiraStore {
     if (patch.alias !== undefined) row.alias = patch.alias;
     if (patch.avatar !== undefined) row.avatar = patch.avatar;
     if (patch.language !== undefined) row.language = patch.language;
+    if (patch.email !== undefined) row.email = patch.email;
+    if (patch.phoneE164 !== undefined) row.phone_e164 = patch.phoneE164;
+    if (patch.preferredChannel !== undefined) row.preferred_channel = patch.preferredChannel;
+    if (patch.emailOptIn !== undefined) row.email_opt_in = patch.emailOptIn;
+    if (patch.whatsappOptIn !== undefined) row.whatsapp_opt_in = patch.whatsappOptIn;
+    if (patch.timezone !== undefined) row.timezone = patch.timezone;
     if (patch.consentCheckin !== undefined) row.consent_checkin = patch.consentCheckin;
     if (patch.consentMemory !== undefined) row.consent_memory = patch.consentMemory;
     if (patch.checkinFrequency !== undefined) row.checkin_frequency = patch.checkinFrequency;
@@ -240,6 +274,78 @@ export class SupabaseStore implements DhiraStore {
       .limit(limit);
     if (error) throw error;
     return (data ?? []).map(toRisk);
+  }
+
+  async addNotification(record: NotificationRecord): Promise<void> {
+    const sb = client();
+    const { error } = await sb.from('notifications').insert({
+      id: record.id,
+      profile_id: record.profileId,
+      channel: record.channel,
+      type: record.type,
+      content: record.content,
+      status: record.status,
+      provider_message_id: record.providerMessageId,
+      scheduled_for: record.scheduledFor,
+      sent_at: record.sentAt,
+      created_at: record.createdAt,
+    });
+    if (error) throw error;
+  }
+
+  async updateNotificationStatus(id: string, status: NotificationStatus, providerMessageId?: string | null): Promise<void> {
+    const sb = client();
+    const row: Record<string, unknown> = { status };
+    if (providerMessageId !== undefined) row.provider_message_id = providerMessageId;
+    if (status === 'sent' || status === 'delivered') row.sent_at = new Date().toISOString();
+    await sb.from('notifications').update(row).eq('id', id);
+  }
+
+  async getNotifications(profileId: string, limit = 20): Promise<NotificationRecord[]> {
+    const sb = client();
+    const { data, error } = await sb
+      .from('notifications')
+      .select('*')
+      .eq('profile_id', profileId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return (data ?? []).map(toNotification);
+  }
+
+  // Supabase Auth owns credentials — these dev-auth methods are unused in live mode.
+  async createAuthUser(): Promise<void> {
+    /* no-op: Supabase Auth manages users */
+  }
+  async getAuthUserByEmail(): Promise<AuthUser | null> {
+    return null;
+  }
+  async getAuthUserByPhone(): Promise<AuthUser | null> {
+    return null;
+  }
+
+  async allProfiles(): Promise<Profile[]> {
+    const sb = client();
+    const { data } = await sb.from('profiles').select('*');
+    return (data ?? []).map(toProfile);
+  }
+
+  async allMoods(): Promise<MoodLogRecord[]> {
+    const sb = client();
+    const { data } = await sb.from('mood_logs').select('*').order('created_at', { ascending: true });
+    return (data ?? []).map(toMood);
+  }
+
+  async allRiskEvents(): Promise<RiskEventRecord[]> {
+    const sb = client();
+    const { data } = await sb.from('risk_events').select('*').order('created_at', { ascending: true });
+    return (data ?? []).map(toRisk);
+  }
+
+  async allNotifications(): Promise<NotificationRecord[]> {
+    const sb = client();
+    const { data } = await sb.from('notifications').select('*').order('created_at', { ascending: true });
+    return (data ?? []).map(toNotification);
   }
 
   async adminStats(): Promise<AdminStats> {

@@ -2,14 +2,68 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import DhiraAvatar from '@/components/DhiraAvatar';
+import { signUpEmail, requestOtp, verifyOtp } from '@/lib/authClient';
 
 function SignUpContent() {
+  const router = useRouter();
+  const [mode, setMode] = useState<'email' | 'phone'>('email');
   const [alias, setAlias] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [devCode, setDevCode] = useState<string | null>(null);
   const [agreedTerms, setAgreedTerms] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSignUp = async () => {
+    if (!agreedTerms) return;
+    setError(null);
+    setLoading(true);
+    try {
+      await signUpEmail(email.trim(), password, alias.trim() || 'Friend');
+      // New account created + signed in → continue to onboarding.
+      router.push('/onboarding');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not create your account');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRequestOtp = async () => {
+    if (!agreedTerms) return;
+    setError(null);
+    setLoading(true);
+    try {
+      const { devCode: code } = await requestOtp(phone.trim());
+      setOtpSent(true);
+      setDevCode(code ?? null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not send code');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!agreedTerms) return;
+    setError(null);
+    setLoading(true);
+    try {
+      await verifyOtp(phone.trim(), otp.trim(), alias.trim() || 'Friend');
+      router.push('/onboarding');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not verify code');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div
@@ -161,8 +215,32 @@ function SignUpContent() {
           {/* Divider */}
           <div className="flex items-center gap-4 mb-6">
             <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--color-border)' }} />
-            <span style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-subtle)' }}>or create with email</span>
+            <span style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-subtle)' }}>or create an account</span>
             <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--color-border)' }} />
+          </div>
+
+          {/* Mode toggle: email or phone */}
+          <div className="flex gap-2 mb-5 p-1 rounded-control" style={{ backgroundColor: 'var(--color-surface-alt)' }}>
+            {(['email', 'phone'] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => { setMode(m); setError(null); setOtpSent(false); setDevCode(null); }}
+                className="flex-1 py-2 rounded-control transition-all"
+                style={{
+                  fontFamily: 'var(--font-ui)',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  backgroundColor: mode === m ? 'var(--color-surface)' : 'transparent',
+                  color: mode === m ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                  boxShadow: mode === m ? 'var(--shadow-card)' : 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                {m === 'email' ? 'Email + password' : 'Phone + OTP'}
+              </button>
+            ))}
           </div>
 
           {/* Alias */}
@@ -196,67 +274,141 @@ function SignUpContent() {
             />
           </div>
 
-          {/* Email */}
-          <div className="mb-4">
-            <label
-              htmlFor="signup-email"
-              style={{ display: 'block', fontFamily: 'var(--font-ui)', fontSize: '14px', fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: '6px' }}
-            >
-              Email address
-            </label>
-            <input
-              id="signup-email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e?.target?.value)}
-              placeholder="you@example.com"
-              style={{
-                width: '100%',
-                padding: '11px 14px',
-                borderRadius: 'var(--radius-control)',
-                border: '1.5px solid var(--color-border)',
-                backgroundColor: 'var(--color-surface-alt)',
-                color: 'var(--color-text)',
-                fontFamily: 'var(--font-ui)',
-                fontSize: '15px',
-                outline: 'none',
-                transition: 'border-color 0.2s ease',
-              }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-primary)')}
-              onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
-            />
-          </div>
+          {/* Email + password */}
+          {mode === 'email' && (
+            <>
+              <div className="mb-4">
+                <label
+                  htmlFor="signup-email"
+                  style={{ display: 'block', fontFamily: 'var(--font-ui)', fontSize: '14px', fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: '6px' }}
+                >
+                  Email address
+                </label>
+                <input
+                  id="signup-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e?.target?.value)}
+                  placeholder="you@example.com"
+                  style={{
+                    width: '100%',
+                    padding: '11px 14px',
+                    borderRadius: 'var(--radius-control)',
+                    border: '1.5px solid var(--color-border)',
+                    backgroundColor: 'var(--color-surface-alt)',
+                    color: 'var(--color-text)',
+                    fontFamily: 'var(--font-ui)',
+                    fontSize: '15px',
+                    outline: 'none',
+                    transition: 'border-color 0.2s ease',
+                  }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-primary)')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
+                />
+              </div>
 
-          {/* Password */}
-          <div className="mb-6">
-            <label
-              htmlFor="signup-password"
-              style={{ display: 'block', fontFamily: 'var(--font-ui)', fontSize: '14px', fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: '6px' }}
-            >
-              Create a password
-            </label>
-            <input
-              id="signup-password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e?.target?.value)}
-              placeholder="••••••••"
-              style={{
-                width: '100%',
-                padding: '11px 14px',
-                borderRadius: 'var(--radius-control)',
-                border: '1.5px solid var(--color-border)',
-                backgroundColor: 'var(--color-surface-alt)',
-                color: 'var(--color-text)',
-                fontFamily: 'var(--font-ui)',
-                fontSize: '15px',
-                outline: 'none',
-                transition: 'border-color 0.2s ease',
-              }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-primary)')}
-              onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
-            />
-          </div>
+              <div className="mb-6">
+                <label
+                  htmlFor="signup-password"
+                  style={{ display: 'block', fontFamily: 'var(--font-ui)', fontSize: '14px', fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: '6px' }}
+                >
+                  Create a password
+                </label>
+                <input
+                  id="signup-password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e?.target?.value)}
+                  placeholder="••••••••"
+                  style={{
+                    width: '100%',
+                    padding: '11px 14px',
+                    borderRadius: 'var(--radius-control)',
+                    border: '1.5px solid var(--color-border)',
+                    backgroundColor: 'var(--color-surface-alt)',
+                    color: 'var(--color-text)',
+                    fontFamily: 'var(--font-ui)',
+                    fontSize: '15px',
+                    outline: 'none',
+                    transition: 'border-color 0.2s ease',
+                  }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-primary)')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
+                />
+              </div>
+            </>
+          )}
+
+          {/* Phone + OTP */}
+          {mode === 'phone' && (
+            <div className="mb-6">
+              <label
+                htmlFor="signup-phone"
+                style={{ display: 'block', fontFamily: 'var(--font-ui)', fontSize: '14px', fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: '6px' }}
+              >
+                Phone number (with country code)
+              </label>
+              <input
+                id="signup-phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e?.target?.value)}
+                placeholder="+91 98765 43210"
+                disabled={otpSent}
+                style={{
+                  width: '100%',
+                  padding: '11px 14px',
+                  borderRadius: 'var(--radius-control)',
+                  border: '1.5px solid var(--color-border)',
+                  backgroundColor: 'var(--color-surface-alt)',
+                  color: 'var(--color-text)',
+                  fontFamily: 'var(--font-ui)',
+                  fontSize: '15px',
+                  outline: 'none',
+                  opacity: otpSent ? 0.7 : 1,
+                }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-primary)')}
+                onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
+              />
+              {otpSent && (
+                <>
+                  <label
+                    htmlFor="signup-otp"
+                    style={{ display: 'block', fontFamily: 'var(--font-ui)', fontSize: '14px', fontWeight: 500, color: 'var(--color-text-muted)', margin: '14px 0 6px' }}
+                  >
+                    Enter the 6-digit code
+                  </label>
+                  <input
+                    id="signup-otp"
+                    type="text"
+                    inputMode="numeric"
+                    value={otp}
+                    onChange={(e) => setOtp(e?.target?.value)}
+                    placeholder="••••••"
+                    style={{
+                      width: '100%',
+                      padding: '11px 14px',
+                      borderRadius: 'var(--radius-control)',
+                      border: '1.5px solid var(--color-border)',
+                      backgroundColor: 'var(--color-surface-alt)',
+                      color: 'var(--color-text)',
+                      fontFamily: 'var(--font-ui)',
+                      fontSize: '15px',
+                      outline: 'none',
+                      letterSpacing: '0.2em',
+                    }}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-primary)')}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
+                  />
+                  {devCode && (
+                    <p style={{ fontFamily: 'var(--font-ui)', fontSize: '12px', color: 'var(--color-accent-text)', marginTop: '8px' }}>
+                      Dev code: <strong>{devCode}</strong> (SMS not configured)
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
+          )}
 
           {/* Terms & Conditions checkbox */}
           <div
@@ -267,7 +419,7 @@ function SignUpContent() {
               transition: 'all 0.2s ease',
             }}
           >
-            <label className="flex items-start gap-3 cursor-pointer">
+            <label htmlFor="terms-checkbox" className="flex items-start gap-3 cursor-pointer">
               <div className="relative flex-shrink-0 mt-0.5">
                 <input
                   type="checkbox"
@@ -276,17 +428,14 @@ function SignUpContent() {
                   onChange={(e) => setAgreedTerms(e?.target?.checked)}
                   className="sr-only"
                 />
+                {/* Visual only — label/htmlFor toggles the real checkbox (avoid double-toggle). */}
                 <div
-                  className="w-5 h-5 rounded flex items-center justify-center transition-all duration-200"
+                  className="w-5 h-5 rounded flex items-center justify-center transition-all duration-200 pointer-events-none"
+                  aria-hidden="true"
                   style={{
                     backgroundColor: agreedTerms ? 'var(--color-primary)' : 'var(--color-surface)',
                     border: `2px solid ${agreedTerms ? 'var(--color-primary)' : 'var(--color-border)'}`,
                   }}
-                  onClick={() => setAgreedTerms(!agreedTerms)}
-                  role="checkbox"
-                  aria-checked={agreedTerms}
-                  tabIndex={0}
-                  onKeyDown={(e) => e?.key === ' ' && setAgreedTerms(!agreedTerms)}
                 >
                   {agreedTerms && (
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
@@ -319,19 +468,39 @@ function SignUpContent() {
             </label>
           </div>
 
+          {error && (
+            <div
+              className="mb-4"
+              style={{ padding: '10px 12px', borderRadius: 'var(--radius-control)', backgroundColor: 'var(--color-crisis-surface)', border: '1px solid var(--color-crisis)', color: 'var(--color-crisis)', fontFamily: 'var(--font-ui)', fontSize: '13px' }}
+            >
+              {error}
+            </div>
+          )}
+
           {/* Submit */}
           <button
             type="button"
+            onClick={() => {
+              if (mode === 'email') handleSignUp();
+              else if (!otpSent) handleRequestOtp();
+              else handleVerifyOtp();
+            }}
             className="btn-accent w-full justify-center"
             style={{
               fontSize: '16px',
               padding: '13px 24px',
-              opacity: agreedTerms ? 1 : 0.55,
-              cursor: agreedTerms ? 'pointer' : 'not-allowed',
+              opacity: agreedTerms && !loading ? 1 : 0.55,
+              cursor: agreedTerms && !loading ? 'pointer' : 'not-allowed',
             }}
-            disabled={!agreedTerms}
+            disabled={!agreedTerms || loading || (mode === 'email' ? !email.trim() || !password.trim() : !phone.trim() || (otpSent && !otp.trim()))}
           >
-            Create my Dhira account
+            {loading
+              ? (mode === 'phone' && !otpSent ? 'Sending code…' : mode === 'phone' ? 'Verifying…' : 'Creating your account…')
+              : mode === 'phone' && !otpSent
+                ? 'Send verification code'
+                : mode === 'phone'
+                  ? 'Verify & create account'
+                  : 'Create my Dhira account'}
           </button>
 
           {/* Sign in link */}

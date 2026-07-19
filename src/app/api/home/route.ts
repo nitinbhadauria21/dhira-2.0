@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getOrCreateUid } from '@/lib/session';
+import { getUserId } from '@/lib/auth';
 import { getStore } from '@/lib/store';
 import type { MoodLabel } from '@/lib/types';
 
@@ -13,7 +13,8 @@ function dayKey(iso: string): string {
 /** GET /api/home → everything the dashboard needs, computed from saved data. */
 export async function GET() {
   try {
-    const uid = await getOrCreateUid();
+    const uid = await getUserId();
+    if (!uid) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
     const store = getStore();
     const profile = await store.getOrCreateProfile(uid);
     const moods = await store.getMoods(uid);

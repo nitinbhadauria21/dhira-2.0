@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
-import { getOrCreateUid } from '@/lib/session';
+import { getUserId } from '@/lib/auth';
 import { getStore } from '@/lib/store';
 import type { MoodLabel, TopicTag } from '@/lib/types';
 
@@ -15,7 +15,8 @@ const MOODS: MoodLabel[] = [
 /** POST /api/mood  { mood, intensity?, topicTag? }  → saves a manual mood check-in. */
 export async function POST(req: NextRequest) {
   try {
-    const uid = await getOrCreateUid();
+    const uid = await getUserId();
+    if (!uid) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
     const body = await req.json().catch(() => ({}));
     const mood = MOODS.includes(body.mood) ? (body.mood as MoodLabel) : null;
     if (!mood) return NextResponse.json({ error: 'valid mood is required' }, { status: 400 });

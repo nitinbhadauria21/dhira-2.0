@@ -6,6 +6,9 @@ import type {
   MoodLogRecord,
   MemoryRecord,
   RiskEventRecord,
+  AuthUser,
+  NotificationRecord,
+  NotificationStatus,
 } from '@/lib/types';
 import type { DhiraStore, AdminStats } from './types';
 
@@ -24,13 +27,15 @@ interface Db {
   moods: MoodLogRecord[];
   memories: MemoryRecord[];
   riskEvents: RiskEventRecord[];
+  authUsers: AuthUser[];
+  notifications: NotificationRecord[];
 }
 
 const DATA_DIR = path.join(process.cwd(), '.data');
 const DATA_FILE = path.join(DATA_DIR, 'dhira-store.json');
 
 function emptyDb(): Db {
-  return { profiles: [], messages: [], moods: [], memories: [], riskEvents: [] };
+  return { profiles: [], messages: [], moods: [], memories: [], riskEvents: [], authUsers: [], notifications: [] };
 }
 
 function readDb(): Db {
@@ -63,6 +68,12 @@ export class LocalStore implements DhiraStore {
         alias: 'Friend',
         avatar: 'moon',
         language: 'hinglish',
+        email: null,
+        phoneE164: null,
+        preferredChannel: 'email',
+        emailOptIn: true,
+        whatsappOptIn: false,
+        timezone: 'Asia/Kolkata',
         consentCheckin: true,
         consentMemory: true,
         checkinFrequency: 'daily',
@@ -157,6 +168,64 @@ export class LocalStore implements DhiraStore {
     return db.riskEvents
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
       .slice(0, limit);
+  }
+
+  async addNotification(record: NotificationRecord): Promise<void> {
+    const db = readDb();
+    db.notifications.push(record);
+    writeDb(db);
+  }
+
+  async updateNotificationStatus(id: string, status: NotificationStatus, providerMessageId?: string | null): Promise<void> {
+    const db = readDb();
+    const idx = db.notifications.findIndex((n) => n.id === id);
+    if (idx === -1) return;
+    db.notifications[idx].status = status;
+    if (providerMessageId !== undefined) db.notifications[idx].providerMessageId = providerMessageId;
+    if (status === 'sent' || status === 'delivered') {
+      db.notifications[idx].sentAt = db.notifications[idx].sentAt ?? new Date().toISOString();
+    }
+    writeDb(db);
+  }
+
+  async getNotifications(profileId: string, limit = 20): Promise<NotificationRecord[]> {
+    const db = readDb();
+    return db.notifications
+      .filter((n) => n.profileId === profileId)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, limit);
+  }
+
+  async createAuthUser(user: AuthUser): Promise<void> {
+    const db = readDb();
+    db.authUsers.push(user);
+    writeDb(db);
+  }
+
+  async getAuthUserByEmail(email: string): Promise<AuthUser | null> {
+    const db = readDb();
+    return db.authUsers.find((u) => u.email?.toLowerCase() === email.toLowerCase()) ?? null;
+  }
+
+  async getAuthUserByPhone(phoneE164: string): Promise<AuthUser | null> {
+    const db = readDb();
+    return db.authUsers.find((u) => u.phoneE164 === phoneE164) ?? null;
+  }
+
+  async allProfiles(): Promise<Profile[]> {
+    return readDb().profiles;
+  }
+
+  async allMoods(): Promise<MoodLogRecord[]> {
+    return readDb().moods;
+  }
+
+  async allRiskEvents(): Promise<RiskEventRecord[]> {
+    return readDb().riskEvents;
+  }
+
+  async allNotifications(): Promise<NotificationRecord[]> {
+    return readDb().notifications;
   }
 
   async adminStats(): Promise<AdminStats> {
