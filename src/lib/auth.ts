@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { randomBytes, scryptSync, timingSafeEqual, randomUUID } from 'crypto';
 import { createClient } from '@supabase/supabase-js';
-import { isSupabaseConfigured } from '@/lib/store';
+import { isSupabaseAuthConfigured } from '@/lib/store';
 
 /**
  * Identity & auth.
@@ -101,9 +101,9 @@ export function verifyDevOtp(phone: string, code: string): boolean {
 }
 
 // ── live-mode Supabase token verification ───────────────────────────────────
-/** Verify a Supabase access token and return its user id (live mode only). */
+/** Verify a Supabase access token and return its user id (live Auth mode). */
 export async function verifySupabaseToken(accessToken: string): Promise<string | null> {
-  if (!isSupabaseConfigured()) return null;
+  if (!isSupabaseAuthConfigured() || !accessToken) return null;
   try {
     const sb = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL as string,

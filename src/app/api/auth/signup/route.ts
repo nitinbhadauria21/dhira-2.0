@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getStore, isSupabaseConfigured } from '@/lib/store';
+import { getStore, isSupabaseAuthConfigured } from '@/lib/store';
 import { hashPassword, setSession, newUserId } from '@/lib/auth';
 
 export const runtime = 'nodejs';
@@ -14,7 +14,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  */
 export async function POST(req: NextRequest) {
   try {
-    if (isSupabaseConfigured()) {
+    if (isSupabaseAuthConfigured()) {
       return NextResponse.json({ error: 'Use Supabase sign-up in live mode' }, { status: 400 });
     }
     const { email, password, alias } = await req.json().catch(() => ({}));
