@@ -40,7 +40,15 @@ export function getModelFor(agent: AgentName): string {
   return MODEL_MAP[agent];
 }
 
-/** True when a real Anthropic key is configured (i.e. the live brain is on). */
+/**
+ * True when a REAL Anthropic key is configured (i.e. the live brain is on).
+ * The committed .env ships a placeholder ("your-anthropic-api-key-here"); we
+ * must treat that (and any obvious placeholder) as "not set" so the app cleanly
+ * uses the offline brain instead of making calls that would 401.
+ */
 export function isLiveBrainEnabled(): boolean {
-  return Boolean(process.env.ANTHROPIC_API_KEY && process.env.ANTHROPIC_API_KEY.trim());
+  const key = process.env.ANTHROPIC_API_KEY?.trim() ?? '';
+  if (!key) return false;
+  if (key.toLowerCase().includes('your-')) return false; // placeholder
+  return key.startsWith('sk-'); // real Anthropic keys start with sk-ant-...
 }

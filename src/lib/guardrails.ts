@@ -51,20 +51,23 @@ export const DEPENDENCY_PATTERNS: RegExp[] = [
 
 /** Crisis signals (self-harm, suicide, harm to others, immediate danger). */
 export const CRISIS_PATTERNS: RegExp[] = [
-  /\bi don'?t want to live\b/i,
-  /\bi want to die\b/i,
+  // "don't / do not / dont want to live | be here | exist | wake up"
+  /\b(?:don'?t|do not|dont)\s+want\s+to\s+(?:live|be here|exist|wake up)\b/i,
+  /\b(?:want|wanna)\s+to\s+die\b/i,
+  /\bwant\s+to\s+end\s+it\b/i,
+  /\bend(?:ing)?\s+(?:my|it)\s+(?:life|all)\b/i,
   /\bend my life\b/i,
-  /\bkill myself\b/i,
-  /\bkilling myself\b/i,
-  /\bdon'?t want to be here\b/i,
+  /\bkill(?:ing)?\s+myself\b/i,
+  /\btake\s+my\s+(?:own\s+)?life\b/i,
+  /\bno reason to live\b/i,
+  /\bbetter off dead\b/i,
   /\bsuicid/i,
   /\bself[-\s]?harm\b/i,
-  /\bhurt myself\b/i,
-  /\bharm myself\b/i,
-  /\bcut myself\b/i,
-  /\bmar\s?(jaun|jaunga|jana chahta)\b/i, // Hinglish: "mar jaun"
+  /\b(?:hurt|harm|cut)\s+myself\b/i,
+  /\bmar\s?(jaun|jaunga|jaana|jana chahta|jaunga main)\b/i, // Hinglish: "mar jaun/jaunga"
+  /\bjeena nahi chahta\b/i, // Hinglish: "don't want to live"
   /\btest the safety path\b/i,
-  /\bi want to hurt (someone|him|her|them)\b/i,
+  /\b(?:want|going)\s+to\s+hurt\s+(?:someone|him|her|them|people)\b/i,
 ];
 
 /** Medium-risk distress (not immediate danger, but surfaces gentle support). */

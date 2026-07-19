@@ -87,5 +87,10 @@ export async function draftReply(input: PrimaryInput): Promise<string> {
     { role: 'user', content: `${contextLines.join('\n')}\n\n${input.userMessage}` },
   ];
 
-  return anthropicText({ agent: 'primaryAgent', system: PRIMARY_SYSTEM, messages, maxTokens: 300 });
+  try {
+    return await anthropicText({ agent: 'primaryAgent', system: PRIMARY_SYSTEM, messages, maxTokens: 300 });
+  } catch {
+    // If the live call fails (bad key, network, rate limit), stay graceful.
+    return localPrimaryReply({ userMessage: input.userMessage, language: input.language });
+  }
 }
