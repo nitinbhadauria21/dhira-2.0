@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getStore, isSupabaseConfigured } from '@/lib/store';
+import { getStore, isSupabaseAuthConfigured } from '@/lib/store';
 import { verifyPassword, setSession } from '@/lib/auth';
 
 export const runtime = 'nodejs';
@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
  */
 export async function POST(req: NextRequest) {
   try {
-    if (isSupabaseConfigured()) {
+    if (isSupabaseAuthConfigured()) {
       return NextResponse.json({ error: 'Use Supabase sign-in in live mode' }, { status: 400 });
     }
     const { email, password } = await req.json().catch(() => ({}));

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getStore, isSupabaseConfigured } from '@/lib/store';
+import { getStore, isSupabaseAuthConfigured } from '@/lib/store';
 import { verifyDevOtp, setSession, newUserId } from '@/lib/auth';
 
 export const runtime = 'nodejs';
@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
  */
 export async function POST(req: NextRequest) {
   try {
-    if (isSupabaseConfigured()) {
+    if (isSupabaseAuthConfigured()) {
       return NextResponse.json({ error: 'Use Supabase phone OTP in live mode' }, { status: 400 });
     }
     const { phone, code, alias } = await req.json().catch(() => ({}));

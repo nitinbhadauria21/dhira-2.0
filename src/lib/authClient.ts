@@ -23,10 +23,20 @@ async function postJson(url: string, body: unknown) {
 export async function signUpEmail(email: string, password: string, alias?: string) {
   const sb = getBrowserSupabase();
   if (sb) {
-    const { data, error } = await sb.auth.signUp({ email, password });
+    const { data, error } = await sb.auth.signUp({
+      email,
+      password,
+      options: { data: { alias: alias || 'Friend' } },
+    });
     if (error) throw new Error(error.message);
     const token = data.session?.access_token;
-    if (!token) throw new Error('Check your email to confirm your account, then sign in.');
+    if (!token) {
+      // Supabase created the user but did not start a session — almost always
+      // because "Confirm email" is still ON in the project Auth settings.
+      throw new Error(
+        'Account created. In Supabase → Authentication → Providers → Email, turn OFF “Confirm email” for Demo Day, then sign in. Or confirm via the email link first.',
+      );
+    }
     return postJson('/api/auth/session', { accessToken: token, email });
   }
   return postJson('/api/auth/signup', { email, password, alias });
