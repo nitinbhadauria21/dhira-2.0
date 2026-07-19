@@ -5,13 +5,7 @@ import AdminLayout from '../components/AdminLayout';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, Line,
 } from 'recharts';
-
-// Brand mood palette (matches tailwind.config.js / styles/tailwind.css).
-const MOOD_COLORS: Record<string, string> = {
-  happy: '#F0C46B', calm: '#8FBCA4', hopeful: '#79C2C4', neutral: '#B9B2A4', stressed: '#E0A94F',
-  anxious: '#8794DA', lonely: '#A99BC9', overwhelmed: '#9C6B8E', sad: '#7089B0', angry: '#C56B5C',
-};
-const BRAND = { primary: '#5A67B8', accent: '#EFA94A', sage: '#63A183', border: '#E7DFD1', text: '#5E5C6E' };
+import { useChartBrand, MOOD_PALETTE } from '@/lib/brand';
 
 interface WeekPoint { label: string; checkins: number; activeUsers: number; avgValence: number; crisisEvents: number; proactiveSends: number; delivered: number }
 interface Dist { mood?: string; topic?: string; count: number }
@@ -22,6 +16,7 @@ interface Params {
 interface Data { series: WeekPoint[]; moodDistribution: Dist[]; topicDistribution: Dist[]; hourHistogram: { hour: number; count: number }[]; params: Params }
 
 export default function AdminMoodInsightsPage() {
+  const brand = useChartBrand();
   const [data, setData] = useState<Data | null>(null);
 
   useEffect(() => {
@@ -58,13 +53,13 @@ export default function AdminMoodInsightsPage() {
         <div style={{ width: '100%', height: 260 }}>
           <ResponsiveContainer>
             <ComposedChart data={data?.series ?? []} margin={{ top: 10, right: 8, bottom: 0, left: -20 }}>
-              <CartesianGrid stroke={BRAND.border} strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="label" tick={{ fill: BRAND.text, fontSize: 12 }} tickLine={false} axisLine={{ stroke: BRAND.border }} />
-              <YAxis allowDecimals={false} tick={{ fill: BRAND.text, fontSize: 12 }} tickLine={false} axisLine={false} />
-              <Tooltip contentStyle={{ borderRadius: 12, border: `1px solid ${BRAND.border}`, fontFamily: 'var(--font-ui)', fontSize: 13 }} />
-              <Bar dataKey="checkins" name="Check-ins" fill={BRAND.primary} radius={[6, 6, 0, 0]} maxBarSize={34} />
-              <Bar dataKey="activeUsers" name="Active users" fill={BRAND.sage} radius={[6, 6, 0, 0]} maxBarSize={34} />
-              <Line dataKey="avgValence" name="Avg valence" stroke={BRAND.accent} strokeWidth={2} dot={{ r: 3, fill: BRAND.accent }} />
+              <CartesianGrid stroke={brand.border} strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="label" tick={{ fill: brand.text, fontSize: 12 }} tickLine={false} axisLine={{ stroke: brand.border }} />
+              <YAxis allowDecimals={false} tick={{ fill: brand.text, fontSize: 12 }} tickLine={false} axisLine={false} />
+              <Tooltip contentStyle={{ borderRadius: 12, border: `1px solid ${brand.border}`, fontFamily: 'var(--font-ui)', fontSize: 13 }} />
+              <Bar dataKey="checkins" name="Check-ins" fill={brand.primary} radius={[6, 6, 0, 0]} maxBarSize={34} />
+              <Bar dataKey="activeUsers" name="Active users" fill={brand.sage} radius={[6, 6, 0, 0]} maxBarSize={34} />
+              <Line dataKey="avgValence" name="Avg valence" stroke={brand.accent} strokeWidth={2} dot={{ r: 3, fill: brand.accent }} />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
@@ -82,7 +77,7 @@ export default function AdminMoodInsightsPage() {
                 <div key={d.mood} className="flex items-center gap-3">
                   <span style={{ width: 90, fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-muted)', textTransform: 'capitalize' }}>{d.mood}</span>
                   <div className="flex-1 rounded-full overflow-hidden" style={{ height: 8, backgroundColor: 'var(--color-surface-alt)' }}>
-                    <div className="h-full rounded-full" style={{ width: `${(d.count / maxMood) * 100}%`, backgroundColor: MOOD_COLORS[d.mood ?? 'neutral'] ?? BRAND.primary }} />
+                    <div className="h-full rounded-full" style={{ width: `${(d.count / maxMood) * 100}%`, backgroundColor: MOOD_PALETTE[d.mood ?? 'neutral'] ?? brand.primary }} />
                   </div>
                   <span style={{ width: 28, textAlign: 'right', fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-subtle)' }}>{d.count}</span>
                 </div>
@@ -123,11 +118,11 @@ export default function AdminMoodInsightsPage() {
         <div style={{ width: '100%', height: 200 }}>
           <ResponsiveContainer>
             <BarChart data={data?.hourHistogram ?? []} margin={{ top: 10, right: 8, bottom: 0, left: -20 }}>
-              <CartesianGrid stroke={BRAND.border} strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="hour" tick={{ fill: BRAND.text, fontSize: 11 }} tickLine={false} axisLine={{ stroke: BRAND.border }} />
-              <YAxis allowDecimals={false} tick={{ fill: BRAND.text, fontSize: 12 }} tickLine={false} axisLine={false} />
-              <Tooltip contentStyle={{ borderRadius: 12, border: `1px solid ${BRAND.border}`, fontFamily: 'var(--font-ui)', fontSize: 13 }} labelFormatter={(h) => `${h}:00`} />
-              <Bar dataKey="count" name="Check-ins" fill={BRAND.accent} radius={[4, 4, 0, 0]} maxBarSize={20} />
+              <CartesianGrid stroke={brand.border} strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="hour" tick={{ fill: brand.text, fontSize: 11 }} tickLine={false} axisLine={{ stroke: brand.border }} />
+              <YAxis allowDecimals={false} tick={{ fill: brand.text, fontSize: 12 }} tickLine={false} axisLine={false} />
+              <Tooltip contentStyle={{ borderRadius: 12, border: `1px solid ${brand.border}`, fontFamily: 'var(--font-ui)', fontSize: 13 }} labelFormatter={(h) => `${h}:00`} />
+              <Bar dataKey="count" name="Check-ins" fill={brand.accent} radius={[4, 4, 0, 0]} maxBarSize={20} />
             </BarChart>
           </ResponsiveContainer>
         </div>

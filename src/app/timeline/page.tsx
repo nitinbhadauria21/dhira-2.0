@@ -6,17 +6,9 @@ import AppLayout from '@/components/AppLayout';
 import MoodBadge from '@/components/MoodBadge';
 import { Search, MessageCircle, Bell, BookOpen, BarChart2 } from 'lucide-react';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Line, ComposedChart,
+  Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Line, ComposedChart,
 } from 'recharts';
-
-const BRAND = {
-  primary: '#5A67B8',
-  accent: '#EFA94A',
-  sage: '#63A183',
-  lavender: '#AEA1DA',
-  border: '#E7DFD1',
-  text: '#5E5C6E',
-};
+import { useChartBrand } from '@/lib/brand';
 
 interface WeekPoint { weekStart: string; label: string; checkins: number; avgValence: number }
 interface WeeklyData {
@@ -47,6 +39,7 @@ function SectionCard({ icon: Icon, title, children }: { icon: React.ElementType;
 }
 
 function TimelineContent() {
+  const brand = useChartBrand();
   const [weekly, setWeekly] = useState<WeeklyData | null>(null);
   const [journal, setJournal] = useState<JournalEntry[]>([]);
   const [journalLoading, setJournalLoading] = useState(true);
@@ -115,15 +108,15 @@ function TimelineContent() {
             <div style={{ width: '100%', height: 220 }}>
               <ResponsiveContainer>
                 <ComposedChart data={weekly.series} margin={{ top: 10, right: 8, bottom: 0, left: -20 }}>
-                  <CartesianGrid stroke={BRAND.border} strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="label" tick={{ fill: BRAND.text, fontSize: 12 }} axisLine={{ stroke: BRAND.border }} tickLine={false} />
-                  <YAxis allowDecimals={false} tick={{ fill: BRAND.text, fontSize: 12 }} axisLine={false} tickLine={false} />
+                  <CartesianGrid stroke={brand.border} strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="label" tick={{ fill: brand.text, fontSize: 12 }} axisLine={{ stroke: brand.border }} tickLine={false} />
+                  <YAxis allowDecimals={false} tick={{ fill: brand.text, fontSize: 12 }} axisLine={false} tickLine={false} />
                   <Tooltip
-                    contentStyle={{ borderRadius: 12, border: `1px solid ${BRAND.border}`, fontFamily: 'var(--font-ui)', fontSize: 13 }}
+                    contentStyle={{ borderRadius: 12, border: `1px solid ${brand.border}`, fontFamily: 'var(--font-ui)', fontSize: 13 }}
                     formatter={(v: number, name: string) => [v, name === 'checkins' ? 'Check-ins' : 'Avg valence']}
                   />
-                  <Bar dataKey="checkins" name="checkins" fill={BRAND.primary} radius={[6, 6, 0, 0]} maxBarSize={34} />
-                  <Line dataKey="avgValence" name="avgValence" stroke={BRAND.accent} strokeWidth={2} dot={{ r: 3, fill: BRAND.accent }} />
+                  <Bar dataKey="checkins" name="checkins" fill={brand.primary} radius={[6, 6, 0, 0]} maxBarSize={34} />
+                  <Line dataKey="avgValence" name="avgValence" stroke={brand.accent} strokeWidth={2} dot={{ r: 3, fill: brand.accent }} />
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
@@ -159,7 +152,15 @@ function TimelineContent() {
           />
         </div>
         {journalLoading ? (
-          <EmptyNote text="Loading…" />
+          <div className="flex flex-col gap-3" aria-busy="true" aria-label="Loading journal">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="p-4 rounded-control animate-pulse"
+                style={{ backgroundColor: 'var(--color-surface-alt)', height: 72 }}
+              />
+            ))}
+          </div>
         ) : journal.length === 0 ? (
           <EmptyNote text={query ? 'No entries match that search.' : 'Your reflections will appear here after your first chat with Dhira.'} />
         ) : (

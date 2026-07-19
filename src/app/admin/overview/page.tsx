@@ -60,10 +60,9 @@ function StatCard({ label, value, sub, icon: Icon, accent, trend, trendUp }: Sta
   );
 }
 
-const MOOD_COLORS: Record<string, string> = {
-  happy: '#F0C46B', calm: '#8FBCA4', hopeful: '#79C2C4', neutral: '#B9B2A4', stressed: '#E0A94F',
-  anxious: '#8794DA', lonely: '#A99BC9', overwhelmed: '#9C6B8E', sad: '#7089B0', angry: '#C56B5C',
-};
+import { MOOD_PALETTE } from '@/lib/brand';
+
+const MOOD_COLORS = MOOD_PALETTE;
 
 interface WeekPoint { label: string; checkins: number; activeUsers: number; crisisEvents: number }
 interface MoodDist { mood: string; count: number }
