@@ -37,11 +37,27 @@ export default function OnboardingFlow() {
     setData((prev) => ({ ...prev, ...patch }));
   }, []);
 
-  const finish = useCallback(() => {
+  const finish = useCallback(async () => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('dhira-onboarding-done', 'true');
       localStorage.setItem('dhira-alias', data.alias || 'Friend');
       localStorage.setItem('dhira-language', data.language);
+    }
+    // Persist the anonymous profile + check-in contract to the backend.
+    try {
+      await fetch('/api/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          alias: data.alias || 'Friend',
+          language: data.language,
+          consentCheckin: data.consentCheckin,
+          consentMemory: data.consentMemory,
+          checkinFrequency: data.checkinFrequency,
+        }),
+      });
+    } catch {
+      /* if the save fails we still let them in; they can re-save in Settings */
     }
     router.push('/home-dashboard');
   }, [data, router]);

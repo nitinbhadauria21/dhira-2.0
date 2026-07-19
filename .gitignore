@@ -2,6 +2,13 @@
 node_modules/
 package-lock.json
 
+# Local secrets (never commit real keys — .env holds placeholders only)
+.env.local
+.env*.local
+
+# Local dev data store (used when Supabase is not configured)
+.data/
+
 # Next.js build output
 .next/
 out/

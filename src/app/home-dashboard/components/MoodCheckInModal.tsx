@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 interface MoodCheckInModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSaved?: () => void;
 }
 
 const MOODS = [
@@ -22,7 +23,7 @@ const MOODS = [
   { key: 'mood-angry', id: 'angry', label: 'Angry', emoji: '🌋', color: '#C56B5C' },
 ];
 
-export default function MoodCheckInModal({ isOpen, onClose }: MoodCheckInModalProps) {
+export default function MoodCheckInModal({ isOpen, onClose, onSaved }: MoodCheckInModalProps) {
   const [selected, setSelected] = useState<string | null>(null);
   const [intensity, setIntensity] = useState(50);
   const [saving, setSaving] = useState(false);
@@ -34,13 +35,23 @@ export default function MoodCheckInModal({ isOpen, onClose }: MoodCheckInModalPr
   const handleSave = async () => {
     if (!selected) return;
     setSaving(true);
-    // Backend integration point: saveMood({ mood: selected, intensity: intensity/100, profile_id })
-    await new Promise((r) => setTimeout(r, 800));
-    setSaving(false);
-    toast.success(`${selectedMood?.emoji} ${selectedMood?.label} mood saved`);
-    onClose();
-    setSelected(null);
-    setIntensity(50);
+    try {
+      const res = await fetch('/api/mood', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mood: selected, intensity: intensity / 100 }),
+      });
+      if (!res.ok) throw new Error('save failed');
+      toast.success(`${selectedMood?.emoji} ${selectedMood?.label} mood saved`);
+      onSaved?.();
+    } catch {
+      toast.error('Could not save your mood — please try again.');
+    } finally {
+      setSaving(false);
+      onClose();
+      setSelected(null);
+      setIntensity(50);
+    }
   };
 
   return (

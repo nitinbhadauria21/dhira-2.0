@@ -18,23 +18,32 @@ const MOOD_COLORS: Record<string, string> = {
   angry:       '#C56B5C',
 };
 
-const weekMoods = [
-  { key: 'day-sat', day: 'Sat', date: '5', mood: 'calm', logged: true },
-  { key: 'day-sun', day: 'Sun', date: '6', mood: 'hopeful', logged: true },
-  { key: 'day-mon', day: 'Mon', date: '7', mood: 'stressed', logged: true },
-  { key: 'day-tue', day: 'Tue', date: '8', mood: 'overwhelmed', logged: true },
-  { key: 'day-wed', day: 'Wed', date: '9', mood: 'anxious', logged: true },
-  { key: 'day-thu', day: 'Thu', date: '10', mood: 'anxious', logged: true },
-  { key: 'day-fri', day: 'Fri', date: '11', mood: 'anxious', logged: true, isToday: true },
-];
-
 const moodLabels: Record<string, string> = {
   happy: 'Happy', calm: 'Calm', hopeful: 'Hopeful', neutral: 'Neutral',
   stressed: 'Stressed', anxious: 'Anxious', lonely: 'Lonely',
   overwhelmed: 'Overwhelmed', sad: 'Sad', angry: 'Angry',
 };
 
-export default function HomeMiniTimeline() {
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+interface HomeMiniTimelineProps {
+  last7: { date: string; mood: string | null }[];
+}
+
+export default function HomeMiniTimeline({ last7 }: HomeMiniTimelineProps) {
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const weekMoods = last7.map((d) => {
+    const dateObj = new Date(d.date + 'T00:00:00');
+    return {
+      key: `day-${d.date}`,
+      day: WEEKDAYS[dateObj.getDay()],
+      date: String(dateObj.getDate()),
+      mood: d.mood ?? 'neutral',
+      logged: d.mood != null,
+      isToday: d.date === todayKey,
+    };
+  });
+
   return (
     <div className="dhira-card p-6 h-full">
       {/* Header */}
