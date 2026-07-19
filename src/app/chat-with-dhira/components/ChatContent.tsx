@@ -18,123 +18,104 @@ export interface ChatMessage {
   isCrisisDemo?: boolean;
 }
 
-// Mock initial conversation — backend: load from journal_entries for this session
-const INITIAL_MESSAGES: ChatMessage[] = [
-  {
-    id: 'msg-001',
-    role: 'dhira',
-    content: 'Aaj thoda heavy lag raha hai kya?',
-    timestamp: '10:38 PM',
-  },
-  {
-    id: 'msg-002',
-    role: 'user',
-    content: 'Haan yaar, office mein bilkul mann nahi laga. Sab kuch overwhelming lag raha tha.',
-    timestamp: '10:39 PM',
-  },
-  {
-    id: 'msg-003',
-    role: 'dhira',
-    content: 'Yeh kaafi heavy lag raha hai. Office mein kya hua specifically — ya bas ek general heaviness thi puri din?',
-    timestamp: '10:39 PM',
-  },
-  {
-    id: 'msg-004',
-    role: 'user',
-    content: 'Meeting mein meri baat ko kisi ne seriously nahi liya. Aisa lagta hai jaise main invisible hoon wahan.',
-    timestamp: '10:41 PM',
-  },
-  {
-    id: 'msg-005',
-    role: 'dhira',
-    content: 'That sounds really isolating — to speak and feel like no one received it. Invisible is a heavy word to carry. Yeh feeling pehle bhi aayi hai wahan, ya aaj kuch alag tha?',
-    timestamp: '10:41 PM',
-  },
-];
+// A single warm opening line, shown only when there's no saved history yet.
+const OPENING_GREETING: ChatMessage = {
+  id: 'msg-greeting',
+  role: 'dhira',
+  content: 'Main yahin hoon. Jo bhi mann mein hai, apne time pe likho — aaj kaisa lag raha hai?',
+  timestamp: '',
+};
 
-const CRISIS_TRIGGER_PHRASES = [
-  "i don't want to live anymore",
-  "i want to die",
-  "end my life",
-  "kill myself",
-  "don't want to be here",
-  "test the safety path",
-];
+function formatTime(iso?: string): string {
+  const d = iso ? new Date(iso) : new Date();
+  return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+}
 
 export default function ChatContent() {
-  const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
+  const [messages, setMessages] = useState<ChatMessage[]>([OPENING_GREETING]);
   const [isTyping, setIsTyping] = useState(false);
   const [crisisMode, setCrisisMode] = useState(false);
-  const [moodSaved, setMoodSaved] = useState(false);
+  const [showReferral, setShowReferral] = useState(false);
   const threadEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     threadEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
-  const getDhiraResponse = (userMsg: string): string => {
-    const lower = userMsg.toLowerCase();
-    if (lower.includes('invisible') || lower.includes('ignored')) {
-      return 'I hear you. Being dismissed like that — it leaves a mark. What was the main feeling sitting with you after that meeting?';
-    }
-    if (lower.includes('work') || lower.includes('office') || lower.includes('job')) {
-      return 'Yeh work pressure kaafi heavy ho sakta hai. Kya aaj ka din unusually bad tha, ya yeh kuch time se chal raha hai?';
-    }
-    if (lower.includes('lonely') || lower.includes('alone') || lower.includes('akela')) {
-      return 'Loneliness is one of the quietest kinds of heavy. Yeh feeling — is it mostly at work, or does it follow you home too?';
-    }
-    if (lower.includes('better') || lower.includes('okay') || lower.includes('theek')) {
-      return "I'm glad something shifted a little. What helped, even slightly?";
-    }
-    if (lower.includes('should i') || lower.includes('what should')) {
-      return "I can't decide that for you, and I wouldn't want to. But I can help you put what you're feeling into words. What feels most stuck right now?";
-    }
-    if (lower.includes('am i depressed') || lower.includes('have anxiety') || lower.includes('diagnos')) {
-      return "I can't diagnose anything, and I really don't want to give you the wrong kind of guidance. What I can do is stay with you while you sort through what you're feeling. What's been the hardest part lately?";
-    }
-    return "That sounds heavy. Take your time. What's sitting with you most right now?";
-  };
+  // Load this user's saved chat history on mount.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/messages');
+        const data = await res.json();
+        if (cancelled) return;
+        if (Array.isArray(data.messages) && data.messages.length > 0) {
+          setMessages(
+            data.messages.map((m: { id: string; role: 'user' | 'dhira'; content: string; createdAt: string }) => ({
+              id: m.id,
+              role: m.role,
+              content: m.content,
+              timestamp: formatTime(m.createdAt),
+            })),
+          );
+        }
+      } catch {
+        /* keep the opening greeting on failure */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleSendMessage = async (content: string) => {
-    if (!content.trim()) return;
-
-    const isCrisis = CRISIS_TRIGGER_PHRASES.some((p) => content.toLowerCase().includes(p));
+    if (!content.trim() || isTyping) return;
 
     const userMsg: ChatMessage = {
       id: `msg-user-${Date.now()}`,
       role: 'user',
       content,
-      timestamp: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }),
+      timestamp: formatTime(),
     };
-
     setMessages((prev) => [...prev, userMsg]);
-
-    if (isCrisis) {
-      setIsTyping(true);
-      await new Promise((r) => setTimeout(r, 1200));
-      setIsTyping(false);
-      setCrisisMode(true);
-      // Backend: saveRiskEvent({ risk_level: 'CRISIS', signal: 'self-harm language detected', profile_id })
-      return;
-    }
-
+    setShowReferral(false);
     setIsTyping(true);
-    // Backend: POST /api/chat with { message: content, sessionId } → Primary Agent → Safety Monitor → response
-    await new Promise((r) => setTimeout(r, 1600 + Math.random() * 800));
-    setIsTyping(false);
 
-    const dhiraReply: ChatMessage = {
-      id: `msg-dhira-${Date.now()}`,
-      role: 'dhira',
-      content: getDhiraResponse(content),
-      timestamp: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }),
-    };
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: content }),
+      });
+      const data = await res.json();
+      setIsTyping(false);
 
-    setMessages((prev) => [...prev, dhiraReply]);
+      if (data?.crisis) {
+        // Server-side Escalation Agent detected a crisis → hand off, log happens server-side.
+        setCrisisMode(true);
+        return;
+      }
 
-    // After 5 messages, show mood save nudge
-    if (messages.length >= 7 && !moodSaved) {
-      setMoodSaved(true);
+      const dhiraReply: ChatMessage = {
+        id: `msg-dhira-${Date.now()}`,
+        role: 'dhira',
+        content: data?.reply || "I'm here with you. Tell me a little more?",
+        timestamp: formatTime(),
+      };
+      setMessages((prev) => [...prev, dhiraReply]);
+      if (data?.showReferralCard) setShowReferral(true);
+    } catch {
+      setIsTyping(false);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `msg-dhira-${Date.now()}`,
+          role: 'dhira',
+          content: "I'm having trouble responding right now, but I'm still here. Try again in a moment?",
+          timestamp: formatTime(),
+        },
+      ]);
     }
   };
 
@@ -255,20 +236,21 @@ export default function ChatContent() {
         <div ref={threadEndRef} />
       </div>
 
-      {/* Mood save nudge */}
-      {moodSaved && (
+      {/* Gentle therapist-referral card — shown on medium-risk distress (below full crisis) */}
+      {showReferral && (
         <div
           className="px-4 py-3 flex items-center justify-between fade-in relative z-10"
           style={{ backgroundColor: 'var(--color-primary-soft)', borderTop: '1px solid var(--color-primary)' }}
         >
           <p style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: 'var(--color-text-muted)' }}>
-            Mood tagged: <strong style={{ color: 'var(--color-text)' }}>Anxious · Work</strong>
+            If it helps, someone who can support you: <strong style={{ color: 'var(--color-text)' }}>Tele-MANAS 14416</strong> — free, 24×7.
           </p>
           <button
-            onClick={() => setMoodSaved(false)}
+            onClick={() => setShowReferral(false)}
             style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-primary)', fontWeight: 500 }}
+            aria-label="Dismiss support note"
           >
-            ✓ Saved
+            Dismiss
           </button>
         </div>
       )}

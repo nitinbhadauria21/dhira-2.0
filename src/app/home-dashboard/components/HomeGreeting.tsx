@@ -7,19 +7,13 @@ import { ArrowRight } from 'lucide-react';
 
 interface HomeGreetingProps {
   onStartCheckin: () => void;
+  alias?: string;
+  memoryLine?: string | null;
 }
 
-// Mock data — backend: load from memory_notes table for this profile
-const memoryRecall = {
-  line: 'Last time, work was sitting heavy on you — how\'s that today?',
-  topic: 'work',
-};
-
-const userName = 'Aarav'; // From profiles.anon_id display name
-
-export default function HomeGreeting({ onStartCheckin }: HomeGreetingProps) {
-  // Hour-based greeting — computed statically for SSR safety
-  const hour = 22; // Mock: late evening
+export default function HomeGreeting({ onStartCheckin, alias, memoryLine }: HomeGreetingProps) {
+  const userName = alias || 'Friend';
+  const hour = new Date().getHours();
   const greeting = hour >= 21 || hour < 5
     ? 'Good evening'
     : hour < 12
@@ -60,20 +54,22 @@ export default function HomeGreeting({ onStartCheckin }: HomeGreetingProps) {
         </Link>
       </div>
 
-      {/* Memory recall banner */}
-      <div
-        className="memory-banner flex items-start gap-3"
-      >
-        <span style={{ fontSize: '16px', flexShrink: 0, marginTop: '1px' }}>🌙</span>
-        <div>
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: '15px', color: 'var(--color-text)', lineHeight: 1.55 }}>
-            <span style={{ color: 'var(--color-text-subtle)', fontSize: '12px', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', display: 'block', marginBottom: '3px' }}>
-              Dhira remembers
-            </span>
-            &ldquo;{memoryRecall.line}&rdquo;
-          </p>
+      {/* Memory recall banner — only when there's a real memory to show */}
+      {memoryLine && (
+        <div
+          className="memory-banner flex items-start gap-3"
+        >
+          <span style={{ fontSize: '16px', flexShrink: 0, marginTop: '1px' }}>🌙</span>
+          <div>
+            <p style={{ fontFamily: 'var(--font-ui)', fontSize: '15px', color: 'var(--color-text)', lineHeight: 1.55 }}>
+              <span style={{ color: 'var(--color-text-subtle)', fontSize: '12px', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', display: 'block', marginBottom: '3px' }}>
+                Dhira remembers
+              </span>
+              &ldquo;{memoryLine}&rdquo;
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Mobile CTA */}
       <div className="sm:hidden mt-4">

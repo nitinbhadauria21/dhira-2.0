@@ -31,18 +31,49 @@ function ProfileContent() {
   const [activeSection, setActiveSection] = useState<string>('profile');
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedAlias = localStorage.getItem('dhira-alias');
-      const storedLang = localStorage.getItem('dhira-language') as Language | null;
-      if (storedAlias) setProfile((p) => ({ ...p, alias: storedAlias }));
-      if (storedLang) setProfile((p) => ({ ...p, language: storedLang }));
-    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/profile');
+        const { profile: p } = await res.json();
+        if (!cancelled && p) {
+          setProfile({
+            alias: p.alias,
+            language: p.language,
+            checkinFrequency: p.checkinFrequency,
+            proactiveCheckins: p.consentCheckin,
+            memoryEnabled: p.consentMemory,
+          });
+        }
+      } catch {
+        /* fall back to defaults on failure */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    // Keep alias/language in localStorage too (used for a fast greeting fallback).
     if (typeof window !== 'undefined') {
       localStorage.setItem('dhira-alias', profile.alias);
       localStorage.setItem('dhira-language', profile.language);
+    }
+    try {
+      await fetch('/api/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          alias: profile.alias,
+          language: profile.language,
+          checkinFrequency: profile.checkinFrequency,
+          consentCheckin: profile.proactiveCheckins,
+          consentMemory: profile.memoryEnabled,
+        }),
+      });
+    } catch {
+      /* best-effort; UI still confirms */
     }
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);

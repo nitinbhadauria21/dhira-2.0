@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import HomeGreeting from './HomeGreeting';
 import HomeMoodCard from './HomeMoodCard';
 import HomeStreakCard from './HomeStreakCard';
@@ -9,8 +9,34 @@ import HomeProactiveCard from './HomeProactiveCard';
 import HomeJournalRecent from './HomeJournalRecent';
 import MoodCheckInModal from './MoodCheckInModal';
 
+export interface DashboardData {
+  alias: string;
+  language: 'english' | 'hinglish';
+  latestMood: { mood: string; intensity: number; topic: string } | null;
+  memory: { summary: string; carryForward: string } | null;
+  streak: number;
+  totalSessions: number;
+  last7: { date: string; mood: string | null }[];
+  recentJournal: { summary: string; topic: string; createdAt: string }[];
+}
+
 export default function HomeDashboardContent() {
   const [moodModalOpen, setMoodModalOpen] = useState(false);
+  const [data, setData] = useState<DashboardData | null>(null);
+
+  const loadData = useCallback(async () => {
+    try {
+      const res = await fetch('/api/home');
+      const json = await res.json();
+      if (!json.error) setData(json as DashboardData);
+    } catch {
+      /* keep prior data on failure */
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   return (
     <div className="relative min-h-screen">
@@ -120,18 +146,22 @@ export default function HomeDashboardContent() {
         className="relative z-10 max-w-screen-xl mx-auto px-6 lg:px-10 2xl:px-16 py-8"
       >
         {/* Greeting + CTA row */}
-        <HomeGreeting onStartCheckin={() => setMoodModalOpen(true)} />
+        <HomeGreeting
+          onStartCheckin={() => setMoodModalOpen(true)}
+          alias={data?.alias}
+          memoryLine={data?.memory?.summary ?? null}
+        />
 
         {/* Bento grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mt-6">
           {/* Mood card — hero, spans 2 cols on xl */}
           <div className="xl:col-span-2">
-            <HomeMoodCard onLogMood={() => setMoodModalOpen(true)} />
+            <HomeMoodCard onLogMood={() => setMoodModalOpen(true)} latestMood={data?.latestMood ?? null} />
           </div>
 
           {/* Streak card */}
           <div className="xl:col-span-1">
-            <HomeStreakCard />
+            <HomeStreakCard streak={data?.streak ?? 0} totalSessions={data?.totalSessions ?? 0} />
           </div>
 
           {/* Proactive check-in card */}
@@ -141,17 +171,21 @@ export default function HomeDashboardContent() {
 
           {/* Mini timeline — spans 3 cols on xl */}
           <div className="xl:col-span-3">
-            <HomeMiniTimeline />
+            <HomeMiniTimeline last7={data?.last7 ?? []} />
           </div>
 
           {/* Recent journal */}
           <div className="xl:col-span-1">
-            <HomeJournalRecent />
+            <HomeJournalRecent entries={data?.recentJournal ?? []} />
           </div>
         </div>
 
         {/* Mood check-in modal */}
-        <MoodCheckInModal isOpen={moodModalOpen} onClose={() => setMoodModalOpen(false)} />
+        <MoodCheckInModal
+          isOpen={moodModalOpen}
+          onClose={() => setMoodModalOpen(false)}
+          onSaved={loadData}
+        />
       </div>
     </div>
   );

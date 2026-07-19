@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
 import { CheckCircle, Clock, Filter, PhoneCall, User,  } from 'lucide-react';
 
@@ -18,68 +18,30 @@ interface RiskEvent {
   resolved: boolean;
 }
 
-const riskEvents: RiskEvent[] = [
-  {
-    id: 'evt-001',
-    timestamp: '2026-07-12 09:41',
-    userId: 'anon-7f3a',
-    riskLevel: 'high',
-    trigger: 'Explicit self-harm language detected',
-    handoffFired: true,
-    resource: 'Tele-MANAS 14416',
-    resolved: true,
-  },
-  {
-    id: 'evt-002',
-    timestamp: '2026-07-11 22:17',
-    userId: 'anon-2c9b',
-    riskLevel: 'high',
-    trigger: 'Repeated hopelessness + isolation signals',
-    handoffFired: true,
-    resource: 'Tele-MANAS 14416',
-    resolved: true,
-  },
-  {
-    id: 'evt-003',
-    timestamp: '2026-07-11 14:05',
-    userId: 'anon-8e1d',
-    riskLevel: 'medium',
-    trigger: 'Moderate distress — persistent sadness',
-    handoffFired: false,
-    resource: 'Therapist referral card shown',
-    resolved: true,
-  },
-  {
-    id: 'evt-004',
-    timestamp: '2026-07-10 18:33',
-    userId: 'anon-4a6f',
-    riskLevel: 'high',
-    trigger: 'Crisis keywords in three consecutive messages',
-    handoffFired: true,
-    resource: 'Tele-MANAS 14416',
-    resolved: true,
-  },
-  {
-    id: 'evt-005',
-    timestamp: '2026-07-10 11:22',
-    userId: 'anon-9d2e',
-    riskLevel: 'medium',
-    trigger: 'Anxiety escalation — breathing exercise offered',
-    handoffFired: false,
-    resource: 'Coping resource shown',
-    resolved: true,
-  },
-  {
-    id: 'evt-006',
-    timestamp: '2026-07-09 20:48',
-    userId: 'anon-1b5c',
-    riskLevel: 'low',
-    trigger: 'Mild distress — check-in scheduled',
-    handoffFired: false,
-    resource: 'Proactive check-in queued',
-    resolved: true,
-  },
-];
+interface ApiRiskEvent {
+  id: string;
+  user: string;
+  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRISIS';
+  signal: string;
+  handled: boolean;
+  createdAt: string;
+}
+
+// Map the backend risk levels onto this screen's three buckets.
+function mapEvent(e: ApiRiskEvent): RiskEvent {
+  const level: RiskLevel = e.riskLevel === 'MEDIUM' ? 'medium' : e.riskLevel === 'LOW' ? 'low' : 'high';
+  const handoff = e.riskLevel === 'CRISIS' || e.riskLevel === 'HIGH';
+  return {
+    id: e.id,
+    timestamp: e.createdAt.replace('T', ' ').slice(0, 16),
+    userId: e.user,
+    riskLevel: level,
+    trigger: e.signal || 'Risk signal detected',
+    handoffFired: handoff,
+    resource: handoff ? 'Tele-MANAS 14416' : 'Therapist referral card shown',
+    resolved: e.handled,
+  };
+}
 
 const riskColors: Record<RiskLevel, { bg: string; text: string; dot: string }> = {
   high: { bg: 'rgba(197,107,92,0.12)', text: 'var(--color-crisis)', dot: '#C56B5C' },
@@ -90,6 +52,29 @@ const riskColors: Record<RiskLevel, { bg: string; text: string; dot: string }> =
 export default function AdminSafetyPage() {
   const [filter, setFilter] = useState<FilterType>('all');
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [riskEvents, setRiskEvents] = useState<RiskEvent[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const res = await fetch('/api/admin/safety');
+        const data = await res.json();
+        if (!cancelled && Array.isArray(data.events)) {
+          setRiskEvents(data.events.map(mapEvent));
+        }
+      } catch {
+        /* leave list empty on failure */
+      }
+    };
+    load();
+    // Refresh periodically so a crisis triggered during the demo appears live.
+    const t = setInterval(load, 5000);
+    return () => {
+      cancelled = true;
+      clearInterval(t);
+    };
+  }, []);
 
   const filtered = filter === 'all' ? riskEvents : riskEvents.filter((e) => e.riskLevel === filter);
 
@@ -181,6 +166,14 @@ export default function AdminSafetyPage() {
             </span>
           ))}
         </div>
+
+        {filtered.length === 0 && (
+          <div className="px-5 py-8 text-center">
+            <p style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: 'var(--color-text-muted)' }}>
+              No risk events logged yet. When the Escalation Agent catches a crisis in chat, it appears here within seconds.
+            </p>
+          </div>
+        )}
 
         {filtered.map((evt, i) => {
           const rc = riskColors[evt.riskLevel];

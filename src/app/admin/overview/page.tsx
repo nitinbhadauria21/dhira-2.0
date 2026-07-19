@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
 import { Users, MessageSquare, BookOpen, AlertTriangle, CheckCircle, Clock, Activity,  } from 'lucide-react';
 import Icon from '@/components/ui/AppIcon';
@@ -78,46 +78,70 @@ const recentActivity = [
   { time: '6 hr ago', event: 'Proactive engine ran — 18 sent, 0 failed', type: 'success' },
 ];
 
+interface AdminStats {
+  totalUsers: number;
+  totalMessages: number;
+  totalMoodLogs: number;
+  crisisEvents: number;
+  mediumEvents: number;
+  activeToday: number;
+}
+
 export default function AdminOverviewPage() {
+  const [stats, setStats] = useState<AdminStats | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const res = await fetch('/api/admin/safety');
+        const data = await res.json();
+        if (!cancelled && data.stats) setStats(data.stats as AdminStats);
+      } catch {
+        /* leave stats null */
+      }
+    };
+    load();
+    const t = setInterval(load, 5000);
+    return () => {
+      cancelled = true;
+      clearInterval(t);
+    };
+  }, []);
+
+  const fmt = (n?: number) => (n == null ? '—' : n.toLocaleString('en-IN'));
+
   return (
     <AdminLayout title="Overview" subtitle="Live snapshot of Dhira's health and usage">
-      {/* Stats grid */}
+      {/* Stats grid — real numbers from saved, anonymous data */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard
-          label="Active users (7d)"
-          value="142"
+          label="Anonymous users"
+          value={fmt(stats?.totalUsers)}
           sub="Unique anonymous sessions"
           icon={Users}
           accent="var(--color-primary)"
-          trend="+12%"
-          trendUp
         />
         <StatCard
-          label="Check-ins sent"
-          value="318"
-          sub="Last 7 days"
+          label="Messages"
+          value={fmt(stats?.totalMessages)}
+          sub={`${fmt(stats?.activeToday)} active today`}
           icon={MessageSquare}
           accent="var(--color-accent)"
-          trend="+8%"
-          trendUp
         />
         <StatCard
-          label="Journal entries"
-          value="1,204"
+          label="Mood logs"
+          value={fmt(stats?.totalMoodLogs)}
           sub="All time"
           icon={BookOpen}
           accent="var(--color-lavender)"
-          trend="+5%"
-          trendUp
         />
         <StatCard
-          label="Risk events"
-          value="3"
-          sub="Last 7 days — all handed off"
+          label="Crisis hand-offs"
+          value={fmt(stats?.crisisEvents)}
+          sub={`${fmt(stats?.mediumEvents)} medium-risk`}
           icon={AlertTriangle}
           accent="var(--color-crisis)"
-          trend="+1"
-          trendUp={false}
         />
       </div>
 

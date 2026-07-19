@@ -1,14 +1,12 @@
 import React from 'react';
 
-// Mock data — backend: compute from mood_logs consecutive days
-const streakData = {
-  current: 6,
-  longest: 14,
-  totalSessions: 23,
-  memberSince: '18 Jun 2026',
-};
+interface HomeStreakCardProps {
+  streak: number;
+  totalSessions: number;
+}
 
-export default function HomeStreakCard() {
+export default function HomeStreakCard({ streak, totalSessions }: HomeStreakCardProps) {
+  const streakData = { current: streak, longest: streak, totalSessions };
   return (
     <div className="dhira-card p-6 h-full flex flex-col gap-4">
       {/* Header */}
