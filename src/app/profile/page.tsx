@@ -10,6 +10,7 @@ import Icon from '@/components/ui/AppIcon';
 
 type Language = 'english' | 'hinglish';
 type CheckinFrequency = 'daily' | 'every-other-day' | 'weekly';
+type NotifyChannel = 'email' | 'whatsapp';
 
 interface ProfileData {
   alias: string;
@@ -17,6 +18,11 @@ interface ProfileData {
   checkinFrequency: CheckinFrequency;
   proactiveCheckins: boolean;
   memoryEnabled: boolean;
+  email: string;
+  phoneE164: string;
+  preferredChannel: NotifyChannel;
+  emailOptIn: boolean;
+  whatsappOptIn: boolean;
 }
 
 function ProfileContent() {
@@ -26,6 +32,11 @@ function ProfileContent() {
     checkinFrequency: 'daily',
     proactiveCheckins: true,
     memoryEnabled: true,
+    email: '',
+    phoneE164: '',
+    preferredChannel: 'email',
+    emailOptIn: true,
+    whatsappOptIn: false,
   });
   const [saved, setSaved] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('profile');
@@ -43,6 +54,11 @@ function ProfileContent() {
             checkinFrequency: p.checkinFrequency,
             proactiveCheckins: p.consentCheckin,
             memoryEnabled: p.consentMemory,
+            email: p.email ?? '',
+            phoneE164: p.phoneE164 ?? '',
+            preferredChannel: p.preferredChannel ?? 'email',
+            emailOptIn: p.emailOptIn ?? true,
+            whatsappOptIn: p.whatsappOptIn ?? false,
           });
         }
       } catch {
@@ -70,6 +86,11 @@ function ProfileContent() {
           checkinFrequency: profile.checkinFrequency,
           consentCheckin: profile.proactiveCheckins,
           consentMemory: profile.memoryEnabled,
+          email: profile.email,
+          phoneE164: profile.phoneE164,
+          preferredChannel: profile.preferredChannel,
+          emailOptIn: profile.emailOptIn,
+          whatsappOptIn: profile.whatsappOptIn,
         }),
       });
     } catch {
@@ -361,11 +382,68 @@ function ProfileContent() {
                 ))}
               </div>
 
+              {/* Notifications & contact */}
+              <div className="flex flex-col gap-4 mb-6 pt-4" style={{ borderTop: '1px solid var(--color-border)' }}>
+                <p style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', fontWeight: 600, color: 'var(--color-text)' }}>
+                  How should Dhira reach you?
+                </p>
+                {/* Channel selector */}
+                <div className="flex gap-3">
+                  {([
+                    { value: 'email', label: 'Email' },
+                    { value: 'whatsapp', label: 'WhatsApp' },
+                  ] as { value: NotifyChannel; label: string }[]).map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setProfile((p) => ({ ...p, preferredChannel: opt.value }))}
+                      className="flex-1 p-3 rounded-control text-left transition-all duration-200"
+                      style={{
+                        border: `2px solid ${profile.preferredChannel === opt.value ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                        backgroundColor: profile.preferredChannel === opt.value ? 'var(--color-primary-soft)' : 'var(--color-surface-alt)',
+                        cursor: 'pointer',
+                        fontFamily: 'var(--font-ui)',
+                        fontSize: '14px',
+                        fontWeight: 500,
+                        color: profile.preferredChannel === opt.value ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                      }}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+                {/* Email */}
+                <div>
+                  <label htmlFor="pf-email" style={{ display: 'block', fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-muted)', marginBottom: '6px' }}>Email for check-ins</label>
+                  <input
+                    id="pf-email"
+                    type="email"
+                    value={profile.email}
+                    onChange={(e) => setProfile((p) => ({ ...p, email: e.target.value }))}
+                    placeholder="you@example.com"
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-control)', border: '1.5px solid var(--color-border)', backgroundColor: 'var(--color-surface-alt)', color: 'var(--color-text)', fontFamily: 'var(--font-ui)', fontSize: '15px', outline: 'none' }}
+                  />
+                </div>
+                {/* Phone */}
+                <div>
+                  <label htmlFor="pf-phone" style={{ display: 'block', fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-muted)', marginBottom: '6px' }}>WhatsApp number (with country code)</label>
+                  <input
+                    id="pf-phone"
+                    type="tel"
+                    value={profile.phoneE164}
+                    onChange={(e) => setProfile((p) => ({ ...p, phoneE164: e.target.value }))}
+                    placeholder="+91 98765 43210"
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-control)', border: '1.5px solid var(--color-border)', backgroundColor: 'var(--color-surface-alt)', color: 'var(--color-text)', fontFamily: 'var(--font-ui)', fontSize: '15px', outline: 'none' }}
+                  />
+                </div>
+              </div>
+
               {/* Toggles */}
               <div className="flex flex-col gap-4 mb-6 pt-4" style={{ borderTop: '1px solid var(--color-border)' }}>
                 {[
                   { key: 'proactiveCheckins', label: 'Proactive check-ins', sub: 'Dhira reaches out first within your chosen window' },
                   { key: 'memoryEnabled', label: 'Memory', sub: 'Dhira remembers what you shared last time' },
+                  { key: 'emailOptIn', label: 'Email notifications', sub: 'Allow Dhira to reach you over email' },
+                  { key: 'whatsappOptIn', label: 'WhatsApp notifications', sub: 'Allow Dhira to reach you over WhatsApp' },
                 ].map((toggle) => (
                   <div key={toggle.key} className="flex items-center justify-between gap-4">
                     <div>

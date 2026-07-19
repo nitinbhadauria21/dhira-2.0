@@ -2,14 +2,34 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import DhiraAvatar from '@/components/DhiraAvatar';
+import { signUpEmail } from '@/lib/authClient';
 
 function SignUpContent() {
+  const router = useRouter();
   const [alias, setAlias] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [agreedTerms, setAgreedTerms] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSignUp = async () => {
+    if (!agreedTerms) return;
+    setError(null);
+    setLoading(true);
+    try {
+      await signUpEmail(email.trim(), password, alias.trim() || 'Friend');
+      // New account created + signed in → continue to onboarding.
+      router.push('/onboarding');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not create your account');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div
@@ -319,19 +339,29 @@ function SignUpContent() {
             </label>
           </div>
 
+          {error && (
+            <div
+              className="mb-4"
+              style={{ padding: '10px 12px', borderRadius: 'var(--radius-control)', backgroundColor: 'var(--color-crisis-surface)', border: '1px solid var(--color-crisis)', color: 'var(--color-crisis)', fontFamily: 'var(--font-ui)', fontSize: '13px' }}
+            >
+              {error}
+            </div>
+          )}
+
           {/* Submit */}
           <button
             type="button"
+            onClick={handleSignUp}
             className="btn-accent w-full justify-center"
             style={{
               fontSize: '16px',
               padding: '13px 24px',
-              opacity: agreedTerms ? 1 : 0.55,
-              cursor: agreedTerms ? 'pointer' : 'not-allowed',
+              opacity: agreedTerms && !loading ? 1 : 0.55,
+              cursor: agreedTerms && !loading ? 'pointer' : 'not-allowed',
             }}
-            disabled={!agreedTerms}
+            disabled={!agreedTerms || loading}
           >
-            Create my Dhira account
+            {loading ? 'Creating your account…' : 'Create my Dhira account'}
           </button>
 
           {/* Sign in link */}

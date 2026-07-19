@@ -30,18 +30,54 @@ export type TopicTag =
 
 export type CheckinFrequency = 'daily' | 'every-other-day' | 'weekly';
 
-/** The anonymous person + their preferences (the "check-in contract"). */
+export type NotifyChannel = 'email' | 'whatsapp';
+
+/** The identified person + their preferences (the "check-in contract" + contact). */
 export interface Profile {
-  id: string; // anonymous id (from a secure cookie), never a real name
+  id: string; // = auth user id (Supabase) or dev-session id
   alias: string;
   avatar: string; // e.g. 'moon' | 'sun' — a UI asset only, non-human
   language: Language;
+  email: string | null;
+  phoneE164: string | null; // used for WhatsApp
+  preferredChannel: NotifyChannel;
+  emailOptIn: boolean;
+  whatsappOptIn: boolean;
+  timezone: string; // IANA tz, e.g. 'Asia/Kolkata'
   consentCheckin: boolean;
   consentMemory: boolean;
   checkinFrequency: CheckinFrequency;
   checkinWindow: string; // e.g. '22:00-23:00' (their late-night hours)
   createdAt: string;
   updatedAt: string;
+}
+
+/**
+ * Dev-mode credential record (only used when Supabase Auth is NOT configured).
+ * In production, Supabase Auth (auth.users) owns credentials — this is never used.
+ */
+export interface AuthUser {
+  id: string;
+  email: string | null;
+  phoneE164: string | null;
+  passwordHash: string | null; // scrypt hash (dev only)
+  createdAt: string;
+}
+
+export type NotificationType = 'proactive_checkin' | 'weekly_summary' | 'crisis_followup';
+export type NotificationStatus = 'queued' | 'sent' | 'delivered' | 'failed';
+
+export interface NotificationRecord {
+  id: string;
+  profileId: string;
+  channel: NotifyChannel;
+  type: NotificationType;
+  content: string;
+  status: NotificationStatus;
+  providerMessageId: string | null;
+  scheduledFor: string | null;
+  sentAt: string | null;
+  createdAt: string;
 }
 
 export interface ChatMessageRecord {
