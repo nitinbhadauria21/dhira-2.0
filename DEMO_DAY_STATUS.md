@@ -1,7 +1,7 @@
 # Dhira — Demo Day status report
 
-Last updated: **19 Jul 2026**  
-Repo: `nitinbhadauria21/dhira-2.0` · Branch merged to `main` via PRs #1–#4 (feature work); this doc tracks product readiness for the team.
+Last updated: **20 Jul 2026**  
+Repo: `nitinbhadauria21/dhira-2.0` · Feature work on `main` via PRs #1–#7; this doc tracks product readiness for the team.
 
 ---
 
@@ -52,7 +52,9 @@ Dhira is **past the mock-frontend stage**. Teammates can run the full product lo
 - [x] Proactive check-in + weekly notification types (Monitor-gated)
 - [x] `/api/notifications` inbox + `/api/notifications/callback`
 - [x] `/api/notifications/due` + `/api/notifications/weekly` for Emergent scheduling
-- [x] Plain-English Emergent attach guide: `docs/emergent/EMERGENT_DEMO_DAY_WORKFLOW.md`
+- [x] Plain-English Emergent attach guide (founder copy): `docs/emergent/EMERGENT_DEMO_DAY_WORKFLOW.md`
+- [x] Email + WhatsApp templates: `docs/emergent/TEMPLATES.md`
+- [x] SQL for due-list columns: `supabase/migrations/20260720_notification_orchestration.sql`
 - [x] `/api/admin/weekly` + admin mood-insights / overview wired to real aggregates
 
 ### Verification done in cloud VM
@@ -115,6 +117,19 @@ Smoke test:
 5. `GET /api/status` → confirm flags  
 
 Reset local-only data: delete `.data/dhira-store.json` (ignored by git).
+
+---
+
+## How to re-create Emergent workflows (anyone on the team)
+
+1. Open **[docs/emergent/EMERGENT_DEMO_DAY_WORKFLOW.md](./docs/emergent/EMERGENT_DEMO_DAY_WORKFLOW.md)** — this is the founder attachable copy.
+2. In Emergent, create two workflows named exactly as in that doc:
+   - `Dhira — Proactive Check-in`
+   - `Dhira — Weekly Summary`
+3. Paste the schedule + HTTP steps (due → prepare → send → callback) from the doc.
+4. Copy email/WhatsApp bodies from **[docs/emergent/TEMPLATES.md](./docs/emergent/TEMPLATES.md)** (same text is also in the workflow doc).
+5. Set Dhira env secrets to match Emergent (`EMERGENT_NOTIFY_WEBHOOK_URL`, `EMERGENT_WEBHOOK_SECRET`, `CHECKIN_SECRET`, `APP_URL`).
+6. Keep `WHATSAPP_ENABLED=false` until Meta templates are approved.
 
 ---
 

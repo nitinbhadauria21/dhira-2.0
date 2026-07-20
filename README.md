@@ -7,7 +7,18 @@ Stack: **Next.js 15 · React 19 · TypeScript · Tailwind · Supabase Auth + Pos
 
 > Team status snapshot (completed vs pending): see **[DEMO_DAY_STATUS.md](./DEMO_DAY_STATUS.md)**  
 > Emergent Demo Day workflow (attach in Emergent): **[docs/emergent/EMERGENT_DEMO_DAY_WORKFLOW.md](./docs/emergent/EMERGENT_DEMO_DAY_WORKFLOW.md)**  
+> Email / WhatsApp templates: **[docs/emergent/TEMPLATES.md](./docs/emergent/TEMPLATES.md)**  
 > Cloud-agent notes: **[AGENTS.md](./AGENTS.md)** · Product routes/safety: **[CLAUDE.md](./CLAUDE.md)** · Data model: **[supabase/DATA_MODEL.md](./supabase/DATA_MODEL.md)**
+
+### Re-create Emergent workflows from this repo
+
+Anyone can rebuild the Demo Day clock + send flows without tribal knowledge:
+
+1. Attach / follow `docs/emergent/EMERGENT_DEMO_DAY_WORKFLOW.md` inside Emergent.
+2. Create the two named workflows (`Dhira — Proactive Check-in`, `Dhira — Weekly Summary`).
+3. Point them at Dhira’s APIs: `GET /api/notifications/due`, `POST /api/checkin`, `POST /api/notifications/weekly`, then call `POST /api/notifications/callback` after send.
+4. Use templates from `docs/emergent/TEMPLATES.md`.
+5. Match env secrets listed in `.env.example` (`EMERGENT_*`, `CHECKIN_SECRET`, `APP_URL`).
 
 ---
 

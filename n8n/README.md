@@ -1,10 +1,11 @@
 # Reminder scheduling for Dhira
 
-**Demo Day path: use Emergent** — see the attachable guide:
+**Demo Day path: use Emergent** — see the founder attachable guide:
 
-→ [`docs/emergent/EMERGENT_DEMO_DAY_WORKFLOW.md`](../docs/emergent/EMERGENT_DEMO_DAY_WORKFLOW.md)
+→ [`docs/emergent/EMERGENT_DEMO_DAY_WORKFLOW.md`](../docs/emergent/EMERGENT_DEMO_DAY_WORKFLOW.md)  
+→ Templates: [`docs/emergent/TEMPLATES.md`](../docs/emergent/TEMPLATES.md)
 
-That document explains the full clock → due list → check-in → send email/WhatsApp → callback flow in plain English.
+That document is the single source of truth to re-create the clock → due list → check-in → send email/WhatsApp → callback flow in Emergent (or optionally with n8n as the timer only).
 
 ## What Dhira already exposes
 
