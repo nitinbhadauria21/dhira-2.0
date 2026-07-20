@@ -4,6 +4,9 @@ import { imageHosts } from './image-hosts.config.mjs';
 const nextConfig = {
   productionBrowserSourceMaps: true,
   distDir: process.env.DIST_DIR || '.next',
+  // Hide the Next.js "N" floating badge in local Cursor preview
+  // (dev-only framework indicator — not part of the Dhira product UI).
+  devIndicators: false,
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -16,7 +19,7 @@ const nextConfig = {
     qualities: [75, 85, 100],
   },
   webpack(config, { dev }) {
-    // Local Cursor host only — no Rocket/DhiWise component-tagger loader.
+    // Cursor-local webpack watch options only.
     if (dev) {
       const ignoredPaths = (process.env.WATCH_IGNORED_PATHS || '')
         .split(',')
