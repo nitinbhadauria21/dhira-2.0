@@ -1,7 +1,9 @@
 # Dhira — Demo Day status report
 
 Last updated: **20 Jul 2026**  
-Repo: `nitinbhadauria21/dhira-2.0` · Feature work on `main` via PRs #1–#7; this doc tracks product readiness for the team.
+Repo: `nitinbhadauria21/dhira-2.0` · Feature work on `main` via recent PRs; this doc tracks product readiness for the team.
+
+**Host:** Cursor local only — `npm run dev` → **http://localhost:4028** (Rocket hosting removed).
 
 ---
 
@@ -18,7 +20,8 @@ Dhira is **past the mock-frontend stage**. Teammates can run the full product lo
 | Phone OTP (SMS) | ⚠️ UI ready; needs Twilio/SMS in Supabase |
 | Live Claude brain | ⏳ Pending real `ANTHROPIC_API_KEY` |
 | Emergent email/WhatsApp send | ✅ Dhira APIs + docs ready; wire Emergent webhook URL + secrets |
-| Public deploy URL | ⏳ Pending hosting account |
+| Public deploy URL | ⛔ Not required — **Cursor local http://localhost:4028** is the product host |
+| Rocket.new hosting | ⛔ Retired — do not use `*.builtwithrocket.new` |
 | Production admin RBAC | ⏳ Still placeholder client gate |
 
 ---

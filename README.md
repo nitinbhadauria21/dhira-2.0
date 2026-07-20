@@ -3,6 +3,9 @@
 A private, Hinglish-first AI **listening companion** for mental wellness (India-first).  
 Dhira *listens, never advises*, and always surfaces **Tele-MANAS 14416** in crisis.
 
+**Development host:** Cursor local only — **http://localhost:4028**  
+Rocket.new hosting URLs are retired. Do not open old `*.builtwithrocket.new` links for this product.
+
 Stack: **Next.js 15 · React 19 · TypeScript · Tailwind · Supabase Auth + Postgres · Anthropic Claude (optional)**
 
 > Team status snapshot (completed vs pending): see **[DEMO_DAY_STATUS.md](./DEMO_DAY_STATUS.md)**  
@@ -107,10 +110,19 @@ API routes live under `src/app/api/*`. Protected pages use `src/middleware.ts` (
 
 ---
 
-## Deploy (Demo Day URL)
+## Hosting (Cursor local only)
 
-Deploy to Vercel/Netlify with the same env vars as `.env.local`.  
-`@netlify/plugin-nextjs` is already a dependency. Someone with the hosting account must click deploy.
+**Cursor local** is the only host for Dhira while we build and demo.
+
+```bash
+npm run dev
+```
+
+Open **http://localhost:4028** — that is the real product UI (landing, chat, timeline).  
+Do **not** use Rocket (`*.builtwithrocket.new`) or other external preview hosts.
+
+Frontend, backend, database wiring, and tests are all owned in this Cursor workspace.  
+A public Vercel/Netlify URL is optional later — not required for day-to-day work or Demo Day.
 
 ---
 

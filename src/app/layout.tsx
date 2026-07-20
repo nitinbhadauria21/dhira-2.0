@@ -37,9 +37,7 @@ export default function RootLayout({
     <html lang="en" data-theme="night" className={`${fraunces.variable} ${mukta.variable}`}>
       <body className={mukta.className}>
         {children}
-
-        <script type="module" async src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Fdhira1153back.builtwithrocket.new&_be=https%3A%2F%2Fappanalytics.rocket.new&_v=0.1.19" />
-        <script type="module" defer src="https://static.rocket.new/rocket-shot.js?v=0.0.2" /></body>
+      </body>
     </html>
   );
 }
