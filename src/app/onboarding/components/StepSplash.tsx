@@ -33,9 +33,10 @@ export default function StepSplash({ onNext }: Props) {
           style={{
             fontFamily: 'var(--font-display)',
             fontSize: 'clamp(32px, 6vw, 48px)',
-            fontWeight: 500,
+            fontWeight: 650,
             color: 'var(--color-text)',
-            lineHeight: 1.15,
+            lineHeight: 1.12,
+            letterSpacing: '-0.03em',
           }}
         >
           Kuch feel ho raha hai?
@@ -43,14 +44,14 @@ export default function StepSplash({ onNext }: Props) {
         <p
           style={{
             fontFamily: 'var(--font-ui)',
-            fontSize: '18px',
+            fontSize: '17px',
             color: 'var(--color-text-muted)',
             lineHeight: 1.65,
-            maxWidth: '380px',
+            maxWidth: '34ch',
+            marginInline: 'auto',
           }}
         >
-          Dhira is here to listen — no advice, no judgment, no real name needed.
-          Just a quiet space that remembers.
+          Dhira listens — no advice, no judgment. Alias only. Just a quiet space that remembers.
         </p>
       </div>
 

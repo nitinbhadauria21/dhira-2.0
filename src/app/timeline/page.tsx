@@ -87,11 +87,14 @@ function TimelineContent() {
   return (
     <div className="max-w-screen-lg mx-auto px-6 lg:px-10 py-8 flex flex-col gap-6">
       <div>
-        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 3vw, 32px)', fontWeight: 500, color: 'var(--color-text)' }}>
+        <h1
+          className="text-h2"
+          style={{ color: 'var(--color-text)' }}
+        >
           My Dhira
         </h1>
-        <p style={{ fontFamily: 'var(--font-ui)', fontSize: '15px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-          Your week, your journal, and every conversation — all in one calm place.
+        <p className="text-body" style={{ color: 'var(--color-text-muted)', marginTop: '6px', fontSize: '15px' }}>
+          Your week, journal, chats, and check-ins — one calm place.
         </p>
       </div>
 

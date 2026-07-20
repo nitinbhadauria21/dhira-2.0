@@ -14,10 +14,14 @@ interface HomeGreetingProps {
 export default function HomeGreeting({ onStartCheckin, alias, memoryLine }: HomeGreetingProps) {
   const userName = alias || 'Friend';
   const hour = new Date().getHours();
-  const greeting = hour >= 21 || hour < 5
-    ? 'Good evening'
-    : hour < 12
-      ? 'Good morning' :'Good afternoon';
+  const greeting =
+    hour >= 21 || hour < 5
+      ? 'Late night'
+      : hour < 12
+        ? 'Good morning'
+        : hour < 17
+          ? 'Hey'
+          : 'Good evening';
 
   return (
     <div className="mb-2">
@@ -29,16 +33,17 @@ export default function HomeGreeting({ onStartCheckin, alias, memoryLine }: Home
             <h1
               style={{
                 fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(22px, 3vw, 32px)',
-                fontWeight: 500,
+                fontSize: 'clamp(24px, 3.5vw, 34px)',
+                fontWeight: 650,
                 color: 'var(--color-text)',
-                lineHeight: 1.2,
+                lineHeight: 1.15,
+                letterSpacing: '-0.03em',
               }}
             >
               {greeting}, {userName}.
             </h1>
-            <p style={{ fontFamily: 'var(--font-ui)', fontSize: '15px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-              Dhira is here.
+            <p style={{ fontFamily: 'var(--font-ui)', fontSize: '15px', color: 'var(--color-text-muted)', marginTop: '6px' }}>
+              Dhira is here — no pressure, just space.
             </p>
           </div>
         </div>

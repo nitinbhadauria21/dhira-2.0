@@ -24,7 +24,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: 'Dhira — The calm that stays up with you',
-  description: 'Dhira is a private, anonymous emotional support companion that listens, remembers, and reaches out — never advising, always present.',
+  description:
+    'Private, Hinglish-first listening companion for India. Dhira listens, remembers, and checks in — never advises. Crisis help: Tele-MANAS 14416.',
   icons: {
     icon: [{ url: '/favicon.ico', type: 'image/x-icon' }],
   },
