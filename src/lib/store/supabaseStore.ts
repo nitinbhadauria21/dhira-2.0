@@ -46,6 +46,8 @@ const toProfile = (r: any): Profile => ({
   consentMemory: r.consent_memory,
   checkinFrequency: r.checkin_frequency,
   checkinWindow: r.checkin_window,
+  lastProactiveAt: r.last_proactive_at ?? null,
+  lastWeeklyAt: r.last_weekly_at ?? null,
   createdAt: r.created_at,
   updatedAt: r.updated_at,
 });
@@ -61,6 +63,8 @@ const toNotification = (r: any): NotificationRecord => ({
   scheduledFor: r.scheduled_for ?? null,
   sentAt: r.sent_at ?? null,
   createdAt: r.created_at,
+  templateKey: r.template_key ?? null,
+  subject: r.subject ?? null,
 });
 
 const toMessage = (r: any): ChatMessageRecord => ({
@@ -124,6 +128,8 @@ export class SupabaseStore implements DhiraStore {
       consent_memory: true,
       checkin_frequency: 'daily',
       checkin_window: '22:00-23:00',
+      last_proactive_at: null,
+      last_weekly_at: null,
       created_at: now,
       updated_at: now,
     };
@@ -149,7 +155,15 @@ export class SupabaseStore implements DhiraStore {
     if (patch.consentMemory !== undefined) row.consent_memory = patch.consentMemory;
     if (patch.checkinFrequency !== undefined) row.checkin_frequency = patch.checkinFrequency;
     if (patch.checkinWindow !== undefined) row.checkin_window = patch.checkinWindow;
-    const { data, error } = await sb.from('profiles').update(row).eq('id', id).select('*').single();
+    if (patch.lastProactiveAt !== undefined) row.last_proactive_at = patch.lastProactiveAt;
+    if (patch.lastWeeklyAt !== undefined) row.last_weekly_at = patch.lastWeeklyAt;
+    let { data, error } = await sb.from('profiles').update(row).eq('id', id).select('*').single();
+    // Older projects before migration — drop new timestamp columns and retry.
+    if (error && /last_proactive_at|last_weekly_at/i.test(error.message ?? '')) {
+      delete row.last_proactive_at;
+      delete row.last_weekly_at;
+      ({ data, error } = await sb.from('profiles').update(row).eq('id', id).select('*').single());
+    }
     if (error) throw error;
     return toProfile(data);
   }
@@ -278,7 +292,7 @@ export class SupabaseStore implements DhiraStore {
 
   async addNotification(record: NotificationRecord): Promise<void> {
     const sb = client();
-    const { error } = await sb.from('notifications').insert({
+    const base = {
       id: record.id,
       profile_id: record.profileId,
       channel: record.channel,
@@ -289,7 +303,13 @@ export class SupabaseStore implements DhiraStore {
       scheduled_for: record.scheduledFor,
       sent_at: record.sentAt,
       created_at: record.createdAt,
-    });
+    };
+    const withMeta = { ...base, template_key: record.templateKey, subject: record.subject };
+    let { error } = await sb.from('notifications').insert(withMeta);
+    // Older projects before migration 20260720 — retry without new columns.
+    if (error && /template_key|subject/i.test(error.message ?? '')) {
+      ({ error } = await sb.from('notifications').insert(base));
+    }
     if (error) throw error;
   }
 

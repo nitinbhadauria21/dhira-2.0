@@ -26,6 +26,8 @@ create table if not exists profiles (
   consent_memory    boolean not null default true,
   checkin_frequency text not null default 'daily',
   checkin_window    text not null default '22:00-23:00',
+  last_proactive_at timestamptz,
+  last_weekly_at    timestamptz,
   created_at        timestamptz not null default now(),
   updated_at        timestamptz not null default now()
 );
@@ -83,9 +85,12 @@ create table if not exists notifications (
   provider_message_id text,
   scheduled_for       timestamptz,
   sent_at             timestamptz,
-  created_at          timestamptz not null default now()
+  created_at          timestamptz not null default now(),
+  template_key        text,
+  subject             text
 );
 create index if not exists notifications_profile_idx on notifications(profile_id, created_at);
+create index if not exists profiles_checkin_due_idx on profiles(consent_checkin, last_proactive_at);
 
 -- ── Row-Level Security ──────────────────────────────────────────────────────
 alter table profiles      enable row level security;

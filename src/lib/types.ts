@@ -48,6 +48,10 @@ export interface Profile {
   consentMemory: boolean;
   checkinFrequency: CheckinFrequency;
   checkinWindow: string; // e.g. '22:00-23:00' (their late-night hours)
+  /** Last successful proactive notification enqueue (ISO). Used by Emergent due-list. */
+  lastProactiveAt: string | null;
+  /** Last successful weekly summary enqueue (ISO). */
+  lastWeeklyAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -78,6 +82,10 @@ export interface NotificationRecord {
   scheduledFor: string | null;
   sentAt: string | null;
   createdAt: string;
+  /** Emergent / Meta template id, e.g. dhira_checkin_v1 */
+  templateKey: string | null;
+  /** Email subject line (null for WhatsApp). */
+  subject: string | null;
 }
 
 export interface ChatMessageRecord {
