@@ -187,17 +187,13 @@ function ProfileContent() {
       {/* Page header */}
       <div className="mb-8">
         <h1
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(24px, 3vw, 32px)',
-            fontWeight: 500,
-            color: 'var(--color-text)',
-          }}
+          className="text-h2"
+          style={{ color: 'var(--color-text)' }}
         >
-          Profile &amp; Settings
+          You &amp; Dhira
         </h1>
-        <p style={{ fontFamily: 'var(--font-ui)', fontSize: '15px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-          Manage your Dhira alias, preferences, and account settings.
+        <p style={{ fontFamily: 'var(--font-ui)', fontSize: '15px', color: 'var(--color-text-muted)', marginTop: '6px' }}>
+          Alias, language, check-ins, channels — your rules.
         </p>
       </div>
 
