@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import DhiraAvatar from '@/components/DhiraAvatar';
 import { ArrowRight } from 'lucide-react';
@@ -11,17 +11,22 @@ interface HomeGreetingProps {
   memoryLine?: string | null;
 }
 
+function greetingForHour(hour: number): string {
+  if (hour >= 21 || hour < 5) return 'Late night';
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Hey';
+  return 'Good evening';
+}
+
 export default function HomeGreeting({ onStartCheckin, alias, memoryLine }: HomeGreetingProps) {
   const userName = alias || 'Friend';
-  const hour = new Date().getHours();
-  const greeting =
-    hour >= 21 || hour < 5
-      ? 'Late night'
-      : hour < 12
-        ? 'Good morning'
-        : hour < 17
-          ? 'Hey'
-          : 'Good evening';
+  // Stable on server + first client paint to avoid hydration mismatch
+  // (server UTC vs browser India time can disagree on the clock).
+  const [greeting, setGreeting] = useState('Hey');
+
+  useEffect(() => {
+    setGreeting(greetingForHour(new Date().getHours()));
+  }, []);
 
   return (
     <div className="mb-2">
