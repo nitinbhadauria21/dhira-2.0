@@ -168,8 +168,21 @@ function SignInContent() {
           >
             Dhira
           </Link>
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: '15px', color: 'var(--color-text-muted)', marginTop: '6px' }}>
-            Welcome back. We&apos;ve been here.
+          <p
+            className="text-center-safe"
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '18px',
+              fontWeight: 600,
+              color: 'var(--color-text)',
+              marginTop: '10px',
+              letterSpacing: '-0.02em',
+            }}
+          >
+            Hey again. Still here.
+          </p>
+          <p style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: 'var(--color-text-muted)', marginTop: '6px', textAlign: 'center' }}>
+            Sign in with email or phone — same private space.
           </p>
         </div>
 

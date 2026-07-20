@@ -32,8 +32,8 @@ export default function ChatHeader({ messageCount }: ChatHeaderProps) {
         <DhiraAvatar size={36} variant="softer" />
 
         <div>
-          <p style={{ fontFamily: 'var(--font-display)', fontSize: '16px', fontWeight: 500, color: 'var(--color-text)', lineHeight: 1.2 }}>
-            dhira
+          <p style={{ fontFamily: 'var(--font-display)', fontSize: '17px', fontWeight: 650, color: 'var(--color-text)', lineHeight: 1.2, letterSpacing: '-0.02em' }}>
+            Dhira
           </p>
           <div className="flex items-center gap-1.5">
             <span
