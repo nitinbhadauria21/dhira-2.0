@@ -5,7 +5,9 @@ For teammates: setup is in `README.md`; completed vs pending is in `DEMO_DAY_STA
 
 ## What this is
 
-**Dhira** — a Next.js 15 / React 19 / TypeScript app for a private, Hinglish-first AI "listening companion" (mental-wellness chat aimed at India). Originally generated with [Rocket.new](https://rocket.new) and imported from `github.com/nitinbhadauria21/dhira` (branch `rocket-update`).
+**Dhira** — a Next.js 15 / React 19 / TypeScript app for a private, Hinglish-first AI "listening companion" (mental-wellness chat aimed at India).
+
+**Host for development:** Cursor local only — `npm run dev` → **http://localhost:4028**. Do not use Rocket.new hosting URLs; they are retired for this product. Cursor owns frontend, backend, database wiring, tests, and look-and-feel in this workspace.
 
 It has a **real backend layer** that runs in two modes:
 - **Offline/demo (default):** no real keys → deterministic offline brain (`src/lib/localBrain.ts`) + local JSON store (`.data/dhira-store.json`). Full product is testable with no keys.
