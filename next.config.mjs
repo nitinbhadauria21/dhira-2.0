@@ -16,7 +16,7 @@ const nextConfig = {
     qualities: [75, 85, 100],
   },
   webpack(config, { dev }) {
-    // Local Cursor host only — no Rocket/DhiWise component-tagger loader.
+    // Cursor-local webpack watch options only.
     if (dev) {
       const ignoredPaths = (process.env.WATCH_IGNORED_PATHS || '')
         .split(',')

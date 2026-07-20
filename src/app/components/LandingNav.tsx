@@ -35,6 +35,25 @@ export default function LandingNav() {
           >
             Dhira
           </Link>
+          <span
+            className="hidden sm:inline-flex items-center"
+            style={{
+              marginLeft: '10px',
+              fontFamily: 'var(--font-ui)',
+              fontSize: '11px',
+              fontWeight: 600,
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              color: 'var(--color-sage)',
+              backgroundColor: 'var(--color-surface-alt)',
+              border: '1px solid var(--color-border)',
+              borderRadius: '999px',
+              padding: '4px 10px',
+            }}
+            title="This product runs only inside Cursor on your machine"
+          >
+            Cursor local
+          </span>
 
           {/* Desktop nav links */}
           <div className="hidden md:flex items-center gap-6">
