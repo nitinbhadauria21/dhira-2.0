@@ -78,12 +78,17 @@ export class LocalStore implements DhiraStore {
         consentMemory: true,
         checkinFrequency: 'daily',
         checkinWindow: '22:00-23:00',
+        lastProactiveAt: null,
+        lastWeeklyAt: null,
         createdAt: now,
         updatedAt: now,
       };
       db.profiles.push(profile);
       writeDb(db);
     }
+    // Backfill fields added after early local demos
+    if (profile.lastProactiveAt === undefined) (profile as Profile).lastProactiveAt = null;
+    if (profile.lastWeeklyAt === undefined) (profile as Profile).lastWeeklyAt = null;
     return profile;
   }
 

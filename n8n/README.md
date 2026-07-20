@@ -1,49 +1,28 @@
-# Dhira — Proactive Check-in reminder engine (n8n)
+# Reminder scheduling for Dhira
 
-Plain English: this is the little robot that sends Dhira's unprompted "thinking
-of you" messages on a schedule. You do **not** need it running live for the demo
-— the app has a **"Ask Dhira to check in now"** button on the Home dashboard that
-triggers the exact same flow on stage. Set this up when you want real, scheduled
-check-ins.
+**Demo Day path: use Emergent** — see the attachable guide:
 
-## What it does
+→ [`docs/emergent/EMERGENT_DEMO_DAY_WORKFLOW.md`](../docs/emergent/EMERGENT_DEMO_DAY_WORKFLOW.md)
 
-Every hour, n8n asks the app: "who is due for a check-in?" then, for each person,
-calls the app's check-in endpoint. The endpoint runs the Proactive Check-in Agent,
-passes the draft through the **Safety & Persona Monitor** (golden rule), and
-returns the final approved message, which n8n delivers (email is easiest for the
-demo; WhatsApp is a production-phase add-on).
+That document explains the full clock → due list → check-in → send email/WhatsApp → callback flow in plain English.
 
-## The endpoint (already built)
+## What Dhira already exposes
 
-`POST /api/checkin`
+| Endpoint | Purpose |
+|---|---|
+| `GET /api/notifications/due?type=proactive\|weekly` | Who should get a message |
+| `POST /api/checkin` | Draft + Safety Monitor + enqueue Emergent send |
+| `POST /api/notifications/weekly` | Weekly summary (also Monitor-gated) |
+| `POST /api/notifications/callback` | Emergent reports delivered/failed |
 
-- Header: `x-checkin-secret: <your CHECKIN_SECRET>`  (set this in `.env.local`)
-- Body: `{ "userId": "<the anonymous profile id>" }`
-- Returns: `{ "sent": true, "message": "…" }` (or `{ "sent": false, "reason": … }`
-  when the user hasn't consented).
+Header for scheduler calls: `x-checkin-secret: <CHECKIN_SECRET>`
 
-When `CHECKIN_SECRET` is **not** set, the endpoint runs in dev/demo mode and acts
-for the current browser session (no secret required) — that's what the Home
-dashboard button uses.
+## Optional: n8n instead of Emergent’s clock
 
-## Build the workflow (n8n Cloud, free)
+If you prefer n8n only as the *timer* (Emergent still sends):
 
-1. Create a free account at [n8n.io](https://n8n.io) — no install needed.
-2. New workflow → name it **"Dhira Check-in"**.
-3. Add a **Schedule** node → run every hour. (Also add a **Manual Trigger** for a
-   clean on-stage test.)
-4. Add a node that fetches the users due for a check-in (an HTTP Request to your
-   own "due users" endpoint, or a Supabase query when Supabase is connected).
-5. Add an **HTTP Request** node:
-   - Method: `POST`
-   - URL: `https://<your-app-url>/api/checkin`
-   - Header: `x-checkin-secret` = your `CHECKIN_SECRET`
-   - Body (JSON): `{ "userId": "{{ $json.userId }}" }`
-6. Add an **Email** node (or push service) to deliver `{{ $json.message }}`.
-7. Press **Execute Workflow** once to confirm a message is produced.
+1. Schedule every hour  
+2. GET due list  
+3. POST check-in / weekly per user  
 
-## Safety note
-
-Nothing bypasses the Safety & Persona Monitor — proactive messages are reviewed
-before they are ever sent, exactly like normal replies.
+Do **not** add a separate n8n Email node for Demo Day — delivery goes through Emergent’s webhook from `src/lib/notify.ts`.

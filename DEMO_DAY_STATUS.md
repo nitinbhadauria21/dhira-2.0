@@ -17,7 +17,7 @@ Dhira is **past the mock-frontend stage**. Teammates can run the full product lo
 | Supabase cloud data store | ✅ Wired & verified |
 | Phone OTP (SMS) | ⚠️ UI ready; needs Twilio/SMS in Supabase |
 | Live Claude brain | ⏳ Pending real `ANTHROPIC_API_KEY` |
-| Emergent email/WhatsApp send | ⏳ Pending webhook + WhatsApp approval |
+| Emergent email/WhatsApp send | ✅ Dhira APIs + docs ready; wire Emergent webhook URL + secrets |
 | Public deploy URL | ⏳ Pending hosting account |
 | Production admin RBAC | ⏳ Still placeholder client gate |
 
@@ -49,8 +49,10 @@ Dhira is **past the mock-frontend stage**. Teammates can run the full product lo
 
 ### Notifications & analytics
 - [x] `src/lib/notify.ts` enqueue + Emergent webhook seam (dev marks `sent` / `dev-simulated`)
-- [x] Proactive check-in + weekly notification types (monitor-gated)
+- [x] Proactive check-in + weekly notification types (Monitor-gated)
 - [x] `/api/notifications` inbox + `/api/notifications/callback`
+- [x] `/api/notifications/due` + `/api/notifications/weekly` for Emergent scheduling
+- [x] Plain-English Emergent attach guide: `docs/emergent/EMERGENT_DEMO_DAY_WORKFLOW.md`
 - [x] `/api/admin/weekly` + admin mood-insights / overview wired to real aggregates
 
 ### Verification done in cloud VM
@@ -78,12 +80,12 @@ Dhira is **past the mock-frontend stage**. Teammates can run the full product lo
 | Item | Why | Owner hint |
 |---|---|---|
 | Real `ANTHROPIC_API_KEY` (`sk-...`) in `.env.local` / host | Live Claude replies instead of offline brain | Founder / eng |
-| Emergent webhook URL + secret | Real email delivery of check-ins | Founder + Emergent |
-| `WHATSAPP_ENABLED=true` + Business template | WhatsApp check-ins | After Meta/Twilio approval |
+| Emergent webhook URL + secret + `APP_URL` | Real email delivery of check-ins | Founder + Emergent — follow `docs/emergent/EMERGENT_DEMO_DAY_WORKFLOW.md` |
+| Run `supabase/migrations/20260720_notification_orchestration.sql` | Adds due-list timestamp columns | Founder in SQL Editor |
+| `WHATSAPP_ENABLED=true` + Business template | WhatsApp check-ins | After Meta/Twilio approval — see `docs/emergent/TEMPLATES.md` |
 | Phone OTP SMS provider in Supabase | Real phone sign-in | Twilio (via Emergent or Supabase) |
 | Deploy to Vercel/Netlify | Shareable Demo Day URL | Someone with hosting login |
 | Replace `adminAuth.ts` client gate | Real admin roles before public admin URLs | Eng post-demo |
-| n8n schedule → `POST /api/checkin` | Automated nightly check-ins | See `n8n/README.md` |
 
 ### Explicitly out of scope / not done
 - Google OAuth button is still UI-only

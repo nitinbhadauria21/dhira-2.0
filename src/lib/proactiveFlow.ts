@@ -18,15 +18,20 @@ export interface ProactiveResult {
   message?: string;
   channel?: NotifyChannel | null;
   deliveryStatus?: string;
+  notificationId?: string;
 }
 
 export async function runProactiveCheckin(uid: string): Promise<ProactiveResult> {
   const store = getStore();
   const profile = await store.getOrCreateProfile(uid);
 
-  // Proactivity is always permission-based.
   if (!profile.consentCheckin) {
     return { sent: false, reason: 'user has not consented to check-ins' };
+  }
+
+  const channel = resolveChannel(profile);
+  if (!channel) {
+    return { sent: false, reason: 'no email/WhatsApp channel available for this user' };
   }
 
   const memory = profile.consentMemory ? await store.getLatestMemory(uid) : null;
@@ -37,7 +42,6 @@ export async function runProactiveCheckin(uid: string): Promise<ProactiveResult>
     language: profile.language,
   });
 
-  // Golden rule: route the proactive draft through the Monitor before sending.
   const reviewed = await reviewReply({
     userMessage: '(proactive check-in trigger — no user message)',
     context: memory?.summary ?? '(no prior memory)',
@@ -45,24 +49,31 @@ export async function runProactiveCheckin(uid: string): Promise<ProactiveResult>
   });
 
   const message = reviewed.approved_or_rewritten_response;
+  const notification = await enqueueAndSend({ profile, type: 'proactive_checkin', content: message, channel });
 
-  // Deliver as a notification (best-effort; the message still returns for in-app display).
-  const channel = resolveChannel(profile);
-  const notification = await enqueueAndSend({ profile, type: 'proactive_checkin', content: message });
+  if (!notification) {
+    return { sent: false, reason: 'could not enqueue notification', message, channel };
+  }
+
+  await store.updateProfile(uid, { lastProactiveAt: new Date().toISOString() });
 
   return {
-    sent: true,
+    sent: notification.status === 'sent' || notification.status === 'queued',
     message,
     channel,
-    deliveryStatus: notification?.status,
+    deliveryStatus: notification.status,
+    notificationId: notification.id,
   };
 }
 
-/** Build + deliver a short weekly summary notification for one user. */
+/** Build + deliver a short weekly summary notification for one user (Monitor-gated). */
 export async function runWeeklySummary(uid: string): Promise<ProactiveResult> {
   const store = getStore();
   const profile = await store.getOrCreateProfile(uid);
   if (!profile.consentCheckin) return { sent: false, reason: 'user has not consented to check-ins' };
+
+  const channel = resolveChannel(profile);
+  if (!channel) return { sent: false, reason: 'no email/WhatsApp channel available for this user' };
 
   const moods = await store.getMoods(uid, 7);
   const checkins = moods.length;
@@ -70,10 +81,29 @@ export async function runWeeklySummary(uid: string): Promise<ProactiveResult> {
   const tone = avgValence > 0.15 ? 'a little lighter' : avgValence < -0.15 ? 'on the heavier side' : 'a real mix';
   const hinglish = profile.language === 'hinglish';
 
-  const message = hinglish
+  const draft = hinglish
     ? `Is hafte tumne ${checkins} baar check-in kiya — overall mood ${tone} raha. Main yahin hoon jab bhi baat karni ho.`
     : `This week you checked in ${checkins} time${checkins === 1 ? '' : 's'} — your mood felt ${tone}. I'm here whenever you want to talk.`;
 
-  const notification = await enqueueAndSend({ profile, type: 'weekly_summary', content: message });
-  return { sent: true, message, channel: resolveChannel(profile), deliveryStatus: notification?.status };
+  const reviewed = await reviewReply({
+    userMessage: '(weekly summary trigger — no user message)',
+    context: `checkins=${checkins}; avgValence=${avgValence.toFixed(2)}`,
+    draftReply: draft,
+  });
+  const message = reviewed.approved_or_rewritten_response;
+
+  const notification = await enqueueAndSend({ profile, type: 'weekly_summary', content: message, channel });
+  if (!notification) {
+    return { sent: false, reason: 'could not enqueue notification', message, channel };
+  }
+
+  await store.updateProfile(uid, { lastWeeklyAt: new Date().toISOString() });
+
+  return {
+    sent: notification.status === 'sent' || notification.status === 'queued',
+    message,
+    channel,
+    deliveryStatus: notification.status,
+    notificationId: notification.id,
+  };
 }

@@ -24,24 +24,44 @@ export function resolveChannel(profile: Profile): NotifyChannel | null {
 
   if (profile.preferredChannel === 'whatsapp' && canWhatsapp) return 'whatsapp';
   if (profile.preferredChannel === 'email' && canEmail) return 'email';
-  // fall back to whichever is available
   if (canEmail) return 'email';
   if (canWhatsapp) return 'whatsapp';
   return null;
+}
+
+export function templateFor(type: NotificationType, channel: NotifyChannel): { templateKey: string; subject: string | null } {
+  if (type === 'weekly_summary') {
+    return {
+      templateKey: channel === 'whatsapp' ? 'dhira_weekly_v1' : 'dhira_weekly_email_v1',
+      subject: channel === 'email' ? 'Your week with Dhira' : null,
+    };
+  }
+  if (type === 'crisis_followup') {
+    return {
+      templateKey: channel === 'whatsapp' ? 'dhira_crisis_v1' : 'dhira_crisis_email_v1',
+      subject: channel === 'email' ? 'Dhira is here — please reach out for support' : null,
+    };
+  }
+  return {
+    templateKey: channel === 'whatsapp' ? 'dhira_checkin_v1' : 'dhira_checkin_email_v1',
+    subject: channel === 'email' ? 'Just checking in — no pressure' : null,
+  };
 }
 
 export interface EnqueueParams {
   profile: Profile;
   type: NotificationType;
   content: string;
-  channel?: NotifyChannel; // override; otherwise resolved from profile
+  channel?: NotifyChannel;
+  scheduledFor?: string | null;
 }
 
 /** Create a notification row and attempt delivery through Emergent. */
 export async function enqueueAndSend(params: EnqueueParams): Promise<NotificationRecord | null> {
   const channel = params.channel ?? resolveChannel(params.profile);
-  if (!channel) return null; // no consented/available channel
+  if (!channel) return null;
 
+  const { templateKey, subject } = templateFor(params.type, channel);
   const store = getStore();
   const now = new Date().toISOString();
   const record: NotificationRecord = {
@@ -52,15 +72,16 @@ export async function enqueueAndSend(params: EnqueueParams): Promise<Notificatio
     content: params.content,
     status: 'queued',
     providerMessageId: null,
-    scheduledFor: null,
+    scheduledFor: params.scheduledFor ?? null,
     sentAt: null,
     createdAt: now,
+    templateKey,
+    subject,
   };
   await store.addNotification(record);
 
   const webhook = process.env.EMERGENT_NOTIFY_WEBHOOK_URL?.trim();
   if (!webhook) {
-    // Dev/demo: no delivery provider — mark as sent so the flow is visible.
     await store.updateNotificationStatus(record.id, 'sent', 'dev-simulated');
     return { ...record, status: 'sent', providerMessageId: 'dev-simulated' };
   }
@@ -77,13 +98,25 @@ export async function enqueueAndSend(params: EnqueueParams): Promise<Notificatio
         channel,
         to: channel === 'email' ? params.profile.email : params.profile.phoneE164,
         type: params.type,
+        templateKey,
+        subject,
+        alias: params.profile.alias,
+        language: params.profile.language,
         content: params.content,
-        // callback so Emergent can report delivery status back to us
         callbackUrl: process.env.APP_URL ? `${process.env.APP_URL}/api/notifications/callback` : undefined,
       }),
     });
-    await store.updateNotificationStatus(record.id, res.ok ? 'sent' : 'failed');
-    return { ...record, status: res.ok ? 'sent' : 'failed' };
+
+    let providerMessageId: string | null = null;
+    try {
+      const body = (await res.json()) as { providerMessageId?: string; id?: string };
+      providerMessageId = body.providerMessageId ?? body.id ?? null;
+    } catch {
+      /* Emergent may return empty body */
+    }
+
+    await store.updateNotificationStatus(record.id, res.ok ? 'sent' : 'failed', providerMessageId);
+    return { ...record, status: res.ok ? 'sent' : 'failed', providerMessageId };
   } catch {
     await store.updateNotificationStatus(record.id, 'failed');
     return { ...record, status: 'failed' };
