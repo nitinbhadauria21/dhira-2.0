@@ -117,7 +117,7 @@ export default function LandingFooter() {
           style={{ borderTop: '1px solid var(--color-border)' }}
         >
           <p className="text-small" style={{ color: 'var(--color-text-subtle)' }}>
-            © 2026 Dhira · Made with care in India
+            © 2026 Dhira · Made with care in India · Runs in Cursor local only
           </p>
           <p className="text-small text-center-safe" style={{ color: 'var(--color-text-subtle)' }}>
             Dhira listens — never advises. Not a therapist or crisis service.
