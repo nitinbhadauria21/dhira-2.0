@@ -4,6 +4,9 @@ import { imageHosts } from './image-hosts.config.mjs';
 const nextConfig = {
   productionBrowserSourceMaps: true,
   distDir: process.env.DIST_DIR || '.next',
+  // Hide the Next.js "N" floating badge in local Cursor preview
+  // (dev-only framework indicator — not part of the Dhira product UI).
+  devIndicators: false,
   typescript: {
     ignoreBuildErrors: true,
   },
