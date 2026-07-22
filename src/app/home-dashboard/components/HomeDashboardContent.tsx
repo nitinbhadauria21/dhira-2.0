@@ -156,7 +156,22 @@ export default function HomeDashboardContent() {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mt-6">
           {/* Mood card — hero, spans 2 cols on xl */}
           <div className="xl:col-span-2">
-            <HomeMoodCard onLogMood={() => setMoodModalOpen(true)} latestMood={data?.latestMood ?? null} />
+        <HomeMoodCard
+          onLogMood={() => setMoodModalOpen(true)}
+          latestMood={
+            data?.latestMood
+              ? {
+                  ...data.latestMood,
+                  loggedAt: new Date().toLocaleTimeString('en-IN', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true,
+                  }),
+                }
+              : null
+          }
+          trendLabel={data?.latestMood && data.latestMood.intensity >= 0.55 ? 'Lower than yesterday' : null}
+        />
           </div>
 
           {/* Streak card */}

@@ -22,7 +22,7 @@ export interface ChatMessage {
 const OPENING_GREETING: ChatMessage = {
   id: 'msg-greeting',
   role: 'dhira',
-  content: 'Main yahin hoon. Jo bhi mann mein hai, apne time pe likho — aaj kaisa lag raha hai?',
+  content: 'Aaj thoda heavy lag raha hai kya?',
   timestamp: '',
 };
 

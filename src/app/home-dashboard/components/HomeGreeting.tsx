@@ -14,14 +14,13 @@ interface HomeGreetingProps {
 function greetingForHour(hour: number): string {
   if (hour >= 21 || hour < 5) return 'Late night';
   if (hour < 12) return 'Good morning';
-  if (hour < 17) return 'Hey';
+  if (hour < 17) return 'Good afternoon';
   return 'Good evening';
 }
 
 export default function HomeGreeting({ onStartCheckin, alias, memoryLine }: HomeGreetingProps) {
   const userName = alias || 'Friend';
-  // Stable on server + first client paint to avoid hydration mismatch
-  // (server UTC vs browser India time can disagree on the clock).
+  // Stable first paint (server + client) then local clock — avoids hydration mismatch.
   const [greeting, setGreeting] = useState('Hey');
 
   useEffect(() => {
@@ -29,61 +28,86 @@ export default function HomeGreeting({ onStartCheckin, alias, memoryLine }: Home
   }, []);
 
   return (
-    <div className="mb-2">
-      {/* Greeting header */}
-      <div className="flex items-start justify-between gap-4 mb-6">
+    <div style={{ marginBottom: 8 }}>
+      <div
+        className="flex items-start justify-between gap-4"
+        style={{ marginBottom: 24 }}
+      >
         <div className="flex items-center gap-4">
           <DhiraAvatar size={52} variant="softer" />
           <div>
             <h1
               style={{
                 fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(24px, 3.5vw, 34px)',
-                fontWeight: 650,
-                color: 'var(--color-text)',
-                lineHeight: 1.15,
+                fontWeight: 500,
                 letterSpacing: '-0.03em',
+                color: 'var(--color-text)',
+                fontSize: 'clamp(22px, 3vw, 32px)',
+                lineHeight: 1.2,
               }}
             >
               {greeting}, {userName}.
             </h1>
-            <p style={{ fontFamily: 'var(--font-ui)', fontSize: '15px', color: 'var(--color-text-muted)', marginTop: '6px' }}>
-              Dhira is here — no pressure, just space.
+            <p
+              style={{
+                fontFamily: 'var(--font-ui)',
+                fontSize: 15,
+                color: 'var(--color-text-muted)',
+                marginTop: 4,
+              }}
+            >
+              Dhira is here.
             </p>
           </div>
         </div>
 
-        {/* Primary CTA */}
         <Link
           href="/chat-with-dhira"
           className="btn-primary hidden sm:inline-flex items-center gap-2 flex-shrink-0"
-          style={{ fontSize: '15px', padding: '10px 20px' }}
+          style={{ fontSize: 15, padding: '10px 20px', borderRadius: 12 }}
         >
           Start today&apos;s check-in
           <ArrowRight size={16} />
         </Link>
       </div>
 
-      {/* Memory recall banner — only when there's a real memory to show */}
       {memoryLine && (
-        <div
-          className="memory-banner flex items-start gap-3"
-        >
-          <span style={{ fontSize: '16px', flexShrink: 0, marginTop: '1px' }}>🌙</span>
+        <div className="memory-banner flex items-start gap-3">
+          <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>🌙</span>
           <div>
-            <p style={{ fontFamily: 'var(--font-ui)', fontSize: '15px', color: 'var(--color-text)', lineHeight: 1.55 }}>
-              <span style={{ color: 'var(--color-text-subtle)', fontSize: '12px', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', display: 'block', marginBottom: '3px' }}>
-                Dhira remembers
-              </span>
+            <p
+              style={{
+                fontFamily: 'var(--font-ui)',
+                fontSize: 12,
+                fontWeight: 600,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                color: 'var(--color-text-subtle)',
+                marginBottom: 3,
+              }}
+            >
+              Dhira remembers
+            </p>
+            <p
+              style={{
+                fontFamily: 'var(--font-ui)',
+                fontSize: 15,
+                color: 'var(--color-text)',
+                lineHeight: 1.55,
+              }}
+            >
               &ldquo;{memoryLine}&rdquo;
             </p>
           </div>
         </div>
       )}
 
-      {/* Mobile CTA */}
       <div className="sm:hidden mt-4">
-        <Link href="/chat-with-dhira" className="btn-primary w-full justify-center">
+        <Link
+          href="/chat-with-dhira"
+          className="btn-primary w-full justify-center"
+          style={{ fontSize: 15, padding: '10px 20px' }}
+        >
           Start today&apos;s check-in
           <ArrowRight size={16} />
         </Link>
