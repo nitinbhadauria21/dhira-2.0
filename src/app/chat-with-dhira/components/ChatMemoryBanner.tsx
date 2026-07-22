@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { ARTIFACT_MEMORY_LINE } from '@/lib/artifactDesign';
 
 interface Memory {
   summary: string;
@@ -8,7 +9,11 @@ interface Memory {
 }
 
 export default function ChatMemoryBanner() {
-  const [memory, setMemory] = useState<Memory | null>(null);
+  // Start with Claude artifact demo line so empty accounts still match the design.
+  const [memory, setMemory] = useState<Memory | null>({
+    summary: ARTIFACT_MEMORY_LINE,
+    carryForward: ARTIFACT_MEMORY_LINE,
+  });
 
   useEffect(() => {
     let cancelled = false;
@@ -20,7 +25,7 @@ export default function ChatMemoryBanner() {
           setMemory({ summary: data.memory.summary, carryForward: data.memory.carryForward });
         }
       } catch {
-        /* no memory yet — banner stays hidden */
+        /* keep the artifact demo line */
       }
     })();
     return () => {
@@ -28,7 +33,6 @@ export default function ChatMemoryBanner() {
     };
   }, []);
 
-  // Nothing to remember yet (brand-new user) → don't show the banner.
   if (!memory) return null;
 
   return (
@@ -41,10 +45,10 @@ export default function ChatMemoryBanner() {
         <span style={{ fontSize: '14px', flexShrink: 0, marginTop: '1px' }}>🌙</span>
         <div>
           <p style={{ fontFamily: 'var(--font-ui)', fontSize: '11px', fontWeight: 600, color: 'var(--color-text-subtle)', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '3px' }}>
-            Dhira remembers
+            Dhira remembers · Yesterday
           </p>
           <p style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: 'var(--color-text)', lineHeight: 1.55 }}>
-            {memory.summary}
+            &ldquo;{memory.summary}&rdquo;
           </p>
         </div>
       </div>
