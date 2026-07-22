@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="37beac24-cefe-4963-a9f7-a33cf9e11908"></script>
+
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; }
+    @keyframes dhira-pulse-amber { 0%,100% { box-shadow: 0 0 20px rgba(239,169,74,0.35); } 50% { box-shadow: 0 0 36px rgba(239,169,74,0.6); } }
+    @keyframes dhira-fade-in { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes dhira-slide-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes dhira-typing-bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+    @keyframes dhira-scroll-dot { 0%,100% { transform: translateY(0); opacity: 1; } 50% { transform: translateY(8px); opacity: 0.3; } }
+    @keyframes dhira-spin { to { transform: rotate(360deg); } }
+    @keyframes dhira-float-lav { 0% { transform: translate(0px,0px) rotate(0deg) scale(1); } 100% { transform: translate(25px,-30px) rotate(3deg) scale(1.02); } }
+    @keyframes dhira-float-amb { 0% { transform: translate(0px,0px) rotate(0deg) scale(1); } 100% { transform: translate(-35px,20px) rotate(-4deg) scale(0.98); } }
+    @keyframes dhira-float-sag { 0% { transform: translate(0px,0px) rotate(0deg) scale(1); } 100% { transform: translate(20px,35px) rotate(5deg) scale(1.03); } }
+    @keyframes dhira-float-el { 0% { transform: translateY(0px) translateX(0px); } 100% { transform: translateY(-20px) translateX(15px); } }
+    @keyframes dhira-float-rev { 0% { transform: translateY(0px) translateX(0px); } 100% { transform: translateY(25px) translateX(-15px); } }
+    @keyframes dhira-dot-pulse { 0% { opacity: 0.3; transform: scale(0.9); } 100% { opacity: 0.9; transform: scale(1.1); } }
+    @keyframes dhira-draw-line { 0% { stroke-dashoffset: 1500; } 100% { stroke-dashoffset: 0; } }
+    .dhira-flip-card:hover .dhira-flip-inner { transform: rotateY(180deg) !important; }
+    @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+    ::placeholder { color: #918EA0; opacity: 1; }
+  </style>
+</helmet>
+
+<div style="{{ S.appRoot }}" data-screen-label="{{ routeLabel }}">
+
+  <!-- ============ LANDING ============ -->
+  <sc-if value="{{ isLanding }}" hint-placeholder-val="{{ true }}">
+    <div style="{{ S.pageBg }}">
+      <svg sc-camel-view-box="0 0 1200 800" sc-camel-preserve-aspect-ratio="xMidYMid slice" style="position:fixed; inset:0; width:100%; height:100%; opacity:0.2; pointer-events:none; z-index:0;">
+        <defs>
+          <linearGradient id="hero-grad-lavender" x1="10%" y1="10%" x2="90%" y2="90%"><stop offset="0%" stop-color="#C5BBE4"></stop><stop offset="50%" stop-color="#AEA1DA"></stop><stop offset="100%" stop-color="#9384C4"></stop></linearGradient>
+          <linearGradient id="hero-grad-amber" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#EFA94A"></stop><stop offset="100%" stop-color="#F6C88A"></stop></linearGradient>
+          <linearGradient id="hero-grad-sage" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#8ABF9F"></stop><stop offset="100%" stop-color="#63A183"></stop></linearGradient>
+          <radialGradient id="hero-vignette" cx="50%" cy="50%" r="70%"><stop offset="50%" stop-color="#FAF6EF" stop-opacity="0"></stop><stop offset="100%" stop-color="#E5DCD0" stop-opacity="0.6"></stop></radialGradient>
+          <filter id="hero-hand-drawn" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" sc-camel-base-frequency="0.03" sc-camel-num-octaves="3" result="noise"></feTurbulence><feDisplacementMap in="SourceGraphic" in2="noise" scale="4" sc-camel-x-channel-selector="R" sc-camel-y-channel-selector="G"></feDisplacementMap></filter>
+          <filter id="hero-heavy-blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur sc-camel-std-deviation="60"></feGaussianBlur></filter>
+        </defs>
+        <rect width="100%" height="100%" fill="#FAF6EF"></rect>
+        <g filter="url(#hero-heavy-blur)">
+          <circle cx="200" cy="150" r="350" fill="#AEA1DA" opacity="0.2"></circle>
+          <circle cx="1050" cy="650" r="400" fill="#EFA94A" opacity="0.15"></circle>
+          <circle cx="150" cy="700" r="300" fill="#63A183" opacity="0.1"></circle>
+          <circle cx="600" cy="400" r="450" fill="#FFFFFF" opacity="0.5"></circle>
+        </g>
+        <g fill="none" stroke-width="1.5" stroke-linecap="round" filter="url(#hero-hand-drawn)" opacity="0.5">
+          <path stroke="#5A67B8" style="stroke-dasharray:1500; stroke-dashoffset:1500; animation:dhira-draw-line 20s ease-in-out infinite alternate;" d="M 120 280 C 350 150, 550 500, 980 520"></path>
+          <path stroke="#AEA1DA" stroke-width="2" style="stroke-dasharray:1500; stroke-dashoffset:1500; animation:dhira-draw-line 20s ease-in-out infinite alternate; animation-delay:-7s;" d="M 280 700 C 450 850, 750 550, 1080 350"></path>
+          <path stroke="#5A67B8" stroke-dasharray="8 12" style="stroke-dashoffset:1500; animation:dhira-draw-line 20s ease-in-out infinite alternate; animation-delay:-14s;" d="M 400 120 C 550 350, 850 250, 1150 700"></path>
+          <path stroke="#AEA1DA" style="stroke-dasharray:1500; stroke-dashoffset:1500; animation:dhira-draw-line 20s ease-in-out infinite alternate; animation-delay:-3s;" d="M 50 500 C 250 450, 400 200, 700 100"></path>
+        </g>
+        <g filter="url(#hero-hand-drawn)">
+          <path fill="url(#hero-grad-lavender)" opacity="0.9" style="animation:dhira-float-lav 12s ease-in-out infinite alternate; transform-origin:250px 250px;" d="M 240 100 C 480 -10, 620 260, 500 440 C 380 620, 140 540, 50 410 C -40 280, 0 210, 240 100 Z"></path>
+          <path fill="url(#hero-grad-amber)" opacity="0.9" style="animation:dhira-float-amb 10s ease-in-out infinite alternate; transform-origin:950px 600px;" d="M 960 320 C 1040 480, 1220 560, 1140 740 C 1060 920, 800 870, 750 730 C 700 590, 880 480, 960 320 Z"></path>
+          <path fill="url(#hero-grad-sage)" opacity="0.9" style="animation:dhira-float-sag 14s ease-in-out infinite alternate; transform-origin:250px 600px;" d="M 260 460 C 440 400, 540 580, 460 760 C 380 940, 100 890, 60 750 C 180 810, 340 680, 260 460 Z"></path>
+        </g>
+        <g filter="url(#hero-hand-drawn)">
+          <circle stroke="#5A67B8" cx="680" cy="220" r="22" fill="none" stroke-width="2" style="animation:dhira-float-el 7s ease-in-out infinite alternate;"></circle>
+          <circle stroke="#5A67B8" cx="880" cy="140" r="14" fill="none" stroke-width="1.5" style="animation:dhira-float-el 11s ease-in-out infinite alternate;"></circle>
+          <circle stroke="#5A67B8" cx="380" cy="680" r="28" fill="none" stroke-width="2" style="animation:dhira-float-rev 9s ease-in-out infinite alternate;"></circle>
+          <circle stroke="#5A67B8" cx="1080" cy="580" r="10" fill="none" stroke-width="2" style="animation:dhira-float-el 7s ease-in-out infinite alternate;"></circle>
+          <circle stroke="#AEA1DA" cx="480" cy="160" r="18" fill="none" stroke-width="2.5" style="animation:dhira-float-el 11s ease-in-out infinite alternate;"></circle>
+          <circle stroke="#AEA1DA" cx="780" cy="660" r="24" fill="none" stroke-width="2" style="animation:dhira-float-rev 9s ease-in-out infinite alternate;"></circle>
+          <circle stroke="#AEA1DA" cx="160" cy="580" r="12" fill="none" stroke-width="1.5" style="animation:dhira-float-el 7s ease-in-out infinite alternate;"></circle>
+          <path stroke="#5A67B8" d="M 820 420 L 844 420 M 832 408 L 832 432" stroke-width="2.5" stroke-linecap="round" style="animation:dhira-float-el 7s ease-in-out infinite alternate;"></path>
+          <path stroke="#EFA94A" d="M 320 220 L 336 220 M 328 212 L 328 228" stroke-width="2" stroke-linecap="round" style="animation:dhira-float-el 11s ease-in-out infinite alternate;"></path>
+          <path stroke="#AEA1DA" d="M 600 720 L 616 720 M 608 712 L 608 728" stroke-width="2" stroke-linecap="round" style="animation:dhira-float-rev 9s ease-in-out infinite alternate;"></path>
+          <path stroke="#5A67B8" d="M 840 180 C 910 140, 940 230, 880 260 C 820 290, 790 200, 860 170" fill="none" stroke-width="1.5" style="animation:dhira-float-el 11s ease-in-out infinite alternate;"></path>
+        </g>
+        <g>
+          <circle fill="#5A67B8" cx="580" cy="360" r="7" style="animation:dhira-dot-pulse 5s ease-in-out infinite alternate;"></circle>
+          <circle fill="#AEA1DA" cx="920" cy="290" r="9" style="animation:dhira-dot-pulse 5s ease-in-out infinite alternate; animation-delay:-2s;"></circle>
+          <circle fill="#EFA94A" cx="420" cy="520" r="6" style="animation:dhira-dot-pulse 5s ease-in-out infinite alternate; animation-delay:-4s;"></circle>
+          <circle fill="#63A183" cx="720" cy="510" r="8" style="animation:dhira-dot-pulse 5s ease-in-out infinite alternate; animation-delay:-1s;"></circle>
+          <circle fill="#5A67B8" cx="270" cy="310" r="5" style="animation:dhira-dot-pulse 5s ease-in-out infinite alternate; animation-delay:-3s;"></circle>
+          <circle fill="#AEA1DA" cx="1020" cy="780" r="7" style="animation:dhira-dot-pulse 5s ease-in-out infinite alternate; animation-delay:-5s;"></circle>
+          <circle fill="#63A183" cx="120" cy="180" r="6" style="animation:dhira-dot-pulse 5s ease-in-out infinite alternate; animation-delay:-2.5s;"></circle>
+        </g>
+        <rect width="100%" height="100%" fill="url(#hero-vignette)" pointer-events="none"></rect>
+      </svg>
+
+      <!-- NAV -->
+      <div style="{{ S.landingNav }}">
+        <div style="{{ S.wordmark }} font-size:24px;">Dhira</div>
+        <div style="display:flex; align-items:center; gap:24px;">
+          <a href="#features" style="{{ S.navLink }}" style-hover="{{ S.navLinkHover }}">Features</a>
+          <a href="#safety" style="{{ S.navLink }}" style-hover="{{ S.navLinkHover }}">Safety</a>
+          <div style="{{ S.navLink }} cursor:pointer;" style-hover="{{ S.navLinkHover }}" sc-camel-on-click="{{ goSignIn }}">Sign In</div>
+          <div style="{{ S.btnPrimary }} font-size:14px; padding:8px 20px;" style-hover="{{ S.btnPrimaryHover }}" sc-camel-on-click="{{ goSignUp }}">Get Started</div>
+          <div style="{{ S.themeBtn }}" style-hover="{{ S.themeBtnHover }}" sc-camel-on-click="{{ toggleTheme }}" sc-camel-dangerously-set-inner-h-t-m-l="{{ themeIconHtml }}"></div>
+        </div>
+      </div>
+
+      <!-- HERO -->
+      <div style="{{ S.hero }}">
+        <div style="{{ S.glowA }}"></div>
+        <div style="{{ S.glowB }}"></div>
+        <div style="position:relative; z-index:10; max-width:760px; margin:0 auto; text-align:center;">
+          <div style="display:flex; justify-content:center; margin-bottom:32px;">
+            <div style="width:72px; height:72px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:{{ S.avatarGradient }}; animation: dhira-pulse-amber 2s ease-in-out infinite;">
+              <svg width="40" height="40" sc-camel-view-box="0 0 24 24" fill="none"><path d="M4 12 C4 7.6 7.6 4 12 4 C16.4 4 20 7.6 20 12" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round"></path><circle cx="9" cy="13" r="1.2" fill="rgba(255,255,255,0.85)"></circle><circle cx="15" cy="13" r="1.2" fill="rgba(255,255,255,0.85)"></circle><circle cx="12" cy="18" r="1.5" fill="{{ pal.accent }}" opacity="0.9"></circle></svg>
+            </div>
+          </div>
+
+          <div style="{{ S.wordmark }} font-size:clamp(36px,6vw,64px); font-weight:500; line-height:1.1; letter-spacing:-0.02em; margin-bottom:24px;">
+            The calm that stays up<br><span style="color:{{ pal.primary }};">with you.</span>
+          </div>
+
+          <div style="margin-bottom:32px; min-height:60px; display:flex; align-items:center; justify-content:center;">
+            <div style="{{ S.card }} padding:16px 24px; display:inline-flex; align-items:center; gap:12px; max-width:480px; opacity:{{ heroLineOpacity }}; transition:opacity 0.35s ease;">
+              <div style="width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:{{ S.avatarGradient }};">
+                <svg width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none"><path d="M4 12 C4 7.6 7.6 4 12 4 C16.4 4 20 7.6 20 12" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round"></path><circle cx="9" cy="13" r="1.2" fill="rgba(255,255,255,0.85)"></circle><circle cx="15" cy="13" r="1.2" fill="rgba(255,255,255,0.85)"></circle><circle cx="12" cy="18" r="1.5" fill="{{ pal.accent }}" opacity="0.9"></circle></svg>
+              </div>
+              <div style="font-size:16px; color:{{ pal.text }}; font-style:italic; text-align:left;">“{{ heroLine }}”</div>
+            </div>
+          </div>
+
+          <div style="font-size:18px; color:{{ pal.textMuted }}; line-height:1.65; max-width:480px; margin:0 auto 40px;">A private, anonymous companion that listens at the hardest hour — never advising, always present.</div>
+
+          <div style="display:flex; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap;">
+            <div style="{{ S.btnAccent }} font-size:17px; padding:14px 32px; font-weight:600; animation: dhira-pulse-amber 2s ease-in-out infinite;" style-hover="{{ S.btnAccentHover }}" sc-camel-on-click="{{ goSignUp }}">Begin — it's free</div>
+            <a href="#features" style="{{ S.btnGhost }} font-size:16px; padding:14px 28px;" style-hover="{{ S.btnGhostHover }}">How it works</a>
+          </div>
+
+        </div>
+
+        <div style="position:absolute; bottom:32px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; color:{{ pal.textSubtle }};">
+          <div style="width:20px; height:32px; border-radius:999px; border:1.5px solid {{ pal.border }}; display:flex; align-items:flex-start; justify-content:center; padding-top:6px;">
+            <div style="width:4px; height:8px; border-radius:999px; background:{{ pal.textSubtle }}; animation: dhira-scroll-dot 1.8s ease-in-out infinite;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FEATURES -->
+      <div id="features" style="padding:96px 24px; background:{{ pal.bgTint }}; position:relative; overflow:hidden;">
+        <div style="max-width:1280px; margin:0 auto; position:relative; z-index:1;">
+          <div style="text-align:center; margin-bottom:64px;">
+            <div style="font-size:12px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:{{ pal.accent }}; margin-bottom:12px;">What Dhira does</div>
+            <div style="{{ S.wordmark }} font-size:clamp(26px,4vw,36px); font-weight:500;">Designed for the hardest hour</div>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:24px;">
+            <sc-for list="{{ features }}" as="f" hint-placeholder-count="4">
+              <div style="{{ S.card }} padding:24px; display:flex; flex-direction:column; gap:16px;" style-hover="{{ S.featureHover }}">
+                <div style="width:56px; height:56px; flex-shrink:0;" sc-camel-dangerously-set-inner-h-t-m-l="{{ f.iconHtml }}"></div>
+                <div>
+                  <div style="{{ S.wordmark }} font-size:18px; font-weight:500; margin-bottom:8px;">{{ f.title }}</div>
+                  <div style="font-size:15px; color:{{ pal.textMuted }}; line-height:1.65;">{{ f.body }}</div>
+                </div>
+                <div style="margin-top:auto; padding-top:16px; border-top:1px solid {{ pal.border }};">
+                  <div style="font-size:14px; color:{{ pal.textSubtle }}; font-style:italic; line-height:1.5;">{{ f.detail }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <!-- HOW IT WORKS -->
+      <div style="padding:96px 24px; background:{{ pal.surfaceAltTint }}; position:relative; overflow:hidden;">
+        <div style="max-width:1280px; margin:0 auto; position:relative; z-index:1;">
+          <div style="text-align:center; margin-bottom:64px;">
+            <div style="font-size:12px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:{{ pal.lavender }}; margin-bottom:12px;">How it works</div>
+            <div style="{{ S.wordmark }} font-size:clamp(26px,4vw,36px); font-weight:500;">Four quiet steps</div>
+          </div>
+          <div style="position:relative; display:grid; grid-template-columns:repeat(4, 1fr); gap:32px;">
+            <div style="position:absolute; top:70px; left:12%; right:12%; height:0; border-top:2px dashed {{ pal.border }}; z-index:0;"></div>
+            <sc-for list="{{ steps }}" as="st" hint-placeholder-count="4">
+              <div class="dhira-flip-card" style="position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:20px; perspective:1200px;">
+                <div style="{{ st.flipOuterStyle }}">
+                  <div class="dhira-flip-inner" style="{{ st.flipInnerStyle }}">
+                    <div style="{{ S.flipFace }}">
+                      <div sc-camel-dangerously-set-inner-h-t-m-l="{{ st.iconHtml }}"></div>
+                      <div style="{{ S.wordmark }} font-size:28px; font-weight:600; color:{{ pal.primary }}; opacity:0.4;">{{ st.number }}</div>
+                    </div>
+                    <div style="{{ S.flipFaceBack }}">
+                      <div style="{{ S.wordmark }} font-size:16px; font-weight:500; margin-bottom:8px;">{{ st.title }}</div>
+                      <div style="font-size:13px; color:{{ pal.textMuted }}; line-height:1.55;">{{ st.body }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div style="width:14px; height:14px; border-radius:50%; background:{{ pal.bg }}; border:3px solid {{ pal.primary }};"></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <!-- TESTIMONIALS -->
+      <div style="padding:96px 24px; background:{{ pal.bgTint }}; position:relative; overflow:hidden;">
+        <div style="max-width:1280px; margin:0 auto; position:relative; z-index:1;">
+          <div style="text-align:center; margin-bottom:64px;">
+            <div style="font-size:12px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:{{ pal.sage }}; margin-bottom:12px;">What people say</div>
+            <div style="{{ S.wordmark }} font-size:clamp(26px,4vw,36px); font-weight:500;">Felt, not just read</div>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:24px;">
+            <sc-for list="{{ testimonials }}" as="t" hint-placeholder-count="3">
+              <div style="{{ S.card }} padding:24px; display:flex; flex-direction:column; gap:20px;" style-hover="{{ S.featureHover }}">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="width:10px; height:10px; border-radius:50%; background:{{ t.moodColor }}; display:inline-block; flex-shrink:0;"></span>
+                  <span style="font-size:13px; color:{{ pal.textSubtle }}; font-weight:500;">Feeling: {{ t.mood }}</span>
+                </div>
+                <div style="font-size:16px; color:{{ pal.text }}; line-height:1.65; font-style:italic;">“{{ t.quote }}”</div>
+                <div style="padding-top:16px; border-top:1px solid {{ pal.border }}; display:flex; align-items:center; gap:12px;">
+                  <div style="width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:600; flex-shrink:0; background:{{ pal.primarySoft }}; color:{{ pal.primary }};">{{ t.initial }}</div>
+                  <div>
+                    <div style="font-size:14px; font-weight:600; color:{{ pal.text }};">{{ t.name }}</div>
+                    <div style="font-size:12px; color:{{ pal.textSubtle }};">{{ t.meta }}</div>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA / SAFETY -->
+      <div id="safety" style="padding:96px 24px; background:{{ pal.surfaceAltTint }}; position:relative; overflow:hidden;">
+        <div style="max-width:672px; margin:0 auto; text-align:center; position:relative; z-index:1;">
+          <div style="width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:30px; margin:0 auto 32px; background:{{ pal.surface }}; border:1px solid {{ pal.border }}; box-shadow:0 0 32px rgba(239,169,74,0.3);">🌙</div>
+          <div style="{{ S.wordmark }} font-size:clamp(28px,4vw,40px); font-weight:500; line-height:1.2; margin-bottom:16px;">It's 2 AM and something feels heavy.</div>
+          <div style="font-size:18px; color:{{ pal.textMuted }}; line-height:1.65; margin-bottom:40px;">Dhira is already there. Anonymous, private, and ready to listen — no sign-up friction, no real name required.</div>
+          <div style="{{ S.btnAccent }} display:inline-flex; font-size:17px; padding:16px 40px;" style-hover="{{ S.btnAccentHover }}" sc-camel-on-click="{{ goSignUp }}">Begin now — it's free</div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div style="padding:48px 24px; background:{{ pal.bgTint }}; border-top:1px solid {{ pal.border }}; position:relative; z-index:1;">
+        <div style="max-width:1280px; margin:0 auto;">
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:40px; margin-bottom:40px;">
+            <div>
+              <div style="{{ S.wordmark }} font-size:24px; margin-bottom:12px;">Dhira</div>
+              <div style="font-size:14px; color:{{ pal.textMuted }}; line-height:1.65; max-width:240px;">The calm that stays up with you. Private, anonymous, Hinglish-first.</div>
+            </div>
+            <div>
+              <div style="font-size:12px; font-weight:600; color:{{ pal.textSubtle }}; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:12px;">App</div>
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <div style="{{ S.navLink }} cursor:pointer;" style-hover="{{ S.navLinkHover }}" sc-camel-on-click="{{ goHome }}">Home</div>
+                <div style="{{ S.navLink }} cursor:pointer;" style-hover="{{ S.navLinkHover }}" sc-camel-on-click="{{ goChat }}">Chat with Dhira</div>
+                <div style="{{ S.navLink }} cursor:pointer;" style-hover="{{ S.navLinkHover }}" sc-camel-on-click="{{ goHome }}">Privacy Promise</div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:12px; font-weight:600; color:{{ pal.textSubtle }}; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:12px;">Safety</div>
+              <div style="padding:16px; border-radius:12px; background:{{ pal.crisisSurface }}; border:1px solid {{ pal.crisis }};">
+                <div style="font-size:13px; color:{{ pal.crisis }}; line-height:1.55;">If you or someone you know is in crisis: Please call Tele-MANAS at 14416 — free, 24×7, India-wide. Dhira is a listening companion, not a crisis service.</div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; padding-top:24px; border-top:1px solid {{ pal.border }};">
+            <div style="font-size:13px; color:{{ pal.textSubtle }};">© 2026 dhira · Made with care in India</div>
+            <div style="font-size:13px; color:{{ pal.textSubtle }};">dhira is a listening companion, not a therapist or crisis service.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ ONBOARDING ============ -->
+  <sc-if value="{{ isOnboarding }}" hint-placeholder-val="{{ false }}">
+    <div style="min-height:100vh; display:flex; flex-direction:column; background:{{ pal.bg }};">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:24px 24px 8px; max-width:512px; margin:0 auto; width:100%; box-sizing:border-box;">
+        <div style="{{ S.wordmark }} font-size:22px;">Dhira</div>
+        <sc-if value="{{ obStep0 }}" hint-placeholder-val="{{ true }}"><div></div></sc-if>
+        <sc-if value="{{ obStepGt0 }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <sc-for list="{{ obDots }}" as="d" hint-placeholder-count="3"><div style="{{ d.style }}"></div></sc-for>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="flex:1; display:flex; align-items:center; justify-content:center; padding:32px 24px;">
+        <div style="width:100%; max-width:512px;">
+
+          <!-- STEP 0: SPLASH -->
+          <sc-if value="{{ obStep0 }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex; flex-direction:column; align-items:center; text-align:center; gap:32px;">
+              <div style="width:80px; height:80px; border-radius:50%; background:{{ pal.surface }}; border:1px solid {{ pal.border }}; box-shadow:0 0 40px rgba(239,169,74,0.45); display:flex; align-items:center; justify-content:center; font-size:36px;">🌙</div>
+              <div style="display:flex; flex-direction:column; gap:16px;">
+                <div style="{{ S.wordmark }} font-size:clamp(32px,6vw,48px); font-weight:500; line-height:1.15;">Kuch feel ho raha hai?</div>
+                <div style="font-size:18px; color:{{ pal.textMuted }}; line-height:1.65; max-width:380px; margin:0 auto;">Dhira is here to listen — no advice, no judgment, no real name needed. Just a quiet space that remembers.</div>
+              </div>
+              <div style="{{ S.btnAccent }} font-size:17px; padding:16px 48px; margin-top:8px;" style-hover="{{ S.btnAccentHover }}" sc-camel-on-click="{{ obNext }}">Begin</div>
+              <div style="font-size:13px; color:{{ pal.textSubtle }}; line-height:1.5;">Anonymous · Private · Free to use</div>
+            </div>
+          </sc-if>
+
+          <!-- STEP 1: PRIVACY -->
+          <sc-if value="{{ obStep1 }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; flex-direction:column; gap:32px;">
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                <div style="font-size:13px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:{{ pal.textSubtle }};">Our Promise</div>
+                <div style="{{ S.wordmark }} font-size:clamp(26px,5vw,36px); font-weight:500; line-height:1.2;">Your safety comes first.</div>
+                <div style="font-size:16px; color:{{ pal.textMuted }}; line-height:1.6;">Before we begin, here is what Dhira promises you — always.</div>
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <sc-for list="{{ promises }}" as="p" hint-placeholder-count="4">
+                  <div style="{{ S.card }} padding:20px; display:flex; flex-direction:column; gap:8px; grid-column:{{ p.span }};">
+                    <div style="width:44px; height:44px;" sc-camel-dangerously-set-inner-h-t-m-l="{{ p.iconHtml }}"></div>
+                    <div style="{{ S.wordmark }} font-size:16px; font-weight:500;">{{ p.title }}</div>
+                    <div style="font-size:14px; color:{{ pal.textMuted }}; line-height:1.55;">{{ p.body }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <div style="{{ S.btnPrimary }} justify-content:center; font-size:16px; padding:14px 24px;" style-hover="{{ S.btnPrimaryHover }}" sc-camel-on-click="{{ obNext }}">I understand — let's continue</div>
+                <div style="{{ S.btnGhost }} justify-content:center; font-size:15px;" style-hover="{{ S.btnGhostHover }}" sc-camel-on-click="{{ obBack }}">← Back</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- STEP 2: SETUP -->
+          <sc-if value="{{ obStep2 }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; flex-direction:column; gap:32px;">
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                <div style="font-size:13px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:{{ pal.textSubtle }};">Step 1 of 2</div>
+                <div style="{{ S.wordmark }} font-size:clamp(26px,5vw,36px); font-weight:500; line-height:1.2;">What should Dhira call you?</div>
+                <div style="font-size:16px; color:{{ pal.textMuted }}; line-height:1.6;">Use any name or alias — no real name needed. This is just how Dhira will greet you.</div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <label style="font-size:14px; font-weight:500; color:{{ pal.textMuted }};">Your name or alias</label>
+                <input type="text" value="{{ alias }}" sc-camel-on-change="{{ onAliasChange }}" placeholder="e.g. Arjun, Priya, Moon, anything…" maxlength="30" style="{{ S.aliasInput }}">
+                <div style="font-size:13px; color:{{ pal.textSubtle }};">This is stored only in your browser — never on our servers.</div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <label style="font-size:14px; font-weight:500; color:{{ pal.textMuted }};">How should Dhira talk to you?</label>                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <sc-for list="{{ languageOptions }}" as="lo" hint-placeholder-count="2">
+                    <div style="{{ lo.style }}" sc-camel-on-click="{{ lo.onSelect }}">
+                      <div style="{{ lo.radioStyle }}"><sc-if value="{{ lo.selected }}" hint-placeholder-val="{{ false }}"><div style="width:8px; height:8px; border-radius:50%; background:#fff;"></div></sc-if></div>
+                      <div>
+                        <div style="font-size:16px; font-weight:500; color:{{ lo.textColor }}; margin-bottom:2px;">{{ lo.label }}</div>
+                        <div style="font-size:13px; color:{{ pal.textSubtle }};">{{ lo.sub }}</div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <div style="{{ S.btnPrimary }} justify-content:center; font-size:16px; padding:14px 24px; opacity:{{ setupCanContinueOpacity }};" style-hover="{{ S.btnPrimaryHover }}" sc-camel-on-click="{{ obNext }}">Continue</div>
+                <div style="{{ S.btnGhost }} justify-content:center; font-size:15px;" style-hover="{{ S.btnGhostHover }}" sc-camel-on-click="{{ obBack }}">← Back</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- STEP 3: CONTRACT -->
+          <sc-if value="{{ obStep3 }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; flex-direction:column; gap:28px;">
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                <div style="font-size:13px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:{{ pal.textSubtle }};">Step 2 of 2</div>
+                <div style="{{ S.wordmark }} font-size:clamp(26px,5vw,36px); font-weight:500; line-height:1.2;">{{ contractHeadline }}</div>
+                <div style="font-size:16px; color:{{ pal.textMuted }}; line-height:1.6;">You can change this anytime in Settings. Dhira will never reach out without your permission.</div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <sc-for list="{{ frequencyOptions }}" as="fo" hint-placeholder-count="3">
+                  <div style="{{ fo.style }}" sc-camel-on-click="{{ fo.onSelect }}">
+                    <div style="{{ fo.radioStyle }}"><sc-if value="{{ fo.selected }}" hint-placeholder-val="{{ false }}"><div style="width:7px; height:7px; border-radius:50%; background:#fff;"></div></sc-if></div>
+                    <div><span style="font-size:15px; font-weight:500; color:{{ fo.textColor }};">{{ fo.label }}</span><span style="font-size:13px; color:{{ pal.textSubtle }}; margin-left:8px;">— {{ fo.sub }}</span></div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                <div style="font-size:14px; font-weight:500; color:{{ pal.textMuted }};">Your consent preferences</div>
+                <div style="{{ consentCheckinStyle }}" sc-camel-on-click="{{ toggleConsentCheckin }}">
+                  <div style="{{ consentCheckinBoxStyle }}"><sc-if value="{{ consentCheckin }}" hint-placeholder-val="{{ true }}"><svg width="11" height="9" sc-camel-view-box="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></sc-if></div>
+                  <div><div style="font-size:15px; font-weight:500; color:{{ pal.text }}; margin-bottom:3px;">Allow proactive check-ins</div><div style="font-size:13px; color:{{ pal.textMuted }}; line-height:1.55;">Dhira may send a gentle nudge based on your chosen frequency. You can pause this anytime.</div></div>
+                </div>
+                <div style="{{ consentMemoryStyle }}" sc-camel-on-click="{{ toggleConsentMemory }}">
+                  <div style="{{ consentMemoryBoxStyle }}"><sc-if value="{{ consentMemory }}" hint-placeholder-val="{{ true }}"><svg width="11" height="9" sc-camel-view-box="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></sc-if></div>
+                  <div><div style="font-size:15px; font-weight:500; color:{{ pal.text }}; margin-bottom:3px;">Allow Dhira to remember</div><div style="font-size:13px; color:{{ pal.textMuted }}; line-height:1.55;">Dhira stores mood metadata (not your words) to personalise future check-ins. No personal data is stored.</div></div>
+                </div>
+              </div>
+              <div style="padding:16px 18px; border-radius:16px; background:{{ pal.surfaceAlt }}; border:1px solid {{ pal.border }}; display:flex; flex-direction:column; gap:6px;">
+                <div style="font-size:13px; font-weight:500; color:{{ pal.textMuted }}; text-transform:uppercase; letter-spacing:0.07em;">Your setup</div>
+                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:4px;">
+                  <sc-for list="{{ setupTags }}" as="tg" hint-placeholder-count="3"><span style="font-size:13px; color:{{ pal.text }}; background:{{ pal.surface }}; border:1px solid {{ pal.border }}; border-radius:20px; padding:4px 12px; display:inline-flex; align-items:center; gap:5px;">{{ tg.icon }} {{ tg.label }}</span></sc-for>
+                </div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <div style="{{ S.btnAccent }} justify-content:center; font-size:16px; padding:15px 24px;" style-hover="{{ S.btnAccentHover }}" sc-camel-on-click="{{ finishOnboarding }}">Start talking to Dhira →</div>
+                <div style="{{ S.btnGhost }} justify-content:center; font-size:15px;" style-hover="{{ S.btnGhostHover }}" sc-camel-on-click="{{ obBack }}">← Back</div>
+              </div>
+            </div>
+          </sc-if>
+
+        </div>
+      </div>
+
+      <div style="padding:0 24px 24px; text-align:center; max-width:512px; margin:0 auto; width:100%; box-sizing:border-box;">
+        <div style="font-size:13px; color:{{ pal.textSubtle }}; line-height:1.5;">In crisis? Call <strong style="color:{{ pal.crisis }};">Tele-MANAS 14416</strong> — free, 24×7, India-wide.</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ SIGN IN ============ -->
+  <sc-if value="{{ isSignIn }}" hint-placeholder-val="{{ false }}">
+    <div style="min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:48px 24px; position:relative; overflow:hidden; background:{{ pal.bg }};">
+      <div style="position:absolute; top:0; left:50%; transform:translateX(-50%); width:800px; height:600px; background:radial-gradient(ellipse 55% 60% at 50% 40%, rgba(90,103,184,0.16) 0%, rgba(174,161,218,0.07) 50%, transparent 70%); filter:blur(40px); border-radius:50% 50% 45% 55% / 55% 45% 50% 50%; pointer-events:none;"></div>
+      <div style="position:absolute; bottom:0; right:0; width:450px; height:420px; background:radial-gradient(ellipse 60% 55% at 55% 55%, rgba(239,169,74,0.13) 0%, transparent 65%); filter:blur(55px); border-radius:45% 55% 40% 60% / 55% 45% 50% 50%; pointer-events:none;"></div>
+      <div style="position:absolute; top:25%; left:0; width:300px; height:280px; background:radial-gradient(ellipse, rgba(99,161,131,0.09) 0%, transparent 65%); filter:blur(50px); pointer-events:none;"></div>
+      <div style="position:relative; z-index:1; width:100%; max-width:420px;">
+        <div style="display:flex; flex-direction:column; align-items:center; margin-bottom:40px;">
+          <div style="width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:{{ S.avatarGradient }}; animation: dhira-pulse-amber 2s ease-in-out infinite;">
+            <svg width="31" height="31" sc-camel-view-box="0 0 24 24" fill="none"><path d="M4 12 C4 7.6 7.6 4 12 4 C16.4 4 20 7.6 20 12" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round"></path><circle cx="9" cy="13" r="1.2" fill="rgba(255,255,255,0.85)"></circle><circle cx="15" cy="13" r="1.2" fill="rgba(255,255,255,0.85)"></circle><circle cx="12" cy="18" r="1.5" fill="{{ pal.accent }}" opacity="0.9"></circle></svg>
+          </div>
+          <div style="{{ S.wordmark }} font-size:28px; margin-top:16px; cursor:pointer;" sc-camel-on-click="{{ goLandingFromAuth }}">Dhira</div>
+          <div style="font-size:15px; color:{{ pal.textMuted }}; margin-top:6px;">Welcome back. We've been here.</div>
+        </div>
+
+        <div style="{{ S.card }} padding:32px;">
+          <div style="width:100%; display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:24px; padding:13px 20px; border-radius:12px; border:1.5px solid {{ pal.border }}; background:{{ pal.surface }}; color:{{ pal.text }}; font-size:15px; font-weight:500; cursor:pointer; box-shadow:{{ pal.shadowCard }};" style-hover="{{ S.btnGhostHover }}" sc-camel-dangerously-set-inner-h-t-m-l="{{ googleIconHtml }}"></div>
+          <div style="text-align:center; margin-top:-18px; margin-bottom:24px; font-size:13px; color:{{ pal.textMuted }};">Continue with Google</div>
+
+          <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px;">
+            <div style="flex:1; height:1px; background:{{ pal.border }};"></div>
+            <span style="font-size:13px; color:{{ pal.textSubtle }};">or sign in with email</span>
+            <div style="flex:1; height:1px; background:{{ pal.border }};"></div>
+          </div>
+
+          <div style="margin-bottom:16px;">
+            <label style="display:block; font-size:14px; font-weight:500; color:{{ pal.textMuted }}; margin-bottom:6px;">Email address</label>
+            <input type="email" value="{{ signinEmail }}" sc-camel-on-change="{{ onSigninEmailChange }}" placeholder="you@example.com" style="{{ S.aliasInput }}">
+          </div>
+          <div style="margin-bottom:24px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+              <label style="font-size:14px; font-weight:500; color:{{ pal.textMuted }};">Password</label>
+              <span style="font-size:13px; color:{{ pal.primary }}; cursor:pointer;">Forgot password?</span>
+            </div>
+            <input type="password" value="{{ signinPassword }}" sc-camel-on-change="{{ onSigninPasswordChange }}" placeholder="••••••••" style="{{ S.aliasInput }}">
+          </div>
+
+          <div style="{{ S.btnPrimary }} width:100%; justify-content:center; font-size:16px; padding:13px 24px; box-sizing:border-box;" style-hover="{{ S.btnPrimaryHover }}" sc-camel-on-click="{{ submitSignIn }}">Sign In</div>
+
+          <div style="text-align:center; margin-top:20px; font-size:14px; color:{{ pal.textMuted }};">New to Dhira? <span style="color:{{ pal.primary }}; font-weight:500; cursor:pointer;" sc-camel-on-click="{{ goSignUp }}">Create an account</span></div>
+        </div>
+
+        <div style="text-align:center; margin-top:24px; font-size:13px; color:{{ pal.textSubtle }};">🔒 Your data is private &nbsp;·&nbsp; 🕊️ No real name needed</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ SIGN UP ============ -->
+  <sc-if value="{{ isSignUp }}" hint-placeholder-val="{{ false }}">
+    <div style="min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:48px 24px; position:relative; overflow:hidden; background:{{ pal.bg }};">
+      <div style="position:absolute; top:0; right:25%; width:700px; height:600px; background:radial-gradient(ellipse 55% 60% at 55% 40%, rgba(174,161,218,0.17) 0%, rgba(90,103,184,0.07) 50%, transparent 70%); filter:blur(45px); border-radius:50% 50% 45% 55% / 55% 45% 50% 50%; pointer-events:none;"></div>
+      <div style="position:absolute; bottom:0; left:0; width:500px; height:450px; background:radial-gradient(ellipse 60% 55% at 40% 60%, rgba(239,169,74,0.13) 0%, transparent 65%); filter:blur(55px); border-radius:55% 45% 40% 60% / 45% 55% 50% 50%; pointer-events:none;"></div>
+      <div style="position:absolute; top:33%; right:0; width:320px; height:300px; background:radial-gradient(ellipse, rgba(99,161,131,0.09) 0%, transparent 65%); filter:blur(50px); pointer-events:none;"></div>
+      <div style="position:relative; z-index:1; width:100%; max-width:420px;">
+        <div style="display:flex; flex-direction:column; align-items:center; margin-bottom:40px;">
+          <div style="width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:{{ S.avatarGradient }}; animation: dhira-pulse-amber 2s ease-in-out infinite;">
+            <svg width="31" height="31" sc-camel-view-box="0 0 24 24" fill="none"><path d="M4 12 C4 7.6 7.6 4 12 4 C16.4 4 20 7.6 20 12" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round"></path><circle cx="9" cy="13" r="1.2" fill="rgba(255,255,255,0.85)"></circle><circle cx="15" cy="13" r="1.2" fill="rgba(255,255,255,0.85)"></circle><circle cx="12" cy="18" r="1.5" fill="{{ pal.accent }}" opacity="0.9"></circle></svg>
+          </div>
+          <div style="{{ S.wordmark }} font-size:28px; margin-top:16px; cursor:pointer;" sc-camel-on-click="{{ goLandingFromAuth }}">Dhira</div>
+          <div style="font-size:15px; color:{{ pal.textMuted }}; margin-top:6px;">A safe space, just for you.</div>
+        </div>
+
+        <div style="{{ S.card }} padding:32px;">
+          <div style="width:100%; display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:24px; padding:13px 20px; border-radius:12px; border:1.5px solid {{ pal.border }}; background:{{ pal.surface }}; color:{{ pal.text }}; font-size:15px; font-weight:500; cursor:pointer; box-shadow:{{ pal.shadowCard }};" style-hover="{{ S.btnGhostHover }}" sc-camel-dangerously-set-inner-h-t-m-l="{{ googleIconHtml }}"></div>
+          <div style="text-align:center; margin-top:-18px; margin-bottom:24px; font-size:13px; color:{{ pal.textMuted }};">Continue with Google</div>
+
+          <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px;">
+            <div style="flex:1; height:1px; background:{{ pal.border }};"></div>
+            <span style="font-size:13px; color:{{ pal.textSubtle }};">or create with email</span>
+            <div style="flex:1; height:1px; background:{{ pal.border }};"></div>
+          </div>
+
+          <div style="margin-bottom:16px;">
+            <label style="display:block; font-size:14px; font-weight:500; color:{{ pal.textMuted }}; margin-bottom:6px;">Your Dhira alias <span style="color:{{ pal.textSubtle }}; font-weight:400;">(not your real name)</span></label>
+            <input type="text" value="{{ signupAlias }}" sc-camel-on-change="{{ onSignupAliasChange }}" placeholder="e.g. Stargazer, Chai Lover…" style="{{ S.aliasInput }}">
+          </div>
+          <div style="margin-bottom:16px;">
+            <label style="display:block; font-size:14px; font-weight:500; color:{{ pal.textMuted }}; margin-bottom:6px;">Email address</label>
+            <input type="email" value="{{ signupEmail }}" sc-camel-on-change="{{ onSignupEmailChange }}" placeholder="you@example.com" style="{{ S.aliasInput }}">
+          </div>
+          <div style="margin-bottom:24px;">
+            <label style="display:block; font-size:14px; font-weight:500; color:{{ pal.textMuted }}; margin-bottom:6px;">Create a password</label>
+            <input type="password" value="{{ signupPassword }}" sc-camel-on-change="{{ onSignupPasswordChange }}" placeholder="••••••••" style="{{ S.aliasInput }}">
+          </div>
+
+          <div style="margin-bottom:24px; padding:16px; border-radius:16px; border:1.5px solid {{ signupTermsBorder }}; background:{{ signupTermsBg }};">
+            <div style="display:flex; align-items:flex-start; gap:12px; cursor:pointer;" sc-camel-on-click="{{ toggleSignupTerms }}">
+              <div style="width:20px; height:20px; border-radius:6px; flex-shrink:0; margin-top:2px; display:flex; align-items:center; justify-content:center; border:2px solid {{ signupTermsBorder }}; background:{{ signupTermsCheckBg }};"><sc-if value="{{ signupAgreedTerms }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex; color:#fff;" sc-camel-dangerously-set-inner-h-t-m-l="{{ checkmarkIconHtml }}"></span></sc-if></div>
+              <span style="font-size:14px; color:{{ pal.text }}; line-height:1.55;">Do you agree with the <span style="color:{{ pal.primary }}; font-weight:500; text-decoration:underline;">terms and conditions</span> of Dhira?</span>
+            </div>
+          </div>
+
+          <div style="{{ S.btnAccent }} width:100%; justify-content:center; font-size:16px; padding:13px 24px; box-sizing:border-box; opacity:{{ signupSubmitOpacity }};" style-hover="{{ S.btnAccentHover }}" sc-camel-on-click="{{ submitSignUp }}">Create my Dhira account</div>
+
+          <div style="text-align:center; margin-top:20px; font-size:14px; color:{{ pal.textMuted }};">Already have an account? <span style="color:{{ pal.primary }}; font-weight:500; cursor:pointer;" sc-camel-on-click="{{ goSignIn }}">Sign in</span></div>
+        </div>
+
+        <div style="text-align:center; margin-top:24px; font-size:13px; color:{{ pal.textSubtle }};">🕊️ No real name required &nbsp;·&nbsp; 🔒 End-to-end private &nbsp;·&nbsp; 🎚️ You control everything</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ APP (HOME / CHAT) ============ -->
+  <sc-if value="{{ isApp }}" hint-placeholder-val="{{ false }}">
+    <div style="min-height:100vh; background:{{ pal.bg }};">
+
+      <!-- APP NAV -->
+      <div style="{{ S.appNav }}">
+        <div style="{{ S.wordmark }} font-size:22px;">Dhira</div>
+        <div style="display:flex; align-items:center; gap:4px;">
+          <sc-for list="{{ appNavItems }}" as="n" hint-placeholder-count="4">
+            <div style="{{ n.style }}" sc-camel-on-click="{{ n.onSelect }}"><span style="display:inline-flex;" sc-camel-dangerously-set-inner-h-t-m-l="{{ n.iconHtml }}"></span>{{ n.label }}</div>
+          </sc-for>
+        </div>
+        <div style="{{ S.themeBtn }}" style-hover="{{ S.themeBtnHover }}" sc-camel-on-click="{{ toggleTheme }}" sc-camel-dangerously-set-inner-h-t-m-l="{{ themeIconHtml }}"></div>
+      </div>
+
+      <div style="padding-top:72px;">
+
+        <!-- HOME DASHBOARD -->
+        <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+          <div style="position:relative;">
+            <div style="position:absolute; top:0; right:0; width:600px; height:550px; background:radial-gradient(ellipse 55% 60% at 60% 40%, rgba(90,103,184,0.13) 0%, rgba(174,161,218,0.06) 55%, transparent 75%); filter:blur(50px); border-radius:40% 60% 55% 45% / 50% 45% 55% 50%; pointer-events:none;"></div>
+            <div style="position:absolute; bottom:0; left:0; width:480px; height:420px; background:radial-gradient(ellipse 60% 55% at 40% 60%, rgba(239,169,74,0.1) 0%, transparent 65%); filter:blur(60px); border-radius:55% 45% 40% 60% / 45% 55% 50% 50%; pointer-events:none;"></div>
+            <div style="position:absolute; inset:0; background-image:radial-gradient(circle, {{ pal.border }} 1px, transparent 1px); background-size:36px 36px; opacity:0.3; pointer-events:none;"></div>
+          <div style="max-width:1280px; margin:0 auto; padding:32px 24px; position:relative; z-index:1;">
+
+            <!-- GREETING -->
+            <div style="margin-bottom:8px;">
+              <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:24px;">
+                <div style="display:flex; align-items:center; gap:16px;">
+                  <div style="width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:{{ S.avatarGradient }};">
+                    <svg width="29" height="29" sc-camel-view-box="0 0 24 24" fill="none"><path d="M4 12 C4 7.6 7.6 4 12 4 C16.4 4 20 7.6 20 12" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round"></path><circle cx="9" cy="13" r="1.2" fill="rgba(255,255,255,0.85)"></circle><circle cx="15" cy="13" r="1.2" fill="rgba(255,255,255,0.85)"></circle><circle cx="12" cy="18" r="1.5" fill="{{ pal.accent }}" opacity="0.9"></circle></svg>
+                  </div>
+                  <div>
+                    <div style="{{ S.wordmark }} font-size:clamp(22px,3vw,32px); font-weight:500; line-height:1.2;">{{ greeting }}, {{ userName }}.</div>
+                    <div style="font-size:15px; color:{{ pal.textMuted }}; margin-top:4px;">Dhira is here.</div>
+                  </div>
+                </div>
+                <div style="{{ S.btnPrimary }} font-size:15px; padding:10px 20px; flex-shrink:0;" style-hover="{{ S.btnPrimaryHover }}" sc-camel-on-click="{{ goChat }}">Start today's check-in →</div>
+              </div>
+              <div style="{{ S.memoryBanner }}">
+                <span style="font-size:16px; flex-shrink:0; margin-top:1px;">🌙</span>
+                <div>
+                  <div style="font-size:12px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:{{ pal.textSubtle }}; margin-bottom:3px;">Dhira remembers</div>
+                  <div style="font-size:15px; color:{{ pal.text }}; line-height:1.55;">“Last time, work was sitting heavy on you — how's that today?”</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- BENTO GRID -->
+            <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:20px; margin-top:24px;">
+
+              <!-- MOOD CARD (span 2) -->
+              <div style="grid-column:span 2; {{ S.card }} padding:24px; display:flex; flex-direction:column; gap:20px; min-height:220px;">
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                  <div>
+                    <div style="font-size:12px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:{{ pal.textSubtle }}; margin-bottom:4px;">Today's mood</div>
+                    <div style="font-size:13px; color:{{ pal.textMuted }};">Logged at 10:42 PM</div>
+                  </div>
+                  <div style="{{ S.btnGhost }} font-size:13px; padding:6px 14px;" style-hover="{{ S.btnGhostHover }}" sc-camel-on-click="{{ openMoodModal }}">Update</div>
+                </div>
+                <div style="display:flex; align-items:center; gap:16px;">
+                  <div style="width:64px; height:64px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:26px; background:#8794DA; box-shadow:0 0 24px rgba(135,148,218,0.35);">😰</div>
+                  <div style="display:flex; flex-direction:column; gap:4px;">
+                    <span style="display:inline-flex; align-items:center; font-size:16px; padding:6px 16px; border-radius:14px; font-weight:500; background:#8794DA; color:#ffffff; width:fit-content;">Anxious</span>
+                    <div style="font-size:13px; color:{{ pal.textMuted }};">Topic: <span style="font-weight:500; color:{{ pal.text }};">work</span></div>
+                  </div>
+                </div>
+                <div>
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;"><span style="font-size:12px; color:{{ pal.textSubtle }};">Emotional intensity</span><span style="font-size:12px; color:{{ pal.textMuted }}; font-weight:500;">65%</span></div>
+                  <div style="width:100%; height:6px; border-radius:999px; overflow:hidden; background:{{ pal.border }};"><div style="height:100%; width:65%; border-radius:999px; background:#8794DA;"></div></div>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px; margin-top:auto;">
+                  <span style="display:inline-flex; color:{{ pal.crisis }};" sc-camel-dangerously-set-inner-h-t-m-l="{{ trendDownIconHtml }}"></span>
+                  <span style="font-size:13px; color:{{ pal.crisis }};">Lower than yesterday</span>
+                </div>
+              </div>
+
+              <!-- STREAK CARD -->
+              <div style="{{ S.card }} padding:24px; display:flex; flex-direction:column; gap:16px;">
+                <div style="font-size:12px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:{{ pal.textSubtle }};">Check-in streak</div>
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; padding:8px 0;">
+                  <div style="{{ S.streakBadge }}">🔥 6</div>
+                  <div style="font-size:14px; color:{{ pal.textMuted }}; margin-top:8px;">days in a row</div>
+                  <div style="font-size:12px; color:{{ pal.textSubtle }}; margin-top:4px;">You've shown up. That matters.</div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; padding-top:16px; border-top:1px solid {{ pal.border }};">
+                  <div style="text-align:center;"><div style="{{ S.wordmark }} font-size:20px; font-weight:500;">14</div><div style="font-size:11px; color:{{ pal.textSubtle }};">longest</div></div>
+                  <div style="text-align:center;"><div style="{{ S.wordmark }} font-size:20px; font-weight:500;">23</div><div style="font-size:11px; color:{{ pal.textSubtle }};">sessions</div></div>
+                </div>
+              </div>
+
+              <!-- PROACTIVE CARD -->
+              <div style="{{ S.card }} padding:24px; display:flex; flex-direction:column; gap:16px; border-left:3px solid {{ pal.accent }};">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <div style="width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:{{ pal.accent }}; opacity:0.9;"><span style="display:inline-flex; color:#26263A;" sc-camel-dangerously-set-inner-h-t-m-l="{{ bellIconHtml }}"></span></div>
+                  <div style="font-size:12px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:{{ pal.accent }};">Dhira checked in</div>
+                </div>
+                <div style="font-size:15px; color:{{ pal.text }}; line-height:1.6; font-style:italic; flex:1;">“Kal thoda heavy lag raha tha. Just checking in — how are you sitting with it today?”</div>
+                <div style="font-size:12px; color:{{ pal.textSubtle }};">🎚️ Sent within your 8 PM–11 PM window</div>
+                <div style="display:flex; align-items:center; gap:8px; font-size:14px; color:{{ pal.primary }}; font-weight:500; cursor:pointer;" sc-camel-on-click="{{ goChat }}">Respond to Dhira <span style="display:inline-flex;" sc-camel-dangerously-set-inner-h-t-m-l="{{ arrowRightIconHtml }}"></span></div>
+              </div>
+
+              <!-- MINI TIMELINE (span 3) -->
+              <div style="grid-column:span 3; {{ S.card }} padding:24px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+                  <div>
+                    <div style="font-size:12px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:{{ pal.textSubtle }}; margin-bottom:4px;">This week</div>
+                    <div style="{{ S.wordmark }} font-size:18px; font-weight:500;">7-day mood view</div>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:4px; font-size:13px; color:{{ pal.primary }}; font-weight:500; cursor:pointer;">Full timeline <span style="display:inline-flex;" sc-camel-dangerously-set-inner-h-t-m-l="{{ arrowRightIconHtml }}"></span></div>
+                </div>
+                <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:12px;">
+                  <sc-for list="{{ weekMoods }}" as="wd" hint-placeholder-count="7">
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+                      <span style="font-size:11px; text-transform:uppercase; letter-spacing:0.04em; color:{{ wd.labelColor }}; font-weight:{{ wd.labelWeight }};">{{ wd.day }}</span>
+                      <div style="{{ wd.swatchStyle }}"></div>
+                      <span style="font-size:11px; color:{{ wd.labelColor }}; font-weight:{{ wd.labelWeight }};">{{ wd.date }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:20px; padding-top:16px; border-top:1px solid {{ pal.border }};">
+                  <sc-for list="{{ moodLegend }}" as="lg" hint-placeholder-count="5">
+                    <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:{{ lg.color }}; display:inline-block;"></span><span style="font-size:11px; color:{{ pal.textSubtle }};">{{ lg.label }}</span></div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <!-- JOURNAL RECENT -->
+              <div style="{{ S.card }} padding:24px; display:flex; flex-direction:column; gap:16px;">
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                  <div style="{{ S.wordmark }} font-size:16px; font-weight:500;">Recent entries</div>
+                  <div style="font-size:12px; color:{{ pal.primary }}; cursor:pointer;">All</div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:12px; flex:1;">
+                  <sc-for list="{{ recentEntries }}" as="je" hint-placeholder-count="3">
+                    <div style="padding:12px; border-radius:12px; background:{{ pal.surfaceAlt }}; border:1px solid transparent; cursor:pointer;">
+                      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                        <span style="font-size:11px; color:{{ pal.textSubtle }}; font-weight:500;">{{ je.date }}</span>
+                        <span style="font-size:12px; padding:2px 8px; border-radius:10px; font-weight:500; background:{{ je.badgeBg }}; color:{{ je.badgeText }};">{{ je.moodLabel }}</span>
+                      </div>
+                      <div style="font-size:13px; color:{{ pal.textMuted }}; line-height:1.5;">{{ je.preview }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:12px; border-radius:12px; background:{{ pal.primarySoft }}; color:{{ pal.primary }}; font-size:14px; font-weight:500; cursor:pointer;" sc-camel-on-click="{{ goChat }}">New entry <span style="display:inline-flex;" sc-camel-dangerously-set-inner-h-t-m-l="{{ arrowRightIconHtml }}"></span></div>
+              </div>
+
+            </div>
+          </div>
+          </div>
+
+          <!-- MOOD CHECK-IN MODAL -->
+          <sc-if value="{{ moodModalOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; padding:16px; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px);" sc-camel-on-click="{{ onModalBackdropClick }}">
+              <div style="{{ S.card }} width:100%; max-width:440px; max-height:90vh; overflow-y:auto; animation: dhira-slide-up 0.35s ease;">
+                <div style="display:flex; align-items:center; justify-content:space-between; padding:24px 24px 16px; border-bottom:1px solid {{ pal.border }};">
+                  <div>
+                    <div style="{{ S.wordmark }} font-size:20px; font-weight:500;">How are you right now?</div>
+                    <div style="font-size:14px; color:{{ pal.textMuted }}; margin-top:4px;">No right or wrong answer.</div>
+                  </div>
+                  <div style="width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:{{ pal.surfaceAlt }}; color:{{ pal.textMuted }}; cursor:pointer;" sc-camel-on-click="{{ closeMoodModal }}" sc-camel-dangerously-set-inner-h-t-m-l="{{ closeIconHtml }}"></div>
+                </div>
+                <div style="padding:24px;">
+                  <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:12px; margin-bottom:24px;">
+                    <sc-for list="{{ moodOptions }}" as="mo" hint-placeholder-count="10">
+                      <div style="{{ mo.style }}" sc-camel-on-click="{{ mo.onSelect }}">
+                        <span style="font-size:22px;">{{ mo.emoji }}</span>
+                        <span style="font-size:10px; color:{{ pal.textMuted }}; font-weight:{{ mo.labelWeight }}; text-align:center; line-height:1.2;">{{ mo.label }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <sc-if value="{{ moodSelected }}" hint-placeholder-val="{{ false }}">
+                    <div style="margin-bottom:24px;">
+                      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;"><span style="font-size:14px; color:{{ pal.textMuted }};">How intense does it feel?</span><span style="font-size:14px; color:{{ pal.text }}; font-weight:500;">{{ moodIntensity }}%</span></div>
+                      <input type="range" min="0" max="100" value="{{ moodIntensity }}" sc-camel-on-change="{{ onIntensityChange }}" style="width:100%;">
+                      <div style="display:flex; justify-content:space-between; margin-top:4px;"><span style="font-size:11px; color:{{ pal.textSubtle }};">Gentle</span><span style="font-size:11px; color:{{ pal.textSubtle }};">Overwhelming</span></div>
+                    </div>
+                  </sc-if>
+                  <div style="display:flex; gap:12px;">
+                    <div style="{{ S.btnGhost }} flex:1; justify-content:center; font-size:15px;" style-hover="{{ S.btnGhostHover }}" sc-camel-on-click="{{ closeMoodModal }}">Not now</div>
+                    <div style="{{ S.btnPrimary }} flex:1; justify-content:center; font-size:15px; opacity:{{ moodSaveOpacity }};" style-hover="{{ S.btnPrimaryHover }}" sc-camel-on-click="{{ saveMood }}">{{ moodSaveLabel }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- TOAST -->
+          <sc-if value="{{ showToast }}" hint-placeholder-val="{{ false }}">
+            <div style="position:fixed; bottom:24px; right:24px; z-index:60; background:{{ pal.surface }}; color:{{ pal.text }}; border:1px solid {{ pal.border }}; border-radius:12px; padding:14px 20px; font-size:15px; box-shadow:{{ pal.shadowSoft }}; animation: dhira-fade-in 0.25s ease;">{{ toastMessage }}</div>
+          </sc-if>
+        </sc-if>
+
+        <!-- PROFILE -->
+        <sc-if value="{{ isProfile }}" hint-placeholder-val="{{ false }}">
+          <div style="position:relative; max-width:1024px; margin:0 auto; padding:32px 24px;">
+            <div style="position:absolute; top:0; right:0; width:500px; height:450px; background:radial-gradient(ellipse 55% 60% at 60% 40%, rgba(174,161,218,0.12) 0%, transparent 65%); filter:blur(55px); border-radius:40% 60% 55% 45% / 50% 45% 55% 50%; pointer-events:none; z-index:-1;"></div>
+            <div style="position:absolute; bottom:0; left:0; width:420px; height:380px; background:radial-gradient(ellipse, rgba(99,161,131,0.09) 0%, transparent 65%); filter:blur(60px); border-radius:55% 45% 40% 60% / 45% 55% 50% 50%; pointer-events:none; z-index:-1;"></div>
+
+            <div style="margin-bottom:32px;">
+              <div style="{{ S.wordmark }} font-size:clamp(24px,3vw,32px); font-weight:500;">Profile &amp; Settings</div>
+              <div style="font-size:15px; color:{{ pal.textMuted }}; margin-top:4px;">Manage your Dhira alias, preferences, and account settings.</div>
+            </div>
+
+            <div style="display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap;">
+              <div style="width:224px; flex-shrink:0;">
+                <div style="{{ S.card }} padding:8px; display:flex; flex-direction:column; gap:2px;">
+                  <sc-for list="{{ profileSections }}" as="ps" hint-placeholder-count="4">
+                    <div style="{{ ps.style }}" sc-camel-on-click="{{ ps.onSelect }}"><span style="display:inline-flex;" sc-camel-dangerously-set-inner-h-t-m-l="{{ ps.iconHtml }}"></span>{{ ps.label }}</div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="flex:1; min-width:280px;">
+                <sc-if value="{{ isProfileTab }}" hint-placeholder-val="{{ true }}">
+                  <div style="{{ S.card }} padding:24px;">
+                    <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px; padding-bottom:24px; border-bottom:1px solid {{ pal.border }};">
+                      <div style="width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:{{ S.avatarGradient }};">
+                        <svg width="35" height="35" sc-camel-view-box="0 0 24 24" fill="none"><path d="M4 12 C4 7.6 7.6 4 12 4 C16.4 4 20 7.6 20 12" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round"></path><circle cx="9" cy="13" r="1.2" fill="rgba(255,255,255,0.85)"></circle><circle cx="15" cy="13" r="1.2" fill="rgba(255,255,255,0.85)"></circle><circle cx="12" cy="18" r="1.5" fill="{{ pal.accent }}" opacity="0.9"></circle></svg>
+                      </div>
+                      <div>
+                        <div style="{{ S.wordmark }} font-size:20px; font-weight:500;">{{ profileAlias }}</div>
+                        <div style="font-size:14px; color:{{ pal.textMuted }}; margin-top:2px;">Your Dhira alias</div>
+                      </div>
+                    </div>
+                    <div style="margin-bottom:24px;">
+                      <label style="display:block; font-size:14px; font-weight:500; color:{{ pal.textMuted }}; margin-bottom:8px;">Dhira Alias</label>
+                      <input type="text" value="{{ profileAlias }}" sc-camel-on-change="{{ onProfileAliasChange }}" placeholder="Your anonymous alias" style="{{ S.aliasInput }}">
+                      <div style="font-size:13px; color:{{ pal.textSubtle }}; margin-top:6px;">This is how Dhira addresses you. No real name needed.</div>
+                    </div>
+                    <div style="{{ S.btnPrimary }} font-size:15px; padding:11px 24px;" style-hover="{{ S.btnPrimaryHover }}" sc-camel-on-click="{{ saveProfile }}">{{ profileSaveLabel }}</div>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ isLanguageTab }}" hint-placeholder-val="{{ false }}">
+                  <div style="{{ S.card }} padding:24px;">
+                    <div style="{{ S.wordmark }} font-size:20px; font-weight:500; margin-bottom:8px;">Language Preference</div>
+                    <div style="font-size:15px; color:{{ pal.textMuted }}; margin-bottom:24px;">Choose how Dhira speaks with you.</div>
+                    <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
+                      <sc-for list="{{ profileLanguageOptions }}" as="plo" hint-placeholder-count="2">
+                        <div style="{{ plo.style }}" sc-camel-on-click="{{ plo.onSelect }}">
+                          <span style="font-size:24px;">{{ plo.emoji }}</span>
+                          <div style="flex:1;"><div style="font-size:15px; font-weight:500; color:{{ pal.text }};">{{ plo.label }}</div><div style="font-size:13px; color:{{ pal.textMuted }}; margin-top:2px;">{{ plo.sub }}</div></div>
+                          <sc-if value="{{ plo.selected }}" hint-placeholder-val="{{ false }}"><div style="width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:{{ pal.primary }}; color:#fff;" sc-camel-dangerously-set-inner-h-t-m-l="{{ checkmarkIconHtml }}"></div></sc-if>
+                        </div>
+                      </sc-for>
+                    </div>
+                    <div style="{{ S.btnPrimary }} font-size:15px; padding:11px 24px;" style-hover="{{ S.btnPrimaryHover }}" sc-camel-on-click="{{ saveProfile }}">{{ profileSaveLabel }}</div>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ isCheckinsTab }}" hint-placeholder-val="{{ false }}">
+                  <div style="{{ S.card }} padding:24px;">
+                    <div style="{{ S.wordmark }} font-size:20px; font-weight:500; margin-bottom:8px;">Check-in Frequency</div>
+                    <div style="font-size:15px; color:{{ pal.textMuted }}; margin-bottom:24px;">How often should Dhira reach out to you?</div>
+                    <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
+                      <sc-for list="{{ profileFrequencyOptions }}" as="pfo" hint-placeholder-count="3">
+                        <div style="{{ pfo.style }}" sc-camel-on-click="{{ pfo.onSelect }}">
+                          <div style="flex:1;"><div style="font-size:15px; font-weight:500; color:{{ pal.text }};">{{ pfo.label }}</div><div style="font-size:13px; color:{{ pal.textMuted }}; margin-top:2px;">{{ pfo.sub }}</div></div>
+                          <sc-if value="{{ pfo.selected }}" hint-placeholder-val="{{ false }}"><div style="width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:{{ pal.accent }}; color:#26263A;" sc-camel-dangerously-set-inner-h-t-m-l="{{ checkmarkIconHtml }}"></div></sc-if>
+                        </div>
+                      </sc-for>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:16px; margin-bottom:24px; padding-top:16px; border-top:1px solid {{ pal.border }};">
+                      <sc-for list="{{ profileToggles }}" as="pt" hint-placeholder-count="2">
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+                          <div><div style="font-size:15px; font-weight:500; color:{{ pal.text }};">{{ pt.label }}</div><div style="font-size:13px; color:{{ pal.textMuted }}; margin-top:2px;">{{ pt.sub }}</div></div>
+                          <div style="{{ pt.trackStyle }}" sc-camel-on-click="{{ pt.onToggle }}"><div style="{{ pt.knobStyle }}"></div></div>
+                        </div>
+                      </sc-for>
+                    </div>
+                    <div style="{{ S.btnPrimary }} font-size:15px; padding:11px 24px;" style-hover="{{ S.btnPrimaryHover }}" sc-camel-on-click="{{ saveProfile }}">{{ profileSaveLabel }}</div>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ isAccountTab }}" hint-placeholder-val="{{ false }}">
+                  <div style="{{ S.card }} padding:24px;">
+                    <div style="{{ S.wordmark }} font-size:20px; font-weight:500; margin-bottom:24px;">Account Settings</div>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                      <sc-for list="{{ accountActions }}" as="aa" hint-placeholder-count="4">
+                        <div style="display:flex; align-items:center; justify-content:space-between; padding:16px; border-radius:16px; border:1px solid {{ pal.border }}; background:{{ pal.surfaceAlt }}; cursor:pointer;">
+                          <div><div style="font-size:15px; font-weight:500; color:{{ pal.text }};">{{ aa.label }}</div><div style="font-size:13px; color:{{ pal.textMuted }}; margin-top:2px;">{{ aa.sub }}</div></div>
+                          <span style="display:inline-flex; color:{{ pal.textSubtle }};" sc-camel-dangerously-set-inner-h-t-m-l="{{ chevronRightIconHtml }}"></span>
+                        </div>
+                      </sc-for>
+                    </div>
+                    <div style="margin-top:32px; padding:16px; border-radius:16px; border:1px solid {{ pal.crisis }}; background:{{ pal.crisisSurface }};">
+                      <div style="font-size:14px; font-weight:500; color:{{ pal.crisis }}; margin-bottom:8px;">Danger zone</div>
+                      <div style="{{ S.btnGhost }} font-size:14px; padding:8px 16px; border-color:{{ pal.crisis }}; color:{{ pal.crisis }};">Delete my account</div>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- CHAT -->
+        <sc-if value="{{ isChat }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ chatCrisisMode }}" hint-placeholder-val="{{ false }}">
+            <div style="min-height:calc(100vh - 144px); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:48px 24px; background:{{ pal.crisisSurface }};">
+              <div style="max-width:512px; width:100%; display:flex; flex-direction:column; gap:32px;">
+                <div style="display:flex; justify-content:center;">
+                  <div style="width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:{{ S.avatarGradient }};">
+                    <svg width="35" height="35" sc-camel-view-box="0 0 24 24" fill="none"><path d="M4 12 C4 7.6 7.6 4 12 4 C16.4 4 20 7.6 20 12" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round"></path><circle cx="9" cy="13" r="1.2" fill="rgba(255,255,255,0.85)"></circle><circle cx="15" cy="13" r="1.2" fill="rgba(255,255,255,0.85)"></circle><circle cx="12" cy="18" r="1.5" fill="{{ pal.accent }}" opacity="0.9"></circle></svg>
+                  </div>
+                </div>
+                <div style="padding:24px; border-radius:16px; background:{{ pal.surface }}; border:1.5px solid {{ pal.crisis }}; box-shadow:0 0 32px rgba(197,107,92,0.15);">
+                  <div style="{{ S.wordmark }} font-size:20px; font-weight:500; color:{{ pal.crisis }}; line-height:1.3; margin-bottom:16px;">I'm here with you right now.</div>
+                  <div style="font-size:17px; color:{{ pal.text }}; line-height:1.7;">I'm really sorry you're feeling this way, and I'm concerned about your safety. Please reach out right now to someone who can be with you. In India you can call <strong style="color:{{ pal.crisis }};">Tele-MANAS at 14416</strong> (free, 24×7), or contact your local emergency services. If there's someone you trust nearby, please reach out to them too. You don't have to be alone with this.</div>
+                </div>
+                <div style="display:flex; align-items:center; justify-content:center; gap:12px; width:100%; padding:20px; border-radius:16px; background:{{ pal.crisis }}; color:#ffffff; font-size:20px; font-weight:600; cursor:pointer; box-shadow:0 0 32px rgba(197,107,92,0.4);" sc-camel-on-click="{{ callCrisisLine }}"><span style="display:inline-flex;" sc-camel-dangerously-set-inner-h-t-m-l="{{ phoneIconHtml }}"></span>📞 Call Tele-MANAS · 14416</div>
+                <div style="padding:20px; border-radius:16px; display:flex; align-items:center; justify-content:space-between; gap:16px; background:{{ pal.surface }}; border:1px solid {{ pal.border }};">
+                  <div style="display:flex; align-items:center; gap:16px;">
+                    <div style="width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:{{ pal.primarySoft }}; color:{{ pal.primary }};" sc-camel-dangerously-set-inner-h-t-m-l="{{ heartIconHtml }}"></div>
+                    <div>
+                      <div style="font-size:15px; font-weight:600; color:{{ pal.text }};">Verified counsellor</div>
+                      <div style="display:flex; align-items:center; gap:6px; margin-top:2px;"><span style="width:7px; height:7px; border-radius:50%; background:{{ pal.sage }}; display:inline-block;"></span><span style="font-size:13px; color:{{ pal.sage }};">Available now — tap to connect</span></div>
+                    </div>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:4px; font-size:13px; color:{{ pal.primary }}; font-weight:500; flex-shrink:0; cursor:pointer;">Connect <span style="display:inline-flex;" sc-camel-dangerously-set-inner-h-t-m-l="{{ externalLinkIconHtml }}"></span></div>
+                </div>
+                <div style="padding:16px; border-radius:12px; text-align:center; background:{{ pal.primarySoft }}; border:1px solid {{ pal.primary }};">
+                  <div style="font-size:15px; color:{{ pal.text }}; line-height:1.6;">💙 Is there someone you trust nearby? A friend, family member, or neighbour? <span style="color:{{ pal.primary }}; font-weight:500;">Please reach out to them too.</span></div>
+                </div>
+                <div style="text-align:center;">
+                  <div style="display:inline-flex; align-items:center; gap:8px; font-size:14px; color:{{ pal.textSubtle }}; cursor:pointer;" sc-camel-on-click="{{ exitCrisis }}">I'm somewhere safe now <span style="display:inline-flex;" sc-camel-dangerously-set-inner-h-t-m-l="{{ arrowRightIconHtml }}"></span></div>
+                </div>
+                <div style="text-align:center; font-size:12px; color:{{ pal.textSubtle }}; line-height:1.5;">Tele-MANAS 14416 is free, government-backed, and available 24×7 across India.<br>dhira is a listening companion — not a crisis service.</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ chatNotCrisis }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex; flex-direction:column; height:calc(100vh - 144px); max-width:800px; margin:0 auto; width:100%; position:relative; overflow:hidden;">
+              <div style="position:absolute; top:-40px; right:-40px; width:300px; height:280px; background:radial-gradient(ellipse 55% 60% at 60% 40%, rgba(90,103,184,0.1) 0%, transparent 65%); filter:blur(40px); border-radius:40% 60% 55% 45% / 50% 45% 55% 50%; pointer-events:none; z-index:-1;"></div>
+              <div style="position:absolute; bottom:60px; left:-30px; width:260px; height:240px; background:radial-gradient(ellipse, rgba(239,169,74,0.08) 0%, transparent 65%); filter:blur(45px); border-radius:55% 45% 40% 60% / 45% 55% 50% 50%; pointer-events:none; z-index:-1;"></div>
+
+              <!-- CHAT HEADER -->
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; flex-shrink:0; background:{{ pal.surface }}; border-bottom:1px solid {{ pal.border }}; box-shadow:{{ pal.shadowCard }};">
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <div style="width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:{{ pal.surfaceAlt }}; color:{{ pal.textMuted }}; cursor:pointer;" sc-camel-on-click="{{ goHome }}" sc-camel-dangerously-set-inner-h-t-m-l="{{ arrowLeftIconHtml }}"></div>
+                  <div style="width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:{{ S.avatarGradient }};">
+                    <svg width="20" height="20" sc-camel-view-box="0 0 24 24" fill="none"><path d="M4 12 C4 7.6 7.6 4 12 4 C16.4 4 20 7.6 20 12" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round"></path><circle cx="9" cy="13" r="1.2" fill="rgba(255,255,255,0.85)"></circle><circle cx="15" cy="13" r="1.2" fill="rgba(255,255,255,0.85)"></circle><circle cx="12" cy="18" r="1.5" fill="{{ pal.accent }}" opacity="0.9"></circle></svg>
+                  </div>
+                  <div>
+                    <div style="{{ S.wordmark }} font-size:16px; font-weight:500; line-height:1.2;">Dhira</div>
+                    <div style="display:flex; align-items:center; gap:6px;"><span style="width:7px; height:7px; border-radius:50%; background:{{ pal.sage }}; display:inline-block;"></span><span style="font-size:12px; color:{{ pal.sage }};">Listening</span></div>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <span style="font-size:12px; color:{{ pal.textSubtle }};">{{ chatMessageCount }} messages</span>
+                  <div style="width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:{{ pal.surfaceAlt }}; color:{{ pal.textMuted }};" sc-camel-dangerously-set-inner-h-t-m-l="{{ moreHorizontalIconHtml }}"></div>
+                </div>
+              </div>
+
+              <!-- MEMORY BANNER -->
+              <div style="{{ S.memoryBanner }} margin:12px 16px 0; flex-shrink:0;">
+                <span style="font-size:14px; flex-shrink:0; margin-top:1px;">🌙</span>
+                <div>
+                  <div style="font-size:11px; font-weight:600; letter-spacing:0.07em; text-transform:uppercase; color:{{ pal.textSubtle }}; margin-bottom:3px;">Dhira remembers · Yesterday</div>
+                  <div style="font-size:14px; color:{{ pal.text }}; line-height:1.55;">Work has been feeling heavy — feeling invisible in meetings, disconnected from the team.</div>
+                </div>
+              </div>
+
+              <!-- DEMO SHORTCUT -->
+              <div style="padding:8px 16px; display:flex; align-items:center; gap:8px; background:{{ pal.surfaceAlt }}; border-bottom:1px solid {{ pal.border }};">
+                <span style="font-size:12px; color:{{ pal.textSubtle }};">Demo shortcut:</span>
+                <div style="padding:4px 12px; border-radius:999px; font-size:12px; font-weight:500; cursor:pointer; background:{{ pal.crisisSurface }}; color:{{ pal.crisis }}; border:1px solid {{ pal.crisis }};" sc-camel-on-click="{{ testSafetyPath }}">Test safety path →</div>
+              </div>
+
+              <!-- THREAD -->
+              <div style="flex:1; overflow-y:auto; padding:24px 16px;">
+                <div style="display:flex; flex-direction:column; gap:20px;">
+                  <sc-for list="{{ chatMessages }}" as="m" hint-placeholder-count="4">
+                    <div style="{{ m.rowStyle }}">
+                      <sc-if value="{{ m.isDhira }}" hint-placeholder-val="{{ true }}">
+                        <div style="width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:{{ S.avatarGradient }};">
+                          <svg width="15" height="15" sc-camel-view-box="0 0 24 24" fill="none"><path d="M4 12 C4 7.6 7.6 4 12 4 C16.4 4 20 7.6 20 12" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round"></path><circle cx="9" cy="13" r="1.2" fill="rgba(255,255,255,0.85)"></circle><circle cx="15" cy="13" r="1.2" fill="rgba(255,255,255,0.85)"></circle><circle cx="12" cy="18" r="1.5" fill="{{ pal.accent }}" opacity="0.9"></circle></svg>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ m.isUser }}" hint-placeholder-val="{{ false }}">
+                        <div style="width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:12px; font-weight:600; background:{{ pal.primarySoft }}; color:{{ pal.primary }};">A</div>
+                      </sc-if>
+                      <div style="{{ m.colStyle }}">
+                        <div style="{{ m.bubbleStyle }}">{{ m.content }}</div>
+                        <span style="font-size:11px; color:{{ pal.textSubtle }};">{{ m.timestamp }}</span>
+                      </div>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ chatIsTyping }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex; align-items:flex-end; gap:8px;">
+                      <div style="width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:{{ S.avatarGradient }};">
+                        <svg width="15" height="15" sc-camel-view-box="0 0 24 24" fill="none"><path d="M4 12 C4 7.6 7.6 4 12 4 C16.4 4 20 7.6 20 12" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round"></path><circle cx="9" cy="13" r="1.2" fill="rgba(255,255,255,0.85)"></circle><circle cx="15" cy="13" r="1.2" fill="rgba(255,255,255,0.85)"></circle><circle cx="12" cy="18" r="1.5" fill="{{ pal.accent }}" opacity="0.9"></circle></svg>
+                      </div>
+                      <div style="{{ S.chatBubbleDhira }} display:flex; align-items:center; gap:6px; padding:14px 18px;">
+                        <span style="width:7px; height:7px; border-radius:50%; background:{{ pal.textSubtle }}; display:inline-block; animation: dhira-typing-bounce 1.2s ease-in-out infinite;"></span>
+                        <span style="width:7px; height:7px; border-radius:50%; background:{{ pal.textSubtle }}; display:inline-block; animation: dhira-typing-bounce 1.2s ease-in-out infinite; animation-delay:0.2s;"></span>
+                        <span style="width:7px; height:7px; border-radius:50%; background:{{ pal.textSubtle }}; display:inline-block; animation: dhira-typing-bounce 1.2s ease-in-out infinite; animation-delay:0.4s;"></span>
+                      </div>
+                    </div>
+                  </sc-if>
+                </div>
+              </div>
+
+              <!-- MOOD SAVED NUDGE -->
+              <sc-if value="{{ moodSavedNudge }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:12px 16px; display:flex; align-items:center; justify-content:space-between; background:{{ pal.primarySoft }}; border-top:1px solid {{ pal.primary }};">
+                  <div style="font-size:14px; color:{{ pal.textMuted }};">Mood tagged: <strong style="color:{{ pal.text }};">Anxious · Work</strong></div>
+                  <div style="font-size:13px; color:{{ pal.primary }}; font-weight:500; cursor:pointer;" sc-camel-on-click="{{ dismissMoodSaved }}">✓ Saved</div>
+                </div>
+              </sc-if>
+
+              <!-- INPUT BAR -->
+              <div style="flex-shrink:0; padding:12px 16px; background:{{ pal.surface }}; border-top:1px solid {{ pal.border }};">
+                <div style="display:flex; align-items:flex-end; gap:8px; border-radius:12px; padding:8px 12px; background:{{ pal.surfaceAlt }}; border:1.5px solid {{ pal.border }};">
+                  <input type="text" placeholder="{{ chatInputPlaceholder }}" value="{{ chatInput }}" sc-camel-on-change="{{ onChatInputChange }}" style="flex:1; background:transparent; border:none; outline:none; font-size:16px; color:{{ pal.text }};">
+                  <div style="{{ S.micBtn }}" sc-camel-on-click="{{ toggleMic }}" sc-camel-dangerously-set-inner-h-t-m-l="{{ micIconHtml }}"></div>
+                  <div style="{{ S.sendBtn }}" sc-camel-on-click="{{ sendChatMessage }}" sc-camel-dangerously-set-inner-h-t-m-l="{{ sendIconHtml }}"></div>
+                </div>
+                <div style="text-align:center; margin-top:8px; font-size:11px; color:{{ pal.textSubtle }}; line-height:1.4;">dhira listens — not a therapist or crisis service. <span style="color:{{ pal.crisis }}; font-weight:500;">Crisis? Call 14416</span></div>
+              </div>
+            </div>
+          </sc-if>
+        </sc-if>
+
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script="">
+function html(svg) { return { __html: svg }; }
+
+const ILL_BLOBS = [
+  "M10 18C14 6 30 2 42 8C54 14 55 32 46 42C37 52 18 54 9 44C0 34 6 30 10 18Z",
+  "M8 28C6 14 22 2 36 4C50 6 54 24 48 38C42 52 22 54 12 46C2 38 10 42 8 28Z",
+  "M12 8C26 0 46 4 50 18C54 32 44 50 28 50C12 50 2 36 4 24C6 14 8 12 12 8Z",
+  "M6 24C4 10 20 0 34 4C48 8 52 26 46 40C40 54 20 54 10 44C0 34 8 38 6 24Z"
+];
+const ILL_COLORS = [['#5A67B8', '#8B93D9'], ['#AEA1DA', '#7C6FC4'], ['#EFA94A', '#F6C88A'], ['#63A183', '#8FBCA4']];
+
+function illIcon(uid, glyphSvg, variant) {
+  const blob = ILL_BLOBS[variant % ILL_BLOBS.length];
+  const [c1, c2] = ILL_COLORS[variant % ILL_COLORS.length];
+  return { __html: `<svg width="100%" height="100%" viewBox="0 0 56 56" fill="none"><defs><linearGradient id="ill-${uid}" x1="0" y1="0" x2="56" y2="56"><stop offset="0%" stop-color="${c1}"></stop><stop offset="100%" stop-color="${c2}"></stop></linearGradient></defs><path d="${blob}" fill="url(#ill-${uid})"></path><g stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.95">${glyphSvg}</g></svg>` };
+}
+
+const ILL_GLYPHS = {
+  ear: '<path d="M22 18c-5 2-8 6-8 11s3 8 7 9"></path><path d="M30 16c6 2 9 7 9 13 0 5-3 9-7 10"></path><circle cx="28" cy="28" r="2.4" fill="#ffffff" stroke="none"></circle>',
+  moon: '<path d="M34 18a10 10 0 1 0 0 20 8 8 0 0 1 0-20Z"></path><circle cx="38" cy="18" r="1.6" fill="#ffffff" stroke="none"></circle>',
+  chat: '<path d="M18 20h20a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H26l-6 5v-5h-2a3 3 0 0 1-3-3v-8a3 3 0 0 1 3-3Z"></path>',
+  shield: '<path d="M28 16l9 4v7c0 6-4 10-9 12-5-2-9-6-9-12v-7l9-4Z"></path><path d="M24 28l3 3 6-6"></path>',
+  person: '<circle cx="28" cy="23" r="5"></circle><path d="M18 40c0-5.5 4.5-9 10-9s10 3.5 10 9"></path>',
+  clock: '<circle cx="28" cy="28" r="11"></circle><path d="M28 21v7l5 3"></path>',
+  chatDots: '<path d="M18 20h20a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H26l-6 5v-5h-2a3 3 0 0 1-3-3v-8a3 3 0 0 1 3-3Z"></path><circle cx="24" cy="27" r="1.2" fill="#ffffff" stroke="none"></circle><circle cx="28" cy="27" r="1.2" fill="#ffffff" stroke="none"></circle><circle cx="32" cy="27" r="1.2" fill="#ffffff" stroke="none"></circle>',
+  pulse: '<path d="M16 28h6l3-8 4 16 3-8h8"></path>',
+  incognito: '<path d="M16 26c3-4 8-6 12-6s9 2 12 6"></path><circle cx="21" cy="28" r="3"></circle><circle cx="35" cy="28" r="3"></circle><path d="M24 28h8"></path>',
+  lock: '<rect x="19" y="26" width="18" height="14" rx="3"></rect><path d="M23 26v-4a5 5 0 0 1 10 0v4"></path>',
+  sliders: '<line x1="18" y1="20" x2="38" y2="20"></line><circle cx="26" cy="20" r="2.2" fill="#ffffff" stroke="none"></circle><line x1="18" y1="28" x2="38" y2="28"></line><circle cx="32" cy="28" r="2.2" fill="#ffffff" stroke="none"></circle><line x1="18" y1="36" x2="38" y2="36"></line><circle cx="22" cy="36" r="2.2" fill="#ffffff" stroke="none"></circle>',
+  heart: '<path d="M28 38s-10-6-10-14a6 6 0 0 1 10-4 6 6 0 0 1 10 4c0 8-10 14-10 14Z"></path>'
+};
+
+const ICONS = {
+  home: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5"></path><path d="M5 10v10a1 1 0 0 0 1 1h4v-7h4v7h4a1 1 0 0 0 1-1V10"></path></svg>',
+  chat: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 21l1.5-3.5"></path></svg>',
+  bars: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20V10M12 20V4M17 20v-7"></path></svg>',
+  sliders: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"></line><circle cx="9" cy="6" r="2"></circle><line x1="4" y1="12" x2="20" y2="12"></line><circle cx="15" cy="12" r="2"></circle><line x1="4" y1="18" x2="20" y2="18"></line><circle cx="9" cy="18" r="2"></circle></svg>',
+  sun: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"></path></svg>',
+  moon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"></path></svg>',
+  bell: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 13 6 9Z"></path><path d="M10 19a2 2 0 0 0 4 0"></path></svg>',
+  arrowRight: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>',
+  arrowLeft: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg>',
+  trendDown: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l6 6 4-4 8 8"></path><path d="M21 13v8h-8"></path></svg>',
+  mic: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0"></path><path d="M12 18v3"></path></svg>',
+  micOff: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="8" height="7"></rect></svg>',
+  send: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"></path><path d="M22 2 15 22l-4-9-9-4 20-7Z"></path></svg>',
+  close: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5l14 14M19 5 5 19"></path></svg>',
+  phone: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3h3l2 5-2.5 2a12 12 0 0 0 6 6l2-2.5 5 2v3a2 2 0 0 1-2 2C10.6 21.5 2.5 13.4 2.5 5a2 2 0 0 1 2-2Z"></path></svg>',
+  heart: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.35-9.5-8.5C.7 8.2 2 4.5 5.5 4c2-.3 3.7.7 4.5 2.3C10.8 4.7 12.5 3.7 14.5 4c3.5.5 4.8 4.2 3 7.5C19 15.65 12 20 12 20Z"></path></svg>',
+  externalLink: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 5h5v5"></path><path d="M20 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5"></path><path d="M10 14 21 3"></path></svg>',
+  moreHorizontal: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="19" cy="12" r="1.6"></circle></svg>',
+  user: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20c0-3.9 3.1-6.5 7-6.5s7 2.6 7 6.5"></path></svg>',
+  globe: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"></path></svg>',
+  bellLg: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 13 6 9Z"></path><path d="M10 19a2 2 0 0 0 4 0"></path></svg>',
+  shield: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z"></path></svg>',
+  chevronRight: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg>',
+  check2: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"></path></svg>',
+  google: '<svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path></svg>'
+};
+
+const MOOD_COLORS = {
+  happy: { bg: '#F0C46B', text: '#241F16', label: 'Happy' },
+  calm: { bg: '#8FBCA4', text: '#241F16', label: 'Calm' },
+  hopeful: { bg: '#79C2C4', text: '#241F16', label: 'Hopeful' },
+  neutral: { bg: '#B9B2A4', text: '#241F16', label: 'Neutral' },
+  stressed: { bg: '#E0A94F', text: '#241F16', label: 'Stressed' },
+  anxious: { bg: '#8794DA', text: '#ffffff', label: 'Anxious' },
+  lonely: { bg: '#A99BC9', text: '#ffffff', label: 'Lonely' },
+  overwhelmed: { bg: '#9C6B8E', text: '#ffffff', label: 'Overwhelmed' },
+  sad: { bg: '#7089B0', text: '#ffffff', label: 'Sad' },
+  angry: { bg: '#C56B5C', text: '#ffffff', label: 'Angry' }
+};
+
+const PALETTES = {
+  day: { bg: '#FAF6EF', bgTint: 'rgba(250,246,239,0.55)', surface: '#FFFFFF', surfaceAlt: '#F3EEE4', surfaceAltTint: 'rgba(243,238,228,0.6)', border: '#E7DFD1', text: '#26263A', textMuted: '#5E5C6E', textSubtle: '#918EA0', primary: '#5A67B8', primaryHover: '#47539A', primarySoft: '#EEF0FB', accent: '#EFA94A', accentHover: '#D9943A', lavender: '#AEA1DA', sage: '#63A183', crisis: '#C56B5C', crisisSurface: '#F9EDE9', shadowCard: '0 2px 12px rgba(30,35,64,0.06)', shadowSoft: '0 8px 24px rgba(30,35,64,0.08)' },
+  night: { bg: '#14162A', bgTint: 'rgba(20,22,42,0.6)', surface: '#1D2038', surfaceAlt: '#262A46', surfaceAltTint: 'rgba(38,42,70,0.62)', border: '#333857', text: '#ECEBF4', textMuted: '#ABA9C1', textSubtle: '#7E7C95', primary: '#949FDC', primaryHover: '#B0B9E6', primarySoft: '#262A46', accent: '#F6C06B', accentHover: '#E8A84A', lavender: '#AEA1DA', sage: '#8FBCA4', crisis: '#D2796A', crisisSurface: '#2A1E1C', shadowCard: '0 2px 16px rgba(0,0,0,0.24)', shadowSoft: '0 8px 32px rgba(0,0,0,0.32)' }
+};
+
+const HERO_LINES = [
+  'Aaj thoda heavy lag raha hai kya?',
+  "I'm here. Tell me more.",
+  'Yeh kaafi heavy lag raha hai. Main sun raha hoon.',
+  "What's sitting with you right now?",
+  'That sounds heavy. Take your time.'
+];
+
+const FEATURES = [
+  { glyph: 'ear', title: 'Listens, never advises', body: 'Dhira reflects your feelings and asks one gentle question at a time. No prescriptions, no unsolicited advice — just a space to be heard.', detail: '"That sounds heavy. Tell me more."' },
+  { glyph: 'moon', title: 'Remembers gently', body: "After each chat, Dhira keeps a quiet note of what you shared. Next time, she starts from where you left off.", detail: '"Last time work was sitting heavy on you — how\'s that today?"' },
+  { glyph: 'chat', title: 'Reaches out first', body: 'Within your chosen window, Dhira checks in unprompted — because sometimes the hardest thing is starting the conversation.', detail: '"Kal thoda heavy lag raha tha. Just checking in."' },
+  { glyph: 'shield', title: 'Safety built in', body: "When things feel too heavy, Dhira steps back and connects you to real help — Tele-MANAS 14416, free and 24×7.", detail: "You don't have to be alone with this." }
+];
+
+const STEPS = [
+  { number: '01', glyph: 'person', title: 'Create your profile', body: "Sign up and select the language you'd like to talk to Dhira in." },
+  { number: '02', glyph: 'clock', title: 'Set your check-in window', body: 'Tell Dhira when she may reach out — 10 PM to 1 AM, a few times a week, in Hinglish. Your rules.' },
+  { number: '03', glyph: 'chatDots', title: 'Talk. Be heard.', body: 'Open a chat anytime, or let Dhira come to you. She listens, reflects, and asks one gentle question.' },
+  { number: '04', glyph: 'pulse', title: 'Watch your mood move', body: 'A quiet 14-day mood timeline shows you how you\'ve been — no judgement, just colour and continuity.' }
+];
+
+const TESTIMONIALS = [
+  { quote: 'Pehli baar kisi ne mujhe sirf suna — bina kuch solve karne ki koshish kiye. That felt different.', name: 'Aarav S.', meta: 'Mumbai · 3 weeks with Dhira', moodColor: '#8FBCA4', mood: 'Calmer' },
+  { quote: 'The 2 AM check-in message felt like someone actually cared enough to show up. Unexpected.', name: 'Priya K.', meta: 'Bengaluru · 5-day streak', moodColor: '#79C2C4', mood: 'Hopeful' },
+  { quote: "Mujhe pata tha ye AI hai, phir bhi laga koi sun raha hai. That's the whole point, isn't it.", name: 'Rohan M.', meta: 'Delhi · 2 weeks with Dhira', moodColor: '#F0C46B', mood: 'Lighter' }
+];
+
+const PROMISES = [
+  { glyph: 'incognito', title: 'Completely anonymous', body: 'No real name, no phone number, no email required. You choose what to share.', span: 'span 2' },
+  { glyph: 'lock', title: 'Private by design', body: 'Your conversations stay yours. We store only mood metadata — never your words.', span: 'span 1' },
+  { glyph: 'sliders', title: 'You are in control', body: 'Change your preferences, pause check-ins, or leave anytime. No lock-in.', span: 'span 1' },
+  { glyph: 'heart', title: 'A listener, not a therapist', body: 'Dhira listens and remembers. She does not diagnose, advise, or judge.', span: 'span 1' }
+];
+
+const FREQUENCY_OPTIONS = [
+  { value: 'daily', label: 'Daily', sub: 'A gentle nudge every day' },
+  { value: 'every-other-day', label: 'Every other day', sub: 'A little breathing room' },
+  { value: 'weekly', label: 'Weekly', sub: 'Just once a week' }
+];
+
+const LANGUAGE_OPTIONS = [
+  { value: 'hinglish', label: 'Hinglish', sub: 'Hindi + English — the way we actually talk' },
+  { value: 'english', label: 'English', sub: 'Full English responses from Dhira' }
+];
+
+const WEEK_MOODS = [
+  { day: 'Sat', date: '5', mood: 'calm' },
+  { day: 'Sun', date: '6', mood: 'hopeful' },
+  { day: 'Mon', date: '7', mood: 'stressed' },
+  { day: 'Tue', date: '8', mood: 'overwhelmed' },
+  { day: 'Wed', date: '9', mood: 'anxious' },
+  { day: 'Thu', date: '10', mood: 'anxious' },
+  { day: 'Fri', date: '11', mood: 'anxious', isToday: true }
+];
+
+const MOOD_LEGEND = ['calm', 'hopeful', 'stressed', 'anxious', 'overwhelmed'];
+
+const RECENT_ENTRIES = [
+  { date: '11 Jul', preview: 'Office mein bilkul mann nahi laga aaj. Sab kuch overwhelming lag raha tha...', mood: 'anxious' },
+  { date: '10 Jul', preview: 'Thoda better feel kiya aaj. Ek purani dost se baat hui, achha laga...', mood: 'hopeful' },
+  { date: '9 Jul', preview: 'Neend nahi aayi raat ko. Kuch thoughts loop ho rahe the...', mood: 'anxious' }
+];
+
+const MOODS_GRID = [
+  { id: 'happy', label: 'Happy', emoji: '😊', color: '#F0C46B' },
+  { id: 'calm', label: 'Calm', emoji: '😌', color: '#8FBCA4' },
+  { id: 'hopeful', label: 'Hopeful', emoji: '🌱', color: '#79C2C4' },
+  { id: 'neutral', label: 'Neutral', emoji: '😶', color: '#B9B2A4' },
+  { id: 'stressed', label: 'Stressed', emoji: '😤', color: '#E0A94F' },
+  { id: 'anxious', label: 'Anxious', emoji: '😰', color: '#8794DA' },
+  { id: 'lonely', label: 'Lonely', emoji: '🌧️', color: '#A99BC9' },
+  { id: 'overwhelmed', label: 'Overwhelmed', emoji: '🌊', color: '#9C6B8E' },
+  { id: 'sad', label: 'Sad', emoji: '😔', color: '#7089B0' },
+  { id: 'angry', label: 'Angry', emoji: '🌋', color: '#C56B5C' }
+];
+
+const INITIAL_MESSAGES = [
+  { id: 'm1', role: 'dhira', content: 'Aaj thoda heavy lag raha hai kya?', timestamp: '10:38 PM' },
+  { id: 'm2', role: 'user', content: 'Haan yaar, office mein bilkul mann nahi laga. Sab kuch overwhelming lag raha tha.', timestamp: '10:39 PM' },
+  { id: 'm3', role: 'dhira', content: 'Yeh kaafi heavy lag raha hai. Office mein kya hua specifically — ya bas ek general heaviness thi puri din?', timestamp: '10:39 PM' },
+  { id: 'm4', role: 'user', content: 'Meeting mein meri baat ko kisi ne seriously nahi liya. Aisa lagta hai jaise main invisible hoon wahan.', timestamp: '10:41 PM' },
+  { id: 'm5', role: 'dhira', content: 'That sounds really isolating — to speak and feel like no one received it. Invisible is a heavy word to carry. Yeh feeling pehle bhi aayi hai wahan, ya aaj kuch alag tha?', timestamp: '10:41 PM' }
+];
+
+const CRISIS_PHRASES = ["i don't want to live anymore", 'i want to die', 'end my life', 'kill myself', "don't want to be here", 'test the safety path'];
+
+function getDhiraResponse(userMsg) {
+  const lower = userMsg.toLowerCase();
+  if (lower.includes('invisible') || lower.includes('ignored')) return 'I hear you. Being dismissed like that — it leaves a mark. What was the main feeling sitting with you after that meeting?';
+  if (lower.includes('work') || lower.includes('office') || lower.includes('job')) return 'Yeh work pressure kaafi heavy ho sakta hai. Kya aaj ka din unusually bad tha, ya yeh kuch time se chal raha hai?';
+  if (lower.includes('lonely') || lower.includes('alone') || lower.includes('akela')) return 'Loneliness is one of the quietest kinds of heavy. Yeh feeling — is it mostly at work, or does it follow you home too?';
+  if (lower.includes('better') || lower.includes('okay') || lower.includes('theek')) return "I'm glad something shifted a little. What helped, even slightly?";
+  return "That sounds heavy. Take your time. What's sitting with you most right now?";
+}
+
+class Component extends DCLogic {
+  state = {
+    route: 'landing',
+    appScreen: 'home',
+    theme: 'day',
+    heroIndex: 0,
+    heroVisible: true,
+    obStep: 0,
+    alias: '',
+    language: 'hinglish',
+    consentCheckin: true,
+    consentMemory: true,
+    checkinFrequency: 'daily',
+    moodModalOpen: false,
+    moodSelected: null,
+    moodIntensity: 50,
+    moodSaving: false,
+    showToast: false,
+    toastMessage: '',
+    chatMessages: INITIAL_MESSAGES,
+    chatInput: '',
+    chatIsTyping: false,
+    chatCrisisMode: false,
+    micActive: false,
+    moodSavedNudge: false,
+    signupAlias: '',
+    signupEmail: '',
+    signupPassword: '',
+    signupAgreedTerms: false,
+    signinEmail: '',
+    signinPassword: '',
+    profileSection: 'profile',
+    profileAlias: 'Friend',
+    profileLanguage: 'hinglish',
+    profileFrequency: 'daily',
+    profileProactive: true,
+    profileMemory: true,
+    profileSaved: false,
+    flippedSteps: {}
+  };
+
+  componentDidMount() {
+    try {
+      const saved = window.localStorage.getItem('dhira-theme');
+      if (saved === 'day' || saved === 'night') this.setState({ theme: saved });
+      else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) this.setState({ theme: 'night' });
+    } catch (e) {}
+
+    this._heroTimer = setInterval(() => {
+      this.setState({ heroVisible: false });
+      setTimeout(() => {
+        this.setState(prev => ({ heroIndex: (prev.heroIndex + 1) % HERO_LINES.length, heroVisible: true }));
+      }, 400);
+    }, 3500);
+  }
+
+  setTheme(mode) {
+    try { window.localStorage.setItem('dhira-theme', mode); } catch (e) {}
+    this.setState({ theme: mode });
+  }
+
+  reply(userText, dhiraText) {
+    this.setState(prev => ({ chatIsTyping: true, chatMessages: [...prev.chatMessages, { id: 'u-' + Date.now(), role: 'user', content: userText, timestamp: 'Just now' }] }));
+    setTimeout(() => {
+      this.setState(prev => {
+        const nextMessages = [...prev.chatMessages, { id: 'd-' + Date.now(), role: 'dhira', content: dhiraText, timestamp: 'Just now' }];
+        return { chatIsTyping: false, chatMessages: nextMessages, moodSavedNudge: nextMessages.length >= 7 ? true : prev.moodSavedNudge };
+      });
+    }, 1400);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const pal = PALETTES[s.theme];
+
+    const S = {
+      appRoot: `font-family:Arial,Helvetica,sans-serif; min-height:100vh; width:100%; background:${pal.bg}; color:${pal.text};`,
+      pageBg: `background:${pal.bg}; min-height:100vh; position:relative;`,
+      wordmark: `font-family:Arial,Helvetica,sans-serif; font-weight:700; letter-spacing:-0.03em; color:${pal.text};`,
+      landingNav: `position:sticky; top:0; z-index:50; display:flex; align-items:center; justify-content:space-between; padding:16px 40px; background:${pal.surface}; border-bottom:1px solid ${pal.border}; box-shadow:${pal.shadowCard};`,
+      navLink: `font-size:15px; color:${pal.textMuted}; text-decoration:none; transition:color 0.2s ease;`,
+      navLinkHover: `color:${pal.text};`,
+      themeBtn: `width:36px; height:36px; border-radius:12px; display:flex; align-items:center; justify-content:center; cursor:pointer; background:${pal.surfaceAlt}; color:${pal.textMuted}; border:1px solid ${pal.border}; transition:background 0.2s ease;`,
+      themeBtnHover: `background:${pal.border};`,
+      btnPrimary: `display:inline-flex; align-items:center; gap:8px; background:${pal.primary}; color:#ffffff; border-radius:12px; font-weight:500; font-size:16px; padding:12px 24px; cursor:pointer; transition:background 0.2s ease, transform 0.15s ease;`,
+      btnPrimaryHover: `background:${pal.primaryHover}; transform:translateY(-1px);`,
+      btnAccent: `display:inline-flex; align-items:center; gap:8px; background:${pal.accent}; color:#26263A; border-radius:12px; font-weight:600; font-size:16px; padding:12px 24px; cursor:pointer; transition:background 0.2s ease, transform 0.15s ease; box-shadow:0 0 20px rgba(239,169,74,0.35);`,
+      btnAccentHover: `background:${pal.accentHover}; transform:translateY(-1px);`,
+      btnGhost: `display:inline-flex; align-items:center; gap:8px; background:transparent; color:${pal.textMuted}; border-radius:12px; font-weight:400; font-size:16px; padding:10px 20px; border:1px solid ${pal.border}; cursor:pointer; transition:all 0.2s ease;`,
+      btnGhostHover: `border-color:${pal.primary}; color:${pal.primary}; background:${pal.primarySoft};`,
+      card: `background:${pal.surface}; border-radius:16px; box-shadow:${pal.shadowCard}; border:1px solid ${pal.border}; backdrop-filter:blur(14px);`,
+      flipFace: `position:absolute; inset:0; backface-visibility:hidden; border-radius:20px; background:${pal.surface}; border:1px solid ${pal.border}; box-shadow:${pal.shadowCard}; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:20px;`,
+      flipFaceBack: `position:absolute; inset:0; backface-visibility:hidden; border-radius:20px; background:${pal.primarySoft}; border:1px solid ${pal.primary}; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; transform:rotateY(180deg);`,
+      flipInnerHover: `transform:rotateY(180deg);`,
+      aliasInput: `width:100%; box-sizing:border-box; padding:11px 14px; border-radius:12px; border:1.5px solid ${pal.border}; background:${pal.surfaceAlt}; color:${pal.text}; font-family:Arial,Helvetica,sans-serif; font-size:15px; outline:none;`,
+      featureHover: `transform:translateY(-4px); box-shadow:${pal.shadowSoft};`,
+      hero: `position:relative; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:96px 24px 80px; overflow:hidden;`,
+      glowA: `position:absolute; top:25%; left:50%; transform:translate(-50%,-50%); width:600px; height:400px; border-radius:50%; background:radial-gradient(ellipse, rgba(90,103,184,0.12) 0%, transparent 70%); filter:blur(40px); pointer-events:none;`,
+      glowB: `position:absolute; bottom:25%; right:25%; width:300px; height:300px; border-radius:50%; background:radial-gradient(ellipse, rgba(239,169,74,0.08) 0%, transparent 70%); filter:blur(50px); pointer-events:none;`,
+      avatarGradient: `linear-gradient(135deg, ${pal.lavender}, ${pal.primary})`,
+      memoryBanner: `display:flex; align-items:flex-start; gap:12px; background:linear-gradient(135deg, ${pal.primarySoft}, ${pal.surfaceAlt}); border-left:3px solid ${pal.lavender}; border-radius:0 12px 12px 0; padding:12px 16px;`,
+      streakBadge: `display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg, ${pal.accent}, #e8943a); color:#26263A; border-radius:16px; font-weight:600; font-size:36px; padding:12px 20px;`,
+      appNav: `position:fixed; top:0; left:0; right:0; z-index:50; display:flex; align-items:center; justify-content:space-between; padding:16px 32px; background:${pal.surface}; border-bottom:1px solid ${pal.border}; box-shadow:${pal.shadowCard};`,
+      chatBubbleDhira: `background:${pal.surfaceAlt}; border-radius:18px 18px 18px 4px; padding:14px 18px; max-width:75%; font-size:16px; line-height:1.6; color:${pal.text};`,
+      chatBubbleUser: `background:${pal.primarySoft}; border-radius:18px 18px 4px 18px; padding:14px 18px; max-width:75%; font-size:16px; line-height:1.6; color:${pal.text};`,
+      micBtn: `width:32px; height:32px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; cursor:pointer; background:${s.micActive ? pal.crisis : pal.primarySoft}; color:${s.micActive ? '#ffffff' : pal.primary};`,
+      sendBtn: `width:32px; height:32px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; cursor:pointer; background:${s.chatInput.trim() ? pal.primary : pal.border}; color:${s.chatInput.trim() ? '#ffffff' : pal.textSubtle};`
+    };
+
+    const isLanding = s.route === 'landing';
+    const isOnboarding = s.route === 'onboarding';
+    const isSignIn = s.route === 'sign-in';
+    const isSignUp = s.route === 'sign-up';
+    const isApp = s.route === 'app';
+    const isHome = isApp && s.appScreen === 'home';
+    const isChat = isApp && s.appScreen === 'chat';
+    const isProfile = isApp && s.appScreen === 'profile';
+    const routeLabel = isApp ? ('App — ' + s.appScreen) : s.route;
+
+    const themeIconHtml = s.theme === 'night' ? html(ICONS.sun) : html(ICONS.moon);
+    const bellIconHtml = html(ICONS.bell);
+    const arrowRightIconHtml = html(ICONS.arrowRight);
+    const arrowLeftIconHtml = html(ICONS.arrowLeft);
+    const trendDownIconHtml = html(ICONS.trendDown);
+    const phoneIconHtml = html(ICONS.phone);
+    const heartIconHtml = html(ICONS.heart);
+    const externalLinkIconHtml = html(ICONS.externalLink);
+    const moreHorizontalIconHtml = html(ICONS.moreHorizontal);
+    const closeIconHtml = html(ICONS.close);
+    const micIconHtml = s.micActive ? html(ICONS.micOff) : html(ICONS.mic);
+    const sendIconHtml = html(ICONS.send);
+
+    const heroLine = HERO_LINES[s.heroIndex];
+    const heroLineOpacity = s.heroVisible ? 1 : 0;
+
+    const features = FEATURES.map((f, i) => ({ ...f, iconHtml: illIcon('feat' + i, ILL_GLYPHS[f.glyph], i) }));
+    const steps = STEPS.map((st, i) => ({
+      ...st,
+      iconHtml: illIcon('step' + i, ILL_GLYPHS[st.glyph], i),
+      flipOuterStyle: `width:100%; max-width:220px; height:180px;`,
+      flipInnerStyle: `position:relative; width:100%; height:100%; text-align:center; transition:transform 0.6s cubic-bezier(0.4,0.2,0.2,1); transform-style:preserve-3d; cursor:pointer; transform:rotateY(0deg);`
+    }));
+    const testimonials = TESTIMONIALS.map(t => ({ ...t, initial: t.name.charAt(0) }));
+
+    const obStep0 = isOnboarding && s.obStep === 0;
+    const obStep1 = isOnboarding && s.obStep === 1;
+    const obStep2 = isOnboarding && s.obStep === 2;
+    const obStep3 = isOnboarding && s.obStep === 3;
+    const obStepGt0 = isOnboarding && s.obStep > 0;
+    const obDots = [0, 1, 2].map(i => {
+      const dotSize = i < s.obStep - 1 ? 8 : i === s.obStep - 1 ? 10 : 6;
+      const color = i < s.obStep - 1 ? pal.primary : i === s.obStep - 1 ? pal.accent : pal.border;
+      return { style: `width:${dotSize}px; height:${dotSize}px; border-radius:50%; background:${color}; transition:all 0.3s ease;` };
+    });
+
+    const promises = PROMISES.map((p, i) => ({ ...p, iconHtml: illIcon('prom' + i, ILL_GLYPHS[p.glyph], i) }));
+
+    const languageOptions = LANGUAGE_OPTIONS.map(o => {
+      const selected = s.language === o.value;
+      return {
+        ...o,
+        selected,
+        textColor: selected ? pal.primary : pal.text,
+        style: `display:flex; align-items:center; gap:14px; padding:16px 18px; border-radius:12px; border:1.5px solid ${selected ? pal.primary : pal.border}; background:${selected ? pal.primarySoft : pal.surface}; cursor:pointer; transition:all 0.2s ease;`,
+        radioStyle: `width:20px; height:20px; border-radius:50%; border:2px solid ${selected ? pal.primary : pal.border}; background:${selected ? pal.primary : 'transparent'}; flex-shrink:0; display:flex; align-items:center; justify-content:center;`,
+        onSelect: () => this.setState({ language: o.value })
+      };
+    });
+
+    const frequencyOptions = FREQUENCY_OPTIONS.map(o => {
+      const selected = s.checkinFrequency === o.value;
+      return {
+        ...o,
+        selected,
+        textColor: selected ? pal.primary : pal.text,
+        style: `display:flex; align-items:center; gap:14px; padding:14px 18px; border-radius:12px; border:1.5px solid ${selected ? pal.primary : pal.border}; background:${selected ? pal.primarySoft : pal.surface}; cursor:pointer; transition:all 0.2s ease;`,
+        radioStyle: `width:18px; height:18px; border-radius:50%; border:2px solid ${selected ? pal.primary : pal.border}; background:${selected ? pal.primary : 'transparent'}; flex-shrink:0; display:flex; align-items:center; justify-content:center;`,
+        onSelect: () => this.setState({ checkinFrequency: o.value })
+      };
+    });
+
+    const setupCanContinueOpacity = s.alias.trim().length >= 1 ? 1 : 0.45;
+
+    const consentCheckinStyle = `display:flex; align-items:flex-start; gap:14px; padding:16px 18px; border-radius:12px; border:1.5px solid ${s.consentCheckin ? pal.sage : pal.border}; background:${s.consentCheckin ? 'rgba(99,161,131,0.08)' : pal.surface}; cursor:pointer; width:100%; box-sizing:border-box; transition:all 0.2s ease;`;
+    const consentCheckinBoxStyle = `width:20px; height:20px; border-radius:5px; border:2px solid ${s.consentCheckin ? pal.sage : pal.border}; background:${s.consentCheckin ? pal.sage : 'transparent'}; flex-shrink:0; margin-top:2px; display:flex; align-items:center; justify-content:center;`;
+    const consentMemoryStyle = `display:flex; align-items:flex-start; gap:14px; padding:16px 18px; border-radius:12px; border:1.5px solid ${s.consentMemory ? pal.sage : pal.border}; background:${s.consentMemory ? 'rgba(99,161,131,0.08)' : pal.surface}; cursor:pointer; width:100%; box-sizing:border-box; transition:all 0.2s ease;`;
+    const consentMemoryBoxStyle = `width:20px; height:20px; border-radius:5px; border:2px solid ${s.consentMemory ? pal.sage : pal.border}; background:${s.consentMemory ? pal.sage : 'transparent'}; flex-shrink:0; margin-top:2px; display:flex; align-items:center; justify-content:center;`;
+
+    const contractHeadline = s.alias ? `${s.alias}, how often should Dhira check in?` : 'How often should Dhira check in?';
+    const setupTags = [
+      { icon: '👤', label: s.alias || 'Anonymous' },
+      { icon: '💬', label: s.language === 'hinglish' ? 'Hinglish' : 'English' },
+      { icon: '🔔', label: s.checkinFrequency === 'daily' ? 'Daily check-ins' : s.checkinFrequency === 'every-other-day' ? 'Every other day' : 'Weekly check-ins' }
+    ];
+
+    const appNavList = [
+      { key: 'home', label: 'Home', icon: 'home' },
+      { key: 'chat', label: 'Chat', icon: 'chat' },
+      { key: 'timeline', label: 'Timeline', icon: 'bars' },
+      { key: 'profile', label: 'Profile', icon: 'user' }
+    ];
+    const appNavItems = appNavList.map(n => {
+      const active = n.key === 'chat' ? isChat : n.key === 'profile' ? isProfile : isHome;
+      return {
+        label: n.label,
+        iconHtml: html(ICONS[n.icon]),
+        style: `display:flex; align-items:center; gap:8px; padding:8px 16px; font-size:15px; border-radius:12px; cursor:pointer; transition:all 0.2s ease; color:${active ? pal.primary : pal.textMuted}; background:${active ? pal.primarySoft : 'transparent'};`,
+        onSelect: () => { if (n.key === 'chat') this.setState({ appScreen: 'chat' }); else if (n.key === 'profile') this.setState({ appScreen: 'profile' }); else this.setState({ appScreen: 'home' }); }
+      };
+    });
+
+    const profileSections = [
+      { id: 'profile', label: 'Profile', icon: 'user' },
+      { id: 'language', label: 'Language', icon: 'globe' },
+      { id: 'checkins', label: 'Check-ins', icon: 'bellLg' },
+      { id: 'account', label: 'Account', icon: 'shield' }
+    ].map(sec => ({
+      ...sec,
+      iconHtml: html(ICONS[sec.icon]),
+      style: `width:100%; display:flex; align-items:center; gap:12px; padding:12px 16px; border-radius:12px; cursor:pointer; transition:all 0.2s ease; background:${s.profileSection === sec.id ? pal.primarySoft : 'transparent'}; color:${s.profileSection === sec.id ? pal.primary : pal.textMuted}; font-weight:${s.profileSection === sec.id ? 500 : 400};`,
+      onSelect: () => this.setState({ profileSection: sec.id })
+    }));
+    const isProfileTab = s.profileSection === 'profile';
+    const isLanguageTab = s.profileSection === 'language';
+    const isCheckinsTab = s.profileSection === 'checkins';
+    const isAccountTab = s.profileSection === 'account';
+    const profileLanguageOptions = [
+      { value: 'hinglish', label: 'Hinglish', sub: 'A warm mix of Hindi and English — "Aaj kaisa feel ho raha hai?"', emoji: '🇮🇳' },
+      { value: 'english', label: 'English', sub: 'Clear, gentle English — "How are you feeling today?"', emoji: '🌐' }
+    ].map(o => {
+      const selected = s.profileLanguage === o.value;
+      return { ...o, selected, style: `display:flex; align-items:center; gap:16px; padding:16px; border-radius:16px; cursor:pointer; text-align:left; border:2px solid ${selected ? pal.primary : pal.border}; background:${selected ? pal.primarySoft : pal.surfaceAlt};`, onSelect: () => this.setState({ profileLanguage: o.value }) };
+    });
+    const profileFrequencyOptions = FREQUENCY_OPTIONS.map(o => {
+      const selected = s.profileFrequency === o.value;
+      return { ...o, selected, style: `display:flex; align-items:center; gap:16px; padding:16px; border-radius:16px; cursor:pointer; text-align:left; border:2px solid ${selected ? pal.accent : pal.border}; background:${selected ? 'rgba(239,169,74,0.08)' : pal.surfaceAlt};`, onSelect: () => this.setState({ profileFrequency: o.value }) };
+    });
+    const profileToggles = [
+      { key: 'profileProactive', label: 'Proactive check-ins', sub: "Dhira reaches out first within your chosen window", on: s.profileProactive },
+      { key: 'profileMemory', label: 'Memory', sub: 'Dhira remembers what you shared last time', on: s.profileMemory }
+    ].map(t => ({
+      ...t,
+      trackStyle: `position:relative; flex-shrink:0; width:44px; height:24px; border-radius:12px; cursor:pointer; background:${t.on ? pal.primary : pal.border};`,
+      knobStyle: `position:absolute; top:3px; left:${t.on ? '23px' : '3px'}; width:18px; height:18px; border-radius:50%; background:#ffffff; transition:left 0.2s ease; box-shadow:0 1px 4px rgba(0,0,0,0.2);`,
+      onToggle: () => this.setState({ [t.key]: !t.on })
+    }));
+    const accountActions = [
+      { label: 'Change email address', sub: 'Update your login email' },
+      { label: 'Change password', sub: 'Keep your account secure' },
+      { label: 'Export my data', sub: 'Download everything Dhira knows about you' },
+      { label: 'Privacy settings', sub: 'Control what Dhira stores' }
+    ];
+    const profileSaveLabel = s.profileSaved ? 'Saved!' : 'Save changes';
+
+    const greeting = 'Good evening';
+    const userName = s.alias || 'Aarav';
+
+    const weekMoods = WEEK_MOODS.map(d => {
+      const color = MOOD_COLORS[d.mood].bg;
+      return {
+        ...d,
+        labelColor: d.isToday ? pal.primary : pal.textSubtle,
+        labelWeight: d.isToday ? 600 : 400,
+        swatchStyle: `width:100%; aspect-ratio:1; max-width:52px; border-radius:12px; background:${color}; border:2px solid ${d.isToday ? pal.primary : 'transparent'}; box-shadow:0 0 12px ${color}44; margin:0 auto;`
+      };
+    });
+    const moodLegend = MOOD_LEGEND.map(m => ({ color: MOOD_COLORS[m].bg, label: MOOD_COLORS[m].label }));
+
+    const recentEntries = RECENT_ENTRIES.map(e => ({ ...e, moodLabel: MOOD_COLORS[e.mood].label, badgeBg: MOOD_COLORS[e.mood].bg, badgeText: MOOD_COLORS[e.mood].text }));
+
+    const selectedMoodObj = MOODS_GRID.find(m => m.id === s.moodSelected);
+    const moodOptions = MOODS_GRID.map(m => {
+      const isSel = s.moodSelected === m.id;
+      return {
+        ...m,
+        labelWeight: isSel ? 600 : 400,
+        style: `display:flex; flex-direction:column; align-items:center; gap:6px; padding:8px; border-radius:12px; cursor:pointer; transition:all 0.2s ease; background:${isSel ? m.color + '33' : pal.surfaceAlt}; border:2px solid ${isSel ? m.color : 'transparent'}; transform:${isSel ? 'scale(1.08)' : 'scale(1)'};`,
+        onSelect: () => this.setState({ moodSelected: m.id })
+      };
+    });
+    const moodSaveOpacity = s.moodSelected ? 1 : 0.5;
+    const moodSaveLabel = s.moodSaving ? 'Saving...' : 'Save mood';
+
+    const chatMessages = s.chatMessages.map(m => {
+      const isUser = m.role === 'user';
+      return {
+        ...m,
+        isDhira: !isUser,
+        isUser,
+        rowStyle: `display:flex; align-items:flex-end; gap:8px; flex-direction:${isUser ? 'row-reverse' : 'row'};`,
+        colStyle: `display:flex; flex-direction:column; gap:4px; align-items:${isUser ? 'flex-end' : 'flex-start'};`,
+        bubbleStyle: isUser ? S.chatBubbleUser : S.chatBubbleDhira
+      };
+    });
+
+    const signupTermsBorder = s.signupAgreedTerms ? pal.primary : pal.border;
+    const signupTermsBg = s.signupAgreedTerms ? pal.primarySoft : pal.surfaceAlt;
+    const signupTermsCheckBg = s.signupAgreedTerms ? pal.primary : 'transparent';
+    const signupSubmitOpacity = s.signupAgreedTerms ? 1 : 0.55;
+
+    const chatMessageCount = s.chatMessages.length;
+    const chatCrisisMode = isChat && s.chatCrisisMode;
+    const chatNotCrisis = isChat && !s.chatCrisisMode;
+    const chatInputPlaceholder = s.chatIsTyping ? 'Dhira is thinking...' : 'Type or speak...';
+
+    return {
+      S, pal, isLanding, isOnboarding, isSignIn, isSignUp, isApp, isHome, isChat, isProfile, routeLabel,
+      signupAlias: s.signupAlias, signupEmail: s.signupEmail, signupPassword: s.signupPassword, signupAgreedTerms: s.signupAgreedTerms,
+      signupTermsBorder, signupTermsBg, signupTermsCheckBg, signupSubmitOpacity,
+      signinEmail: s.signinEmail, signinPassword: s.signinPassword,
+      googleIconHtml: html(ICONS.google), checkmarkIconHtml: html(ICONS.check2), chevronRightIconHtml: html(ICONS.chevronRight),
+      profileSections, isProfileTab, isLanguageTab, isCheckinsTab, isAccountTab,
+      profileAlias: s.profileAlias, profileLanguageOptions, profileFrequencyOptions, profileToggles, accountActions, profileSaveLabel,
+      themeIconHtml, bellIconHtml, arrowRightIconHtml, arrowLeftIconHtml, trendDownIconHtml, phoneIconHtml, heartIconHtml, externalLinkIconHtml, moreHorizontalIconHtml, closeIconHtml, micIconHtml, sendIconHtml,
+      heroLine, heroLineOpacity, features, steps, testimonials,
+      obStep0, obStep1, obStep2, obStep3, obStepGt0, obDots,
+      promises, languageOptions, frequencyOptions, setupCanContinueOpacity,
+      alias: s.alias, contractHeadline, setupTags,
+      consentCheckin: s.consentCheckin, consentCheckinStyle, consentCheckinBoxStyle,
+      consentMemory: s.consentMemory, consentMemoryStyle, consentMemoryBoxStyle,
+      appNavItems, greeting, userName,
+      weekMoods, moodLegend, recentEntries,
+      moodModalOpen: s.moodModalOpen, moodOptions, moodSelected: s.moodSelected, moodIntensity: s.moodIntensity, moodSaveOpacity, moodSaveLabel,
+      showToast: s.showToast, toastMessage: s.toastMessage,
+      chatMessages, chatMessageCount, chatIsTyping: s.chatIsTyping, chatCrisisMode, chatNotCrisis, chatInput: s.chatInput, chatInputPlaceholder,
+      moodSavedNudge: s.moodSavedNudge,
+
+      goHome: () => this.setState({ route: 'app', appScreen: 'home' }),
+      goChat: () => this.setState({ route: 'app', appScreen: 'chat' }),
+      goOnboarding: () => this.setState({ route: 'onboarding', obStep: 0 }),
+      goSignIn: () => this.setState({ route: 'sign-in' }),
+      goSignUp: () => this.setState({ route: 'sign-up' }),
+      goLandingFromAuth: () => this.setState({ route: 'landing' }),
+      goProfile: () => this.setState({ route: 'app', appScreen: 'profile' }),
+      toggleTheme: () => this.setTheme(s.theme === 'day' ? 'night' : 'day'),
+
+      onSignupAliasChange: (e) => this.setState({ signupAlias: e.target.value }),
+      onSignupEmailChange: (e) => this.setState({ signupEmail: e.target.value }),
+      onSignupPasswordChange: (e) => this.setState({ signupPassword: e.target.value }),
+      toggleSignupTerms: () => this.setState({ signupAgreedTerms: !s.signupAgreedTerms }),
+      submitSignUp: () => { if (!s.signupAgreedTerms) return; this.setState({ alias: s.signupAlias, route: 'onboarding', obStep: 0 }); },
+      onSigninEmailChange: (e) => this.setState({ signinEmail: e.target.value }),
+      onSigninPasswordChange: (e) => this.setState({ signinPassword: e.target.value }),
+      submitSignIn: () => this.setState({ route: 'app', appScreen: 'home' }),
+
+      onProfileAliasChange: (e) => this.setState({ profileAlias: e.target.value }),
+      saveProfile: () => {
+        this.setState({ profileSaved: true });
+        setTimeout(() => this.setState({ profileSaved: false }), 2500);
+      },
+
+      obNext: () => this.setState({ obStep: Math.min(s.obStep + 1, 3) }),
+      obBack: () => { if (s.obStep === 0) this.setState({ route: 'landing' }); else this.setState({ obStep: Math.max(s.obStep - 1, 0) }); },
+      onAliasChange: (e) => this.setState({ alias: e.target.value }),
+      toggleConsentCheckin: () => this.setState({ consentCheckin: !s.consentCheckin }),
+      toggleConsentMemory: () => this.setState({ consentMemory: !s.consentMemory }),
+      finishOnboarding: () => {
+        try { window.localStorage.setItem('dhira-onboarding-done', 'true'); window.localStorage.setItem('dhira-alias', s.alias || 'Friend'); } catch (e) {}
+        this.setState({ route: 'app', appScreen: 'home' });
+      },
+
+      openMoodModal: () => this.setState({ moodModalOpen: true, moodSelected: null, moodIntensity: 50 }),
+      closeMoodModal: () => this.setState({ moodModalOpen: false }),
+      onModalBackdropClick: (e) => { if (e.target === e.currentTarget) this.setState({ moodModalOpen: false }); },
+      onIntensityChange: (e) => this.setState({ moodIntensity: Number(e.target.value) }),
+      saveMood: () => {
+        if (!s.moodSelected) return;
+        this.setState({ moodSaving: true });
+        setTimeout(() => {
+          const m = MOODS_GRID.find(x => x.id === s.moodSelected);
+          this.setState({ moodSaving: false, moodModalOpen: false, moodSelected: null, moodIntensity: 50, showToast: true, toastMessage: (m ? m.emoji + ' ' + m.label : '') + ' mood saved' });
+          setTimeout(() => this.setState({ showToast: false }), 2600);
+        }, 800);
+      },
+
+      onChatInputChange: (e) => this.setState({ chatInput: e.target.value }),
+      toggleMic: () => this.setState({ micActive: !s.micActive }),
+      sendChatMessage: () => {
+        const text = s.chatInput.trim();
+        if (!text) return;
+        this.setState({ chatInput: '' });
+        const isCrisis = CRISIS_PHRASES.some(p => text.toLowerCase().includes(p));
+        if (isCrisis) {
+          this.setState(prev => ({ chatIsTyping: true, chatMessages: [...prev.chatMessages, { id: 'u-' + Date.now(), role: 'user', content: text, timestamp: 'Just now' }] }));
+          setTimeout(() => this.setState({ chatIsTyping: false, chatCrisisMode: true }), 1000);
+          return;
+        }
+        this.reply(text, getDhiraResponse(text));
+      },
+      testSafetyPath: () => {
+        this.setState(prev => ({ chatIsTyping: true, chatMessages: [...prev.chatMessages, { id: 'u-' + Date.now(), role: 'user', content: "I don't want to live anymore", timestamp: 'Just now' }] }));
+        setTimeout(() => this.setState({ chatIsTyping: false, chatCrisisMode: true }), 1000);
+      },
+      callCrisisLine: () => { try { window.open('tel:14416', '_self'); } catch (e) {} },
+      exitCrisis: () => this.setState({ chatCrisisMode: false }),
+      dismissMoodSaved: () => this.setState({ moodSavedNudge: false })
+    };
+  }
+}
+
+</script>
+
+
+</body></html>

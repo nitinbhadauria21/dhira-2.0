@@ -353,6 +353,7 @@
     animation: pulseAmber 2s ease-in-out infinite;
   }
 
+  /* Standalone landing motion (from Dhira User App - Standalone.html) */
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -368,14 +369,166 @@
     50% { box-shadow: 0 0 36px rgba(239, 169, 74, 0.6); }
   }
 
+  @keyframes dhira-float-lav {
+    0% { transform: translate(0px, 0px) rotate(0deg) scale(1); }
+    100% { transform: translate(25px, -30px) rotate(3deg) scale(1.02); }
+  }
+
+  @keyframes dhira-float-amb {
+    0% { transform: translate(0px, 0px) rotate(0deg) scale(1); }
+    100% { transform: translate(-35px, 20px) rotate(-4deg) scale(0.98); }
+  }
+
+  @keyframes dhira-float-sag {
+    0% { transform: translate(0px, 0px) rotate(0deg) scale(1); }
+    100% { transform: translate(20px, 35px) rotate(5deg) scale(1.03); }
+  }
+
+  @keyframes dhira-float-el {
+    0% { transform: translateY(0px) translateX(0px); }
+    100% { transform: translateY(-20px) translateX(15px); }
+  }
+
+  @keyframes dhira-float-rev {
+    0% { transform: translateY(0px) translateX(0px); }
+    100% { transform: translateY(25px) translateX(-15px); }
+  }
+
+  @keyframes dhira-dot-pulse {
+    0% { opacity: 0.3; transform: scale(0.9); }
+    100% { opacity: 0.9; transform: scale(1.1); }
+  }
+
+  @keyframes dhira-draw-line {
+    0% { stroke-dashoffset: 1500; }
+    100% { stroke-dashoffset: 0; }
+  }
+
+  @keyframes dhira-scroll-dot {
+    0%, 100% { transform: translateY(0); opacity: 1; }
+    50% { transform: translateY(8px); opacity: 0.3; }
+  }
+
+  .dhira-anim-float-lav {
+    animation: dhira-float-lav 12s ease-in-out infinite alternate;
+  }
+  .dhira-anim-float-amb {
+    animation: dhira-float-amb 10s ease-in-out infinite alternate;
+  }
+  .dhira-anim-float-sag {
+    animation: dhira-float-sag 14s ease-in-out infinite alternate;
+  }
+  .dhira-anim-float-el {
+    animation: dhira-float-el 7s ease-in-out infinite alternate;
+  }
+  .dhira-anim-float-el-slow {
+    animation: dhira-float-el 11s ease-in-out infinite alternate;
+  }
+  .dhira-anim-float-rev {
+    animation: dhira-float-rev 9s ease-in-out infinite alternate;
+  }
+  .dhira-anim-dot-pulse {
+    animation: dhira-dot-pulse 5s ease-in-out infinite alternate;
+  }
+  .dhira-anim-draw-line {
+    stroke-dasharray: 1500;
+    stroke-dashoffset: 1500;
+    animation: dhira-draw-line 20s ease-in-out infinite alternate;
+  }
+  .dhira-anim-scroll-dot {
+    animation: dhira-scroll-dot 1.8s ease-in-out infinite;
+  }
+
+  /* How-it-works flip cards */
+  .dhira-flip-card {
+    perspective: 1200px;
+  }
+
+  .dhira-flip-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+    transform-style: preserve-3d;
+    cursor: pointer;
+    transform: rotateY(0deg);
+  }
+
+  .dhira-flip-card:hover .dhira-flip-inner,
+  .dhira-flip-card:focus-within .dhira-flip-inner {
+    transform: rotateY(180deg);
+  }
+
+  .dhira-flip-face,
+  .dhira-flip-face-back {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .dhira-flip-face {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-card);
+    gap: 10px;
+  }
+
+  .dhira-flip-face-back {
+    background: var(--color-primary-soft);
+    border: 1px solid var(--color-primary);
+    text-align: center;
+    transform: rotateY(180deg);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .fade-in,
     .slide-up,
     .pulse-amber,
+    .dhira-anim-float-lav,
+    .dhira-anim-float-amb,
+    .dhira-anim-float-sag,
+    .dhira-anim-float-el,
+    .dhira-anim-float-el-slow,
+    .dhira-anim-float-rev,
+    .dhira-anim-dot-pulse,
+    .dhira-anim-draw-line,
+    .dhira-anim-scroll-dot,
+    .dhira-flip-inner,
     * {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+    }
+
+    .dhira-flip-card:hover .dhira-flip-inner,
+    .dhira-flip-card:focus-within .dhira-flip-inner {
+      transform: none;
+    }
+
+    .dhira-flip-face-back {
+      /* Show title/body without requiring hover when motion is reduced */
+      position: relative;
+      transform: none;
+      backface-visibility: visible;
+      margin-top: 12px;
+      min-height: auto;
+    }
+
+    .dhira-flip-inner {
+      height: auto !important;
+      transform-style: flat;
+    }
+
+    .dhira-flip-face {
+      position: relative;
     }
   }
 

@@ -87,21 +87,25 @@ export const FEATURES = [
 export const STEPS = [
   {
     number: '01',
+    glyph: 'person',
     title: 'Create your profile',
     body: "Sign up and select the language you'd like to talk to Dhira in.",
   },
   {
     number: '02',
+    glyph: 'clock',
     title: 'Set your check-in window',
     body: 'Tell Dhira when she may reach out — 10 PM to 1 AM, a few times a week, in Hinglish. Your rules.',
   },
   {
     number: '03',
+    glyph: 'chatDots',
     title: 'Talk. Be heard.',
     body: 'Open a chat anytime, or let Dhira come to you. She listens, reflects, and asks one gentle question.',
   },
   {
     number: '04',
+    glyph: 'pulse',
     title: 'Watch your mood move',
     body: "A quiet 14-day mood timeline shows you how you've been — no judgement, just colour and continuity.",
   },
