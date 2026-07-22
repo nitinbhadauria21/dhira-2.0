@@ -190,10 +190,10 @@ function ProfileContent() {
           className="text-h2"
           style={{ color: 'var(--color-text)' }}
         >
-          You &amp; Dhira
+          Profile &amp; Settings
         </h1>
         <p style={{ fontFamily: 'var(--font-ui)', fontSize: '15px', color: 'var(--color-text-muted)', marginTop: '6px' }}>
-          Alias, language, check-ins, channels — your rules.
+          Manage your Dhira alias, preferences, and account settings.
         </p>
       </div>
 

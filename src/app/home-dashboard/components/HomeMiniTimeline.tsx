@@ -4,25 +4,15 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
-// Mock data — backend: query mood_logs last 7 days for this profile
-const MOOD_COLORS: Record<string, string> = {
-  happy:       '#F0C46B',
-  calm:        '#8FBCA4',
-  hopeful:     '#79C2C4',
-  neutral:     '#B9B2A4',
-  stressed:    '#E0A94F',
-  anxious:     '#8794DA',
-  lonely:      '#A99BC9',
-  overwhelmed: '#9C6B8E',
-  sad:         '#7089B0',
-  angry:       '#C56B5C',
-};
+import { MOOD_COLORS as ARTIFACT_MOODS, MOOD_LEGEND } from '@/lib/artifactDesign';
 
-const moodLabels: Record<string, string> = {
-  happy: 'Happy', calm: 'Calm', hopeful: 'Hopeful', neutral: 'Neutral',
-  stressed: 'Stressed', anxious: 'Anxious', lonely: 'Lonely',
-  overwhelmed: 'Overwhelmed', sad: 'Sad', angry: 'Angry',
-};
+const MOOD_COLORS: Record<string, string> = Object.fromEntries(
+  Object.entries(ARTIFACT_MOODS).map(([k, v]) => [k, v.bg]),
+);
+
+const moodLabels: Record<string, string> = Object.fromEntries(
+  Object.entries(ARTIFACT_MOODS).map(([k, v]) => [k, v.label]),
+);
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -119,7 +109,7 @@ export default function HomeMiniTimeline({ last7 }: HomeMiniTimelineProps) {
 
       {/* Legend */}
       <div className="flex flex-wrap gap-3 mt-5 pt-4" style={{ borderTop: '1px solid var(--color-border)' }}>
-        {['calm', 'hopeful', 'stressed', 'anxious', 'overwhelmed'].map((mood) => (
+        {MOOD_LEGEND.map((mood) => (
           <div key={`legend-${mood}`} className="flex items-center gap-1.5">
             <span
               className="inline-block rounded-full flex-shrink-0"

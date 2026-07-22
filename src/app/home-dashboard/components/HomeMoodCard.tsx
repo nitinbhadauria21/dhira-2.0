@@ -2,48 +2,47 @@
 
 import React from 'react';
 import MoodBadge from '@/components/MoodBadge';
+import { TrendingDown } from 'lucide-react';
+import { MOOD_COLORS, MOOD_EMOJI, type MoodId } from '@/lib/artifactDesign';
 
 interface HomeMoodCardProps {
   onLogMood: () => void;
-  latestMood: { mood: string; intensity: number; topic: string } | null;
+  latestMood: { mood: string; intensity: number; topic: string; loggedAt?: string } | null;
+  trendLabel?: string | null;
 }
 
-const MOOD_EMOJI: Record<string, string> = {
-  anxious: '😰', calm: '😌', happy: '😊', sad: '😔', hopeful: '🌱',
-  stressed: '😤', lonely: '🌧️', overwhelmed: '🌊', angry: '🌋', neutral: '😶',
-};
-
-export default function HomeMoodCard({ onLogMood, latestMood }: HomeMoodCardProps) {
-  const moodColors: Record<string, string> = {
-    anxious: '#8794DA',
-    calm: '#8FBCA4',
-    happy: '#F0C46B',
-    sad: '#7089B0',
-    stressed: '#E0A94F',
-    neutral: '#B9B2A4',
-    hopeful: '#79C2C4',
-    lonely: '#A99BC9',
-    overwhelmed: '#9C6B8E',
-    angry: '#C56B5C',
-  };
-
-  const moodColor = latestMood ? (moodColors[latestMood.mood] ?? '#B9B2A4') : 'var(--color-border)';
-
-  // Empty state — no mood logged yet for this anonymous user.
+export default function HomeMoodCard({ onLogMood, latestMood, trendLabel }: HomeMoodCardProps) {
   if (!latestMood) {
     return (
-      <div className="dhira-card p-6 h-full flex flex-col gap-5" style={{ minHeight: '220px' }}>
-        <div className="flex items-center justify-between">
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: '12px', fontWeight: 600, color: 'var(--color-text-subtle)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            Today&apos;s mood
-          </p>
-        </div>
+      <div
+        className="dhira-card p-6 h-full flex flex-col gap-5"
+        style={{ minHeight: 220, backdropFilter: 'blur(14px)' }}
+      >
+        <p
+          style={{
+            fontFamily: 'var(--font-ui)',
+            fontSize: 12,
+            fontWeight: 600,
+            color: 'var(--color-text-subtle)',
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+          }}
+        >
+          Today&apos;s mood
+        </p>
         <div className="flex flex-col items-center justify-center flex-1 gap-3 text-center">
-          <span style={{ fontSize: '34px' }}>🌙</span>
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: 'var(--color-text-muted)', maxWidth: 240 }}>
+          <span style={{ fontSize: 34 }}>🌙</span>
+          <p
+            style={{
+              fontFamily: 'var(--font-ui)',
+              fontSize: 14,
+              color: 'var(--color-text-muted)',
+              maxWidth: 240,
+            }}
+          >
             No mood logged yet. Whenever you&apos;re ready, check in — there&apos;s no right answer.
           </p>
-          <button onClick={onLogMood} className="btn-primary" style={{ fontSize: '14px', padding: '9px 18px' }}>
+          <button onClick={onLogMood} className="btn-primary" style={{ fontSize: 14, padding: '9px 18px' }}>
             Check in now
           </button>
         </div>
@@ -51,61 +50,75 @@ export default function HomeMoodCard({ onLogMood, latestMood }: HomeMoodCardProp
     );
   }
 
+  const moodKey = (latestMood.mood in MOOD_COLORS ? latestMood.mood : 'neutral') as MoodId;
+  const moodColor = MOOD_COLORS[moodKey].bg;
+  const intensityPct = Math.round(latestMood.intensity * 100);
+
   return (
     <div
       className="dhira-card p-6 h-full flex flex-col gap-5"
-      style={{ minHeight: '220px' }}
+      style={{ minHeight: 220, backdropFilter: 'blur(14px)' }}
     >
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: '12px', fontWeight: 600, color: 'var(--color-text-subtle)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '4px' }}>
-            Latest mood
+          <p
+            style={{
+              fontFamily: 'var(--font-ui)',
+              fontSize: 12,
+              fontWeight: 600,
+              color: 'var(--color-text-subtle)',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              marginBottom: 4,
+            }}
+          >
+            Today&apos;s mood
           </p>
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-muted)' }}>
-            How you&apos;ve been feeling
+          <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--color-text-muted)' }}>
+            {latestMood.loggedAt ? `Logged at ${latestMood.loggedAt}` : 'How you\'ve been feeling'}
           </p>
         </div>
-        <button
-          onClick={onLogMood}
-          className="btn-ghost"
-          style={{ fontSize: '13px', padding: '6px 14px' }}
-        >
+        <button onClick={onLogMood} className="btn-ghost" style={{ fontSize: 13, padding: '6px 14px' }}>
           Update
         </button>
       </div>
 
-      {/* Mood display */}
       <div className="flex items-center gap-4">
-        {/* Mood orb */}
         <div
           className="rounded-full flex-shrink-0 flex items-center justify-center"
           style={{
             width: 64,
             height: 64,
             backgroundColor: moodColor,
-            boxShadow: `0 0 24px ${moodColor}55`,
+            boxShadow: `0 0 24px ${moodColor}59`,
+            fontSize: 26,
           }}
         >
-          <span style={{ fontSize: '26px' }}>{MOOD_EMOJI[latestMood.mood] ?? '😶'}</span>
+          {MOOD_EMOJI[moodKey]}
         </div>
-
         <div className="flex flex-col gap-1">
           <MoodBadge mood={latestMood.mood} size="lg" />
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-muted)' }}>
-            Topic: <span style={{ fontWeight: 500, color: 'var(--color-text)' }}>{latestMood.topic}</span>
+          <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--color-text-muted)' }}>
+            Topic:{' '}
+            <span style={{ fontWeight: 500, color: 'var(--color-text)' }}>{latestMood.topic}</span>
           </p>
         </div>
       </div>
 
-      {/* Intensity bar */}
-      <div className="mt-auto">
+      <div>
         <div className="flex items-center justify-between mb-2">
-          <span style={{ fontFamily: 'var(--font-ui)', fontSize: '12px', color: 'var(--color-text-subtle)' }}>
+          <span style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--color-text-subtle)' }}>
             Emotional intensity
           </span>
-          <span style={{ fontFamily: 'var(--font-ui)', fontSize: '12px', color: 'var(--color-text-muted)', fontWeight: 500 }}>
-            {Math.round(latestMood.intensity * 100)}%
+          <span
+            style={{
+              fontFamily: 'var(--font-ui)',
+              fontSize: 12,
+              color: 'var(--color-text-muted)',
+              fontWeight: 500,
+            }}
+          >
+            {intensityPct}%
           </span>
         </div>
         <div
@@ -114,10 +127,19 @@ export default function HomeMoodCard({ onLogMood, latestMood }: HomeMoodCardProp
         >
           <div
             className="h-full rounded-full transition-all duration-500"
-            style={{ width: `${latestMood.intensity * 100}%`, backgroundColor: moodColor }}
+            style={{ width: `${intensityPct}%`, backgroundColor: moodColor }}
           />
         </div>
       </div>
+
+      {trendLabel && (
+        <div className="flex items-center gap-2 mt-auto">
+          <TrendingDown size={14} style={{ color: 'var(--color-crisis)' }} />
+          <span style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--color-crisis)' }}>
+            {trendLabel}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

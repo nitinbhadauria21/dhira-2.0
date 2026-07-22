@@ -4,14 +4,14 @@ const steps = [
   {
     key: 'step-name',
     number: '01',
-    title: 'Pick an alias',
-    body: 'Create a private space with email or phone. Use any nickname — never your real name. Your rules from minute one.',
+    title: 'Create your profile',
+    body: "Sign up and select the language you'd like to talk to Dhira in.",
   },
   {
     key: 'step-contract',
     title: 'Set your check-in window',
     number: '02',
-    body: 'Tell Dhira when she may reach out — late night, a few times a week, in Hinglish or English. Pause anytime.',
+    body: 'Tell Dhira when she may reach out — 10 PM to 1 AM, a few times a week, in Hinglish. Your rules.',
   },
   {
     key: 'step-chat',
@@ -22,8 +22,8 @@ const steps = [
   {
     key: 'step-timeline',
     number: '04',
-    title: 'See your week in My Dhira',
-    body: 'Mood, journal, chats, and check-in history in one calm place — no judgement, just colour and continuity.',
+    title: 'Watch your mood move',
+    body: "A quiet 14-day mood timeline shows you how you've been — no judgement, just colour and continuity.",
   },
 ];
 
