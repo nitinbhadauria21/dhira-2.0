@@ -6,6 +6,7 @@ import ChatMemoryBanner from './ChatMemoryBanner';
 import ChatThread from './ChatThread';
 import ChatInputBar from './ChatInputBar';
 import CrisisHandoff from './CrisisHandoff';
+import { ARTIFACT_CHAT_SEED } from '@/lib/artifactDesign';
 
 export type MessageRole = 'dhira' | 'user' | 'system';
 
@@ -18,13 +19,13 @@ export interface ChatMessage {
   isCrisisDemo?: boolean;
 }
 
-// A single warm opening line, shown only when there's no saved history yet.
-const OPENING_GREETING: ChatMessage = {
-  id: 'msg-greeting',
-  role: 'dhira',
-  content: 'Aaj thoda heavy lag raha hai kya?',
-  timestamp: '',
-};
+/** Claude artifact demo thread — used only when this user has no saved history yet. */
+const DEMO_THREAD: ChatMessage[] = ARTIFACT_CHAT_SEED.map((m) => ({
+  id: m.id,
+  role: m.role,
+  content: m.content,
+  timestamp: m.timestamp,
+}));
 
 function formatTime(iso?: string): string {
   const d = iso ? new Date(iso) : new Date();
@@ -32,7 +33,7 @@ function formatTime(iso?: string): string {
 }
 
 export default function ChatContent() {
-  const [messages, setMessages] = useState<ChatMessage[]>([OPENING_GREETING]);
+  const [messages, setMessages] = useState<ChatMessage[]>(DEMO_THREAD);
   const [isTyping, setIsTyping] = useState(false);
   const [crisisMode, setCrisisMode] = useState(false);
   const [showReferral, setShowReferral] = useState(false);
@@ -42,7 +43,7 @@ export default function ChatContent() {
     threadEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
-  // Load this user's saved chat history on mount.
+  // Load this user's saved chat history on mount. Keep Claude artifact demo thread if empty.
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -61,7 +62,7 @@ export default function ChatContent() {
           );
         }
       } catch {
-        /* keep the opening greeting on failure */
+        /* keep the demo thread on failure */
       }
     })();
     return () => {

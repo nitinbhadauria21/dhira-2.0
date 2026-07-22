@@ -115,9 +115,9 @@ function ProfileContent() {
   ];
 
   const frequencyOptions: { value: CheckinFrequency; label: string; sub: string }[] = [
-    { value: 'daily', label: 'Daily', sub: 'Dhira checks in every day' },
-    { value: 'every-other-day', label: 'Every other day', sub: 'A gentle rhythm, every 2 days' },
-    { value: 'weekly', label: 'Weekly', sub: 'Once a week, your pace' },
+    { value: 'daily', label: 'Daily', sub: 'A gentle nudge every day' },
+    { value: 'every-other-day', label: 'Every other day', sub: 'A little breathing room' },
+    { value: 'weekly', label: 'Weekly', sub: 'Just once a week' },
   ];
 
   return (
@@ -339,7 +339,7 @@ function ProfileContent() {
                 style={{ fontSize: '15px', padding: '11px 24px' }}
               >
                 {saved ? <Check size={16} /> : null}
-                {saved ? 'Saved!' : 'Save preference'}
+                {saved ? 'Saved!' : 'Save changes'}
               </button>
             </div>
           )}
@@ -491,7 +491,7 @@ function ProfileContent() {
                 style={{ fontSize: '15px', padding: '11px 24px' }}
               >
                 {saved ? <Check size={16} /> : null}
-                {saved ? 'Saved!' : 'Save preferences'}
+                {saved ? 'Saved!' : 'Save changes'}
               </button>
             </div>
           )}
@@ -508,7 +508,10 @@ function ProfileContent() {
 
               <div className="flex flex-col gap-2">
                 {[
-                  { label: 'Export my data', sub: 'Download everything Dhira has stored about you (JSON)', action: 'export' as const },
+                  { label: 'Change email address', sub: 'Update your login email', action: 'email' as const },
+                  { label: 'Change password', sub: 'Keep your account secure', action: 'password' as const },
+                  { label: 'Export my data', sub: 'Download everything Dhira knows about you', action: 'export' as const },
+                  { label: 'Privacy settings', sub: 'Control what Dhira stores', action: 'privacy' as const },
                   { label: 'Sign out', sub: 'Sign out of Dhira on this device', action: 'signout' as const },
                 ].map((item) => (
                   <button
@@ -516,6 +519,10 @@ function ProfileContent() {
                     onClick={() => {
                       if (item.action === 'export') window.location.href = '/api/export';
                       if (item.action === 'signout') handleSignOut();
+                      if (item.action === 'privacy') setActiveSection('checkins');
+                      if (item.action === 'email' || item.action === 'password') {
+                        /* UI parity with Claude artifact — full flows land when Auth is live */
+                      }
                     }}
                     className="flex items-center justify-between p-4 rounded-card transition-all duration-200 text-left w-full"
                     style={{

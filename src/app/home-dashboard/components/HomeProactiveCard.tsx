@@ -10,7 +10,8 @@ import { ARTIFACT_CHECKIN_LINE } from '@/lib/artifactDesign';
  * Manual trigger calls POST /api/checkin (same endpoint Emergent schedules use).
  */
 export default function HomeProactiveCard() {
-  const [message, setMessage] = useState<string | null>(null);
+  // Claude artifact always shows a filled "Dhira checked in" card; start from that demo line.
+  const [message, setMessage] = useState<string | null>(ARTIFACT_CHECKIN_LINE);
   const [loading, setLoading] = useState(false);
   const [note, setNote] = useState<string | null>(null);
 
