@@ -2,6 +2,7 @@
 
 import React from 'react';
 import type { OnboardingData, Language } from './OnboardingFlow';
+import { LANGUAGE_OPTIONS } from '@/lib/artifactDesign';
 
 interface Props {
   data: OnboardingData;
@@ -10,18 +11,7 @@ interface Props {
   onBack: () => void;
 }
 
-const languageOptions: { value: Language; label: string; sub: string }[] = [
-  {
-    value: 'hinglish',
-    label: 'Hinglish',
-    sub: 'Hindi + English — the way we actually talk',
-  },
-  {
-    value: 'english',
-    label: 'English',
-    sub: 'Full English responses from Dhira',
-  },
-];
+const languageOptions: { value: Language; label: string; sub: string }[] = LANGUAGE_OPTIONS;
 
 export default function StepSetup({ data, onChange, onNext, onBack }: Props) {
   const canContinue = data.alias.trim().length >= 1;

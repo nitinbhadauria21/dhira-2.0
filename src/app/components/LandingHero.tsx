@@ -4,14 +4,9 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import DhiraAvatar from '@/components/DhiraAvatar';
+import { HERO_LINES, HERO_TAGLINE } from '@/lib/artifactDesign';
 
-const rotatingLines = [
-  'Aaj thoda heavy lag raha hai kya?',
-  "I\'m here. Tell me more.",
-  'Yeh kaafi heavy lag raha hai. Main sun raha hoon.',
-  "What\'s sitting with you right now?",
-  'That sounds heavy. Take your time.',
-];
+const rotatingLines = [...HERO_LINES];
 
 export default function LandingHero() {
   const [lineIndex, setLineIndex] = useState(0);
@@ -287,7 +282,7 @@ export default function LandingHero() {
             maxWidth: '480px',
           }}
         >
-          A private Hinglish companion that listens at 2 AM — never advises, always present. Crisis help stays one tap away.
+          {HERO_TAGLINE}
         </p>
 
         {/* CTAs */}

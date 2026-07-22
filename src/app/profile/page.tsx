@@ -7,6 +7,7 @@ import AppLayout from '@/components/AppLayout';
 import DhiraAvatar from '@/components/DhiraAvatar';
 import { User, Globe, Bell, Shield, ChevronRight, Check } from 'lucide-react';
 import { signOut } from '@/lib/authClient';
+import { FREQUENCY_OPTIONS, PROFILE_LANGUAGE_OPTIONS } from '@/lib/artifactDesign';
 
 
 type Language = 'english' | 'hinglish';
@@ -114,11 +115,7 @@ function ProfileContent() {
     { id: 'account', label: 'Account', icon: Shield },
   ];
 
-  const frequencyOptions: { value: CheckinFrequency; label: string; sub: string }[] = [
-    { value: 'daily', label: 'Daily', sub: 'A gentle nudge every day' },
-    { value: 'every-other-day', label: 'Every other day', sub: 'A little breathing room' },
-    { value: 'weekly', label: 'Weekly', sub: 'Just once a week' },
-  ];
+  const frequencyOptions = FREQUENCY_OPTIONS;
 
   return (
     <div className="relative min-h-screen">
@@ -302,10 +299,7 @@ function ProfileContent() {
               </p>
 
               <div className="flex flex-col gap-3 mb-6">
-                {([
-                  { value: 'hinglish', label: 'Hinglish', sub: 'A warm mix of Hindi and English — "Aaj kaisa feel ho raha hai?"', emoji: '🇮🇳' },
-                  { value: 'english', label: 'English', sub: 'Clear, gentle English — "How are you feeling today?"', emoji: '🌐' },
-                ] as { value: Language; label: string; sub: string; emoji: string }[]).map((opt) => (
+                {(PROFILE_LANGUAGE_OPTIONS as { value: Language; label: string; sub: string; emoji: string }[]).map((opt) => (
                   <button
                     key={opt.value}
                     onClick={() => setProfile((p) => ({ ...p, language: opt.value }))}

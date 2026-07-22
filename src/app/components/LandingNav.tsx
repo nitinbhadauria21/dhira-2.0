@@ -60,6 +60,7 @@ export default function LandingNav() {
             {[
               { label: 'Features', href: '#features' },
               { label: 'Safety', href: '#safety' },
+              { label: 'Privacy', href: '#privacy' },
             ]?.map((item) => (
               <a
                 key={`landing-nav-${item?.label}`}
@@ -84,7 +85,7 @@ export default function LandingNav() {
             </Link>
 
             <Link href="/sign-up" className="btn-accent" style={{ fontSize: '14px', padding: '8px 20px', fontWeight: 600 }}>
-              Start free
+              Get Started
             </Link>
 
             <button

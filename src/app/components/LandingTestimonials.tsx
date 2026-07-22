@@ -1,31 +1,11 @@
 import React from 'react';
 
-const testimonials = [
-  {
-    key: 'testi-aarav',
-    quote: 'Pehli baar kisi ne mujhe sirf suna — bina kuch solve karne ki koshish kiye. That felt different.',
-    name: 'Aarav S.',
-    meta: 'Mumbai · 3 weeks with Dhira',
-    moodColor: '#8FBCA4',
-    mood: 'Calmer',
-  },
-  {
-    key: 'testi-priya',
-    quote: 'The 2 AM check-in message felt like someone actually cared enough to show up. Unexpected.',
-    name: 'Priya K.',
-    meta: 'Bengaluru · 5-day streak',
-    moodColor: '#79C2C4',
-    mood: 'Hopeful',
-  },
-  {
-    key: 'testi-rohan',
-    quote: 'Mujhe pata tha ye AI hai, phir bhi laga koi sun raha hai. That\'s the whole point, isn\'t it.',
-    name: 'Rohan M.',
-    meta: 'Delhi · My Dhira weekly view',
-    moodColor: '#F0C46B',
-    mood: 'Lighter',
-  },
-];
+import { TESTIMONIALS } from '@/lib/artifactDesign';
+
+const testimonials = TESTIMONIALS.map((t, i) => ({
+  key: `testi-${i}`,
+  ...t,
+}));
 
 export default function LandingTestimonials() {
   return (

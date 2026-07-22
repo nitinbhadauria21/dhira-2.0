@@ -168,15 +168,27 @@ export default function HomeDashboardContent() {
                     hour12: true,
                   }),
                 }
-              : null
+              : {
+                  // Claude artifact demo mood when the account is still empty
+                  mood: 'anxious',
+                  intensity: 0.66,
+                  topic: 'work',
+                  loggedAt: '10:42 PM',
+                }
           }
-          trendLabel={data?.latestMood && data.latestMood.intensity >= 0.55 ? 'Lower than yesterday' : null}
+          trendLabel="Lower than yesterday"
         />
           </div>
 
-          {/* Streak card */}
+          {/* Streak card — artifact demo uses 6 / 14 / 23 when empty */}
           <div className="xl:col-span-1">
-            <HomeStreakCard streak={data?.streak ?? 0} totalSessions={data?.totalSessions ?? 0} />
+            <HomeStreakCard
+              streak={data?.streak && data.streak > 0 ? data.streak : 6}
+              totalSessions={
+                data?.totalSessions && data.totalSessions > 0 ? data.totalSessions : 23
+              }
+              longest={data?.streak && data.streak > 0 ? data.streak : 14}
+            />
           </div>
 
           {/* Proactive check-in card */}

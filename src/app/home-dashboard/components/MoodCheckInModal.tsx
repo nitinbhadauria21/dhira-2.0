@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { X, Check } from 'lucide-react';
 import { toast } from 'sonner';
+import { MOODS_GRID } from '@/lib/artifactDesign';
 
 interface MoodCheckInModalProps {
   isOpen: boolean;
@@ -10,18 +11,13 @@ interface MoodCheckInModalProps {
   onSaved?: () => void;
 }
 
-const MOODS = [
-  { key: 'mood-happy', id: 'happy', label: 'Happy', emoji: '😊', color: '#F0C46B' },
-  { key: 'mood-calm', id: 'calm', label: 'Calm', emoji: '😌', color: '#8FBCA4' },
-  { key: 'mood-hopeful', id: 'hopeful', label: 'Hopeful', emoji: '🌱', color: '#79C2C4' },
-  { key: 'mood-neutral', id: 'neutral', label: 'Neutral', emoji: '😶', color: '#B9B2A4' },
-  { key: 'mood-stressed', id: 'stressed', label: 'Stressed', emoji: '😤', color: '#E0A94F' },
-  { key: 'mood-anxious', id: 'anxious', label: 'Anxious', emoji: '😰', color: '#8794DA' },
-  { key: 'mood-lonely', id: 'lonely', label: 'Lonely', emoji: '🌧️', color: '#A99BC9' },
-  { key: 'mood-overwhelmed', id: 'overwhelmed', label: 'Overwhelmed', emoji: '🌊', color: '#9C6B8E' },
-  { key: 'mood-sad', id: 'sad', label: 'Sad', emoji: '😔', color: '#7089B0' },
-  { key: 'mood-angry', id: 'angry', label: 'Angry', emoji: '🌋', color: '#C56B5C' },
-];
+const MOODS = MOODS_GRID.map((m) => ({
+  key: `mood-${m.id}`,
+  id: m.id,
+  label: m.label,
+  emoji: m.emoji,
+  color: m.color,
+}));
 
 export default function MoodCheckInModal({ isOpen, onClose, onSaved }: MoodCheckInModalProps) {
   const [selected, setSelected] = useState<string | null>(null);

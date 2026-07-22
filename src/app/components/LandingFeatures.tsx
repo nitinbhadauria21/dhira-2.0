@@ -1,44 +1,30 @@
 import React from 'react';
 import Image from 'next/image';
+import { FEATURES } from '@/lib/artifactDesign';
 
-const features = [
-  {
-    key: 'feat-listens',
-    emoji: '👂',
-    title: 'Listens, never advises',
-    body: 'Dhira reflects your feelings and asks one gentle question at a time. No prescriptions, no unsolicited advice — just a space to be heard.',
-    detail: '"That sounds heavy. Tell me more."',
-    accent: 'var(--color-lavender)',
-    span: 'xl:col-span-2',
-  },
-  {
-    key: 'feat-remembers',
-    emoji: '🌙',
-    title: 'Remembers gently',
-    body: 'After each chat, Dhira keeps a quiet note of what you shared. Next time, she starts from where you left off.',
-    detail: '"Last time work was sitting heavy on you — how\'s that today?"',
-    accent: 'var(--color-primary)',
-    span: 'xl:col-span-1',
-  },
-  {
-    key: 'feat-reaches',
-    emoji: '💬',
-    title: 'Reaches out first',
-    body: 'Within your chosen window, Dhira checks in unprompted — because sometimes the hardest thing is starting the conversation.',
-    detail: '"Kal thoda heavy lag raha tha. Just checking in."',
-    accent: 'var(--color-sage)',
-    span: 'xl:col-span-1',
-  },
-  {
-    key: 'feat-safety',
-    emoji: '🕊️',
-    title: 'Safety built in',
-    body: 'When things feel too heavy, Dhira steps back and connects you to real help — Tele-MANAS 14416, free and 24×7.',
-    detail: "You don't have to be alone with this.",
-    accent: 'var(--color-accent)',
-    span: 'xl:col-span-2',
-  },
+const FEATURE_EMOJI: Record<string, string> = {
+  ear: '👂',
+  moon: '🌙',
+  chat: '💬',
+  shield: '🕊️',
+};
+
+const FEATURE_ACCENT = [
+  'var(--color-lavender)',
+  'var(--color-primary)',
+  'var(--color-sage)',
+  'var(--color-accent)',
 ];
+
+const features = FEATURES.map((f, i) => ({
+  key: `feat-${f.glyph}`,
+  emoji: FEATURE_EMOJI[f.glyph] ?? '✨',
+  title: f.title,
+  body: f.body,
+  detail: f.detail,
+  accent: FEATURE_ACCENT[i % FEATURE_ACCENT.length],
+  span: i === 0 || i === 3 ? 'xl:col-span-2' : 'xl:col-span-1',
+}));
 
 export default function LandingFeatures() {
   return (

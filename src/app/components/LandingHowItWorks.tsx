@@ -1,31 +1,12 @@
 import React from 'react';
+import { STEPS } from '@/lib/artifactDesign';
 
-const steps = [
-  {
-    key: 'step-name',
-    number: '01',
-    title: 'Create your profile',
-    body: "Sign up and select the language you'd like to talk to Dhira in.",
-  },
-  {
-    key: 'step-contract',
-    title: 'Set your check-in window',
-    number: '02',
-    body: 'Tell Dhira when she may reach out — 10 PM to 1 AM, a few times a week, in Hinglish. Your rules.',
-  },
-  {
-    key: 'step-chat',
-    number: '03',
-    title: 'Talk. Be heard.',
-    body: 'Open a chat anytime, or let Dhira come to you. She listens, reflects, and asks one gentle question.',
-  },
-  {
-    key: 'step-timeline',
-    number: '04',
-    title: 'Watch your mood move',
-    body: "A quiet 14-day mood timeline shows you how you've been — no judgement, just colour and continuity.",
-  },
-];
+const steps = STEPS.map((s) => ({
+  key: `step-${s.number}`,
+  number: s.number,
+  title: s.title,
+  body: s.body,
+}));
 
 export default function LandingHowItWorks() {
   return (
