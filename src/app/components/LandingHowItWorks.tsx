@@ -36,10 +36,10 @@ export default function LandingHowItWorks() {
           </h2>
         </div>
 
-        <div className="relative grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
+        <div className="relative grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Dashed connector — desktop */}
           <div
-            className="hidden xl:block absolute pointer-events-none"
+            className="hidden lg:block absolute pointer-events-none"
             style={{
               top: 70,
               left: '12%',

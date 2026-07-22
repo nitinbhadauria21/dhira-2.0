@@ -37,7 +37,7 @@ export default function LandingFeatures() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {FEATURES.map((f, i) => (
             <div
               key={f.title}
