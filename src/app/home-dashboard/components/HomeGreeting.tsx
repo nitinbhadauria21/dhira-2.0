@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
 import DhiraAvatar from '@/components/DhiraAvatar';
 import { ArrowRight } from 'lucide-react';
+import { ARTIFACT_MEMORY_LINE } from '@/lib/artifactDesign';
 
 interface HomeGreetingProps {
   onStartCheckin: () => void;
@@ -22,6 +22,7 @@ export default function HomeGreeting({ onStartCheckin, alias, memoryLine }: Home
   const userName = alias || 'Friend';
   // Stable first paint (server + client) then local clock — avoids hydration mismatch.
   const [greeting, setGreeting] = useState('Hey');
+  const memory = memoryLine?.trim() || ARTIFACT_MEMORY_LINE;
 
   useEffect(() => {
     setGreeting(greetingForHour(new Date().getHours()));
@@ -61,56 +62,56 @@ export default function HomeGreeting({ onStartCheckin, alias, memoryLine }: Home
           </div>
         </div>
 
-        <Link
-          href="/chat-with-dhira"
+        <button
+          type="button"
+          onClick={onStartCheckin}
           className="btn-primary hidden sm:inline-flex items-center gap-2 flex-shrink-0"
-          style={{ fontSize: 15, padding: '10px 20px', borderRadius: 12 }}
+          style={{ fontSize: 15, padding: '10px 20px', borderRadius: 12, border: 'none', cursor: 'pointer' }}
         >
           Start today&apos;s check-in
           <ArrowRight size={16} />
-        </Link>
+        </button>
       </div>
 
-      {memoryLine && (
-        <div className="memory-banner flex items-start gap-3">
-          <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>🌙</span>
-          <div>
-            <p
-              style={{
-                fontFamily: 'var(--font-ui)',
-                fontSize: 12,
-                fontWeight: 600,
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                color: 'var(--color-text-subtle)',
-                marginBottom: 3,
-              }}
-            >
-              Dhira remembers
-            </p>
-            <p
-              style={{
-                fontFamily: 'var(--font-ui)',
-                fontSize: 15,
-                color: 'var(--color-text)',
-                lineHeight: 1.55,
-              }}
-            >
-              &ldquo;{memoryLine}&rdquo;
-            </p>
-          </div>
+      <div className="memory-banner flex items-start gap-3">
+        <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>🌙</span>
+        <div>
+          <p
+            style={{
+              fontFamily: 'var(--font-ui)',
+              fontSize: 12,
+              fontWeight: 600,
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              color: 'var(--color-text-subtle)',
+              marginBottom: 3,
+            }}
+          >
+            Dhira remembers
+          </p>
+          <p
+            style={{
+              fontFamily: 'var(--font-ui)',
+              fontSize: 15,
+              color: 'var(--color-text)',
+              lineHeight: 1.55,
+            }}
+          >
+            &ldquo;{memory}&rdquo;
+          </p>
         </div>
-      )}
+      </div>
 
       <div className="sm:hidden mt-4">
-        <Link
-          href="/chat-with-dhira"
+        <button
+          type="button"
+          onClick={onStartCheckin}
           className="btn-primary w-full justify-center"
-          style={{ fontSize: 15, padding: '10px 20px' }}
+          style={{ fontSize: 15, padding: '10px 20px', border: 'none', cursor: 'pointer' }}
         >
           Start today&apos;s check-in
           <ArrowRight size={16} />
-        </Link>
+        </button>
       </div>
     </div>
   );

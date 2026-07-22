@@ -2,6 +2,7 @@
 
 import React from 'react';
 import type { OnboardingData } from './OnboardingFlow';
+import { FREQUENCY_OPTIONS } from '@/lib/artifactDesign';
 
 interface Props {
   data: OnboardingData;
@@ -10,11 +11,8 @@ interface Props {
   onBack: () => void;
 }
 
-const frequencyOptions: { value: OnboardingData['checkinFrequency']; label: string; sub: string }[] = [
-  { value: 'daily', label: 'Daily', sub: 'A gentle nudge every day' },
-  { value: 'every-other-day', label: 'Every other day', sub: 'A little breathing room' },
-  { value: 'weekly', label: 'Weekly', sub: 'Just once a week' },
-];
+const frequencyOptions: { value: OnboardingData['checkinFrequency']; label: string; sub: string }[] =
+  FREQUENCY_OPTIONS;
 
 interface ConsentRowProps {
   checked: boolean;

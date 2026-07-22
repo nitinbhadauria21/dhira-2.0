@@ -51,7 +51,7 @@ export default function StepSplash({ onNext }: Props) {
             marginInline: 'auto',
           }}
         >
-          Dhira listens — no advice, no judgment. Alias only. Just a quiet space that remembers.
+          Dhira is here to listen — no advice, no judgment, no real name needed. Just a quiet space that remembers.
         </p>
       </div>
 

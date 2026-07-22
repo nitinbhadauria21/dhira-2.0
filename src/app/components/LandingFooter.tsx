@@ -19,7 +19,7 @@ export default function LandingFooter() {
               className="text-small"
               style={{ color: 'var(--color-text-muted)', maxWidth: '28ch', lineHeight: 1.65 }}
             >
-              The calm that stays up with you. Private, Hinglish-first, India-first.
+              The calm that stays up with you. Private, anonymous, Hinglish-first.
             </p>
           </div>
 
@@ -40,7 +40,7 @@ export default function LandingFooter() {
               {[
                 { label: 'Home', href: '/home-dashboard' },
                 { label: 'Chat with Dhira', href: '/chat-with-dhira' },
-                { label: 'My Dhira', href: '/timeline' },
+                { label: 'Privacy Promise', href: '/#privacy' },
                 { label: 'Privacy & Terms', href: '/terms' },
               ].map((l) => (
                 <Link

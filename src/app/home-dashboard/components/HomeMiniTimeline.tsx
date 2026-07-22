@@ -4,7 +4,12 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
-import { MOOD_COLORS as ARTIFACT_MOODS, MOOD_LEGEND } from '@/lib/artifactDesign';
+import {
+  DEMO_WEEK_MOODS,
+  MOOD_COLORS as ARTIFACT_MOODS,
+  MOOD_LEGEND,
+  type MoodId,
+} from '@/lib/artifactDesign';
 
 const MOOD_COLORS: Record<string, string> = Object.fromEntries(
   Object.entries(ARTIFACT_MOODS).map(([k, v]) => [k, v.bg]),
@@ -22,47 +27,77 @@ interface HomeMiniTimelineProps {
 
 export default function HomeMiniTimeline({ last7 }: HomeMiniTimelineProps) {
   const todayKey = new Date().toISOString().slice(0, 10);
-  const weekMoods = last7.map((d) => {
-    const dateObj = new Date(d.date + 'T00:00:00');
-    return {
-      key: `day-${d.date}`,
-      day: WEEKDAYS[dateObj.getDay()],
-      date: String(dateObj.getDate()),
-      mood: d.mood ?? 'neutral',
-      logged: d.mood != null,
-      isToday: d.date === todayKey,
-    };
-  });
+  const hasRealMoods = last7.some((d) => d.mood != null);
+
+  const weekMoods = hasRealMoods
+    ? last7.map((d) => {
+        const dateObj = new Date(d.date + 'T00:00:00');
+        return {
+          key: `day-${d.date}`,
+          day: WEEKDAYS[dateObj.getDay()],
+          date: String(dateObj.getDate()),
+          mood: (d.mood ?? 'neutral') as MoodId,
+          logged: d.mood != null,
+          isToday: d.date === todayKey,
+        };
+      })
+    : DEMO_WEEK_MOODS.map((d, i) => ({
+        key: `demo-${i}`,
+        day: d.day,
+        date: d.date,
+        mood: d.mood,
+        logged: true,
+        isToday: Boolean(d.isToday),
+      }));
 
   return (
     <div className="dhira-card p-6 h-full">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: '12px', fontWeight: 600, color: 'var(--color-text-subtle)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '4px' }}>
+          <p
+            style={{
+              fontFamily: 'var(--font-ui)',
+              fontSize: '12px',
+              fontWeight: 600,
+              color: 'var(--color-text-subtle)',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              marginBottom: '4px',
+            }}
+          >
             This week
           </p>
-          <p style={{ fontFamily: 'var(--font-display)', fontSize: '18px', fontWeight: 500, color: 'var(--color-text)' }}>
+          <p
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '18px',
+              fontWeight: 500,
+              color: 'var(--color-text)',
+            }}
+          >
             7-day mood view
           </p>
         </div>
         <Link
           href="/timeline"
           className="flex items-center gap-1"
-          style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-primary)', fontWeight: 500 }}
+          style={{
+            fontFamily: 'var(--font-ui)',
+            fontSize: '13px',
+            color: 'var(--color-primary)',
+            fontWeight: 500,
+          }}
         >
           Full timeline
           <ArrowRight size={13} />
         </Link>
       </div>
 
-      {/* Day grid */}
       <div className="grid grid-cols-7 gap-3">
         {weekMoods.map((day) => {
           const color = day.logged ? MOOD_COLORS[day.mood] : 'var(--color-border)';
           return (
             <div key={day.key} className="flex flex-col items-center gap-2">
-              {/* Day label */}
               <span
                 style={{
                   fontFamily: 'var(--font-ui)',
@@ -76,7 +111,6 @@ export default function HomeMiniTimeline({ last7 }: HomeMiniTimelineProps) {
                 {day.day}
               </span>
 
-              {/* Mood swatch */}
               <div
                 className="rounded-control flex items-center justify-center transition-all duration-200"
                 style={{
@@ -91,7 +125,6 @@ export default function HomeMiniTimeline({ last7 }: HomeMiniTimelineProps) {
                 title={day.logged ? moodLabels[day.mood] : 'Not logged'}
               />
 
-              {/* Date */}
               <span
                 style={{
                   fontFamily: 'var(--font-ui)',
@@ -107,15 +140,23 @@ export default function HomeMiniTimeline({ last7 }: HomeMiniTimelineProps) {
         })}
       </div>
 
-      {/* Legend */}
-      <div className="flex flex-wrap gap-3 mt-5 pt-4" style={{ borderTop: '1px solid var(--color-border)' }}>
+      <div
+        className="flex flex-wrap gap-3 mt-5 pt-4"
+        style={{ borderTop: '1px solid var(--color-border)' }}
+      >
         {MOOD_LEGEND.map((mood) => (
           <div key={`legend-${mood}`} className="flex items-center gap-1.5">
             <span
               className="inline-block rounded-full flex-shrink-0"
               style={{ width: 8, height: 8, backgroundColor: MOOD_COLORS[mood] }}
             />
-            <span style={{ fontFamily: 'var(--font-ui)', fontSize: '11px', color: 'var(--color-text-subtle)' }}>
+            <span
+              style={{
+                fontFamily: 'var(--font-ui)',
+                fontSize: '11px',
+                color: 'var(--color-text-subtle)',
+              }}
+            >
               {moodLabels[mood]}
             </span>
           </div>

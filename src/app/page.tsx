@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import LandingNav from './components/LandingNav';
 import LandingHero from './components/LandingHero';
 import LandingFeatures from './components/LandingFeatures';
+import LandingPromises from './components/LandingPromises';
 import LandingHowItWorks from './components/LandingHowItWorks';
 import LandingTestimonials from './components/LandingTestimonials';
 import LandingCTA from './components/LandingCTA';
@@ -17,6 +18,7 @@ export default function LandingPage() {
         <LandingNav />
         <LandingHero />
         <LandingFeatures />
+        <LandingPromises />
         <LandingHowItWorks />
         <LandingTestimonials />
         <LandingCTA />

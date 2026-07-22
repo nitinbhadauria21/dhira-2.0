@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import MoodBadge from '@/components/MoodBadge';
 import { ArrowRight } from 'lucide-react';
+import { DEMO_RECENT_ENTRIES } from '@/lib/artifactDesign';
 
 interface JournalEntry {
   summary: string;
@@ -20,12 +21,20 @@ function formatDate(iso: string): string {
 }
 
 export default function HomeJournalRecent({ entries }: HomeJournalRecentProps) {
-  const recentEntries = entries.map((e, i) => ({
-    id: `entry-${i}`,
-    date: formatDate(e.createdAt),
-    preview: e.summary,
-    topicTag: e.topic,
-  }));
+  const recentEntries =
+    entries.length > 0
+      ? entries.map((e, i) => ({
+          id: `entry-${i}`,
+          date: formatDate(e.createdAt),
+          preview: e.summary,
+          topicTag: e.topic,
+        }))
+      : DEMO_RECENT_ENTRIES.map((e, i) => ({
+          id: `demo-${i}`,
+          date: e.date,
+          preview: e.preview,
+          topicTag: e.mood,
+        }));
 
   return (
     <div className="dhira-card p-6 h-full flex flex-col gap-4">
@@ -41,16 +50,6 @@ export default function HomeJournalRecent({ entries }: HomeJournalRecentProps) {
         </Link>
       </div>
       <div className="flex flex-col gap-3 flex-1">
-        {recentEntries.length === 0 && (
-          <div
-            className="p-4 rounded-control text-center"
-            style={{ backgroundColor: 'var(--color-surface-alt)' }}
-          >
-            <p style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
-              Your reflections will appear here after your first chat with Dhira.
-            </p>
-          </div>
-        )}
         {recentEntries.map((entry) => (
           <div
             key={entry.id}

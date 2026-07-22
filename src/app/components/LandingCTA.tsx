@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { CTA_BODY } from '@/lib/artifactDesign';
 
 export default function LandingCTA() {
   return (
@@ -141,7 +142,7 @@ export default function LandingCTA() {
             lineHeight: 1.65,
           }}
         >
-          Dhira is already there. Anonymous alias. Private account. Ready when the night feels loud — Hinglish if that&apos;s how you think.
+          {CTA_BODY}
         </p>
 
         <Link href="/sign-up" className="btn-accent" style={{ fontSize: '17px', padding: '16px 40px' }}>

@@ -3,10 +3,11 @@ import React from 'react';
 interface HomeStreakCardProps {
   streak: number;
   totalSessions: number;
+  longest?: number;
 }
 
-export default function HomeStreakCard({ streak, totalSessions }: HomeStreakCardProps) {
-  const streakData = { current: streak, longest: streak, totalSessions };
+export default function HomeStreakCard({ streak, totalSessions, longest }: HomeStreakCardProps) {
+  const streakData = { current: streak, longest: longest ?? streak, totalSessions };
   return (
     <div className="dhira-card p-6 h-full flex flex-col gap-4">
       {/* Header */}
