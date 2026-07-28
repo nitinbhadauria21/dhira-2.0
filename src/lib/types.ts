@@ -5,6 +5,13 @@
 
 export type Language = 'english' | 'hinglish';
 
+/** Dhira spoken-voice preference (saved for future TTS; not wired to chat yet). */
+export type VoicePreference =
+  | 'male_english'
+  | 'female_english'
+  | 'male_hinglish'
+  | 'female_hinglish';
+
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRISIS';
 
 export type MoodLabel =
@@ -44,6 +51,12 @@ export interface Profile {
   emailOptIn: boolean;
   whatsappOptIn: boolean;
   timezone: string; // IANA tz, e.g. 'Asia/Kolkata'
+  /** Indian state (required at sign-up; editable under Profile → Location). */
+  state: string | null;
+  /** City within that state (required at sign-up; editable under Profile → Location). */
+  city: string | null;
+  /** Spoken voice preference (Manage Voice); null until the user chooses. */
+  voicePreference: VoicePreference | null;
   consentCheckin: boolean;
   consentMemory: boolean;
   checkinFrequency: CheckinFrequency;

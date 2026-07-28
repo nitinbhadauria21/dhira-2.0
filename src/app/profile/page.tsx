@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import AppLayout from '@/components/AppLayout';
 import DhiraAvatar from '@/components/DhiraAvatar';
-import { User, Globe, Bell, Shield, ChevronRight, Check } from 'lucide-react';
+import { User, Globe, Bell, Shield, Mic, MapPin, ChevronRight, Check } from 'lucide-react';
 import { signOut } from '@/lib/authClient';
-import { FREQUENCY_OPTIONS, PROFILE_LANGUAGE_OPTIONS } from '@/lib/artifactDesign';
+import { FREQUENCY_OPTIONS, PROFILE_LANGUAGE_OPTIONS, PROFILE_VOICE_OPTIONS } from '@/lib/artifactDesign';
+import { INDIA_STATES } from '@/lib/indiaStates';
+import type { VoicePreference } from '@/lib/types';
 
 
 type Language = 'english' | 'hinglish';
@@ -25,6 +27,9 @@ interface ProfileData {
   preferredChannel: NotifyChannel;
   emailOptIn: boolean;
   whatsappOptIn: boolean;
+  state: string;
+  city: string;
+  voicePreference: VoicePreference | null;
 }
 
 function ProfileContent() {
@@ -40,6 +45,9 @@ function ProfileContent() {
     preferredChannel: 'email',
     emailOptIn: true,
     whatsappOptIn: false,
+    state: '',
+    city: '',
+    voicePreference: null,
   });
   const [saved, setSaved] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('profile');
@@ -62,6 +70,9 @@ function ProfileContent() {
             preferredChannel: p.preferredChannel ?? 'email',
             emailOptIn: p.emailOptIn ?? true,
             whatsappOptIn: p.whatsappOptIn ?? false,
+            state: p.state ?? '',
+            city: p.city ?? '',
+            voicePreference: p.voicePreference ?? null,
           });
         }
       } catch {
@@ -94,6 +105,9 @@ function ProfileContent() {
           preferredChannel: profile.preferredChannel,
           emailOptIn: profile.emailOptIn,
           whatsappOptIn: profile.whatsappOptIn,
+          state: profile.state,
+          city: profile.city,
+          voicePreference: profile.voicePreference,
         }),
       });
     } catch {
@@ -113,6 +127,8 @@ function ProfileContent() {
     { id: 'language', label: 'Language', icon: Globe },
     { id: 'checkins', label: 'Check-ins', icon: Bell },
     { id: 'account', label: 'Account', icon: Shield },
+    { id: 'voice', label: 'Manage Voice', icon: Mic },
+    { id: 'location', label: 'Location', icon: MapPin },
   ];
 
   const frequencyOptions = FREQUENCY_OPTIONS;
@@ -551,6 +567,150 @@ function ProfileContent() {
                   Delete my account
                 </button>
               </div>
+            </div>
+          )}
+
+          {/* Manage Voice section */}
+          {activeSection === 'voice' && (
+            <div className="dhira-card p-6">
+              <h2
+                className="mb-2"
+                style={{ fontFamily: 'var(--font-display)', fontSize: '20px', fontWeight: 500, color: 'var(--color-text)' }}
+              >
+                Manage Voice
+              </h2>
+              <p className="mb-6" style={{ fontFamily: 'var(--font-ui)', fontSize: '15px', color: 'var(--color-text-muted)' }}>
+                Choose how Dhira should sound when speaking with you. You can change this anytime.
+              </p>
+
+              <div className="flex flex-col gap-3 mb-6">
+                {PROFILE_VOICE_OPTIONS.map((opt) => {
+                  const selected = profile.voicePreference === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      onClick={() => setProfile((p) => ({ ...p, voicePreference: opt.value }))}
+                      className="flex items-center gap-4 p-4 rounded-card text-left transition-all duration-200"
+                      style={{
+                        border: `2px solid ${selected ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                        backgroundColor: selected ? 'var(--color-primary-soft)' : 'var(--color-surface-alt)',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <div className="flex-1">
+                        <p style={{ fontFamily: 'var(--font-ui)', fontSize: '15px', fontWeight: 500, color: 'var(--color-text)' }}>
+                          {opt.label}
+                        </p>
+                        <p style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-muted)', marginTop: '2px' }}>
+                          {opt.sub}
+                        </p>
+                      </div>
+                      {selected && (
+                        <div
+                          className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+                          style={{ backgroundColor: 'var(--color-primary)' }}
+                        >
+                          <Check size={14} color="white" />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={handleSave}
+                className="btn-primary flex items-center gap-2"
+                style={{ fontSize: '15px', padding: '11px 24px' }}
+                disabled={!profile.voicePreference}
+              >
+                {saved ? <Check size={16} /> : null}
+                {saved ? 'Saved!' : 'Save changes'}
+              </button>
+            </div>
+          )}
+
+          {/* Location section */}
+          {activeSection === 'location' && (
+            <div className="dhira-card p-6">
+              <h2
+                className="mb-2"
+                style={{ fontFamily: 'var(--font-display)', fontSize: '20px', fontWeight: 500, color: 'var(--color-text)' }}
+              >
+                Location
+              </h2>
+              <p className="mb-6" style={{ fontFamily: 'var(--font-ui)', fontSize: '15px', color: 'var(--color-text-muted)' }}>
+                Update your city and state anytime. This stays private with your Dhira account.
+              </p>
+
+              <div className="mb-4">
+                <label
+                  htmlFor="profile-state"
+                  style={{ display: 'block', fontFamily: 'var(--font-ui)', fontSize: '14px', fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: '6px' }}
+                >
+                  State
+                </label>
+                <select
+                  id="profile-state"
+                  value={profile.state}
+                  onChange={(e) => setProfile((p) => ({ ...p, state: e.target.value }))}
+                  style={{
+                    width: '100%',
+                    padding: '11px 14px',
+                    borderRadius: 'var(--radius-control)',
+                    border: '1.5px solid var(--color-border)',
+                    backgroundColor: 'var(--color-surface-alt)',
+                    color: profile.state ? 'var(--color-text)' : 'var(--color-text-subtle)',
+                    fontFamily: 'var(--font-ui)',
+                    fontSize: '15px',
+                    outline: 'none',
+                  }}
+                >
+                  <option value="">Select your state</option>
+                  {INDIA_STATES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mb-6">
+                <label
+                  htmlFor="profile-city"
+                  style={{ display: 'block', fontFamily: 'var(--font-ui)', fontSize: '14px', fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: '6px' }}
+                >
+                  City
+                </label>
+                <input
+                  id="profile-city"
+                  type="text"
+                  value={profile.city}
+                  onChange={(e) => setProfile((p) => ({ ...p, city: e.target.value }))}
+                  placeholder="e.g. Mumbai, Bengaluru…"
+                  style={{
+                    width: '100%',
+                    padding: '11px 14px',
+                    borderRadius: 'var(--radius-control)',
+                    border: '1.5px solid var(--color-border)',
+                    backgroundColor: 'var(--color-surface-alt)',
+                    color: 'var(--color-text)',
+                    fontFamily: 'var(--font-ui)',
+                    fontSize: '15px',
+                    outline: 'none',
+                  }}
+                />
+              </div>
+
+              <button
+                onClick={handleSave}
+                className="btn-primary flex items-center gap-2"
+                style={{ fontSize: '15px', padding: '11px 24px' }}
+                disabled={!profile.state.trim() || !profile.city.trim()}
+              >
+                {saved ? <Check size={16} /> : null}
+                {saved ? 'Saved!' : 'Save changes'}
+              </button>
             </div>
           )}
         </div>

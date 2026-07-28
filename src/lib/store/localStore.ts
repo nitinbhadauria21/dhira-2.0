@@ -74,6 +74,9 @@ export class LocalStore implements DhiraStore {
         emailOptIn: true,
         whatsappOptIn: false,
         timezone: 'Asia/Kolkata',
+        state: null,
+        city: null,
+        voicePreference: null,
         consentCheckin: true,
         consentMemory: true,
         checkinFrequency: 'daily',
@@ -89,6 +92,9 @@ export class LocalStore implements DhiraStore {
     // Backfill fields added after early local demos
     if (profile.lastProactiveAt === undefined) (profile as Profile).lastProactiveAt = null;
     if (profile.lastWeeklyAt === undefined) (profile as Profile).lastWeeklyAt = null;
+    if (profile.state === undefined) (profile as Profile).state = null;
+    if (profile.city === undefined) (profile as Profile).city = null;
+    if (profile.voicePreference === undefined) (profile as Profile).voicePreference = null;
     return profile;
   }
 

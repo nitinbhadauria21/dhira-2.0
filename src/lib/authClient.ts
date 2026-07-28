@@ -9,6 +9,11 @@ import { getBrowserSupabase } from './supabaseBrowser';
  *  - Dev: call the app's own /api/auth/* endpoints.
  */
 
+export type SignUpLocation = {
+  state: string;
+  city: string;
+};
+
 async function postJson(url: string, body: unknown) {
   const res = await fetch(url, {
     method: 'POST',
@@ -20,13 +25,26 @@ async function postJson(url: string, body: unknown) {
   return data;
 }
 
-export async function signUpEmail(email: string, password: string, alias?: string) {
+export async function signUpEmail(
+  email: string,
+  password: string,
+  alias?: string,
+  location?: SignUpLocation,
+) {
+  const state = location?.state?.trim() || undefined;
+  const city = location?.city?.trim() || undefined;
   const sb = getBrowserSupabase();
   if (sb) {
     const { data, error } = await sb.auth.signUp({
       email,
       password,
-      options: { data: { alias: alias || 'Friend' } },
+      options: {
+        data: {
+          alias: alias || 'Friend',
+          ...(state ? { state } : {}),
+          ...(city ? { city } : {}),
+        },
+      },
     });
     if (error) throw new Error(error.message);
     const token = data.session?.access_token;
@@ -37,9 +55,9 @@ export async function signUpEmail(email: string, password: string, alias?: strin
         'Account created. In Supabase → Authentication → Providers → Email, turn OFF “Confirm email” for Demo Day, then sign in. Or confirm via the email link first.',
       );
     }
-    return postJson('/api/auth/session', { accessToken: token, email });
+    return postJson('/api/auth/session', { accessToken: token, email, state, city, alias: alias || 'Friend' });
   }
-  return postJson('/api/auth/signup', { email, password, alias });
+  return postJson('/api/auth/signup', { email, password, alias, state, city });
 }
 
 export async function signInEmail(email: string, password: string) {
@@ -63,14 +81,27 @@ export async function requestOtp(phone: string): Promise<{ devCode?: string }> {
   return postJson('/api/auth/otp/request', { phone });
 }
 
-export async function verifyOtp(phone: string, code: string, alias?: string) {
+export async function verifyOtp(
+  phone: string,
+  code: string,
+  alias?: string,
+  location?: SignUpLocation,
+) {
+  const state = location?.state?.trim() || undefined;
+  const city = location?.city?.trim() || undefined;
   const sb = getBrowserSupabase();
   if (sb) {
     const { data, error } = await sb.auth.verifyOtp({ phone, token: code, type: 'sms' });
     if (error) throw new Error(error.message);
-    return postJson('/api/auth/session', { accessToken: data.session?.access_token, phone });
+    return postJson('/api/auth/session', {
+      accessToken: data.session?.access_token,
+      phone,
+      state,
+      city,
+      alias: alias || 'Friend',
+    });
   }
-  return postJson('/api/auth/otp/verify', { phone, code, alias });
+  return postJson('/api/auth/otp/verify', { phone, code, alias, state, city });
 }
 
 export async function signOut() {

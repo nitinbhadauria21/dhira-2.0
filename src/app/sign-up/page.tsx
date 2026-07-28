@@ -6,11 +6,14 @@ import { useRouter } from 'next/navigation';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import DhiraAvatar from '@/components/DhiraAvatar';
 import { signUpEmail, requestOtp, verifyOtp } from '@/lib/authClient';
+import { INDIA_STATES } from '@/lib/indiaStates';
 
 function SignUpContent() {
   const router = useRouter();
   const [mode, setMode] = useState<'email' | 'phone'>('email');
   const [alias, setAlias] = useState('');
+  const [state, setState] = useState('');
+  const [city, setCity] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
@@ -21,12 +24,18 @@ function SignUpContent() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const locationReady = Boolean(state.trim() && city.trim());
+  const canSubmitBase = agreedTerms && locationReady && !loading;
+
   const handleSignUp = async () => {
-    if (!agreedTerms) return;
+    if (!agreedTerms || !locationReady) return;
     setError(null);
     setLoading(true);
     try {
-      await signUpEmail(email.trim(), password, alias.trim() || 'Friend');
+      await signUpEmail(email.trim(), password, alias.trim() || 'Friend', {
+        state: state.trim(),
+        city: city.trim(),
+      });
       // New account created + signed in → continue to onboarding.
       router.push('/onboarding');
     } catch (e) {
@@ -37,7 +46,7 @@ function SignUpContent() {
   };
 
   const handleRequestOtp = async () => {
-    if (!agreedTerms) return;
+    if (!agreedTerms || !locationReady) return;
     setError(null);
     setLoading(true);
     try {
@@ -52,11 +61,14 @@ function SignUpContent() {
   };
 
   const handleVerifyOtp = async () => {
-    if (!agreedTerms) return;
+    if (!agreedTerms || !locationReady) return;
     setError(null);
     setLoading(true);
     try {
-      await verifyOtp(phone.trim(), otp.trim(), alias.trim() || 'Friend');
+      await verifyOtp(phone.trim(), otp.trim(), alias.trim() || 'Friend', {
+        state: state.trim(),
+        city: city.trim(),
+      });
       router.push('/onboarding');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not verify code');
@@ -262,6 +274,72 @@ function SignUpContent() {
               value={alias}
               onChange={(e) => setAlias(e?.target?.value)}
               placeholder="e.g. Stargazer, Chai Lover…"
+              style={{
+                width: '100%',
+                padding: '11px 14px',
+                borderRadius: 'var(--radius-control)',
+                border: '1.5px solid var(--color-border)',
+                backgroundColor: 'var(--color-surface-alt)',
+                color: 'var(--color-text)',
+                fontFamily: 'var(--font-ui)',
+                fontSize: '15px',
+                outline: 'none',
+                transition: 'border-color 0.2s ease',
+              }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-primary)')}
+              onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
+            />
+          </div>
+
+          {/* State + City (required) */}
+          <div className="mb-4">
+            <label
+              htmlFor="signup-state"
+              style={{ display: 'block', fontFamily: 'var(--font-ui)', fontSize: '14px', fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: '6px' }}
+            >
+              State <span style={{ color: 'var(--color-text-subtle)', fontWeight: 400 }}>(required)</span>
+            </label>
+            <select
+              id="signup-state"
+              value={state}
+              onChange={(e) => setState(e?.target?.value ?? '')}
+              style={{
+                width: '100%',
+                padding: '11px 14px',
+                borderRadius: 'var(--radius-control)',
+                border: '1.5px solid var(--color-border)',
+                backgroundColor: 'var(--color-surface-alt)',
+                color: state ? 'var(--color-text)' : 'var(--color-text-subtle)',
+                fontFamily: 'var(--font-ui)',
+                fontSize: '15px',
+                outline: 'none',
+                transition: 'border-color 0.2s ease',
+              }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-primary)')}
+              onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
+            >
+              <option value="">Select your state</option>
+              {INDIA_STATES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="mb-4">
+            <label
+              htmlFor="signup-city"
+              style={{ display: 'block', fontFamily: 'var(--font-ui)', fontSize: '14px', fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: '6px' }}
+            >
+              City <span style={{ color: 'var(--color-text-subtle)', fontWeight: 400 }}>(required)</span>
+            </label>
+            <input
+              id="signup-city"
+              type="text"
+              value={city}
+              onChange={(e) => setCity(e?.target?.value)}
+              placeholder="e.g. Mumbai, Bengaluru…"
               style={{
                 width: '100%',
                 padding: '11px 14px',
@@ -494,10 +572,15 @@ function SignUpContent() {
             style={{
               fontSize: '16px',
               padding: '13px 24px',
-              opacity: agreedTerms && !loading ? 1 : 0.55,
-              cursor: agreedTerms && !loading ? 'pointer' : 'not-allowed',
+              opacity: canSubmitBase ? 1 : 0.55,
+              cursor: canSubmitBase ? 'pointer' : 'not-allowed',
             }}
-            disabled={!agreedTerms || loading || (mode === 'email' ? !email.trim() || !password.trim() : !phone.trim() || (otpSent && !otp.trim()))}
+            disabled={
+              !canSubmitBase ||
+              (mode === 'email'
+                ? !email.trim() || !password.trim()
+                : !phone.trim() || (otpSent && !otp.trim()))
+            }
           >
             {loading
               ? (mode === 'phone' && !otpSent ? 'Sending code…' : mode === 'phone' ? 'Verifying…' : 'Creating your account…')
