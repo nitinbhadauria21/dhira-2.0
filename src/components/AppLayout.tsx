@@ -4,6 +4,7 @@ import React from 'react';
 import { ThemeProvider } from './ThemeProvider';
 import AppNav from './AppNav';
 import { Toaster } from 'sonner';
+import ElevenLabsWidget from './ElevenLabsWidget';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -37,6 +38,7 @@ export default function AppLayout({ children, showNav = true }: AppLayoutProps) 
           },
         }}
       />
+      {showNav && <ElevenLabsWidget />}
     </ThemeProvider>
   );
 }
