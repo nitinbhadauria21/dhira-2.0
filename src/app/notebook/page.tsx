@@ -206,8 +206,8 @@ function NotebookContent() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+    <div className="relative min-h-screen">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
         <div
           className="absolute -right-28 top-4 h-80 w-80 rounded-full blur-3xl"
           style={{ background: 'rgba(174,161,218,0.16)' }}
@@ -226,7 +226,6 @@ function NotebookContent() {
               alt="DHIRA, waving hello"
               width={78}
               bobAnimation="dhira-bob 5.5s ease-in-out infinite"
-              bobAnimation="dhira-float-lav 5.5s ease-in-out infinite"
             />
             <div>
               <BrandLockup href="/home-dashboard" size={18} className="mb-3" />
