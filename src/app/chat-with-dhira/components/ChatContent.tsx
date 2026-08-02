@@ -53,12 +53,14 @@ export default function ChatContent() {
         if (cancelled) return;
         if (Array.isArray(data.messages) && data.messages.length > 0) {
           setMessages(
-            data.messages.map((m: { id: string; role: 'user' | 'dhira'; content: string; createdAt: string }) => ({
-              id: m.id,
-              role: m.role,
-              content: m.content,
-              timestamp: formatTime(m.createdAt),
-            })),
+            data.messages.map(
+              (m: { id: string; role: 'user' | 'dhira'; content: string; createdAt: string }) => ({
+                id: m.id,
+                role: m.role,
+                content: m.content,
+                timestamp: formatTime(m.createdAt),
+              })
+            )
           );
         }
       } catch {
@@ -113,7 +115,8 @@ export default function ChatContent() {
         {
           id: `msg-dhira-${Date.now()}`,
           role: 'dhira',
-          content: "I'm having trouble responding right now, but I'm still here. Try again in a moment?",
+          content:
+            "I'm having trouble responding right now, but I'm still here. Try again in a moment?",
           timestamp: formatTime(),
         },
       ]);
@@ -135,7 +138,11 @@ export default function ChatContent() {
       }}
     >
       {/* ── Illustrated background for chat ── */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true" style={{ zIndex: 0 }}>
+      <div
+        className="absolute inset-0 pointer-events-none overflow-hidden"
+        aria-hidden="true"
+        style={{ zIndex: 0 }}
+      >
         {/* Organic blob top-right */}
         <div
           style={{
@@ -144,7 +151,8 @@ export default function ChatContent() {
             right: '-40px',
             width: '300px',
             height: '280px',
-            background: 'radial-gradient(ellipse 55% 60% at 60% 40%, rgba(90, 103, 184, 0.1) 0%, transparent 65%)',
+            background:
+              'radial-gradient(ellipse 55% 60% at 60% 40%, rgba(90, 103, 184, 0.1) 0%, transparent 65%)',
             filter: 'blur(40px)',
             borderRadius: '40% 60% 55% 45% / 50% 45% 55% 50%',
           }}
@@ -163,12 +171,16 @@ export default function ChatContent() {
           }}
         />
         {/* Illustrated SVG */}
-        <svg
-          className="absolute inset-0 w-full h-full"
-          style={{ opacity: 0.1 }}
-        >
+        <svg className="absolute inset-0 w-full h-full" style={{ opacity: 0.1 }}>
           <defs>
-            <pattern id="chat-dots" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+            <pattern
+              id="chat-dots"
+              x="0"
+              y="0"
+              width="30"
+              height="30"
+              patternUnits="userSpaceOnUse"
+            >
               <circle cx="1.5" cy="1.5" r="0.8" fill="var(--color-border)" />
             </pattern>
           </defs>
@@ -188,11 +200,43 @@ export default function ChatContent() {
             { x: 760, y: 150, size: 4, color: 'var(--color-primary)', opacity: 0.18 },
             { x: 400, y: 50, size: 5, color: 'var(--color-accent)', opacity: 0.15 },
           ]?.map((star, i) => (
-            <g key={`chat-star-${i}`} transform={`translate(${star.x}, ${star.y})`} opacity={star.opacity}>
-              <line x1={-star.size} y1="0" x2={star.size} y2="0" stroke={star.color} strokeWidth="1.2" />
-              <line x1="0" y1={-star.size} x2="0" y2={star.size} stroke={star.color} strokeWidth="1.2" />
-              <line x1={-star.size * 0.7} y1={-star.size * 0.7} x2={star.size * 0.7} y2={star.size * 0.7} stroke={star.color} strokeWidth="0.8" />
-              <line x1={star.size * 0.7} y1={-star.size * 0.7} x2={-star.size * 0.7} y2={star.size * 0.7} stroke={star.color} strokeWidth="0.8" />
+            <g
+              key={`chat-star-${i}`}
+              transform={`translate(${star.x}, ${star.y})`}
+              opacity={star.opacity}
+            >
+              <line
+                x1={-star.size}
+                y1="0"
+                x2={star.size}
+                y2="0"
+                stroke={star.color}
+                strokeWidth="1.2"
+              />
+              <line
+                x1="0"
+                y1={-star.size}
+                x2="0"
+                y2={star.size}
+                stroke={star.color}
+                strokeWidth="1.2"
+              />
+              <line
+                x1={-star.size * 0.7}
+                y1={-star.size * 0.7}
+                x2={star.size * 0.7}
+                y2={star.size * 0.7}
+                stroke={star.color}
+                strokeWidth="0.8"
+              />
+              <line
+                x1={star.size * 0.7}
+                y1={-star.size * 0.7}
+                x2={-star.size * 0.7}
+                y2={star.size * 0.7}
+                stroke={star.color}
+                strokeWidth="0.8"
+              />
             </g>
           ))}
         </svg>
@@ -211,14 +255,23 @@ export default function ChatContent() {
       {/* Crisis demo shortcut */}
       <div
         className="px-4 py-2 flex items-center gap-2 relative z-10"
-        style={{ backgroundColor: 'var(--color-surface-alt)', borderBottom: '1px solid var(--color-border)' }}
+        style={{
+          backgroundColor: 'var(--color-surface-alt)',
+          borderBottom: '1px solid var(--color-border)',
+        }}
       >
-        <span style={{ fontFamily: 'var(--font-ui)', fontSize: '12px', color: 'var(--color-text-subtle)' }}>
+        <span
+          style={{
+            fontFamily: 'var(--font-ui)',
+            fontSize: '12px',
+            color: 'var(--color-text-subtle)',
+          }}
+        >
           Demo shortcut:
         </span>
         <button
           onClick={() => handleSendMessage("I don't want to live anymore")}
-          className="px-3 py-1 rounded-full text-xs font-medium transition-all duration-150"
+          className="flex-shrink-0 whitespace-nowrap px-3 py-1 rounded-full text-xs font-medium transition-all duration-150"
           style={{
             backgroundColor: 'var(--color-crisis-surface)',
             color: 'var(--color-crisis)',
@@ -232,7 +285,10 @@ export default function ChatContent() {
       </div>
 
       {/* Thread */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 relative z-10" style={{ scrollBehavior: 'smooth' }}>
+      <div
+        className="flex-1 overflow-y-auto px-4 py-6 relative z-10"
+        style={{ scrollBehavior: 'smooth' }}
+      >
         <ChatThread messages={messages} isTyping={isTyping} />
         <div ref={threadEndRef} />
       </div>
@@ -241,14 +297,29 @@ export default function ChatContent() {
       {showReferral && (
         <div
           className="px-4 py-3 flex items-center justify-between fade-in relative z-10"
-          style={{ backgroundColor: 'var(--color-primary-soft)', borderTop: '1px solid var(--color-primary)' }}
+          style={{
+            backgroundColor: 'var(--color-primary-soft)',
+            borderTop: '1px solid var(--color-primary)',
+          }}
         >
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: 'var(--color-text-muted)' }}>
-            If it helps, someone who can support you: <strong style={{ color: 'var(--color-text)' }}>Tele-MANAS 14416</strong> — free, 24×7.
+          <p
+            style={{
+              fontFamily: 'var(--font-ui)',
+              fontSize: '14px',
+              color: 'var(--color-text-muted)',
+            }}
+          >
+            If it helps, someone who can support you:{' '}
+            <strong style={{ color: 'var(--color-text)' }}>Tele-MANAS 14416</strong> — free, 24×7.
           </p>
           <button
             onClick={() => setShowReferral(false)}
-            style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-primary)', fontWeight: 500 }}
+            style={{
+              fontFamily: 'var(--font-ui)',
+              fontSize: '13px',
+              color: 'var(--color-primary)',
+              fontWeight: 500,
+            }}
             aria-label="Dismiss support note"
           >
             Dismiss

@@ -1,41 +1,43 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import DhiraAvatar from '@/components/DhiraAvatar';
+import FloatingBuddy from '@/components/FloatingBuddy';
 import { ArrowRight } from 'lucide-react';
 import { ARTIFACT_MEMORY_LINE } from '@/lib/artifactDesign';
+import { homeGreeting, readStoredShift, type ShiftPreference } from '@/lib/timeOfDay';
 
 interface HomeGreetingProps {
   onStartCheckin: () => void;
   alias?: string;
+  shift?: ShiftPreference;
   memoryLine?: string | null;
 }
 
-function greetingForHour(hour: number): string {
-  if (hour >= 21 || hour < 5) return 'Late night';
-  if (hour < 12) return 'Good morning';
-  if (hour < 17) return 'Good afternoon';
-  return 'Good evening';
-}
-
-export default function HomeGreeting({ onStartCheckin, alias, memoryLine }: HomeGreetingProps) {
+export default function HomeGreeting({
+  onStartCheckin,
+  alias,
+  shift,
+  memoryLine,
+}: HomeGreetingProps) {
   const userName = alias || 'Friend';
-  // Stable first paint (server + client) then local clock — avoids hydration mismatch.
-  const [greeting, setGreeting] = useState('Hey');
+  const [storedShift, setStoredShift] = useState<ShiftPreference>('day');
   const memory = memoryLine?.trim() || ARTIFACT_MEMORY_LINE;
+  const greeting = homeGreeting(userName, shift ?? storedShift);
 
   useEffect(() => {
-    setGreeting(greetingForHour(new Date().getHours()));
+    setStoredShift(readStoredShift());
   }, []);
 
   return (
     <div style={{ marginBottom: 8 }}>
-      <div
-        className="flex items-start justify-between gap-4"
-        style={{ marginBottom: 24 }}
-      >
+      <div className="flex items-start justify-between gap-4" style={{ marginBottom: 24 }}>
         <div className="flex items-center gap-4">
-          <DhiraAvatar size={52} variant="softer" />
+          <FloatingBuddy
+            src="/illustrations/dhira_sitting_hi.png"
+            alt="DHIRA sitting with you"
+            width={86}
+            bobAnimation="dhira-float-lav 5.5s ease-in-out infinite"
+          />
           <div>
             <h1
               style={{
@@ -47,7 +49,7 @@ export default function HomeGreeting({ onStartCheckin, alias, memoryLine }: Home
                 lineHeight: 1.2,
               }}
             >
-              {greeting}, {userName}.
+              {greeting.title}
             </h1>
             <p
               style={{
@@ -57,7 +59,7 @@ export default function HomeGreeting({ onStartCheckin, alias, memoryLine }: Home
                 marginTop: 4,
               }}
             >
-              Dhira is here.
+              {greeting.sub}
             </p>
           </div>
         </div>
@@ -66,7 +68,13 @@ export default function HomeGreeting({ onStartCheckin, alias, memoryLine }: Home
           type="button"
           onClick={onStartCheckin}
           className="btn-primary hidden sm:inline-flex items-center gap-2 flex-shrink-0"
-          style={{ fontSize: 15, padding: '10px 20px', borderRadius: 12, border: 'none', cursor: 'pointer' }}
+          style={{
+            fontSize: 15,
+            padding: '10px 20px',
+            borderRadius: 12,
+            border: 'none',
+            cursor: 'pointer',
+          }}
         >
           Start today&apos;s check-in
           <ArrowRight size={16} />
@@ -87,7 +95,7 @@ export default function HomeGreeting({ onStartCheckin, alias, memoryLine }: Home
               marginBottom: 3,
             }}
           >
-            Dhira remembers
+            DHIRA remembers
           </p>
           <p
             style={{

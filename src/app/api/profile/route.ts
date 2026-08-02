@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUserId } from '@/lib/auth';
 import { getStore } from '@/lib/store';
 import type { Profile } from '@/lib/types';
+import { isShiftPreference } from '@/lib/timeOfDay';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -37,6 +38,17 @@ export async function PUT(req: NextRequest) {
     if (typeof body.emailOptIn === 'boolean') patch.emailOptIn = body.emailOptIn;
     if (typeof body.whatsappOptIn === 'boolean') patch.whatsappOptIn = body.whatsappOptIn;
     if (typeof body.timezone === 'string') patch.timezone = body.timezone;
+    if (typeof body.state === 'string') patch.state = body.state.slice(0, 80) || null;
+    if (typeof body.city === 'string') patch.city = body.city.slice(0, 80) || null;
+    if (isShiftPreference(body.shift)) patch.shift = body.shift;
+    if (
+      body.voicePreference === 'male_english' ||
+      body.voicePreference === 'female_english' ||
+      body.voicePreference === 'male_hinglish' ||
+      body.voicePreference === 'female_hinglish'
+    ) {
+      patch.voicePreference = body.voicePreference;
+    }
     if (typeof body.consentCheckin === 'boolean') patch.consentCheckin = body.consentCheckin;
     if (typeof body.consentMemory === 'boolean') patch.consentMemory = body.consentMemory;
     if (

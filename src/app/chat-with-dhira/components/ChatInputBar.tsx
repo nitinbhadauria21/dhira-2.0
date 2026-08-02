@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Mic, Send, Square } from 'lucide-react';
+import { Send } from 'lucide-react';
 
 interface ChatInputBarProps {
   onSend: (message: string) => void;
@@ -106,7 +106,13 @@ export default function ChatInputBar({ onSend, disabled = false }: ChatInputBarP
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={disabled ? 'Dhira is thinking...' : 'Type or speak...'}
+          placeholder={
+            disabled
+              ? 'DHIRA is thinking...'
+              : isRecording
+                ? "Go ahead — I'm listening…"
+                : 'Type, or tap Speak to talk'
+          }
           disabled={disabled}
           rows={1}
           className="flex-1 bg-transparent resize-none outline-none"
@@ -120,23 +126,53 @@ export default function ChatInputBar({ onSend, disabled = false }: ChatInputBarP
             overflowY: 'auto',
             caretColor: 'var(--color-primary)',
           }}
-          aria-label="Message Dhira"
+          aria-label="Message DHIRA"
         />
 
         {/* Voice button */}
         <button
           onClick={toggleRecording}
           disabled={!voiceSupported || disabled}
-          className="flex items-center justify-center w-8 h-8 rounded-full flex-shrink-0 transition-all duration-200"
+          className="relative inline-flex h-8 flex-shrink-0 items-center gap-2 rounded-full px-3 transition-all duration-200"
           style={{
-            backgroundColor: isRecording ? 'var(--color-crisis)' : 'var(--color-primary-soft)',
-            color: isRecording ? '#ffffff' : 'var(--color-primary)',
+            backgroundColor: isRecording ? 'rgba(99,161,131,0.16)' : 'var(--color-primary-soft)',
+            color: isRecording ? 'var(--color-sage)' : 'var(--color-primary)',
+            border: `1px solid ${isRecording ? 'var(--color-sage)' : 'transparent'}`,
             opacity: !voiceSupported ? 0.4 : 1,
             cursor: !voiceSupported ? 'not-allowed' : 'pointer',
+            fontFamily: 'var(--font-ui)',
+            fontSize: '12.5px',
+            fontWeight: 500,
+            whiteSpace: 'nowrap',
           }}
           aria-label={isRecording ? 'Stop recording' : 'Start voice input'}
         >
-          {isRecording ? <Square size={13} /> : <Mic size={14} />}
+          <span
+            aria-hidden="true"
+            className="absolute inset-[-1px] rounded-full"
+            style={{
+              border: '1.5px solid var(--color-sage)',
+              opacity: isRecording ? 1 : 0,
+              animation: 'inputListenRing 2.2s ease-out infinite',
+            }}
+          />
+          <span aria-hidden="true" className="relative flex h-[13px] items-center gap-0.5">
+            {[5, 12, 8, 11].map((height, index) => (
+              <span
+                key={`${height}-${index}`}
+                className="w-[2.5px] rounded-full"
+                style={{
+                  height,
+                  backgroundColor: 'currentColor',
+                  transformOrigin: 'center',
+                  animation: 'inputListenBar 1s ease-in-out infinite',
+                  animationDelay: `${[-0, -0.3, -0.6, -0.15][index]}s`,
+                  animationPlayState: isRecording ? 'running' : 'paused',
+                }}
+              />
+            ))}
+          </span>
+          <span className="relative">{isRecording ? 'Listening' : 'Speak'}</span>
         </button>
 
         {/* Send button */}
@@ -159,11 +195,40 @@ export default function ChatInputBar({ onSend, disabled = false }: ChatInputBarP
       {/* Disclaimer */}
       <p
         className="text-center mt-2"
-        style={{ fontFamily: 'var(--font-ui)', fontSize: '11px', color: 'var(--color-text-subtle)', lineHeight: 1.4 }}
+        style={{
+          fontFamily: 'var(--font-ui)',
+          fontSize: '11px',
+          color: 'var(--color-text-subtle)',
+          lineHeight: 1.4,
+        }}
       >
-        dhira listens — not a therapist or crisis service.{' '}
+        DHIRA listens — not a therapist or crisis service.{' '}
         <span style={{ color: 'var(--color-crisis)', fontWeight: 500 }}>Crisis? Call 14416</span>
       </p>
+      <style jsx>{`
+        @keyframes inputListenRing {
+          0% {
+            transform: scale(0.86);
+            opacity: 0.55;
+          }
+          70% {
+            transform: scale(1.3);
+            opacity: 0;
+          }
+          100% {
+            opacity: 0;
+          }
+        }
+        @keyframes inputListenBar {
+          0%,
+          100% {
+            transform: scaleY(0.45);
+          }
+          50% {
+            transform: scaleY(1);
+          }
+        }
+      `}</style>
     </div>
   );
 }

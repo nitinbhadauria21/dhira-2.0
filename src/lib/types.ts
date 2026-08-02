@@ -5,6 +5,16 @@
 
 export type Language = 'english' | 'hinglish';
 
+/** User-chosen work shift (never inferred). Matches CalmLink .dc.html. */
+export type ShiftPreference = 'day' | 'afternoon' | 'night' | 'rotating';
+
+/** Optional spoken-voice preference (schema-ready; not in Profile.dc UI). */
+export type VoicePreference =
+  | 'male_english'
+  | 'female_english'
+  | 'male_hinglish'
+  | 'female_hinglish';
+
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRISIS';
 
 export type MoodLabel =
@@ -44,6 +54,14 @@ export interface Profile {
   emailOptIn: boolean;
   whatsappOptIn: boolean;
   timezone: string; // IANA tz, e.g. 'Asia/Kolkata'
+  /** Indian state (required at sign-up). */
+  state: string | null;
+  /** City (required at sign-up). */
+  city: string | null;
+  /** Work-shift frame for greetings / auth panels. */
+  shift: ShiftPreference;
+  /** Spoken voice preference (optional schema field). */
+  voicePreference: VoicePreference | null;
   consentCheckin: boolean;
   consentMemory: boolean;
   checkinFrequency: CheckinFrequency;
@@ -115,6 +133,18 @@ export interface MemoryRecord {
   topicTag: TopicTag;
   carryForward: string;
   createdAt: string;
+}
+
+/** Notebook diary entry (Write or Speak) — persisted to Supabase. */
+export interface NotebookEntry {
+  id: string;
+  profileId: string;
+  createdAt: string;
+  mode: 'write' | 'speak';
+  body: string;
+  mood: MoodLabel;
+  topics: string[];
+  shareWithDhira: boolean;
 }
 
 export interface RiskEventRecord {

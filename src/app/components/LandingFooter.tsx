@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import BrandLockup from '@/components/BrandLockup';
 
 export default function LandingFooter() {
   return (
@@ -14,7 +15,7 @@ export default function LandingFooter() {
       <div className="max-w-screen-xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
           <div>
-            <p className="wordmark text-2xl mb-3">Dhira</p>
+            <BrandLockup href="/" size={24} className="mb-3" />
             <p
               style={{
                 fontFamily: 'var(--font-ui)',
@@ -44,7 +45,7 @@ export default function LandingFooter() {
             <div className="flex flex-col gap-2">
               {[
                 { label: 'Home', href: '/home-dashboard' },
-                { label: 'Chat with Dhira', href: '/chat-with-dhira' },
+                { label: 'Chat with DHIRA', href: '/chat-with-dhira' },
                 { label: 'Privacy Promise', href: '/terms' },
               ].map((l) => (
                 <Link
@@ -91,8 +92,8 @@ export default function LandingFooter() {
                   lineHeight: 1.55,
                 }}
               >
-                If you or someone you know is in crisis: Please call Tele-MANAS at 14416 — free, 24×7,
-                India-wide. Dhira is a listening companion, not a crisis service.
+                If you or someone you know is in crisis: Please call Tele-MANAS at 14416 — free,
+                24×7, India-wide. DHIRA is a listening companion, not a crisis service.
               </p>
             </div>
           </div>
@@ -102,11 +103,23 @@ export default function LandingFooter() {
           className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6"
           style={{ borderTop: '1px solid var(--color-border)' }}
         >
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--color-text-subtle)' }}>
-            © 2026 dhira · Made with care in India · Cursor local
+          <p
+            style={{
+              fontFamily: 'var(--font-ui)',
+              fontSize: 13,
+              color: 'var(--color-text-subtle)',
+            }}
+          >
+            © 2026 DHIRA · Made with care in India · Cursor local
           </p>
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--color-text-subtle)' }}>
-            dhira is a listening companion, not a therapist or crisis service.
+          <p
+            style={{
+              fontFamily: 'var(--font-ui)',
+              fontSize: 13,
+              color: 'var(--color-text-subtle)',
+            }}
+          >
+            DHIRA is a listening companion, not a therapist or crisis service.
           </p>
         </div>
       </div>

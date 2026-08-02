@@ -2,27 +2,45 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Home, MessageCircle, BarChart2, Moon, Sun, Menu, X, User } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Home, MessageCircle, BarChart2, Moon, Sun, Menu, X, User, LogOut, BookOpen } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
-import Icon from '@/components/ui/AppIcon';
+import { signOut } from '@/lib/authClient';
+import BrandLockup from './BrandLockup';
 
 
 const navItems = [
   { label: 'Home', href: '/home-dashboard', icon: Home, key: 'nav-home' },
   { label: 'Chat', href: '/chat-with-dhira', icon: MessageCircle, key: 'nav-chat' },
+  { label: 'Notebook', href: '/notebook', icon: BookOpen, key: 'nav-notebook' },
   { label: 'Timeline', href: '/timeline', icon: BarChart2, key: 'nav-timeline' },
   { label: 'Profile', href: '/profile', icon: User, key: 'nav-profile' },
 ];
 
 export default function AppNav() {
   const pathname = usePathname();
+  const router = useRouter();
   const { theme, toggleTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const isActive = (href: string) => {
     const base = href.split('#')[0];
     return pathname === base || pathname === href;
+  };
+
+  const handleLogOut = async () => {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    setMobileMenuOpen(false);
+    try {
+      await signOut();
+      router.push('/');
+    } catch {
+      router.push('/');
+    } finally {
+      setLoggingOut(false);
+    }
   };
 
   return (
@@ -36,9 +54,7 @@ export default function AppNav() {
           boxShadow: 'var(--shadow-card)',
         }}
       >
-        <Link href="/" className="wordmark text-2xl tracking-tight" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--color-text)' }}>
-          Dhira
-        </Link>
+        <BrandLockup href="/" size={24} />
 
         <div className="flex items-center gap-1">
           {navItems.map((item) => {
@@ -63,18 +79,40 @@ export default function AppNav() {
           })}
         </div>
 
-        <button
-          onClick={toggleTheme}
-          className="flex items-center justify-center w-9 h-9 rounded-control transition-all duration-200"
-          style={{
-            backgroundColor: 'var(--color-surface-alt)',
-            color: 'var(--color-text-muted)',
-            border: '1px solid var(--color-border)',
-          }}
-          aria-label={`Switch to ${theme === 'night' ? 'day' : 'night'} mode`}
-        >
-          {theme === 'night' ? <Sun size={16} /> : <Moon size={16} />}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleLogOut}
+            disabled={loggingOut}
+            className="flex items-center gap-2 px-3 py-2 rounded-control transition-all duration-200"
+            style={{
+              backgroundColor: 'var(--color-surface-alt)',
+              color: 'var(--color-text-muted)',
+              border: '1px solid var(--color-border)',
+              fontFamily: 'var(--font-ui)',
+              fontSize: '14px',
+              fontWeight: 500,
+              cursor: loggingOut ? 'wait' : 'pointer',
+              opacity: loggingOut ? 0.7 : 1,
+            }}
+            aria-label="Log out of Dhira"
+          >
+            <LogOut size={15} />
+            {loggingOut ? 'Logging out…' : 'LogOut'}
+          </button>
+          <button
+            onClick={toggleTheme}
+            className="flex items-center justify-center w-9 h-9 rounded-control transition-all duration-200"
+            style={{
+              backgroundColor: 'var(--color-surface-alt)',
+              color: 'var(--color-text-muted)',
+              border: '1px solid var(--color-border)',
+            }}
+            aria-label={`Switch to ${theme === 'night' ? 'day' : 'night'} mode`}
+          >
+            {theme === 'night' ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+        </div>
       </nav>
 
       {/* Mobile top bar */}
@@ -85,9 +123,7 @@ export default function AppNav() {
           borderBottom: '1px solid var(--color-border)',
         }}
       >
-        <Link href="/" className="wordmark text-xl" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--color-text)' }}>
-          Dhira
-        </Link>
+        <BrandLockup href="/" size={21} />
         <div className="flex items-center gap-2">
           <button
             onClick={toggleTheme}
@@ -140,6 +176,25 @@ export default function AppNav() {
               </Link>
             );
           })}
+          <button
+            type="button"
+            onClick={handleLogOut}
+            disabled={loggingOut}
+            className="flex w-full items-center gap-3 px-6 py-4 transition-all duration-150 text-left"
+            style={{
+              color: 'var(--color-text)',
+              backgroundColor: 'transparent',
+              border: 'none',
+              borderBottom: '1px solid var(--color-border)',
+              fontFamily: 'var(--font-ui)',
+              fontSize: '16px',
+              cursor: loggingOut ? 'wait' : 'pointer',
+            }}
+            aria-label="Log out of Dhira"
+          >
+            <LogOut size={18} />
+            {loggingOut ? 'Logging out…' : 'LogOut'}
+          </button>
         </div>
       )}
 

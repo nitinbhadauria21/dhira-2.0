@@ -7,6 +7,7 @@ import type {
   AuthUser,
   NotificationRecord,
   NotificationStatus,
+  NotebookEntry,
 } from '@/lib/types';
 
 /** Aggregate numbers for the Admin Console (anonymous, no PII). */
@@ -38,6 +39,9 @@ export interface DhiraStore {
   addMemory(record: MemoryRecord): Promise<void>;
   getLatestMemory(profileId: string): Promise<MemoryRecord | null>;
   getMemories(profileId: string, limit?: number): Promise<MemoryRecord[]>;
+
+  addNotebookEntry(record: NotebookEntry): Promise<void>;
+  getNotebookEntries(profileId: string, limit?: number): Promise<NotebookEntry[]>;
 
   addRiskEvent(record: RiskEventRecord): Promise<void>;
   getRiskEvents(limit?: number): Promise<RiskEventRecord[]>;

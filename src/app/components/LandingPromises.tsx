@@ -51,7 +51,7 @@ export default function LandingPromises() {
               lineHeight: 1.6,
             }}
           >
-            Before you begin, here is what Dhira promises you — always.
+            Before you begin, here is what DHIRA promises you — always.
           </p>
         </div>
 
