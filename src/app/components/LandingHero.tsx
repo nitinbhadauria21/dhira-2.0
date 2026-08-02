@@ -63,9 +63,9 @@ export default function LandingHero() {
         <div className="flex justify-center mb-5">
           <FloatingBuddy
             src="/illustrations/dhira_sitting_calm.png"
-            alt="DHIRA, a small calm buddy sitting with a hand on its heart"
-            width={110}
-            bobAnimation="dhira-float-lav 5.5s ease-in-out infinite"
+            alt="DHIRA, a small calm robot buddy, sitting with a hand on its heart"
+            width={78}
+            bobAnimation="dhira-bob 5.5s ease-in-out infinite"
           />
         </div>
 

@@ -34,7 +34,7 @@ export default function HomeGreeting({
         <div className="flex items-center gap-4">
           <FloatingBuddy
             src="/illustrations/dhira_sitting_hi.png"
-            alt="DHIRA sitting with you"
+            alt="DHIRA, waving hello"
             width={86}
             bobAnimation="dhira-float-lav 5.5s ease-in-out infinite"
           />

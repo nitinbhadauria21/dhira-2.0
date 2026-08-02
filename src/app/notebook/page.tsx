@@ -223,7 +223,7 @@ function NotebookContent() {
           <div className="flex items-end gap-4">
             <FloatingBuddy
               src="/illustrations/dhira_wave.png"
-              alt="DHIRA waving"
+              alt="DHIRA, waving hello"
               width={92}
               bobAnimation="dhira-float-lav 5.5s ease-in-out infinite"
             />

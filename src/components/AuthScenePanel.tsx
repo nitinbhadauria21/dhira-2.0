@@ -156,7 +156,7 @@ export default function AuthScenePanel({
       <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', gap: 22 }}>
         <FloatingBuddy
           src="/illustrations/dhira_orb.png"
-          alt="DHIRA, a small glowing listening companion"
+          alt="DHIRA, a small robot buddy holding a glowing light"
           width={78}
         />
 

@@ -13,7 +13,8 @@ type FloatingBuddyProps = {
 };
 
 /**
- * Cut-out buddy with warm halo + soft contact shadow (CalmLink pack).
+ * Cut-out buddy with warm halo + soft contact shadow (ASSETS.md / CalmLink pack).
+ * Bob 5.5s and halo 6s stay intentionally out of sync so it feels alive.
  */
 export default function FloatingBuddy({
   src,
@@ -23,47 +24,62 @@ export default function FloatingBuddy({
   className = '',
   bobAnimation = 'dhira-bob 5.5s ease-in-out infinite',
 }: FloatingBuddyProps) {
+  const numericWidth = typeof width === 'number' ? width : 78;
+
   return (
     <div
       className={`relative inline-flex items-end justify-center flex-shrink-0 ${className}`}
-      style={{ width: typeof width === 'number' ? width : width }}
+      style={{
+        width: typeof width === 'number' ? width : width,
+        minHeight: Math.max(numericWidth * 1.2, 96),
+      }}
     >
+      {/* 1 — halo base */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute"
+        className="pointer-events-none absolute left-1/2 top-1/2"
         style={{
-          inset: '-18% -10% -8%',
+          width: 132,
+          height: 132,
+          marginLeft: -66,
+          marginTop: -72,
+          borderRadius: '50%',
           background:
-            'radial-gradient(ellipse at 50% 55%, rgba(255,240,186,0.95) 0%, rgba(240,186,72,0.3) 42%, transparent 70%)',
+            'radial-gradient(circle at 50% 46%, rgba(255,240,186,.95) 0%, rgba(250,214,110,.6) 28%, rgba(240,186,72,.3) 50%, transparent 74%)',
           filter: 'blur(7px)',
           animation: 'dhira-halo 6s ease-in-out infinite',
           zIndex: 0,
         }}
       />
+      {/* 2 — halo core (reads in dark mode too) */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute"
+        className="pointer-events-none absolute left-1/2 top-1/2"
         style={{
-          inset: '-8% -2% 8%',
+          width: 132,
+          height: 132,
+          marginLeft: -66,
+          marginTop: -72,
+          borderRadius: '50%',
           background:
-            'radial-gradient(ellipse at 50% 45%, rgba(255,255,255,0.85) 0%, rgba(255,230,160,0.35) 40%, transparent 68%)',
-          filter: 'blur(9px)',
+            'radial-gradient(circle at 50% 46%, rgba(255,250,225,.9) 0%, rgba(255,232,150,.5) 34%, transparent 70%)',
           mixBlendMode: 'screen',
+          filter: 'blur(9px)',
           animation: 'dhira-halo 6s ease-in-out infinite',
-          animationDelay: '-1.2s',
           zIndex: 0,
         }}
       />
+      {/* 3 — contact shadow / glow pad */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute left-1/2"
         style={{
-          bottom: 2,
-          width: '70%',
-          height: 10,
-          transform: 'translateX(-50%)',
-          background: 'radial-gradient(ellipse at center, rgba(40,30,10,0.28) 0%, transparent 72%)',
-          filter: 'blur(2px)',
+          bottom: 1,
+          width: 60,
+          height: 13,
+          marginLeft: -30,
+          borderRadius: '50%',
+          background: 'radial-gradient(ellipse, rgba(255,214,120,.3), transparent 72%)',
           animation: 'dhira-glow-pad 5.5s ease-in-out infinite',
           zIndex: 0,
         }}
@@ -79,7 +95,8 @@ export default function FloatingBuddy({
           width: typeof width === 'number' ? width : width,
           height,
           objectFit: 'contain',
-          filter: 'drop-shadow(0 8px 16px rgba(40,30,10,0.28)) drop-shadow(0 0 18px rgba(255,225,150,0.35))',
+          filter:
+            'drop-shadow(0 8px 16px rgba(40,30,10,.3)) drop-shadow(0 0 18px rgba(255,225,150,.4))',
           animation: bobAnimation,
           transformOrigin: '50% 92%',
           display: 'block',

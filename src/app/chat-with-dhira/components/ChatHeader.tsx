@@ -49,7 +49,7 @@ export default function ChatHeader({ messageCount }: ChatHeaderProps) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/illustrations/dhira_listening_avatar.png"
-            alt="DHIRA listening"
+            alt="DHIRA, listening"
             className="relative rounded-full"
             style={{
               width: 46,

@@ -588,11 +588,11 @@
     0%,
     100% {
       opacity: 0.4;
-      transform: translateX(-50%) scale(0.92);
+      transform: scale(0.92);
     }
     50% {
       opacity: 0.75;
-      transform: translateX(-50%) scale(1.08);
+      transform: scale(1.08);
     }
   }
 }
