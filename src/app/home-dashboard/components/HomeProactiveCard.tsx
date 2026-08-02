@@ -11,7 +11,8 @@ import { ARTIFACT_CHECKIN_LINE } from '@/lib/artifactDesign';
  */
 export default function HomeProactiveCard() {
   // Claude artifact always shows a filled "Dhira checked in" card; start from that demo line.
-  const [message, setMessage] = useState<string | null>(ARTIFACT_CHECKIN_LINE);
+  // Changed to null so the user can test the "Ask Dhira to check in now" button
+  const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [note, setNote] = useState<string | null>(null);
 

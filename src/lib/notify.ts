@@ -1,4 +1,5 @@
 import { randomUUID } from 'crypto';
+import twilio from 'twilio';
 import { getStore } from '@/lib/store';
 import type { NotifyChannel, NotificationType, Profile, NotificationRecord } from '@/lib/types';
 
@@ -80,6 +81,37 @@ export async function enqueueAndSend(params: EnqueueParams): Promise<Notificatio
   };
   await store.addNotification(record);
 
+  if (channel === 'whatsapp') {
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    const fromNumber = process.env.TWILIO_WHATSAPP_NUMBER;
+
+    if (!accountSid || !authToken || !fromNumber) {
+      await store.updateNotificationStatus(record.id, 'sent', 'dev-simulated');
+      return { ...record, status: 'sent', providerMessageId: 'dev-simulated' };
+    }
+
+    try {
+      const client = twilio(accountSid, authToken);
+      const toPhone = params.profile.phoneE164;
+      if (!toPhone) throw new Error('Missing phone number');
+
+      const message = await client.messages.create({
+        from: `whatsapp:${fromNumber}`,
+        to: `whatsapp:${toPhone}`,
+        body: params.content, // Using raw content for Twilio messaging
+      });
+
+      await store.updateNotificationStatus(record.id, 'sent', message.sid);
+      return { ...record, status: 'sent', providerMessageId: message.sid };
+    } catch (error) {
+      console.error('Twilio Error:', error);
+      await store.updateNotificationStatus(record.id, 'failed');
+      return { ...record, status: 'failed' };
+    }
+  }
+
+  // Fallback for Email channel -> Emergent
   const webhook = process.env.EMERGENT_NOTIFY_WEBHOOK_URL?.trim();
   if (!webhook) {
     await store.updateNotificationStatus(record.id, 'sent', 'dev-simulated');
@@ -96,7 +128,7 @@ export async function enqueueAndSend(params: EnqueueParams): Promise<Notificatio
       body: JSON.stringify({
         notificationId: record.id,
         channel,
-        to: channel === 'email' ? params.profile.email : params.profile.phoneE164,
+        to: params.profile.email,
         type: params.type,
         templateKey,
         subject,
