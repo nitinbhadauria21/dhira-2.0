@@ -115,7 +115,7 @@ export default function StepContract({ data, onChange, onFinish, onBack }: Props
             lineHeight: 1.2,
           }}
         >
-          {data.alias ? `${data.alias}, how often should Dhira check in?` : 'How often should Dhira check in?'}
+          {data.alias ? `${data.alias}, how often should DHIRA check in?` : 'How often should DHIRA check in?'}
         </h2>
         <p
           style={{

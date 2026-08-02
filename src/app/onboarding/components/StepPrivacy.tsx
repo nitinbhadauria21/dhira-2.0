@@ -50,9 +50,22 @@ export default function StepPrivacy({ onNext, onBack }: Props) {
             lineHeight: 1.6,
           }}
         >
-          Before we begin, here is what Dhira promises you — always.
+          Before we begin, here is what DHIRA promises you — always.
         </p>
       </div>
+
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/illustrations/spot_privacy.png"
+        alt="A shield with a lock — you are in control"
+        style={{
+          width: '100%',
+          height: 120,
+          objectFit: 'cover',
+          borderRadius: 16,
+          border: '1px solid var(--color-border)',
+        }}
+      />
 
       <div
         style={{

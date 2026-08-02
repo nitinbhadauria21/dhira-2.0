@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&amp;family=Mukta:wght@300;400;500;600;700&amp;display=swap">
+<style>
+body{--bg:#FAF6EF;--surface:#FFFFFF;--surface-alt:#F3EEE4;--border:#E7DFD1;--text:#26263A;--text-muted:#5E5C6E;--text-subtle:#918EA0;--primary:#5A67B8;--primary-hover:#47539A;--primary-soft:#EEF0FB;--accent:#EFA94A;--accent-hover:#D9943A;--lavender:#AEA1DA;--sage:#63A183;--crisis:#C56B5C;--crisis-surface:#F9EDE9;--shadow-soft:0 8px 24px rgba(30,35,64,.08);--shadow-card:0 2px 12px rgba(30,35,64,.06);margin:0;background:var(--bg);color:var(--text);font-family:'Mukta',system-ui,sans-serif;font-size:17px;line-height:1.65;letter-spacing:.01em;transition:background-color .3s,color .3s}
+body.night{--bg:#14162A;--surface:#1D2038;--surface-alt:#262A46;--border:#333857;--text:#ECEBF4;--text-muted:#ABA9C1;--text-subtle:#7E7C95;--primary:#949FDC;--primary-hover:#B0B9E6;--primary-soft:#262A46;--accent:#F6C06B;--accent-hover:#E8A84A;--crisis:#D2796A;--crisis-surface:#2A1E1C;--sage:#8FBCA4;--shadow-soft:0 8px 32px rgba(0,0,0,.32);--shadow-card:0 2px 16px rgba(0,0,0,.24)}
+a{color:var(--primary);text-decoration:none}a:hover{color:var(--primary-hover)}
+h1,h2,h3,p{margin:0}
+input,button{font-family:inherit}
+@keyframes tlGrow{from{transform:scaleY(.35);opacity:0}}
+</style>
+</helmet>
+<div data-screen-label="Timeline — My DHIRA" style="min-height:100vh;background:var(--bg)">
+<nav style="position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:16px 32px;background:var(--surface);border-bottom:1px solid var(--border);box-shadow:var(--shadow-card)">
+<a href="Landing.dc.html" style="font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:24px;letter-spacing:-0.03em;color:var(--text);display:inline-flex;flex-direction:column;align-items:flex-start;line-height:1"><span style="display:block;line-height:1">DHIRA</span><span style="display:block;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-weight:600;font-size:9px;letter-spacing:.3em;line-height:1;margin-top:4px;opacity:.62;color:var(--text)">CALMLINK</span></a>
+<div style="display:flex;align-items:center;gap:4px">
+<a href="Home.dc.html" style="padding:8px 16px;border-radius:12px;font-size:15px;color:var(--text-muted)" style-hover="color:var(--primary);background:var(--primary-soft)">Home</a>
+<a href="Chat.dc.html" style="padding:8px 16px;border-radius:12px;font-size:15px;color:var(--text-muted)" style-hover="color:var(--primary);background:var(--primary-soft)">Chat</a>
+<a href="Notebook.dc.html" style="padding:8px 16px;border-radius:12px;font-size:15px;color:var(--text-muted)" style-hover="color:var(--primary);background:var(--primary-soft)">Notebook</a>
+<a href="Timeline.dc.html" style="padding:8px 16px;border-radius:12px;font-size:15px;font-weight:500;color:var(--primary);background:var(--primary-soft)">Timeline</a>
+<a href="Profile.dc.html" style="padding:8px 16px;border-radius:12px;font-size:15px;color:var(--text-muted)" style-hover="color:var(--primary);background:var(--primary-soft)">Profile</a>
+</div>
+<div style="display:flex;align-items:center;gap:8px">
+<button onClick="{{ toggleTheme }}" aria-label="Toggle theme" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:var(--surface-alt);color:var(--text-muted);border:1px solid var(--border);cursor:pointer;font-size:14px">{{ themeGlyph }}</button>
+<a href="SignIn.dc.html" title="Sign out of DHIRA" style="display:inline-flex;align-items:center;gap:6px;height:36px;box-sizing:border-box;padding:0 14px;border-radius:12px;font-size:14px;font-weight:500;color:var(--text-muted);background:var(--surface-alt);border:1px solid var(--border);transition:all .2s" style-hover="color:var(--crisis);border-color:var(--crisis);background:var(--crisis-surface)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>Sign out</a>
+</div>
+</nav>
+<div style="max-width:1024px;margin:0 auto;padding:104px 40px 48px;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap">
+<div>
+<h1 style="font-family:'Fraunces',Georgia,serif;font-size:clamp(24px,3.5vw,32px);font-weight:600;letter-spacing:-0.025em;color:var(--text)">My DHIRA</h1>
+<p style="color:var(--text-muted);margin-top:6px;font-size:15px">Your week, notebook, chats, and check-ins — one calm place.</p>
+</div>
+<img src="assets/spot_timeline.png" alt="Your journey over time, moment by moment" style="width:220px;height:88px;object-fit:cover;border-radius:14px;border:1px solid var(--border);box-shadow:var(--shadow-card)">
+</div>
+<div style="background:var(--surface);border-radius:16px;box-shadow:var(--shadow-card);border:1px solid var(--border);padding:24px">
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
+<span style="color:var(--primary);font-size:16px">📊</span>
+<h2 style="font-family:'Fraunces',Georgia,serif;font-size:20px;font-weight:500;color:var(--text)">Your week with DHIRA</h2>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px">
+<sc-for list="{{ stats }}" as="st" hint-placeholder-count="4">
+<div style="padding:12px;border-radius:12px;background:var(--surface-alt)">
+<p style="font-family:'Fraunces',Georgia,serif;font-size:22px;font-weight:600;color:var(--text);text-transform:capitalize">{{ st.value }}</p>
+<p style="font-size:12px;color:var(--text-subtle);margin-top:2px">{{ st.label }}</p>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="position:relative;display:grid;grid-template-columns:repeat(7,1fr);gap:18px;align-items:end">
+<span style="position:absolute;left:0;right:0;bottom:26px;height:1px;background:var(--border)"></span>
+<sc-for list="{{ tiles }}" as="t" hint-placeholder-count="7">
+<button onClick="{{ t.pick }}" title="{{ t.title }}" style="display:grid;grid-template-rows:auto 1fr auto;justify-items:center;gap:8px;height:100%;background:none;border:none;padding:0;cursor:pointer">
+<span style="font-size:10.5px;letter-spacing:.14em;color:{{ t.labelColor }};font-weight:{{ t.wt }}">{{ t.day }}</span>
+<span style="align-self:end;position:relative;width:100%;max-width:52px;height:{{ t.h }}px;border-radius:14px;background:linear-gradient(165deg,{{ t.top }} 0%,{{ t.color }} 62%,{{ t.deep }} 100%);box-shadow:{{ t.shadow }};transform:translateY({{ t.lift }});transition:transform .22s cubic-bezier(.2,.8,.3,1),box-shadow .22s;transform-origin:bottom;animation:tlGrow .7s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:{{ t.delay }}" style-hover="transform:translateY(-6px)">
+<span style="position:absolute;left:6px;right:6px;top:6px;height:34%;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,0))"></span>
+<span style="position:absolute;inset:0;border-radius:14px;border:{{ t.ring }}"></span>
+<span style="position:absolute;left:50%;bottom:8px;transform:translateX(-50%);width:{{ t.dot }};height:{{ t.dot }};border-radius:50%;background:rgba(255,255,255,.75)"></span>
+</span>
+<span style="font-size:11.5px;color:{{ t.dateColor }};font-weight:{{ t.wt }}">{{ t.date }}</span>
+</button>
+</sc-for>
+</div>
+<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:14px;background:var(--surface-alt);border-left:3px solid {{ selColor }}">
+<span style="width:10px;height:10px;border-radius:50%;background:{{ selColor }};flex-shrink:0"></span>
+<span style="font-size:13.5px;color:var(--text);font-weight:500">{{ selTitle }}</span>
+<span style="font-size:13px;color:var(--text-muted)">{{ selNote }}</span>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:14px;padding-top:14px;border-top:1px solid var(--border)">
+<sc-for list="{{ legend }}" as="l" hint-placeholder-count="5">
+<span style="display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-subtle)"><span style="width:8px;height:8px;border-radius:50%;background:{{ l.color }}"></span>{{ l.label }}</span>
+</sc-for>
+</div>
+</div>
+</div>
+<div style="background:var(--surface);border-radius:16px;box-shadow:var(--shadow-card);border:1px solid var(--border);padding:24px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px">
+<div style="display:flex;align-items:center;gap:8px">
+<span style="color:var(--primary);font-size:16px">📖</span>
+<h2 style="font-family:'Fraunces',Georgia,serif;font-size:20px;font-weight:500;color:var(--text)">Notebook logs</h2>
+</div>
+<div style="display:flex;align-items:center;gap:12px">
+<a href="Notebook.dc.html" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:11px;font-size:13.5px;font-weight:500;color:var(--primary);background:var(--primary-soft);border:1px solid var(--primary);white-space:nowrap" style-hover="background:var(--primary);color:#fff">＋ New entry</a>
+<div style="display:flex;align-items:center;gap:12px;padding:7px 12px 7px 10px;border-radius:12px;background:var(--surface-alt);border:1px solid var(--border)">
+<span aria-hidden="true" style="position:relative;width:38px;height:44px;flex-shrink:0">
+<sc-for list="{{ spines }}" as="s" hint-placeholder-count="4">
+<span style="position:absolute;left:{{ s.x }};top:{{ s.y }};width:26px;height:34px;border-radius:3px 5px 5px 3px;background:var(--surface);border:1px solid var(--border);border-left:4px solid {{ s.color }};box-shadow:0 1px 3px rgba(30,35,64,.12);transform:rotate({{ s.rot }})"></span>
+</sc-for>
+<span style="position:absolute;left:14px;top:-2px;width:5px;height:22px;border-radius:0 0 2px 2px;background:var(--accent);box-shadow:0 1px 2px rgba(0,0,0,.15)"></span>
+</span>
+<span style="display:flex;flex-direction:column;line-height:1.25">
+<span style="font-family:'Fraunces',Georgia,serif;font-size:17px;font-weight:600;color:var(--text)">{{ nbCount }}</span>
+<span style="font-size:11.5px;color:var(--text-subtle);white-space:nowrap">{{ nbBreak }}</span>
+</span>
+</div>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;padding:8px 12px;border-radius:12px;background:var(--surface-alt);border:1.5px solid var(--border)">
+<span style="color:var(--text-subtle);font-size:14px">🔍</span>
+<input placeholder="Search your entries (mood, topic, words)…" style="flex:1;background:transparent;outline:none;border:none;font-size:14px;color:var(--text)">
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{ journal }}" as="e" hint-placeholder-count="3">
+<div style="padding:16px;border-radius:12px;background:var(--surface-alt)">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;flex-wrap:wrap">
+<div style="display:flex;align-items:center;gap:8px">
+<span style="font-size:12px;color:var(--text-subtle);font-weight:500">{{ e.date }}</span>
+<span style="font-size:11.5px;color:var(--text-subtle)">{{ e.kindGlyph }} {{ e.kindLabel }}</span>
+</div>
+<div style="display:flex;align-items:center;gap:8px">
+<span style="background:{{ e.moodBg }};color:{{ e.moodTc }};font-size:12px;padding:2px 8px;border-radius:10px;font-weight:500">{{ e.mood }}</span>
+<span style="background:var(--surface);border:1px solid var(--border);color:var(--text-muted);font-size:12px;padding:2px 8px;border-radius:10px;font-weight:500">{{ e.topic }}</span>
+</div>
+</div>
+<p style="font-size:14px;color:var(--text);line-height:1.55">{{ e.summary }}</p>
+<p style="font-size:12px;color:var(--text-subtle);margin-top:6px;font-style:italic">🌙 {{ e.carry }}</p>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="background:var(--surface);border-radius:16px;box-shadow:var(--shadow-card);border:1px solid var(--border);padding:24px">
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
+<span style="color:var(--primary);font-size:16px">💬</span>
+<h2 style="font-family:'Fraunces',Georgia,serif;font-size:20px;font-weight:500;color:var(--text)">Recent chat history</h2>
+</div>
+<p style="font-size:12px;font-weight:600;color:var(--text-subtle);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">11 Jul 2026</p>
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{ chatHistory }}" as="m" hint-placeholder-count="4">
+<div style="display:flex;justify-content:{{ m.justify }}">
+<div style="max-width:80%;padding:8px 12px;border-radius:12px;background:{{ m.bg }};border:1px solid var(--border)">
+<p style="font-size:14px;color:var(--text);line-height:1.5">{{ m.content }}</p>
+<span style="font-size:10px;color:var(--text-subtle)">{{ m.time }}</span>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="background:var(--surface);border-radius:16px;box-shadow:var(--shadow-card);border:1px solid var(--border);padding:24px">
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
+<span style="color:var(--primary);font-size:16px">🔔</span>
+<h2 style="font-family:'Fraunces',Georgia,serif;font-size:20px;font-weight:500;color:var(--text)">Check-ins DHIRA sent you</h2>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{ notifs }}" as="n" hint-placeholder-count="2">
+<div style="padding:16px;border-radius:12px;background:var(--surface-alt);border-left:3px solid var(--accent)">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+<span style="font-size:11px;font-weight:600;color:var(--text-subtle);text-transform:uppercase;letter-spacing:.05em">{{ n.type }} · {{ n.channel }}</span>
+<span style="font-size:11px;color:var(--sage)">sent</span>
+</div>
+<p style="font-size:14px;color:var(--text);line-height:1.5;font-style:italic">&ldquo;{{ n.content }}&rdquo;</p>
+<span style="font-size:11px;color:var(--text-subtle)">{{ n.when }}</span>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    let theme='night';
+    try{ theme = localStorage.getItem('DHIRA-theme') || 'night'; }catch(e){}
+    let saved=[]; try{ saved = JSON.parse(localStorage.getItem('DHIRA-journal')||'[]'); }catch(e){}
+    this.state = { theme, sel:6, saved };
+    this._sync=()=>{ let n=[]; try{ n=JSON.parse(localStorage.getItem('DHIRA-journal')||'[]'); }catch(e){} this.setState({saved:n}); };
+    if (typeof document!=='undefined') document.body.classList.toggle('night', theme==='night');
+  }
+  componentDidMount(){
+    window.addEventListener('storage', this._sync);
+    document.addEventListener('visibilitychange', this._sync);
+  }
+  componentWillUnmount(){
+    window.removeEventListener('storage', this._sync);
+    document.removeEventListener('visibilitychange', this._sync);
+  }
+  renderVals(){
+    const night=this.state.theme==='night';
+    const MC={happy:'#F0C46B',calm:'#8FBCA4',hopeful:'#79C2C4',neutral:'#B9B2A4',anxious:'#8794DA',stressed:'#E0A94F',overwhelmed:'#9C6B8E',lonely:'#7E9BC4'};
+    const WT={calm:.28,hopeful:.22,neutral:.4,stressed:.62,anxious:.72,overwhelmed:.9};
+    const LBL={calm:'Calm',hopeful:'Hopeful',neutral:'Neutral',stressed:'Stressed',anxious:'Anxious',overwhelmed:'Overwhelmed'};
+    const NOTE={calm:'a steady one — nothing needed fixing.',hopeful:'something lifted that day.',stressed:'work pressed in.',anxious:'the same worry kept circling back.',overwhelmed:'the heaviest point of the week.',neutral:'quiet. okay is allowed.'};
+    const WEEK=[{day:'Sat',date:'5',mood:'calm'},{day:'Sun',date:'6',mood:'hopeful'},{day:'Mon',date:'7',mood:'stressed'},{day:'Tue',date:'8',mood:'overwhelmed'},{day:'Wed',date:'9',mood:'anxious'},{day:'Thu',date:'10',mood:'anxious'},{day:'Fri',date:'11',mood:'neutral',today:true}];
+    const hx=h=>[1,3,5].map(i=>parseInt(h.substr(i,2),16));
+    const mix=(a,b,t)=>{const A=hx(a),B=hx(b);return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('');};
+    const hexA=(h,a)=>{const A=hx(h);return 'rgba('+A[0]+','+A[1]+','+A[2]+','+a+')';};
+    const sel=Math.min(Math.max(this.state.sel==null?6:this.state.sel,0),6), selD=WEEK[sel];
+    return {
+      themeGlyph: night?'☀':'☾',
+      toggleTheme:()=>{
+        const t=night?'day':'night';
+        try{ localStorage.setItem('DHIRA-theme',t); }catch(e){}
+        document.body.classList.toggle('night',t==='night');
+        this.setState({theme:t});
+      },
+      stats:[{value:'6',label:'Check-ins this week'},{value:'62%',label:'Avg intensity'},{value:'anxious',label:'Top mood'},{value:'work',label:'Top topic'}],
+      tiles:WEEK.map((d,i)=>{const on=i===sel,c=MC[d.mood];
+        return {h:String(Math.round(34+(WT[d.mood]||.4)*44)),color:c,top:mix(c,'#FFFFFF',.34),deep:mix(c,'#000000',.12),
+          shadow:on?'0 14px 26px '+hexA(c,.42):'0 6px 14px '+hexA(c,.26),
+          lift:on?'-7px':'0px', ring:on?'2px solid rgba(255,255,255,.9)':'1px solid rgba(255,255,255,.35)',
+          dot:d.today?'5px':'0px', delay:(i*0.06).toFixed(2)+'s',
+          day:d.day.toUpperCase(),date:d.date,title:d.day+' · '+LBL[d.mood],
+          labelColor:on?'var(--primary)':'var(--text-subtle)',dateColor:on?'var(--primary)':'var(--text-subtle)',
+          wt:on?'600':'400', pick:()=>this.setState({sel:i})};}),
+      selColor:MC[selD.mood],
+      selTitle:selD.day+' '+selD.date+' · '+LBL[selD.mood],
+      selNote:(selD.today?'today — ':'')+(NOTE[selD.mood]||''),
+      legend:['calm','hopeful','neutral','stressed','anxious','overwhelmed'].filter(m=>WEEK.some(d=>d.mood===m)).map(m=>({label:LBL[m],color:MC[m]})),
+      moodMix:[
+        {label:'Anxious',bg:MC.anxious,tc:'#fff',count:'3'},
+        {label:'Hopeful',bg:MC.hopeful,tc:'#241F16',count:'2'},
+        {label:'Calm',bg:MC.calm,tc:'#241F16',count:'1'}
+      ],
+      spines:(()=>{
+        const all=this.state.saved.concat([{moodKey:'anxious'},{moodKey:'hopeful'},{moodKey:'anxious'}]);
+        const pos=[['0px','8px','-5deg'],['4px','5px','-2deg'],['8px','2px','2deg'],['12px','0px','5deg']];
+        return all.slice(0,4).reverse().map((e,i)=>({color:MC[e.moodKey||'neutral']||MC.neutral,x:pos[i][0],y:pos[i][1],rot:pos[i][2]}));
+      })(),
+      nbCount:(this.state.saved.length+3)+' entries',
+      nbBreak:(()=>{ const v=this.state.saved.filter(e=>e.kind==='voice').length+1; return v+' spoken \u00b7 '+(this.state.saved.length+3-v)+' written'; })(),
+      journal:this.state.saved.map(e=>{
+        const k=e.moodKey||'neutral', dark={happy:1,calm:1,hopeful:1,neutral:1,stressed:1,lonely:1}[k];
+        return {date:e.date,mood:e.mood,moodBg:MC[k]||MC.neutral,moodTc:dark?'#241F16':'#fff',topic:e.topic,
+          summary:e.summary,carry:e.carry,
+          kindGlyph:e.kind==='voice'?'\ud83c\udf99':'\u270d',
+          kindLabel:e.kind==='voice'?('voice \u00b7 '+(e.dur||'0:48')):'written'};
+      }).concat([
+        {date:'11 Jul 2026',kindGlyph:'\u270d',kindLabel:'written',mood:'Anxious',moodBg:MC.anxious,moodTc:'#fff',topic:'work',summary:'Office mein bilkul mann nahi laga aaj. Meeting mein baat seriously nahi li gayi — invisible feel hua.',carry:'Work was sitting heavy — check how the meeting feeling settled.'},
+        {date:'10 Jul 2026',kindGlyph:'🎙',kindLabel:'voice · 1:12',mood:'Hopeful',moodBg:MC.hopeful,moodTc:'#241F16',topic:'friends',summary:'Thoda better feel kiya aaj. Ek purani dost se baat hui, achha laga.',carry:'Reconnecting with old friends helped — worth gently revisiting.'},
+        {date:'9 Jul 2026',kindGlyph:'✍',kindLabel:'written',mood:'Anxious',moodBg:MC.anxious,moodTc:'#fff',topic:'sleep',summary:'Neend nahi aayi raat ko. Kuch thoughts loop ho rahe the.',carry:'Sleep was hard — ask about the looping thoughts.'}
+      ]),
+      chatHistory:[
+        {content:'Aaj thoda heavy lag raha hai kya?',time:'10:38 pm',justify:'flex-start',bg:'var(--surface-alt)'},
+        {content:'Haan yaar, office mein bilkul mann nahi laga.',time:'10:39 pm',justify:'flex-end',bg:'var(--primary-soft)'},
+        {content:'Yeh kaafi heavy lag raha hai. Office mein kya hua specifically?',time:'10:39 pm',justify:'flex-start',bg:'var(--surface-alt)'},
+        {content:'Meeting mein meri baat ko kisi ne seriously nahi liya.',time:'10:41 pm',justify:'flex-end',bg:'var(--primary-soft)'}
+      ],
+      notifs:[
+        {type:'proactive checkin',channel:'email',content:'Kal thoda heavy lag raha tha. Just checking in — how are you sitting with it today?',when:'11 Jul 2026 · 9:12 pm'},
+        {type:'weekly summary',channel:'email',content:'Your week with DHIRA: 6 check-ins, mostly anxious around work — but Friday felt lighter.',when:'7 Jul 2026 · 8:00 pm'}
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

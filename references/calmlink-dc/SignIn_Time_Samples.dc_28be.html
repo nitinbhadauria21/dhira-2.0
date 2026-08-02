@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&amp;family=Mukta:wght@300;400;500;600;700&amp;display=swap">
+<style>body{margin:0;background:#14162A;color:#ECEBF4;font-family:'Mukta',system-ui,sans-serif}h1,h2,p{margin:0}a{color:#949FDC;text-decoration:none}a:hover{color:#B0B9E6}
+@keyframes siGlow{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:.9;transform:scale(1.06)}}
+@keyframes siTwinkle{0%,100%{opacity:.25}50%{opacity:.9}}
+@keyframes siBreathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+</style>
+</helmet>
+<div style="padding:44px 48px">
+<div style="max-width:1140px;margin:0 auto 34px">
+<p style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#7E7C95;margin-bottom:8px">Sign in · time-adaptive story panel</p>
+<h1 style="font-family:'Fraunces',Georgia,serif;font-size:34px;font-weight:600;letter-spacing:-0.03em">Four scenes, one screen</h1>
+<p style="font-size:15px;color:#ABA9C1;margin-top:10px;max-width:74ch">The panel reads the user&rsquo;s clock the moment they land and picks its sky, light source, weather and words to match — nobody sets a preference. Live on <a href="SignIn.dc.html">the Sign In page</a>; use its Tweaks panel to force any scene.</p>
+</div>
+<div style="max-width:1140px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:28px">
+<sc-for list="{{ scenes }}" as="sc" hint-placeholder-count="4">
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;align-items:baseline;gap:10px">
+<span style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:4px 9px;border-radius:6px;background:#262A46;color:#ECEBF4">{{ sc.name }}</span>
+<span style="font-size:12.5px;color:#7E7C95">{{ sc.window }}</span>
+</div>
+<div style="position:relative;height:420px;border-radius:18px;overflow:hidden;border:1px solid #333857;padding:32px 30px;display:flex;flex-direction:column;justify-content:space-between;background:{{ sc.sky }}">
+<svg viewBox="0 0 480 560" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%">
+<defs>
+<radialGradient id="g-{{ sc.key }}" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="{{ sc.orbGlow }}" stop-opacity="{{ sc.orbGlowOp }}"></stop><stop offset="100%" stop-color="{{ sc.orbGlow }}" stop-opacity="0"></stop></radialGradient>
+<linearGradient id="hA-{{ sc.key }}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="{{ sc.hillA1 }}"></stop><stop offset="100%" stop-color="{{ sc.hillA2 }}"></stop></linearGradient>
+<linearGradient id="hB-{{ sc.key }}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="{{ sc.hillB1 }}"></stop><stop offset="100%" stop-color="{{ sc.hillB2 }}"></stop></linearGradient>
+</defs>
+<circle cx="{{ sc.orbX }}" cy="{{ sc.orbY }}" r="{{ sc.orbGlowR }}" fill="url(#g-{{ sc.key }})" style="animation:siGlow 7s ease-in-out infinite"></circle>
+<circle cx="{{ sc.orbX }}" cy="{{ sc.orbY }}" r="{{ sc.orbR }}" fill="{{ sc.orbFill }}" opacity="0.95"></circle>
+<g opacity="{{ sc.craterOp }}"><circle cx="{{ sc.crater1X }}" cy="{{ sc.crater1Y }}" r="5" fill="#E4C8A2" opacity="0.5"></circle><circle cx="{{ sc.crater2X }}" cy="{{ sc.crater2Y }}" r="3.4" fill="#E4C8A2" opacity="0.4"></circle></g>
+<g stroke="{{ sc.rayColor }}" stroke-width="2" stroke-linecap="round" opacity="{{ sc.rayOp }}">
+<path d="M{{ sc.orbX }} {{ sc.rayTop }}V{{ sc.rayTop2 }}"></path>
+<path d="M{{ sc.rayLeft }} {{ sc.orbY }}H{{ sc.rayLeft2 }}"></path>
+<path d="M{{ sc.rayRight }} {{ sc.orbY }}H{{ sc.rayRight2 }}"></path>
+</g>
+<g fill="#FFFFFF" opacity="{{ sc.starOp }}">
+<circle cx="60" cy="70" r="1.6" style="animation:siTwinkle 4s ease-in-out infinite"></circle>
+<circle cx="140" cy="42" r="1.2" style="animation:siTwinkle 5.5s ease-in-out infinite;animation-delay:-1.5s"></circle>
+<circle cx="216" cy="88" r="1.8" style="animation:siTwinkle 4.8s ease-in-out infinite;animation-delay:-2.6s"></circle>
+<circle cx="96" cy="150" r="1.3" style="animation:siTwinkle 6s ease-in-out infinite;animation-delay:-3.4s"></circle>
+<circle cx="268" cy="46" r="1.4" style="animation:siTwinkle 5s ease-in-out infinite;animation-delay:-.8s"></circle>
+<circle cx="430" cy="196" r="1.5" style="animation:siTwinkle 4.4s ease-in-out infinite;animation-delay:-2s"></circle>
+</g>
+<g fill="#FFFFFF" opacity="{{ sc.cloudOp }}">
+<ellipse cx="118" cy="120" rx="46" ry="17"></ellipse>
+<ellipse cx="152" cy="110" rx="32" ry="14"></ellipse>
+<ellipse cx="330" cy="196" rx="38" ry="14"></ellipse>
+<ellipse cx="360" cy="188" rx="26" ry="11"></ellipse>
+</g>
+<g opacity="{{ sc.birdOp }}" stroke="{{ sc.birdColor }}" stroke-width="1.6" fill="none" stroke-linecap="round">
+<path d="M96 232q7-6 13 0q6-6 13 0"></path>
+<path d="M148 208q5-4 9 0q4-4 9 0"></path>
+</g>
+<path d="M0 452 C 90 402, 180 470, 280 436 C 360 408, 430 430, 480 414 L480 560 L0 560 Z" fill="url(#hB-{{ sc.key }})" opacity="0.85"></path>
+<path d="M0 500 C 110 462, 210 516, 320 486 C 400 464, 440 480, 480 470 L480 560 L0 560 Z" fill="url(#hA-{{ sc.key }})"></path>
+<g stroke="{{ sc.treeColor }}" stroke-width="1.2" opacity="0.5" fill="none">
+<path d="M64 500c0-16 6-26 6-26s6 10 6 26"></path>
+<path d="M404 476c0-14 5-23 5-23s5 9 5 23"></path>
+</g>
+</svg>
+<div style="position:relative;z-index:2;display:flex;align-items:center;gap:10px">
+<span  style="font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:22px;letter-spacing:-0.03em;color:#FFFFFF;display:inline-flex;flex-direction:column;align-items:flex-start;line-height:1"><span style="display:block;line-height:1">DHIRA</span><span style="display:block;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-weight:600;font-size:8px;letter-spacing:.3em;line-height:1;margin-top:4px;opacity:.62;color:#FFFFFF">CALMLINK</span></span>
+<span style="white-space:nowrap;flex-shrink:0;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:{{ sc.badgeColor }}"><span style="width:6px;height:6px;border-radius:50%;background:{{ sc.badgeDot }};display:inline-block"></span>{{ sc.badge }}</span>
+</div>
+<div style="position:relative;z-index:2;display:flex;flex-direction:column;gap:18px">
+<img src="assets/bot_avatar.png" alt="DHIRA" style="width:60px;height:60px;border-radius:50%;box-shadow:0 10px 26px rgba(0,0,0,.3);border:2px solid rgba(255,255,255,.35);animation:siBreathe 6s ease-in-out infinite">
+<div>
+<p style="font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.62);margin-bottom:8px">{{ sc.eyebrow }}</p>
+<h2 style="font-family:'Fraunces',Georgia,serif;font-size:30px;font-weight:600;line-height:1.12;letter-spacing:-0.03em;color:#FFFFFF">{{ sc.h1 }}<br>{{ sc.h2 }}</h2>
+</div>
+<div style="padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.1);backdrop-filter:blur(8px);border-left:3px solid {{ sc.accent }};max-width:330px">
+<p style="font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.62);margin-bottom:5px">{{ sc.memLabel }}</p>
+<p style="font-size:14px;color:#F1EEF9;line-height:1.5;font-style:italic">&ldquo;{{ sc.mem }}&rdquo;</p>
+</div>
+</div>
+</div>
+<p style="font-size:13px;color:#ABA9C1;line-height:1.5">{{ sc.note }}</p>
+</div>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){
+    const RAW=[
+      {key:'morning',name:'Morning',window:'5 AM – 12 PM',
+       sky:'linear-gradient(165deg,#3C6E9E 0%,#79A7C6 38%,#C8CBDC 72%,#F6D9BC 100%)',
+       orbX:368,orbY:118,orbR:26,orbFill:'#FFF4DA',orbGlow:'#FFEBC0',orbGlowOp:'0.55',orbGlowR:120,
+       rayColor:'#FFF0CE',rayOp:'0.55',craterOp:'0',starOp:'0',cloudOp:'0.22',birdOp:'0.5',birdColor:'#FFFFFF',
+       hillA1:'#4C6E7E',hillA2:'#31505F',hillB1:'#7FA0A6',hillB2:'#54798A',treeColor:'#B8D3D6',
+       badge:'Awake with you',badgeDot:'#8FBCA4',badgeColor:'#DDF1E4',accent:'#F6C06B',
+       eyebrow:'A quiet morning',h1:'Welcome back.',h2:'Fresh page, same you.',
+       memLabel:'DHIRA remembers',mem:'Yesterday felt heavy around work — how does this morning sit?',
+       note:'Cool dawn blue lifting into peach, a low soft sun with light rays, birds, misty blue-green hills.'},
+      {key:'afternoon',name:'Afternoon',window:'12 – 5 PM',
+       sky:'linear-gradient(165deg,#2F6BA8 0%,#5E97C8 40%,#A9C4DB 74%,#EFD9C4 100%)',
+       orbX:372,orbY:96,orbR:30,orbFill:'#FFF9E8',orbGlow:'#FFF3CE',orbGlowOp:'0.6',orbGlowR:132,
+       rayColor:'#FFF6DA',rayOp:'0.65',craterOp:'0',starOp:'0',cloudOp:'0.3',birdOp:'0.35',birdColor:'#FFFFFF',
+       hillA1:'#3F6B62',hillA2:'#2A4E4B',hillB1:'#6E9A82',hillB2:'#4A7466',treeColor:'#C2DCC6',
+       badge:'Here all day',badgeDot:'#8FBCA4',badgeColor:'#DDF1E4',accent:'#EFA94A',
+       eyebrow:'Middle of the day',h1:'Welcome back.',h2:'Take a breath here.',
+       memLabel:'DHIRA remembers',mem:'Last time, work was sitting heavy on you — how\u2019s that today?',
+       note:'Bright daylight blue, high sun overhead, fuller clouds, green hills — the most awake of the four.'},
+      {key:'evening',name:'Evening',window:'5 – 9 PM',
+       sky:'linear-gradient(165deg,#3B3468 0%,#6B4B7E 38%,#B96F7C 72%,#F0A96E 100%)',
+       orbX:368,orbY:188,orbR:34,orbFill:'#FFD9A0',orbGlow:'#FFB870',orbGlowOp:'0.6',orbGlowR:140,
+       rayColor:'#FFD3A0',rayOp:'0.35',craterOp:'0',starOp:'0.45',cloudOp:'0.16',birdOp:'0.4',birdColor:'#FFE0BC',
+       hillA1:'#4A3B62',hillA2:'#2E2647',hillB1:'#7A5670',hillB2:'#513C5C',treeColor:'#C39A9E',
+       badge:'Winding down',badgeDot:'#F6C06B',badgeColor:'#FFE9CB',accent:'#EFA94A',
+       eyebrow:'Golden hour',h1:'Welcome back.',h2:'The day can rest now.',
+       memLabel:'DHIRA remembers',mem:'You said evenings get loud in your head — how was today?',
+       note:'Sunset plum into amber, a large low sun sinking to the horizon, first stars already showing.'},
+      {key:'night',name:'Night',window:'9 PM – 5 AM',
+       sky:'linear-gradient(160deg,#171935 0%,#2A2550 42%,#463A6E 78%,#5E4A72 100%)',
+       orbX:368,orbY:104,orbR:30,orbFill:'#FFEFD4',orbGlow:'#FFE6BE',orbGlowOp:'0.5',orbGlowR:112,
+       rayColor:'#FFE6BE',rayOp:'0',craterOp:'1',starOp:'1',cloudOp:'0.06',birdOp:'0',birdColor:'#FFFFFF',
+       hillA1:'#3B3161',hillA2:'#1E1D3C',hillB1:'#5C4A80',hillB2:'#3A305C',treeColor:'#8E7BB4',
+       badge:'Awake at 2 AM too',badgeDot:'#8FBCA4',badgeColor:'#D8F0E0',accent:'#F6C06B',
+       eyebrow:'Still awake · DHIRA is too',h1:'Welcome back.',h2:'We\u2019ve been here.',
+       memLabel:'DHIRA remembers · last night',mem:'Sleep was hard last night — some thoughts were looping. Still there?',
+       note:'Deep indigo, cratered moon with a breathing glow, full star field, dark violet hills.'}
+    ];
+    return { scenes: RAW.map(s=>({...s,
+      orbX:String(s.orbX), orbY:String(s.orbY), orbR:String(s.orbR), orbGlowR:String(s.orbGlowR),
+      crater1X:String(s.orbX-16), crater1Y:String(s.orbY-8), crater2X:String(s.orbX+10), crater2Y:String(s.orbY+12),
+      rayTop:String(s.orbY-s.orbR-16), rayTop2:String(s.orbY-s.orbR-6),
+      rayLeft:String(s.orbX-s.orbR-16), rayLeft2:String(s.orbX-s.orbR-6),
+      rayRight:String(s.orbX+s.orbR+6), rayRight2:String(s.orbX+s.orbR+16)
+    })) };
+  }
+}
+</script>
+</body>
+</html>

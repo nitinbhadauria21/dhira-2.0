@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&amp;family=Mukta:wght@300;400;500;600;700&amp;display=swap">
+<style>
+body{--bg:#FAF6EF;--surface:#FFFFFF;--surface-alt:#F3EEE4;--border:#E7DFD1;--text:#26263A;--text-muted:#5E5C6E;--text-subtle:#918EA0;--primary:#5A67B8;--primary-hover:#47539A;--primary-soft:#EEF0FB;--accent:#EFA94A;--accent-hover:#D9943A;--lavender:#AEA1DA;--sage:#63A183;--crisis:#C56B5C;--crisis-surface:#F9EDE9;--shadow-soft:0 8px 24px rgba(30,35,64,.08);--shadow-card:0 2px 12px rgba(30,35,64,.06);margin:0;background:var(--bg);color:var(--text);font-family:'Mukta',system-ui,sans-serif;font-size:17px;line-height:1.65;letter-spacing:.01em;transition:background-color .3s,color .3s}
+body.night{--bg:#14162A;--surface:#1D2038;--surface-alt:#262A46;--border:#333857;--text:#ECEBF4;--text-muted:#ABA9C1;--text-subtle:#7E7C95;--primary:#949FDC;--primary-hover:#B0B9E6;--primary-soft:#262A46;--accent:#F6C06B;--accent-hover:#E8A84A;--crisis:#D2796A;--crisis-surface:#2A1E1C;--sage:#8FBCA4;--shadow-soft:0 8px 32px rgba(0,0,0,.32);--shadow-card:0 2px 16px rgba(0,0,0,.24)}
+a{color:var(--primary);text-decoration:none}a:hover{color:var(--primary-hover)}
+h1,h2,h3,p{margin:0}
+input,button{font-family:inherit}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+</style>
+</helmet>
+<div data-screen-label="Onboarding" style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg)">
+<header style="display:flex;align-items:center;justify-content:space-between;padding:24px 24px 8px;max-width:512px;margin:0 auto;width:100%;box-sizing:border-box">
+<span  style="font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:22px;letter-spacing:-0.03em;color:var(--text);display:inline-flex;flex-direction:column;align-items:flex-start;line-height:1"><span style="display:block;line-height:1">DHIRA</span><span style="display:block;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-weight:600;font-size:8px;letter-spacing:.3em;line-height:1;margin-top:4px;opacity:.62;color:var(--text)">CALMLINK</span></span>
+<sc-if value="{{ showDots }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:8px">
+<sc-for list="{{ dots }}" as="d" hint-placeholder-count="3">
+<div style="width:{{ d.size }}px;height:{{ d.size }}px;border-radius:50%;background:{{ d.color }};transition:all .3s"></div>
+</sc-for>
+</div>
+</sc-if>
+</header>
+<main style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px">
+<div style="width:100%;max-width:512px">
+<sc-if value="{{ isStep0 }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:32px;animation:fadeIn .4s ease">
+<img src="assets/spot_welcome.png" alt="Beginning your journey down a soft sunrise path" style="width:280px;height:126px;object-fit:cover;border-radius:20px;border:1px solid var(--border);box-shadow:0 0 40px rgba(239,169,74,.35)">
+<div style="display:flex;flex-direction:column;gap:16px">
+<h1 style="font-family:'Fraunces',Georgia,serif;font-size:clamp(32px,6vw,48px);font-weight:650;color:var(--text);line-height:1.12;letter-spacing:-0.03em">Kuch feel ho raha hai?</h1>
+<p style="font-size:17px;color:var(--text-muted);line-height:1.65;max-width:34ch;margin:0 auto">DHIRA is here to listen — no advice, no judgment, no real name needed. Just a quiet space that remembers.</p>
+</div>
+<button onClick="{{ next }}" style="background:var(--accent);color:#26263A;border:none;border-radius:12px;font-weight:600;font-size:17px;padding:16px 48px;margin-top:8px;cursor:pointer;box-shadow:0 0 20px rgba(239,169,74,.35)" style-hover="background:var(--accent-hover)">Begin</button>
+<p style="font-size:13px;color:var(--text-subtle)">Anonymous · Private · Free to use</p>
+</div>
+</sc-if>
+<sc-if value="{{ isStep1 }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:32px;animation:fadeIn .4s ease">
+<div style="display:flex;flex-direction:column;gap:10px">
+<p style="font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text-subtle)">Our Promise</p>
+<h2 style="font-family:'Fraunces',Georgia,serif;font-size:clamp(26px,5vw,36px);font-weight:500;color:var(--text);line-height:1.2">Your safety comes first.</h2>
+<p style="font-size:16px;color:var(--text-muted);line-height:1.6">Before we begin, here is what DHIRA promises you — always.</p>
+</div>
+<img src="assets/spot_privacy.png" alt="A shield with a lock — you are in control" style="width:100%;height:120px;object-fit:cover;border-radius:16px;border:1px solid var(--border)">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<sc-for list="{{ promises }}" as="p" hint-placeholder-count="4">
+<div style="background:var(--surface);border-radius:16px;box-shadow:var(--shadow-card);border:1px solid var(--border);padding:20px;display:flex;flex-direction:column;gap:8px;grid-column:{{ p.span }}">
+<span style="font-size:22px">{{ p.emoji }}</span>
+<p style="font-family:'Fraunces',Georgia,serif;font-size:16px;font-weight:500;color:var(--text)">{{ p.title }}</p>
+<p style="font-size:14px;color:var(--text-muted);line-height:1.55">{{ p.body }}</p>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<button onClick="{{ next }}" style="width:100%;background:var(--primary);color:#fff;border:none;border-radius:12px;font-weight:500;font-size:16px;padding:14px 24px;cursor:pointer" style-hover="background:var(--primary-hover)">I understand — let&rsquo;s continue</button>
+<button onClick="{{ back }}" style="width:100%;background:transparent;color:var(--text-muted);border:1px solid var(--border);border-radius:12px;font-size:15px;padding:10px 20px;cursor:pointer" style-hover="border-color:var(--primary);color:var(--primary)">← Back</button>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ isStep2 }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:32px;animation:fadeIn .4s ease">
+<div style="display:flex;flex-direction:column;gap:10px">
+<p style="font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text-subtle)">Step 1 of 2</p>
+<h2 style="font-family:'Fraunces',Georgia,serif;font-size:clamp(26px,5vw,36px);font-weight:500;color:var(--text);line-height:1.2">What should DHIRA call you?</h2>
+<p style="font-size:16px;color:var(--text-muted);line-height:1.6">Use any name or alias — no real name needed. This is just how DHIRA will greet you.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<label for="alias-input" style="font-size:14px;font-weight:500;color:var(--text-muted)">Your name or alias</label>
+<input id="alias-input" type="text" value="{{ alias }}" onChange="{{ setAlias }}" placeholder="e.g. Arjun, Priya, Moon, anything…" maxLength="30" autoComplete="off" style="font-size:17px;color:var(--text);background:var(--surface);border:1.5px solid {{ aliasBorder }};border-radius:12px;padding:14px 16px;outline:none;width:100%;box-sizing:border-box;transition:border-color .2s" style-focus="border-color:var(--primary)">
+<p style="font-size:13px;color:var(--text-subtle)">This is stored only in your browser — never on our servers.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<label style="font-size:14px;font-weight:500;color:var(--text-muted)">How should DHIRA talk to you?</label>
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{ langs }}" as="opt" hint-placeholder-count="2">
+<button onClick="{{ opt.pick }}" style="display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:12px;border:1.5px solid {{ opt.border }};background:{{ opt.bg }};cursor:pointer;text-align:left;transition:all .2s">
+<div style="width:20px;height:20px;border-radius:50%;border:2px solid {{ opt.radioBorder }};background:{{ opt.radioBg }};flex-shrink:0;display:flex;align-items:center;justify-content:center">
+<sc-if value="{{ opt.selected }}" hint-placeholder-val="{{ false }}"><div style="width:8px;height:8px;border-radius:50%;background:#fff"></div></sc-if>
+</div>
+<div>
+<p style="font-size:16px;font-weight:500;color:{{ opt.labelColor }};margin-bottom:2px">{{ opt.label }}</p>
+<p style="font-size:13px;color:var(--text-subtle)">{{ opt.sub }}</p>
+</div>
+</button>
+</sc-for>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<button onClick="{{ next }}" style="width:100%;background:var(--primary);color:#fff;border:none;border-radius:12px;font-weight:500;font-size:16px;padding:14px 24px;cursor:pointer;opacity:{{ continueOpacity }}" style-hover="background:var(--primary-hover)">Continue</button>
+<button onClick="{{ back }}" style="width:100%;background:transparent;color:var(--text-muted);border:1px solid var(--border);border-radius:12px;font-size:15px;padding:10px 20px;cursor:pointer" style-hover="border-color:var(--primary);color:var(--primary)">← Back</button>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ isStep3 }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:28px;animation:fadeIn .4s ease">
+<div style="display:flex;flex-direction:column;gap:10px">
+<p style="font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text-subtle)">Step 2 of 2</p>
+<h2 style="font-family:'Fraunces',Georgia,serif;font-size:clamp(26px,5vw,36px);font-weight:500;color:var(--text);line-height:1.2">{{ contractTitle }}</h2>
+<p style="font-size:16px;color:var(--text-muted);line-height:1.6">You can change this anytime in Settings. DHIRA will never reach out without your permission.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{ freqs }}" as="opt" hint-placeholder-count="3">
+<button onClick="{{ opt.pick }}" style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:12px;border:1.5px solid {{ opt.border }};background:{{ opt.bg }};cursor:pointer;text-align:left;transition:all .2s">
+<div style="width:18px;height:18px;border-radius:50%;border:2px solid {{ opt.radioBorder }};background:{{ opt.radioBg }};flex-shrink:0;display:flex;align-items:center;justify-content:center">
+<sc-if value="{{ opt.selected }}" hint-placeholder-val="{{ false }}"><div style="width:7px;height:7px;border-radius:50%;background:#fff"></div></sc-if>
+</div>
+<div><span style="font-size:15px;font-weight:500;color:{{ opt.labelColor }}">{{ opt.label }}</span><span style="font-size:13px;color:var(--text-subtle);margin-left:8px">— {{ opt.sub }}</span></div>
+</button>
+</sc-for>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div>
+<p style="font-size:14px;font-weight:500;color:var(--text-muted)">When do you usually work?</p>
+<p style="font-size:13px;color:var(--text-subtle);margin-top:2px">So &ldquo;good morning&rdquo; lands at your morning — not the clock&rsquo;s. You pick this; DHIRA never guesses it.</p>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+<sc-for list="{{ shiftChoices }}" as="opt" hint-placeholder-count="4">
+<button onClick="{{ opt.pick }}" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;border:1.5px solid {{ opt.border }};background:{{ opt.bg }};cursor:pointer;text-align:left;transition:all .2s">
+<span style="width:16px;height:16px;border-radius:50%;flex-shrink:0;border:2px solid {{ opt.ring }};background:{{ opt.dot }}"></span>
+<span>
+<span style="display:block;font-size:14px;font-weight:500;color:{{ opt.labelColor }}">{{ opt.label }}</span>
+<span style="display:block;font-size:12px;color:var(--text-subtle)">{{ opt.hint }}</span>
+</span>
+</button>
+</sc-for>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<p style="font-size:14px;font-weight:500;color:var(--text-muted)">Your consent preferences</p>
+<sc-for list="{{ consents }}" as="c" hint-placeholder-count="2">
+<button onClick="{{ c.toggle }}" style="display:flex;align-items:flex-start;gap:14px;padding:16px 18px;border-radius:12px;border:1.5px solid {{ c.border }};background:{{ c.bg }};cursor:pointer;text-align:left;width:100%;box-sizing:border-box;transition:all .2s">
+<div style="width:20px;height:20px;border-radius:5px;border:2px solid {{ c.boxBorder }};background:{{ c.boxBg }};flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center">
+<sc-if value="{{ c.checked }}" hint-placeholder-val="{{ true }}"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></sc-if>
+</div>
+<div>
+<p style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:3px">{{ c.title }}</p>
+<p style="font-size:13px;color:var(--text-muted);line-height:1.55">{{ c.body }}</p>
+</div>
+</button>
+</sc-for>
+</div>
+<div style="padding:16px 18px;border-radius:16px;background:var(--surface-alt);border:1px solid var(--border);display:flex;flex-direction:column;gap:6px">
+<p style="font-size:13px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em">Your setup</p>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
+<sc-for list="{{ setupTags }}" as="tag" hint-placeholder-count="3">
+<span style="font-size:13px;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 12px;display:inline-flex;align-items:center;gap:5px">{{ tag.icon }} {{ tag.label }}</span>
+</sc-for>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<a href="Home.dc.html" style="width:100%;box-sizing:border-box;background:var(--accent);color:#26263A;border-radius:12px;font-weight:600;font-size:16px;padding:15px 24px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(239,169,74,.35)" style-hover="background:var(--accent-hover);color:#26263A">Start talking to DHIRA →</a>
+<button onClick="{{ back }}" style="width:100%;background:transparent;color:var(--text-muted);border:1px solid var(--border);border-radius:12px;font-size:15px;padding:10px 20px;cursor:pointer" style-hover="border-color:var(--primary);color:var(--primary)">← Back</button>
+</div>
+</div>
+</sc-if>
+</div>
+</main>
+<footer style="padding:0 24px 24px;text-align:center;max-width:512px;margin:0 auto;width:100%;box-sizing:border-box">
+<p style="font-size:13px;color:var(--text-subtle);line-height:1.5">In crisis? Call <strong style="color:var(--crisis)">Tele-MANAS 14416</strong> — free, 24×7, India-wide.</p>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    let theme='night';
+    try{ theme = localStorage.getItem('DHIRA-theme') || 'night'; }catch(e){}
+    let shift='day';
+    try{ shift = localStorage.getItem('DHIRA-shift') || 'day'; }catch(e){}
+    this.state = { step:0, alias:'', language:'hinglish', freq:'daily', consentCheckin:true, consentMemory:true, shift };
+    if (typeof document!=='undefined') document.body.classList.toggle('night', theme==='night');
+  }
+  renderVals(){
+    const s=this.state;
+    const PROMISES=[
+      {emoji:'🕶️',title:'Completely anonymous',body:'No real name, no phone number, no email required. You choose what to share.',span:'span 2'},
+      {emoji:'🔒',title:'Private by design',body:'Your conversations stay yours. We store only mood metadata — never your words.',span:'span 1'},
+      {emoji:'🎛️',title:'You are in control',body:'Change your preferences, pause check-ins, or leave anytime. No lock-in.',span:'span 1'},
+      {emoji:'💛',title:'A listener, not a therapist',body:'DHIRA listens and remembers. It does not diagnose, advise, or judge.',span:'span 2'}
+    ];
+    const LANGS=[
+      {value:'hinglish',label:'Hinglish',sub:'Hindi + English — the way we actually talk'},
+      {value:'english',label:'English',sub:'Full English responses from DHIRA'}
+    ];
+    const FREQS=[
+      {value:'daily',label:'Daily',sub:'A gentle nudge every day'},
+      {value:'every-other-day',label:'Every other day',sub:'A little breathing room'},
+      {value:'weekly',label:'Weekly',sub:'Just once a week'}
+    ];
+    return {
+      isStep0:s.step===0, isStep1:s.step===1, isStep2:s.step===2, isStep3:s.step===3,
+      showDots:s.step>0,
+      dots:[0,1,2].map(i=>({
+        size: i<s.step-1?8 : i===s.step-1?10 : 6,
+        color: i<s.step-1?'var(--primary)' : i===s.step-1?'var(--accent)' : 'var(--border)'
+      })),
+      next:()=>this.setState(st=>({step:Math.min(st.step+1,3)})),
+      back:()=>this.setState(st=>({step:Math.max(st.step-1,0)})),
+      promises:PROMISES,
+      alias:s.alias,
+      setAlias:(e)=>this.setState({alias:e.target.value}),
+      aliasBorder:s.alias.trim()?'var(--primary)':'var(--border)',
+      continueOpacity:s.alias.trim()?1:0.45,
+      langs:LANGS.map(o=>{
+        const sel=s.language===o.value;
+        return {...o, selected:sel, pick:()=>this.setState({language:o.value}),
+          border:sel?'var(--primary)':'var(--border)', bg:sel?'var(--primary-soft)':'var(--surface)',
+          radioBorder:sel?'var(--primary)':'var(--border)', radioBg:sel?'var(--primary)':'transparent',
+          labelColor:sel?'var(--primary)':'var(--text)'};
+      }),
+      freqs:FREQS.map(o=>{
+        const sel=s.freq===o.value;
+        return {...o, selected:sel, pick:()=>this.setState({freq:o.value}),
+          border:sel?'var(--primary)':'var(--border)', bg:sel?'var(--primary-soft)':'var(--surface)',
+          radioBorder:sel?'var(--primary)':'var(--border)', radioBg:sel?'var(--primary)':'transparent',
+          labelColor:sel?'var(--primary)':'var(--text)'};
+      }),
+      consents:[
+        {key:'consentCheckin',title:'Allow proactive check-ins',body:'DHIRA may send a gentle nudge based on your chosen frequency. You can pause this anytime.'},
+        {key:'consentMemory',title:'Allow DHIRA to remember',body:'DHIRA stores mood metadata (not your words) to personalise future check-ins. No personal data is stored.'}
+      ].map(c=>{
+        const on=s[c.key];
+        return {...c, checked:on, toggle:()=>this.setState({[c.key]:!on}),
+          border:on?'var(--sage)':'var(--border)', bg:on?'rgba(99,161,131,0.08)':'var(--surface)',
+          boxBorder:on?'var(--sage)':'var(--border)', boxBg:on?'var(--sage)':'transparent'};
+      }),
+      shiftChoices:[
+        {key:'day',label:'Day shift',hint:'9-ish to 6-ish'},
+        {key:'afternoon',label:'Afternoon shift',hint:'2 PM to 11 PM'},
+        {key:'night',label:'Night shift',hint:'9 PM to 6 AM'},
+        {key:'rotating',label:'Rotating shifts',hint:'It changes weekly'}
+      ].map(o=>{
+        const sel=s.shift===o.key;
+        return {...o, border:sel?'var(--primary)':'var(--border)', bg:sel?'var(--primary-soft)':'var(--surface)',
+          ring:sel?'var(--primary)':'var(--border)', dot:sel?'var(--primary)':'transparent',
+          labelColor:sel?'var(--primary)':'var(--text)',
+          pick:()=>{ try{ localStorage.setItem('DHIRA-shift',o.key); }catch(e){} this.setState({shift:o.key}); }};
+      }),
+      contractTitle: s.alias ? s.alias+', how often should DHIRA check in?' : 'How often should DHIRA check in?',
+      setupTags:[
+        {icon:'👤',label:s.alias||'Anonymous'},
+        {icon:'💬',label:s.language==='hinglish'?'Hinglish':'English'},
+        {icon:'🔔',label:s.freq==='daily'?'Daily check-ins':s.freq==='every-other-day'?'Every other day':'Weekly check-ins'},
+        {icon:'🕒',label:s.shift==='day'?'Day shift':s.shift==='afternoon'?'Afternoon shift':s.shift==='night'?'Night shift':'Rotating shifts'}
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

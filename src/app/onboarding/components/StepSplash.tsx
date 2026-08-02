@@ -9,23 +9,19 @@ interface Props {
 export default function StepSplash({ onNext }: Props) {
   return (
     <div className="flex flex-col items-center text-center" style={{ gap: '32px' }}>
-      {/* Amber glow orb */}
-      <div
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/illustrations/spot_welcome.png"
+        alt="Beginning your journey down a soft sunrise path"
         style={{
-          width: 80,
-          height: 80,
-          borderRadius: '50%',
-          backgroundColor: 'var(--color-surface)',
+          width: 280,
+          height: 126,
+          objectFit: 'cover',
+          borderRadius: 20,
           border: '1px solid var(--color-border)',
-          boxShadow: '0 0 40px rgba(239, 169, 74, 0.45)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '36px',
+          boxShadow: '0 0 40px rgba(239,169,74,0.35)',
         }}
-      >
-        🌙
-      </div>
+      />
 
       {/* Headline */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -51,7 +47,7 @@ export default function StepSplash({ onNext }: Props) {
             marginInline: 'auto',
           }}
         >
-          Dhira is here to listen — no advice, no judgment, no real name needed. Just a quiet space that remembers.
+          DHIRA is here to listen — no advice, no judgment, no real name needed. Just a quiet space that remembers.
         </p>
       </div>
 

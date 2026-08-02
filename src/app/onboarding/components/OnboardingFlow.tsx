@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import BrandLockup from '@/components/BrandLockup';
 import StepSplash from './StepSplash';
 import StepPrivacy from './StepPrivacy';
 import StepSetup from './StepSetup';
 import StepContract from './StepContract';
+import { readStoredShift, writeStoredShift, type ShiftPreference } from '@/lib/timeOfDay';
 
 export type Language = 'english' | 'hinglish';
 
@@ -15,6 +17,7 @@ export interface OnboardingData {
   consentCheckin: boolean;
   consentMemory: boolean;
   checkinFrequency: 'daily' | 'every-other-day' | 'weekly';
+  shift: ShiftPreference;
 }
 
 const TOTAL_STEPS = 4;
@@ -28,7 +31,13 @@ export default function OnboardingFlow() {
     consentCheckin: true,
     consentMemory: true,
     checkinFrequency: 'daily',
+    shift: 'day',
   });
+
+  useEffect(() => {
+    const stored = readStoredShift();
+    setData((prev) => (prev.shift === stored ? prev : { ...prev, shift: stored }));
+  }, []);
 
   const next = useCallback(() => setStep((s) => Math.min(s + 1, TOTAL_STEPS - 1)), []);
   const back = useCallback(() => setStep((s) => Math.max(s - 1, 0)), []);
@@ -42,6 +51,7 @@ export default function OnboardingFlow() {
       localStorage.setItem('dhira-onboarding-done', 'true');
       localStorage.setItem('dhira-alias', data.alias || 'Friend');
       localStorage.setItem('dhira-language', data.language);
+      writeStoredShift(data.shift);
     }
     // Persist the anonymous profile + check-in contract to the backend.
     try {
@@ -54,6 +64,7 @@ export default function OnboardingFlow() {
           consentCheckin: data.consentCheckin,
           consentMemory: data.consentMemory,
           checkinFrequency: data.checkinFrequency,
+          shift: data.shift,
         }),
       });
     } catch {
@@ -69,17 +80,7 @@ export default function OnboardingFlow() {
     >
       {/* Top wordmark */}
       <header className="flex items-center justify-between px-6 pt-6 pb-2 max-w-lg mx-auto w-full">
-        <span
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontWeight: 700,
-            fontSize: '22px',
-            letterSpacing: '-0.03em',
-            color: 'var(--color-text)',
-          }}
-        >
-          dhira
-        </span>
+        <BrandLockup href="/" size={22} />
 
         {/* Step dots */}
         {step > 0 && (

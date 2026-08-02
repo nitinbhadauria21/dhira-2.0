@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&amp;family=Mukta:wght@300;400;500;600;700&amp;display=swap">
+<style>
+body{--bg:#FAF6EF;--surface:#FFFFFF;--surface-alt:#F3EEE4;--border:#E7DFD1;--text:#26263A;--text-muted:#5E5C6E;--text-subtle:#918EA0;--primary:#5A67B8;--primary-hover:#47539A;--primary-soft:#EEF0FB;--accent:#EFA94A;--sage:#63A183;--crisis:#C56B5C;--crisis-surface:#F9EDE9;--shadow-soft:0 8px 24px rgba(30,35,64,.08);--shadow-card:0 2px 12px rgba(30,35,64,.06);margin:0;background:var(--bg);color:var(--text);font-family:'Mukta',system-ui,sans-serif;font-size:17px;line-height:1.65;letter-spacing:.01em;transition:background-color .3s,color .3s}
+body.night{--bg:#14162A;--surface:#1D2038;--surface-alt:#262A46;--border:#333857;--text:#ECEBF4;--text-muted:#ABA9C1;--text-subtle:#7E7C95;--primary:#949FDC;--primary-hover:#B0B9E6;--primary-soft:#262A46;--accent:#F6C06B;--crisis:#D2796A;--crisis-surface:#2A1E1C;--sage:#8FBCA4;--shadow-soft:0 8px 32px rgba(0,0,0,.32);--shadow-card:0 2px 16px rgba(0,0,0,.24)}
+a{color:var(--primary);text-decoration:none}a:hover{color:var(--primary-hover)}
+h1,h2,h3,p{margin:0}input,button{font-family:inherit}
+@keyframes h4Presence{0%,100%{box-shadow:0 0 0 0 rgba(143,188,164,.5)}70%{box-shadow:0 0 0 9px rgba(143,188,164,0)}}
+@keyframes h4Breathe{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-7px) scale(1.015)}}
+@keyframes h4Rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes h4Fade{from{opacity:0}to{opacity:1}}
+@keyframes h4Twinkle{0%,100%{opacity:.25}50%{opacity:.9}}
+@keyframes h4Draw{from{stroke-dashoffset:1400}to{stroke-dashoffset:0}}
+@keyframes h4Halo{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:.62;transform:scale(1.06)}}
+@keyframes h4Fill{from{width:0}to{width:var(--w)}}
+@keyframes h4Grow{from{transform:scaleY(.35);opacity:0}}
+</style>
+</helmet>
+<div data-screen-label="Home" style="min-height:100vh;background:var(--bg)">
+<nav style="position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:var(--surface);border-bottom:1px solid var(--border)">
+<a href="Landing.dc.html" style="font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:23px;letter-spacing:-0.03em;color:var(--text);display:inline-flex;flex-direction:column;align-items:flex-start;line-height:1"><span style="display:block;line-height:1">DHIRA</span><span style="display:block;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-weight:600;font-size:8px;letter-spacing:.3em;line-height:1;margin-top:4px;opacity:.62;color:var(--text)">CALMLINK</span></a>
+<div style="display:flex;align-items:center;gap:4px">
+<a href="Home.dc.html" style="padding:7px 15px;border-radius:11px;font-size:15px;font-weight:500;color:var(--primary);background:var(--primary-soft)">Home</a>
+<a href="Chat.dc.html" style="padding:7px 15px;border-radius:11px;font-size:15px;color:var(--text-muted)" style-hover="color:var(--primary);background:var(--primary-soft)">Chat</a>
+<a href="Notebook.dc.html" style="padding:7px 15px;border-radius:11px;font-size:15px;color:var(--text-muted)" style-hover="color:var(--primary);background:var(--primary-soft)">Notebook</a>
+<a href="Timeline.dc.html" style="padding:7px 15px;border-radius:11px;font-size:15px;color:var(--text-muted)" style-hover="color:var(--primary);background:var(--primary-soft)">Timeline</a>
+<a href="Profile.dc.html" style="padding:7px 15px;border-radius:11px;font-size:15px;color:var(--text-muted)" style-hover="color:var(--primary);background:var(--primary-soft)">Profile</a>
+</div>
+<div style="display:flex;align-items:center;gap:8px">
+<button onClick="{{ toggleTheme }}" aria-label="Toggle theme" style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:var(--surface-alt);color:var(--text-muted);border:1px solid var(--border);cursor:pointer;font-size:13px">{{ themeGlyph }}</button>
+<a href="SignIn.dc.html" style="display:inline-flex;align-items:center;gap:6px;height:34px;box-sizing:border-box;padding:0 13px;border-radius:10px;font-size:14px;white-space:nowrap;color:var(--text-muted);background:var(--surface-alt);border:1px solid var(--border)" style-hover="color:var(--crisis);border-color:var(--crisis);background:var(--crisis-surface)">Sign out</a>
+</div>
+</nav>
+
+<section style="position:relative;overflow:hidden;background:{{ heroSky }};animation:h4Fade .5s ease both">
+<svg viewBox="0 0 1440 640" preserveAspectRatio="xMidYMax slice" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%">
+<defs><radialGradient id="h4Glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="{{ orbGlow }}" stop-opacity="{{ orbGlowOp }}"></stop><stop offset="100%" stop-color="{{ orbGlow }}" stop-opacity="0"></stop></radialGradient></defs>
+<circle cx="1130" cy="{{ orbY }}" r="220" fill="url(#h4Glow)"></circle>
+<circle cx="1130" cy="{{ orbY }}" r="{{ orbR }}" fill="{{ orbFill }}" opacity="0.96"></circle>
+<g opacity="{{ craterOp }}"><ellipse cx="1114" cy="{{ crater1Y }}" rx="7" ry="6" fill="#E4C8A2" opacity="0.4"></ellipse><ellipse cx="1146" cy="{{ crater2Y }}" rx="4.5" ry="4" fill="#E4C8A2" opacity="0.32"></ellipse></g>
+<g fill="#FFFFFF" opacity="{{ starOp }}">
+<circle cx="180" cy="80" r="1.8" style="animation:h4Twinkle 4s ease-in-out infinite"></circle>
+<circle cx="420" cy="52" r="1.4" style="animation:h4Twinkle 5.4s ease-in-out infinite;animation-delay:-1.4s"></circle>
+<circle cx="690" cy="104" r="1.9" style="animation:h4Twinkle 4.6s ease-in-out infinite;animation-delay:-2.4s"></circle>
+<circle cx="930" cy="60" r="1.3" style="animation:h4Twinkle 6s ease-in-out infinite;animation-delay:-3.2s"></circle>
+<circle cx="300" cy="186" r="1.3" style="animation:h4Twinkle 5s ease-in-out infinite;animation-delay:-.7s"></circle>
+<circle cx="1330" cy="150" r="1.6" style="animation:h4Twinkle 4.4s ease-in-out infinite;animation-delay:-2s"></circle>
+</g>
+<g fill="#FFFFFF" opacity="{{ cloudOp }}"><ellipse cx="330" cy="120" rx="120" ry="26"></ellipse><ellipse cx="410" cy="104" rx="76" ry="20"></ellipse><ellipse cx="980" cy="196" rx="90" ry="22"></ellipse></g>
+<path d="M0 430 C 220 366, 470 480, 720 414 C 980 346, 1200 418, 1440 374 L1440 640 L0 640 Z" fill="{{ hillB }}" opacity="0.78"></path>
+<path d="M0 524 C 260 456, 520 550, 800 496 C 1060 446, 1250 496, 1440 468 L1440 640 L0 640 Z" fill="{{ hillA }}"></path>
+</svg>
+<div style="position:relative;z-index:2;max-width:1120px;margin:0 auto;padding:58px 32px 34px;display:grid;grid-template-columns:270px 1fr;gap:36px;align-items:end">
+<div style="display:flex;flex-direction:column;gap:22px;align-items:flex-start">
+<div style="display:inline-flex;align-items:center;gap:9px;padding:7px 14px 7px 11px;border-radius:999px;background:{{ cardBg }};backdrop-filter:blur(14px);border:1px solid {{ cardBorder }};animation:h4Rise .5s ease both">
+<span style="width:8px;height:8px;border-radius:50%;background:#8FBCA4;animation:h4Presence 2.6s ease-out infinite"></span>
+<span style="font-size:11.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:{{ inkSoft }}">{{ eyebrow }}</span>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<h1 style="font-family:'Fraunces',Georgia,serif;font-size:clamp(36px,5.2vw,62px);font-weight:500;line-height:1.02;letter-spacing:-0.045em;color:{{ inkStrong }};max-width:15ch;text-wrap:pretty;animation:h4Rise .6s ease .06s both">{{ greeting }}</h1>
+<p style="font-size:18.5px;line-height:1.5;color:{{ ink }};max-width:38ch;animation:h4Rise .6s ease .12s both">{{ presenceLine }}</p>
+</div>
+<sc-if value="{{ notLogged }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:12px;animation:h4Rise .6s ease .18s both">
+<p style="align-self:flex-start;padding:7px 14px;border-radius:999px;background:{{ scrimBg }};backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.18);font-size:14px;color:rgba(255,255,255,.9)">{{ question }}</p>
+<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+<sc-for list="{{ quickMoods }}" as="q" hint-placeholder-count="5">
+<button onClick="{{ q.pick }}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 17px;border-radius:999px;background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.6);cursor:pointer;font-size:14.5px;font-weight:500;white-space:nowrap;color:#26263A;box-shadow:0 4px 16px rgba(0,0,0,.14);transition:transform .16s" style-hover="transform:translateY(-3px)">
+<span style="font-size:16px">{{ q.emoji }}</span>{{ q.label }}
+</button>
+</sc-for>
+<a href="Chat.dc.html" style="display:inline-flex;align-items:center;padding:10px 17px;border-radius:999px;border:1px solid {{ inkRule }};font-size:14.5px;color:{{ ink }}" style-hover="background:rgba(255,255,255,.18)">or just talk →</a>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ isLogged }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;animation:h4Rise .4s ease both">
+<button onClick="{{ openCheckin }}" style="display:inline-flex;align-items:center;gap:9px;padding:13px 22px;border-radius:999px;border:none;background:var(--primary);color:#FFFFFF;font-size:15px;font-weight:500;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.2);transition:background .18s" style-hover="background:var(--primary-hover)">Start today&rsquo;s check-in →</button>
+<span style="padding:9px 16px;border-radius:999px;background:{{ scrimBg }};backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);font-size:14.5px;color:rgba(255,255,255,.92)">{{ loggedFollow }}</span>
+</div>
+</sc-if>
+</div>
+<div style="order:-1;display:flex;justify-content:flex-start;align-items:flex-end;position:relative">
+<span style="position:absolute;bottom:-14px;left:14px;width:230px;height:230px;border-radius:50%;background:radial-gradient(circle,{{ botHalo }} 0%,rgba(255,255,255,0) 70%);animation:h4Halo 7s ease-in-out infinite"></span>
+<img src="assets/dhira_sitting_hi.png" alt="DHIRA, sitting with you" style="position:relative;width:auto;height:236px;filter:drop-shadow(0 20px 34px rgba(0,0,0,.34));animation:h4Breathe 6.5s ease-in-out infinite">
+</div>
+</div>
+<div style="position:relative;z-index:2;background:{{ ribbonBg }};backdrop-filter:blur(16px);border-top:1px solid {{ cardBorder }}">
+<div style="max-width:1120px;margin:0 auto;padding:14px 32px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+<span style="display:inline-flex;align-items:center;gap:8px;flex-shrink:0">
+<span style="font-size:15px">{{ rememberGlyph }}</span>
+<span style="font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:{{ inkSoft }}">DHIRA remembers</span>
+</span>
+<p style="font-family:'Fraunces',Georgia,serif;font-size:16px;line-height:1.4;color:{{ inkStrong }};flex:1;min-width:260px;text-wrap:pretty">&ldquo;{{ rememberLine }}&rdquo;</p>
+<a href="Timeline.dc.html" style="font-size:13px;color:{{ ink }};text-decoration:underline;white-space:nowrap">from 10 Jul</a>
+</div>
+</div>
+</section>
+
+<div style="max-width:1120px;margin:0 auto;padding:22px 32px 60px;display:flex;flex-direction:column;gap:18px">
+<div style="display:grid;grid-template-columns:1.35fr .82fr 1.05fr;gap:18px;align-items:stretch">
+
+<section style="background:var(--surface);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow-card);padding:22px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+<div style="display:flex;flex-direction:column">
+<span style="font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text-subtle)">Today&rsquo;s mood</span>
+<span style="font-size:13px;color:var(--text-subtle)">{{ moodTime }}</span>
+</div>
+<sc-if value="{{ isLogged }}" hint-placeholder-val="{{ false }}">
+<button onClick="{{ openCheckin }}" style="padding:6px 14px;border-radius:999px;background:var(--surface);border:1px solid var(--border);cursor:pointer;font-size:13px;color:var(--text-muted);transition:all .16s" style-hover="border-color:var(--primary);color:var(--primary)">Update</button>
+</sc-if>
+</div>
+<sc-if value="{{ isLogged }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;align-items:center;gap:14px">
+<span style="width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;background:{{ loggedSoft }};border:1px solid {{ loggedColor }};flex-shrink:0">{{ loggedEmoji }}</span>
+<div style="display:flex;flex-direction:column;gap:5px;align-items:flex-start">
+<span style="display:inline-flex;align-items:center;padding:5px 14px;border-radius:999px;background:{{ loggedColor }};color:{{ loggedText }};font-size:14px;font-weight:600">{{ loggedLabel }}</span>
+<span style="font-size:13px;color:var(--text-subtle)">Topic: <span style="color:var(--text-muted)">{{ moodTopic }}</span></span>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:7px">
+<div style="display:flex;align-items:baseline;justify-content:space-between">
+<span style="font-size:12.5px;color:var(--text-muted)">Emotional intensity</span>
+<span style="font-size:12.5px;font-weight:600;color:var(--text-muted)">{{ intensity }}%</span>
+</div>
+<div style="height:7px;border-radius:99px;background:var(--surface-alt);overflow:hidden">
+<div style="--w:{{ intensity }}%;width:{{ intensity }}%;height:100%;border-radius:99px;background:{{ loggedColor }};animation:h4Fill 1s cubic-bezier(.2,.8,.3,1) .2s both"></div>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:7px;padding-top:12px;border-top:1px solid var(--border)">
+<span style="font-size:14px;color:{{ deltaColor }}">{{ deltaGlyph }}</span>
+<span style="font-size:13px;color:{{ deltaColor }}">{{ deltaLine }}</span>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ notLogged }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:12px;flex:1;justify-content:center;align-items:flex-start">
+<p style="font-size:15px;color:var(--text-muted);line-height:1.5">Nothing logged yet today. One tap up in the sky is enough &mdash; you don&rsquo;t owe me a paragraph.</p>
+<span style="font-size:13px;color:var(--text-subtle)">Yesterday you were <span style="color:var(--text-muted);font-weight:500">Anxious</span> at 40%.</span>
+</div>
+</sc-if>
+</section>
+
+<section style="background:var(--surface);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow-card);padding:22px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center">
+<span style="align-self:flex-start;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text-subtle)">Check-in streak</span>
+<div style="display:inline-flex;align-items:center;gap:12px;padding:12px 24px;border-radius:18px;background:linear-gradient(135deg,#F6C06B 0%,#EFA94A 100%);box-shadow:0 8px 20px rgba(239,169,74,.28)">
+<span style="font-size:26px;line-height:1">🔥</span>
+<span style="font-family:'Fraunces',Georgia,serif;font-size:34px;font-weight:600;line-height:1;color:#3B2A12">{{ streakDays }}</span>
+</div>
+<div style="display:flex;flex-direction:column;gap:2px">
+<span style="font-size:14px;color:var(--text-muted)">days in a row</span>
+<span style="font-size:12.5px;color:var(--text-subtle)">{{ streakNote }}</span>
+</div>
+<div style="margin-top:auto;padding-top:14px;border-top:1px solid var(--border);width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+<div style="display:flex;flex-direction:column">
+<span style="font-family:'Fraunces',Georgia,serif;font-size:22px;font-weight:600;line-height:1.2;color:var(--text)">14</span>
+<span style="font-size:11.5px;color:var(--text-subtle)">longest</span>
+</div>
+<div style="display:flex;flex-direction:column">
+<span style="font-family:'Fraunces',Georgia,serif;font-size:22px;font-weight:600;line-height:1.2;color:var(--text)">{{ sessions }}</span>
+<span style="font-size:11.5px;color:var(--text-subtle)">sessions</span>
+</div>
+</div>
+</section>
+
+<section style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:20px;box-shadow:var(--shadow-card);padding:22px;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;align-items:center;gap:9px">
+<span style="width:26px;height:26px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">🔔</span>
+<span style="font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)">DHIRA checked in</span>
+</div>
+<p style="font-family:'Fraunces',Georgia,serif;font-size:16.5px;font-style:italic;line-height:1.5;color:var(--text);text-wrap:pretty">&ldquo;Kal thoda heavy lag raha tha. Just checking in &mdash; how are you sitting with it today?&rdquo;</p>
+<span style="display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--text-subtle);padding-top:12px;border-top:1px solid var(--border)">
+<span style="font-size:12px">🌙</span>Sent within your 8 PM&ndash;11 PM window
+</span>
+<a href="Chat.dc.html" style="margin-top:auto;font-size:14px;font-weight:500">Respond to DHIRA →</a>
+</section>
+</div>
+
+<div style="display:grid;grid-template-columns:1.55fr 1fr;gap:18px;align-items:stretch">
+<section style="background:var(--surface);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow-card);padding:24px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px">
+<div style="display:flex;flex-direction:column;gap:2px">
+<span style="font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text-subtle)">This week</span>
+<h2 style="font-family:'Fraunces',Georgia,serif;font-size:21px;font-weight:600;letter-spacing:-0.02em;color:var(--text)">Your week, as a current</h2>
+</div>
+<a href="Timeline.dc.html" style="font-size:13px;font-weight:500;white-space:nowrap">Full timeline →</a>
+</div>
+<div style="position:relative;display:flex;flex-direction:column;gap:12px">
+<div style="position:relative;display:grid;grid-template-columns:repeat(7,1fr);gap:18px;align-items:end;padding-bottom:2px">
+<span style="position:absolute;left:0;right:0;bottom:26px;height:1px;background:var(--border)"></span>
+<sc-for list="{{ tiles }}" as="t" hint-placeholder-count="7">
+<button onClick="{{ t.pick }}" title="{{ t.title }}" style="display:grid;grid-template-rows:auto 1fr auto;justify-items:center;gap:8px;height:100%;background:none;border:none;padding:0;cursor:pointer">
+<span style="font-size:10.5px;letter-spacing:.14em;color:{{ t.labelColor }};font-weight:{{ t.wt }}">{{ t.day }}</span>
+<span style="align-self:end;position:relative;width:100%;max-width:52px;height:{{ t.h }}px;border-radius:14px;background:linear-gradient(165deg,{{ t.top }} 0%,{{ t.color }} 62%,{{ t.deep }} 100%);box-shadow:{{ t.shadow }};transform:translateY({{ t.lift }});transition:transform .22s cubic-bezier(.2,.8,.3,1),box-shadow .22s;transform-origin:bottom;animation:h4Grow .7s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:{{ t.delay }}" style-hover="transform:translateY(-6px)">
+<span style="position:absolute;left:6px;right:6px;top:6px;height:34%;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,0))"></span>
+<span style="position:absolute;inset:0;border-radius:14px;border:{{ t.ring }}"></span>
+<span style="position:absolute;left:50%;bottom:8px;transform:translateX(-50%);width:{{ t.dot }};height:{{ t.dot }};border-radius:50%;background:rgba(255,255,255,.75)"></span>
+</span>
+<span style="font-size:11.5px;color:{{ t.dateColor }};font-weight:{{ t.wt }}">{{ t.date }}</span>
+</button>
+</sc-for>
+</div>
+<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:14px;background:var(--surface-alt);border-left:3px solid {{ selColor }}">
+<span style="width:10px;height:10px;border-radius:50%;background:{{ selColor }};flex-shrink:0"></span>
+<span style="font-size:13.5px;color:var(--text);font-weight:500">{{ selTitle }}</span>
+<span style="font-size:13px;color:var(--text-muted)">{{ selNote }}</span>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-top:14px;border-top:1px solid var(--border)">
+<span style="font-size:13px;color:var(--text-muted);margin-right:auto">{{ weekReading }}</span>
+<div style="display:flex;gap:12px;flex-wrap:wrap">
+<sc-for list="{{ legend }}" as="l" hint-placeholder-count="5">
+<span style="display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-subtle)"><span style="width:8px;height:8px;border-radius:50%;background:{{ l.color }}"></span>{{ l.label }}</span>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section style="background:var(--surface);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow-card);padding:22px;display:flex;flex-direction:column;gap:13px">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<h2 style="font-family:'Fraunces',Georgia,serif;font-size:18px;font-weight:600;color:var(--text)">Recent entries</h2>
+<a href="Timeline.dc.html" style="font-size:12.5px">All</a>
+</div>
+<sc-for list="{{ entries }}" as="e" hint-placeholder-count="2">
+<a href="Timeline.dc.html" style="display:flex;flex-direction:column;gap:7px;padding:13px 14px;border-radius:14px;background:var(--surface-alt);border-left:3px solid {{ e.badgeBg }};transition:transform .15s" style-hover="transform:translateX(3px)">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+<span style="font-size:11.5px;color:var(--text-subtle);font-weight:500">{{ e.date }}</span>
+<span style="padding:2px 9px;border-radius:999px;background:{{ e.badgeSoft }};color:{{ e.badgeInk }};font-size:11px;font-weight:600">{{ e.badge }}</span>
+</div>
+<p style="font-size:13px;color:var(--text-muted);line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">{{ e.preview }}</p>
+</a>
+</sc-for>
+<a href="Chat.dc.html" style="margin-top:auto;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 0;border-radius:12px;background:var(--primary-soft);color:var(--primary);font-size:14px;font-weight:500;border:1px solid transparent" style-hover="border-color:var(--primary)">New entry →</a>
+</section>
+</div>
+</div>
+<sc-if value="{{ checkinOpen }}" hint-placeholder-val="{{ false }}">
+<div role="dialog" aria-modal="true" aria-label="How are you right now?" style="position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(18,18,34,.55);backdrop-filter:blur(6px);animation:h4Fade .22s ease both">
+<div style="width:100%;max-width:520px;background:var(--surface);border:1px solid var(--border);border-radius:24px;box-shadow:0 30px 70px rgba(0,0,0,.35);padding:26px 26px 22px;display:flex;flex-direction:column;gap:18px;animation:h4Rise .3s cubic-bezier(.2,.8,.3,1) both">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+<div style="display:flex;flex-direction:column;gap:2px">
+<h2 style="font-family:'Fraunces',Georgia,serif;font-size:24px;font-weight:600;letter-spacing:-0.025em;color:var(--text)">How are you right now?</h2>
+<p style="font-size:14.5px;color:var(--text-muted)">No right or wrong answer.</p>
+</div>
+<button onClick="{{ closeCheckin }}" aria-label="Close" style="width:32px;height:32px;flex-shrink:0;border-radius:50%;border:none;background:var(--surface-alt);color:var(--text-muted);cursor:pointer;font-size:14px;transition:all .16s" style-hover="background:var(--crisis-surface);color:var(--crisis)">✕</button>
+</div>
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+<sc-for list="{{ moodGrid }}" as="m" hint-placeholder-count="10">
+<button onClick="{{ m.pick }}" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 4px 9px;border-radius:16px;background:{{ m.bg }};border:1.5px solid {{ m.border }};cursor:pointer;transition:all .16s" style-hover="transform:translateY(-3px)">
+<span style="font-size:24px;line-height:1">{{ m.emoji }}</span>
+<span style="font-size:11.5px;color:{{ m.ink }};font-weight:{{ m.wt }}">{{ m.label }}</span>
+</button>
+</sc-for>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1.2fr;gap:12px">
+<button onClick="{{ closeCheckin }}" style="padding:13px 0;border-radius:14px;background:var(--surface);border:1px solid var(--border);color:var(--text-muted);font-size:15px;cursor:pointer;transition:all .16s" style-hover="border-color:var(--primary);color:var(--primary)">Not now</button>
+<button onClick="{{ saveMood }}" style="display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 0;border-radius:14px;border:none;background:{{ saveBg }};color:#FFFFFF;font-size:15px;font-weight:500;cursor:{{ saveCursor }};opacity:{{ saveOp }};transition:all .16s">✓ Save mood</button>
+</div>
+</div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280}}">
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    let theme='night', shift='day';
+    try{ theme=localStorage.getItem('DHIRA-theme')||'night'; shift=localStorage.getItem('DHIRA-shift')||'day'; }catch(e){}
+    this.state={theme,shift,preview:'auto',logged:'neutral',sel:6};
+    if(typeof document!=='undefined') document.body.classList.toggle('night', theme==='night');
+  }
+  shiftDef(k){ return ({day:{wake:6,sleep:22},afternoon:{wake:11,sleep:3},night:{wake:19,sleep:10},rotating:{wake:-1,sleep:-1}})[k]||{wake:6,sleep:22}; }
+  phase(hour,shift){
+    if(shift==='rotating') return 'rotating';
+    const s=this.shiftDef(shift), within=(h,a,b)=> a<b ? (h>=a&&h<b) : (h>=a||h<b);
+    if(!within(hour,s.wake,s.sleep)) return 'offhours';
+    const span=(s.sleep-s.wake+24)%24||24, into=(hour-s.wake+24)%24;
+    return into<span*0.25?'waking':into<span*0.75?'working':'winding';
+  }
+  renderVals(){
+    const s=this.state, night=s.theme==='night';
+    const MC={happy:'#F0C46B',calm:'#8FBCA4',hopeful:'#79C2C4',neutral:'#B9B2A4',stressed:'#E0A94F',anxious:'#8794DA',lonely:'#A99BC9',overwhelmed:'#9C6B8E',sad:'#7089B0',angry:'#C56B5C'};
+    const SOFT={happy:'#FBF1DC',calm:'#E8F2EC',hopeful:'#E3F2F2',neutral:'#F0EDE6',stressed:'#FAEEDC',anxious:'#E9EBF8',lonely:'#F0ECF7',overwhelmed:'#F1E7EE',sad:'#E7ECF4',angry:'#F9EDE9'};
+    const WT={happy:.2,calm:.28,hopeful:.22,neutral:.4,stressed:.62,anxious:.72,lonely:.58,overwhelmed:.9,sad:.6,angry:.74};
+    const SKY={
+      morning:{light:true,sky:'linear-gradient(120deg,#3C6E9E 0%,#79A7C6 44%,#C8CBDC 76%,#F6D9BC 100%)',orbY:'140',orbR:'44',orbFill:'#FFF4DA',orbGlow:'#FFEBC0',orbGlowOp:'0.5',craterOp:'0',starOp:'0',cloudOp:'0.2',hillA:'#3E5D6B',hillB:'#6E8E96',halo:'rgba(255,236,200,.55)'},
+      afternoon:{light:true,sky:'linear-gradient(120deg,#2F6BA8 0%,#5E97C8 42%,#A9C4DB 76%,#EFD9C4 100%)',orbY:'120',orbR:'50',orbFill:'#FFF9E8',orbGlow:'#FFF3CE',orbGlowOp:'0.55',craterOp:'0',starOp:'0',cloudOp:'0.26',hillA:'#375E56',hillB:'#618B74',halo:'rgba(255,246,214,.5)'},
+      evening:{sky:'linear-gradient(120deg,#3B3468 0%,#6B4B7E 40%,#B96F7C 74%,#F0A96E 100%)',orbY:'300',orbR:'52',orbFill:'#FFD9A0',orbGlow:'#FFB870',orbGlowOp:'0.55',craterOp:'0',starOp:'0.4',cloudOp:'0.14',hillA:'#3E3255',hillB:'#6B4C63',halo:'rgba(255,188,130,.45)'},
+      night:{sky:'linear-gradient(120deg,#171935 0%,#2A2550 44%,#463A6E 78%,#5E4A72 100%)',orbY:'132',orbR:'46',orbFill:'#FFEFD4',orbGlow:'#FFE6BE',orbGlowOp:'0.45',craterOp:'1',starOp:'1',cloudOp:'0.05',hillA:'#2B2450',hillB:'#4B3D6E',halo:'rgba(190,180,255,.38)'}
+    };
+    const hour=new Date().getHours();
+    const autoSky=(hour>=21||hour<5)?'night':hour<12?'morning':hour<17?'afternoon':'evening';
+    const skyKey = s.preview==='auto'?autoSky:(s.preview==='offhours'?'afternoon':s.preview);
+    const sk=SKY[skyKey]||SKY.night;
+    const ph = s.preview==='auto' ? this.phase(hour,s.shift) : (s.preview==='offhours'?'offhours':null);
+    const name='Friend';
+    const BYSKY={
+      morning:{eyebrow:'Morning · DHIRA is awake',greet:'Good morning, '+name+'.',q:'How did the night treat you?',presence:'I was here through the night. Nothing needed answering \u2014 I just stayed.'},
+      afternoon:{eyebrow:'Afternoon · DHIRA is awake',greet:'Afternoon, '+name+'.',q:'How is the day sitting so far?',presence:'Midday or 3 AM, it makes no difference to me. I am here either way.'},
+      evening:{eyebrow:'Evening · DHIRA is awake',greet:'Evening, '+name+'.',q:'What stayed with you today?',presence:'The day can end here if you want it to. I do not clock out.'},
+      night:{eyebrow:'Late night · DHIRA is awake',greet:'Still up, '+name+'?',q:'Kuch heavy lag raha hai?',presence:'This is the hour I was built for. Take as long as you need.'}
+    };
+    const BYPHASE={
+      waking:{eyebrow:'Your day starts now',greet:'Good morning, '+name+'.',q:'How does the start of this one feel?',presence:'Your morning, whatever the clock says. I follow your hours, not the world\u2019s.'},
+      working:{eyebrow:'Mid-shift · DHIRA is awake',greet:'Breathing room, '+name+'?',q:'How is the shift treating you?',presence:'Two minutes is plenty. I will still be here when it gets quieter.'},
+      winding:{eyebrow:'Shift almost done',greet:'Almost through, '+name+'.',q:'What are you carrying home from today?',presence:'You can set the shift down here before you go home.'},
+      offhours:{eyebrow:'Your quiet hours',greet:'Can\u2019t switch off, '+name+'?',q:'Is your head still running on shift time?',presence:'This is meant to be your rest. If it isn\u2019t coming, we can sit with that.'},
+      rotating:{eyebrow:'Whenever you land',greet:'Welcome back, '+name+'.',q:'How is this week running you?',presence:'Your weeks move around. I don\u2019t \u2014 I am here whenever you land.'}
+    };
+    const base=BYSKY[skyKey]||BYSKY.night;
+    const copy = (ph && BYPHASE[ph] && s.shift!=='day') ? BYPHASE[ph] : (s.preview==='offhours'?BYPHASE.offhours:base);
+    const QUICK=[['calm','Calm','\uD83D\uDE0C'],['hopeful','Hopeful','\uD83C\uDF31'],['neutral','Okay','\uD83D\uDE36'],['anxious','Anxious','\uD83D\uDE30'],['overwhelmed','A lot','\uD83C\uDF0A']];
+    const WEEK=[{day:'Sat',date:'5',mood:'calm'},{day:'Sun',date:'6',mood:'hopeful'},{day:'Mon',date:'7',mood:'stressed'},{day:'Tue',date:'8',mood:'overwhelmed'},{day:'Wed',date:'9',mood:'anxious'},{day:'Thu',date:'10',mood:'anxious'},{day:'Fri',date:'11',mood:(s.logged||'neutral'),today:true,pending:!s.logged}];
+    const ALL=[['happy','Happy','\uD83D\uDE0A'],['calm','Calm','\uD83D\uDE0C'],['hopeful','Hopeful','\uD83C\uDF31'],['neutral','Neutral','\uD83D\uDE36'],['stressed','Stressed','\uD83D\uDE23'],
+      ['anxious','Anxious','\uD83D\uDE30'],['lonely','Lonely','\uD83C\uDF27\uFE0F'],['overwhelmed','Overwhelmed','\uD83C\uDF0A'],['sad','Sad','\uD83D\uDE22'],['angry','Angry','\uD83C\uDF0B']];
+    const lg=s.logged?(ALL.find(q=>q[0]===s.logged)||QUICK.find(q=>q[0]===s.logged)):null;
+    const FOLLOW={happy:'I am glad. Let us keep it.',calm:'I will keep it gentle today.',hopeful:'Good to hear that.',neutral:'Okay is allowed \u2014 we can leave it there.',
+      stressed:'One thing at a time, then.',anxious:'We can sit with it whenever you want.',lonely:'You are not talking to an empty room.',
+      overwhelmed:'Let us take just one piece of it.',sad:'You can bring that here.',angry:'That is allowed too. Say it plainly.'};
+    const INT={happy:24,calm:22,hopeful:26,neutral:30,stressed:66,anxious:64,lonely:58,overwhelmed:82,sad:60,angry:74};
+
+    const hx=h=>[1,3,5].map(i=>parseInt(h.substr(i,2),16));
+    const mix=(a,b,t)=>{const A=hx(a),B=hx(b);return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('');};
+    const hexA=(h,a)=>{const A=hx(h);return 'rgba('+A[0]+','+A[1]+','+A[2]+','+a+')';};
+    const sel=Math.min(Math.max(s.sel==null?6:s.sel,0),6), selD=WEEK[sel];
+    const NOTE={happy:'a good one \u2014 worth keeping.',calm:'a steady one \u2014 nothing needed fixing.',hopeful:'something lifted that day.',stressed:'work pressed in.',
+      anxious:'the same worry kept circling back.',lonely:'a day that needed company.',overwhelmed:'the heaviest point of the week.',
+      neutral:'quiet. okay is allowed.',sad:'a heavy, slower day.',angry:'something crossed a line that day.'};
+    const LBL={happy:'Happy',calm:'Calm',hopeful:'Hopeful',stressed:'Stressed',anxious:'Anxious',lonely:'Lonely',overwhelmed:'Overwhelmed',neutral:'Neutral',sad:'Sad',angry:'Angry'};
+    const intensity = lg ? (INT[lg[0]]||30) : 30;
+
+    return {
+      themeGlyph: night?'\u2600':'\u263e',
+      toggleTheme:()=>{const t=night?'day':'night';try{localStorage.setItem('DHIRA-theme',t);}catch(e){}document.body.classList.toggle('night',t==='night');this.setState({theme:t});},
+      previews:[['auto','Auto (live)'],['morning','Morning'],['afternoon','Afternoon'],['evening','Evening'],['night','Night'],['offhours','Off-hours']].map(p=>{
+        const on=s.preview===p[0];
+        return {label:p[1],pick:()=>this.setState({preview:p[0]}),border:on?'var(--primary)':'var(--border)',bg:on?'var(--primary-soft)':'var(--surface)',color:on?'var(--primary)':'var(--text-muted)'};
+      }),
+      cardBg: sk.light?'rgba(255,255,255,.34)':'rgba(20,18,44,.32)',
+      ribbonBg: sk.light?'rgba(255,255,255,.44)':'rgba(14,14,34,.46)',
+      scrimBg: sk.light?'rgba(22,28,38,.42)':'rgba(14,14,34,.44)',
+      cardBorder: sk.light?'rgba(255,255,255,.6)':'rgba(255,255,255,.18)',
+      ink: sk.light?'#2A2750':'#F1EEF9',
+      inkStrong: sk.light?'#1B1940':'#FFFFFF',
+      inkSoft: sk.light?'rgba(27,25,64,.74)':'rgba(255,255,255,.68)',
+      inkRule: sk.light?'rgba(27,25,64,.24)':'rgba(255,255,255,.22)',
+      heroSky:sk.sky, orbY:sk.orbY, orbR:sk.orbR, orbFill:sk.orbFill, orbGlow:sk.orbGlow, orbGlowOp:sk.orbGlowOp,
+      craterOp:sk.craterOp, crater1Y:String(Number(sk.orbY)-13), crater2Y:String(Number(sk.orbY)+17),
+      starOp:sk.starOp, cloudOp:sk.cloudOp, hillA:sk.hillA, hillB:sk.hillB, botHalo:sk.halo,
+      eyebrow:copy.eyebrow, greeting:copy.greet, question:copy.q, presenceLine:copy.presence,
+      rememberGlyph: sk.light?'\u2600\uFE0F':'\uD83C\uDF19',
+      rememberLine:'Shared something that felt heavy today and took a moment to put it into words.',
+      quickMoods:QUICK.map(q=>({label:q[1],emoji:q[2],pick:()=>this.setState({logged:q[0]})})),
+      notLogged:!s.logged, isLogged:!!s.logged,
+      moodTime: lg?('Logged at '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}).toLowerCase()):'Not logged yet',
+      moodTopic:'self',
+      intensity:String(intensity),
+      deltaGlyph: intensity<40?'\u2198':'\u2197',
+      deltaColor: intensity<40?'var(--sage)':'var(--accent)',
+      deltaLine: intensity<40?'Lower than yesterday':'Higher than yesterday',
+      loggedLabel:lg?lg[1]:'', loggedEmoji:lg?lg[2]:'', loggedColor:lg?MC[lg[0]]:'#B9B2A4', loggedSoft:lg?SOFT[lg[0]]:'#F0EDE6',
+      loggedText:(lg&&['anxious','overwhelmed','sad','angry','lonely'].includes(lg[0]))?'#ffffff':'#241F16',
+      loggedFollow:lg?(FOLLOW[lg[0]]||''):'',
+      resetMood:()=>this.setState({logged:null}),
+      checkinOpen:!!s.checkin,
+      openCheckin:()=>this.setState({checkin:true,pick:s.logged||null}),
+      closeCheckin:()=>this.setState({checkin:false,pick:null}),
+      moodGrid:ALL.map(m=>{const on=s.pick===m[0];
+        return {label:m[1],emoji:m[2],bg:on?SOFT[m[0]]:'var(--surface-alt)',
+          border:on?MC[m[0]]:'transparent',ink:on?'var(--text)':'var(--text-muted)',wt:on?'600':'400',
+          pick:()=>this.setState({pick:m[0]})};}),
+      saveBg:s.pick?'var(--primary)':'var(--text-subtle)',
+      saveCursor:s.pick?'pointer':'not-allowed',
+      saveOp:s.pick?'1':'.55',
+      saveMood:()=>{ if(!s.pick) return; this.setState({logged:s.pick,checkin:false,pick:null}); },
+      streakDays: s.logged?'6':'5',
+      streakNote: s.logged?'You\u2019ve shown up. That matters.':'Check in today to keep it going.',
+      sessions: s.logged?'1':'0',
+      weekReading: s.logged?('Work came up on 4 of 7 days · today logged as '+LBL[s.logged]+'.'):'Work came up on 4 of 7 days · today is still open.',
+      tiles:WEEK.map((d,i)=>{const on=i===sel,c=MC[d.mood],pd=!!d.pending;
+        return {h:String(Math.round(34+(WT[d.mood]||.4)*44)),
+          color:pd?'var(--surface-alt)':c, top:pd?'var(--surface-alt)':mix(c,'#FFFFFF',.34), deep:pd?'var(--surface-alt)':mix(c,'#000000',.12),
+          shadow:pd?'none':(on?'0 14px 26px '+hexA(c,.42):'0 6px 14px '+hexA(c,.26)),
+          lift:on?'-7px':'0px',
+          ring:pd?'1.5px dashed var(--text-subtle)':(on?'2px solid rgba(255,255,255,.9)':'1px solid rgba(255,255,255,.35)'),
+          dot:d.today?'5px':'0px', delay:(i*0.06).toFixed(2)+'s',
+          day:d.day.toUpperCase(),date:d.date,title:d.day+' · '+LBL[d.mood],
+          labelColor:on?'var(--primary)':'var(--text-subtle)',dateColor:on?'var(--primary)':'var(--text-subtle)',
+          wt:on?'600':'400', pick:()=>this.setState({sel:i})};}),
+      selColor:selD.pending?'var(--text-subtle)':MC[selD.mood],
+      selTitle:selD.day+' '+selD.date+' · '+(selD.pending?'Not logged yet':LBL[selD.mood]),
+      selNote:selD.pending?'today — tap Start today\u2019s check-in whenever you\u2019re ready.':((selD.today?'today — ':'')+(NOTE[selD.mood]||'')),
+      legend:['calm','hopeful','neutral','stressed','anxious','overwhelmed'].filter(m=>WEEK.some(d=>d.mood===m)).map(m=>({label:LBL[m],color:MC[m]})),
+      entries:[
+        {date:s.logged?'Today':'20 Jul',badge:s.logged?LBL[s.logged]:'Neutral',
+          badgeBg:MC[s.logged||'neutral'],badgeSoft:SOFT[s.logged||'neutral'],badgeInk:'#5E5C6E',
+          preview:s.logged?('Checked in as '+LBL[s.logged]+' \u2014 '+(NOTE[s.logged]||'')):'Shared something that felt heavy today and took a moment to put it into words.'},
+        {date:'20 Jul',badge:'Neutral',badgeBg:MC.neutral,badgeSoft:SOFT.neutral,badgeInk:'#5E5C6E',preview:'Shared something that felt heavy today and took a moment to put it into words.'}
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
