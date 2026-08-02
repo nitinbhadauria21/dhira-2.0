@@ -10,16 +10,23 @@ export default function LandingCTA() {
       style={{ backgroundColor: 'var(--color-surface-alt)' }}
     >
       <div className="max-w-2xl mx-auto text-center relative z-10">
-        <div
-          className="w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-8"
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/illustrations/scene_2am.png"
+          alt="DHIRA sitting cross-legged under a starlit sky, holding a small glowing light"
+          width={340}
+          height={215}
+          className="mx-auto mb-7 block"
           style={{
-            backgroundColor: 'var(--color-surface)',
+            width: 340,
+            maxWidth: '100%',
+            height: 215,
+            objectFit: 'cover',
+            borderRadius: 22,
             border: '1px solid var(--color-border)',
-            boxShadow: '0 0 32px rgba(239,169,74,0.3)',
+            boxShadow: '0 18px 40px rgba(38,32,66,0.22), 0 0 32px rgba(239,169,74,0.3)',
           }}
-        >
-          🌙
-        </div>
+        />
 
         <h2
           className="mb-4"
@@ -31,7 +38,7 @@ export default function LandingCTA() {
             lineHeight: 1.2,
           }}
         >
-          It&apos;s 2 AM and something feels heavy.
+          When the world goes quiet, but your mind won&apos;t.
         </h2>
         <p
           className="mb-10"

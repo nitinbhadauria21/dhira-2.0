@@ -44,10 +44,27 @@ export default function ChatMemoryBanner() {
       <div className="flex items-start gap-2">
         <span style={{ fontSize: '14px', flexShrink: 0, marginTop: '1px' }}>🌙</span>
         <div>
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: '11px', fontWeight: 600, color: 'var(--color-text-subtle)', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '3px' }}>
-            Dhira remembers · Yesterday
+          <p
+            style={{
+              fontFamily: 'var(--font-ui)',
+              fontSize: '11px',
+              fontWeight: 600,
+              color: 'var(--color-text-subtle)',
+              letterSpacing: '0.07em',
+              textTransform: 'uppercase',
+              marginBottom: '3px',
+            }}
+          >
+            DHIRA remembers · Yesterday
           </p>
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: 'var(--color-text)', lineHeight: 1.55 }}>
+          <p
+            style={{
+              fontFamily: 'var(--font-ui)',
+              fontSize: '14px',
+              color: 'var(--color-text)',
+              lineHeight: 1.55,
+            }}
+          >
             &ldquo;{memory.summary}&rdquo;
           </p>
         </div>

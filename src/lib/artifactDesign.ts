@@ -61,25 +61,25 @@ export const FEATURES = [
   {
     glyph: 'ear',
     title: 'Listens, never advises',
-    body: 'Dhira reflects your feelings and asks one gentle question at a time. No prescriptions, no unsolicited advice — just a space to be heard.',
+    body: 'DHIRA reflects your feelings and asks one gentle question at a time. No prescriptions, no unsolicited advice — just a space to be heard.',
     detail: '"That sounds heavy. Tell me more."',
   },
   {
     glyph: 'moon',
     title: 'Remembers gently',
-    body: 'After each chat, Dhira keeps a quiet note of what you shared. Next time, she starts from where you left off.',
+    body: 'After each chat, DHIRA keeps a quiet note of what you shared. Next time, DHIRA starts from where you left off.',
     detail: '"Last time work was sitting heavy on you — how\'s that today?"',
   },
   {
     glyph: 'chat',
     title: 'Reaches out first',
-    body: 'Within your chosen window, Dhira checks in unprompted — because sometimes the hardest thing is starting the conversation.',
+    body: 'Within your chosen window, DHIRA checks in unprompted — because sometimes the hardest thing is starting the conversation.',
     detail: '"Kal thoda heavy lag raha tha. Just checking in."',
   },
   {
     glyph: 'shield',
     title: 'Safety built in',
-    body: 'When things feel too heavy, Dhira steps back and connects you to real help — Tele-MANAS 14416, free and 24×7.',
+    body: 'When things feel too heavy, DHIRA steps back and connects you to real help — Tele-MANAS 14416, free and 24×7.',
     detail: "You don't have to be alone with this.",
   },
 ] as const;
@@ -89,19 +89,19 @@ export const STEPS = [
     number: '01',
     glyph: 'person',
     title: 'Create your profile',
-    body: "Sign up and select the language you'd like to talk to Dhira in.",
+    body: "Sign up and select the language you'd like to talk to DHIRA in.",
   },
   {
     number: '02',
     glyph: 'clock',
     title: 'Set your check-in window',
-    body: 'Tell Dhira when she may reach out — 10 PM to 1 AM, a few times a week, in Hinglish. Your rules.',
+    body: 'Tell DHIRA when to reach out — 10 PM to 1 AM, a few times a week, in Hinglish. Your rules.',
   },
   {
     number: '03',
     glyph: 'chatDots',
     title: 'Talk. Be heard.',
-    body: 'Open a chat anytime, or let Dhira come to you. She listens, reflects, and asks one gentle question.',
+    body: 'Open a chat anytime, or let DHIRA come to you. DHIRA listens, reflects, and asks one gentle question.',
   },
   {
     number: '04',
@@ -116,7 +116,7 @@ export const TESTIMONIALS = [
     quote:
       'Pehli baar kisi ne mujhe sirf suna — bina kuch solve karne ki koshish kiye. That felt different.',
     name: 'Aarav S.',
-    meta: 'Mumbai · 3 weeks with Dhira',
+    meta: 'Mumbai · 3 weeks with DHIRA',
     moodColor: '#8FBCA4',
     mood: 'Calmer',
   },
@@ -132,7 +132,7 @@ export const TESTIMONIALS = [
     quote:
       "Mujhe pata tha ye AI hai, phir bhi laga koi sun raha hai. That's the whole point, isn't it.",
     name: 'Rohan M.',
-    meta: 'Delhi · 2 weeks with Dhira',
+    meta: 'Delhi · 2 weeks with DHIRA',
     moodColor: '#F0C46B',
     mood: 'Lighter',
   },
@@ -161,7 +161,7 @@ export const PROMISES = [
   {
     glyph: 'heart',
     title: 'A listener, not a therapist',
-    body: 'Dhira listens and remembers. She does not diagnose, advise, or judge.',
+    body: 'DHIRA listens and remembers. DHIRA does not diagnose, advise, or judge.',
     span: 1 as const,
   },
 ] as const;
@@ -181,7 +181,7 @@ export const LANGUAGE_OPTIONS = [
   {
     value: 'english' as const,
     label: 'English',
-    sub: 'Full English responses from Dhira',
+    sub: 'Full English responses from DHIRA',
   },
 ];
 
@@ -266,8 +266,7 @@ export const ARTIFACT_CHAT_SEED = [
   {
     id: 'm2',
     role: 'user' as const,
-    content:
-      'Haan yaar, office mein bilkul mann nahi laga. Sab kuch overwhelming lag raha tha.',
+    content: 'Haan yaar, office mein bilkul mann nahi laga. Sab kuch overwhelming lag raha tha.',
     timestamp: '10:39 PM',
   },
   {
@@ -293,8 +292,7 @@ export const ARTIFACT_CHAT_SEED = [
   },
 ];
 
-export const ARTIFACT_MEMORY_LINE =
-  "Last time, work was sitting heavy on you — how's that today?";
+export const ARTIFACT_MEMORY_LINE = "Last time, work was sitting heavy on you — how's that today?";
 
 export const ARTIFACT_CHECKIN_LINE =
   'Kal thoda heavy lag raha tha. Just checking in — how are you sitting with it today?';
@@ -303,4 +301,4 @@ export const HERO_TAGLINE =
   'A private, anonymous companion that listens at the hardest hour — never advising, always present.';
 
 export const CTA_BODY =
-  'Dhira is already there. Anonymous, private, and ready to listen — no sign-up friction, no real name required.';
+  'DHIRA is already there. Anonymous, private, and ready to listen — no sign-up friction, no real name required.';

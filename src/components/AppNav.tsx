@@ -3,14 +3,16 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, MessageCircle, BarChart2, Moon, Sun, Menu, X, User, LogOut } from 'lucide-react';
+import { Home, MessageCircle, BarChart2, Moon, Sun, Menu, X, User, LogOut, BookOpen } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 import { signOut } from '@/lib/authClient';
+import BrandLockup from './BrandLockup';
 
 
 const navItems = [
   { label: 'Home', href: '/home-dashboard', icon: Home, key: 'nav-home' },
   { label: 'Chat', href: '/chat-with-dhira', icon: MessageCircle, key: 'nav-chat' },
+  { label: 'Notebook', href: '/notebook', icon: BookOpen, key: 'nav-notebook' },
   { label: 'Timeline', href: '/timeline', icon: BarChart2, key: 'nav-timeline' },
   { label: 'Profile', href: '/profile', icon: User, key: 'nav-profile' },
 ];
@@ -33,9 +35,9 @@ export default function AppNav() {
     setMobileMenuOpen(false);
     try {
       await signOut();
-      router.push('/sign-in');
+      router.push('/');
     } catch {
-      router.push('/sign-in');
+      router.push('/');
     } finally {
       setLoggingOut(false);
     }
@@ -52,9 +54,7 @@ export default function AppNav() {
           boxShadow: 'var(--shadow-card)',
         }}
       >
-        <Link href="/" className="wordmark text-2xl tracking-tight" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--color-text)' }}>
-          Dhira
-        </Link>
+        <BrandLockup href="/" size={24} />
 
         <div className="flex items-center gap-1">
           {navItems.map((item) => {
@@ -123,9 +123,7 @@ export default function AppNav() {
           borderBottom: '1px solid var(--color-border)',
         }}
       >
-        <Link href="/" className="wordmark text-xl" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--color-text)' }}>
-          Dhira
-        </Link>
+        <BrandLockup href="/" size={21} />
         <div className="flex items-center gap-2">
           <button
             onClick={toggleTheme}

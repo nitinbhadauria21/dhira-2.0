@@ -439,9 +439,9 @@
     animation: dhira-scroll-dot 1.8s ease-in-out infinite;
   }
 
-  /* How-it-works flip cards */
+  /* How-it-works cards — opacity crossfade (no 3D / perspective) */
   .dhira-flip-card {
-    perspective: 1200px;
+    /* kept class name for markup stability */
   }
 
   .dhira-flip-inner {
@@ -449,29 +449,20 @@
     width: 100%;
     height: 100%;
     text-align: center;
-    transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
-    transform-style: preserve-3d;
     cursor: pointer;
-    transform: rotateY(0deg);
-  }
-
-  .dhira-flip-card:hover .dhira-flip-inner,
-  .dhira-flip-card:focus-within .dhira-flip-inner {
-    transform: rotateY(180deg);
   }
 
   .dhira-flip-face,
   .dhira-flip-face-back {
     position: absolute;
     inset: 0;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
     border-radius: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 20px;
+    transition: opacity 0.45s ease;
   }
 
   .dhira-flip-face {
@@ -479,13 +470,29 @@
     border: 1px solid var(--color-border);
     box-shadow: var(--shadow-card);
     gap: 10px;
+    opacity: 1;
+    z-index: 1;
   }
 
   .dhira-flip-face-back {
     background: var(--color-primary-soft);
     border: 1px solid var(--color-primary);
     text-align: center;
-    transform: rotateY(180deg);
+    opacity: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .dhira-flip-card:hover .dhira-flip-face,
+  .dhira-flip-card:focus-within .dhira-flip-face,
+  .dhira-flip-card.is-open .dhira-flip-face {
+    opacity: 0;
+  }
+
+  .dhira-flip-card:hover .dhira-flip-face-back,
+  .dhira-flip-card:focus-within .dhira-flip-face-back,
+  .dhira-flip-card.is-open .dhira-flip-face-back {
+    opacity: 1;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -501,34 +508,29 @@
     .dhira-anim-dot-pulse,
     .dhira-anim-draw-line,
     .dhira-anim-scroll-dot,
-    .dhira-flip-inner,
+    .dhira-flip-face,
+    .dhira-flip-face-back,
     * {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
     }
 
-    .dhira-flip-card:hover .dhira-flip-inner,
-    .dhira-flip-card:focus-within .dhira-flip-inner {
-      transform: none;
-    }
-
-    .dhira-flip-face-back {
-      /* Show title/body without requiring hover when motion is reduced */
-      position: relative;
-      transform: none;
-      backface-visibility: visible;
-      margin-top: 12px;
-      min-height: auto;
-    }
-
     .dhira-flip-inner {
       height: auto !important;
-      transform-style: flat;
     }
 
     .dhira-flip-face {
       position: relative;
+      opacity: 1 !important;
+    }
+
+    .dhira-flip-face-back {
+      position: relative;
+      opacity: 1 !important;
+      margin-top: 12px;
+      min-height: auto;
+      pointer-events: auto;
     }
   }
 
@@ -559,5 +561,40 @@
 
   .theme-transition {
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  }
+
+  /* CalmLink floating buddy — bob / halo / contact shadow */
+  @keyframes dhira-bob {
+    0%,
+    100% {
+      transform: translateY(0) rotate(-1.5deg);
+    }
+    50% {
+      transform: translateY(-10px) rotate(1.5deg);
+    }
+  }
+
+  @keyframes dhira-halo {
+    0%,
+    100% {
+      opacity: 0.6;
+      transform: scale(0.95);
+    }
+    50% {
+      opacity: 0.95;
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes dhira-glow-pad {
+    0%,
+    100% {
+      opacity: 0.4;
+      transform: scale(0.92);
+    }
+    50% {
+      opacity: 0.75;
+      transform: scale(1.08);
+    }
   }
 }

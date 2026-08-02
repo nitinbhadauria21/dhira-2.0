@@ -115,7 +115,7 @@ export default function StepContract({ data, onChange, onFinish, onBack }: Props
             lineHeight: 1.2,
           }}
         >
-          {data.alias ? `${data.alias}, how often should Dhira check in?` : 'How often should Dhira check in?'}
+          {data.alias ? `${data.alias}, how often should DHIRA check in?` : 'How often should DHIRA check in?'}
         </h2>
         <p
           style={{
@@ -125,7 +125,7 @@ export default function StepContract({ data, onChange, onFinish, onBack }: Props
             lineHeight: 1.6,
           }}
         >
-          You can change this anytime in Settings. Dhira will never reach out without your permission.
+          You can change this anytime in Settings. DHIRA will never reach out without your permission.
         </p>
       </div>
 
@@ -212,13 +212,13 @@ export default function StepContract({ data, onChange, onFinish, onBack }: Props
           checked={data.consentCheckin}
           onChange={(v) => onChange({ consentCheckin: v })}
           title="Allow proactive check-ins"
-          body="Dhira may send a gentle nudge based on your chosen frequency. You can pause this anytime."
+          body="DHIRA may send a gentle nudge based on your chosen frequency. You can pause this anytime."
         />
         <ConsentRow
           checked={data.consentMemory}
           onChange={(v) => onChange({ consentMemory: v })}
-          title="Allow Dhira to remember"
-          body="Dhira stores mood metadata (not your words) to personalise future check-ins. No personal data is stored."
+          title="Allow DHIRA to remember"
+          body="DHIRA stores mood metadata (not your words) to personalise future check-ins. No personal data is stored."
         />
       </div>
 
@@ -285,7 +285,7 @@ export default function StepContract({ data, onChange, onFinish, onBack }: Props
           className="btn-accent"
           style={{ width: '100%', justifyContent: 'center', fontSize: '16px', padding: '15px 24px' }}
         >
-          Start talking to Dhira →
+          Start talking to DHIRA →
         </button>
         <button
           onClick={onBack}

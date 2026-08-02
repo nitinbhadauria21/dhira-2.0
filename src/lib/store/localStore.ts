@@ -9,6 +9,7 @@ import type {
   AuthUser,
   NotificationRecord,
   NotificationStatus,
+  NotebookEntry,
 } from '@/lib/types';
 import type { DhiraStore, AdminStats } from './types';
 
@@ -29,13 +30,23 @@ interface Db {
   riskEvents: RiskEventRecord[];
   authUsers: AuthUser[];
   notifications: NotificationRecord[];
+  notebookEntries: NotebookEntry[];
 }
 
 const DATA_DIR = path.join(process.cwd(), '.data');
 const DATA_FILE = path.join(DATA_DIR, 'dhira-store.json');
 
 function emptyDb(): Db {
-  return { profiles: [], messages: [], moods: [], memories: [], riskEvents: [], authUsers: [], notifications: [] };
+  return {
+    profiles: [],
+    messages: [],
+    moods: [],
+    memories: [],
+    riskEvents: [],
+    authUsers: [],
+    notifications: [],
+    notebookEntries: [],
+  };
 }
 
 function readDb(): Db {
@@ -76,6 +87,7 @@ export class LocalStore implements DhiraStore {
         timezone: 'Asia/Kolkata',
         state: null,
         city: null,
+        shift: 'day',
         voicePreference: null,
         consentCheckin: true,
         consentMemory: true,
@@ -94,6 +106,7 @@ export class LocalStore implements DhiraStore {
     if (profile.lastWeeklyAt === undefined) (profile as Profile).lastWeeklyAt = null;
     if (profile.state === undefined) (profile as Profile).state = null;
     if (profile.city === undefined) (profile as Profile).city = null;
+    if (profile.shift === undefined) (profile as Profile).shift = 'day';
     if (profile.voicePreference === undefined) (profile as Profile).voicePreference = null;
     return profile;
   }
@@ -164,6 +177,20 @@ export class LocalStore implements DhiraStore {
     const db = readDb();
     return db.memories
       .filter((m) => m.profileId === profileId)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, limit);
+  }
+
+  async addNotebookEntry(record: NotebookEntry): Promise<void> {
+    const db = readDb();
+    db.notebookEntries.push(record);
+    writeDb(db);
+  }
+
+  async getNotebookEntries(profileId: string, limit = 20): Promise<NotebookEntry[]> {
+    const db = readDb();
+    return db.notebookEntries
+      .filter((entry) => entry.profileId === profileId)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
       .slice(0, limit);
   }

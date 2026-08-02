@@ -39,7 +39,14 @@ export default function HomeJournalRecent({ entries }: HomeJournalRecentProps) {
   return (
     <div className="dhira-card p-6 h-full flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <p style={{ fontFamily: 'var(--font-display)', fontSize: '16px', fontWeight: 500, color: 'var(--color-text)' }}>
+        <p
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '16px',
+            fontWeight: 500,
+            color: 'var(--color-text)',
+          }}
+        >
           Recent entries
         </p>
         <Link
@@ -59,19 +66,37 @@ export default function HomeJournalRecent({ entries }: HomeJournalRecentProps) {
             onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'transparent')}
           >
             <div className="flex items-center justify-between mb-1.5">
-              <span style={{ fontFamily: 'var(--font-ui)', fontSize: '11px', color: 'var(--color-text-subtle)', fontWeight: 500 }}>
+              <span
+                style={{
+                  fontFamily: 'var(--font-ui)',
+                  fontSize: '11px',
+                  color: 'var(--color-text-subtle)',
+                  fontWeight: 500,
+                }}
+              >
                 {entry.date}
               </span>
               <MoodBadge mood={entry.topicTag} size="sm" />
             </div>
-            <p style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-muted)', lineHeight: 1.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+            <p
+              style={{
+                fontFamily: 'var(--font-ui)',
+                fontSize: '13px',
+                color: 'var(--color-text-muted)',
+                lineHeight: 1.5,
+                overflow: 'hidden',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+              }}
+            >
               {entry.preview}
             </p>
           </div>
         ))}
       </div>
       <Link
-        href="/chat-with-dhira"
+        href="/notebook"
         className="flex items-center justify-center gap-2 w-full py-3 rounded-control transition-all duration-200"
         style={{
           backgroundColor: 'var(--color-primary-soft)',

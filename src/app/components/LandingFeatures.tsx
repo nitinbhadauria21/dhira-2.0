@@ -23,7 +23,7 @@ export default function LandingFeatures() {
               letterSpacing: '0.12em',
             }}
           >
-            What Dhira does
+            What DHIRA does
           </p>
           <h2
             style={{
@@ -39,10 +39,7 @@ export default function LandingFeatures() {
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {FEATURES.map((f, i) => (
-            <div
-              key={f.title}
-              className="dhira-card feature-card-hover p-6 flex flex-col gap-4"
-            >
+            <div key={f.title} className="dhira-card feature-card-hover p-6 flex flex-col gap-4">
               <div
                 className="w-14 h-14 flex-shrink-0"
                 dangerouslySetInnerHTML={{
@@ -72,10 +69,7 @@ export default function LandingFeatures() {
                   {f.body}
                 </p>
               </div>
-              <div
-                className="mt-auto pt-4"
-                style={{ borderTop: '1px solid var(--color-border)' }}
-              >
+              <div className="mt-auto pt-4" style={{ borderTop: '1px solid var(--color-border)' }}>
                 <p
                   style={{
                     fontFamily: 'var(--font-ui)',

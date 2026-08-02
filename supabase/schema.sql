@@ -22,9 +22,10 @@ create table if not exists profiles (
   email_opt_in      boolean not null default true,
   whatsapp_opt_in   boolean not null default false,
   timezone          text not null default 'Asia/Kolkata',
-  state             text,   -- Indian state (set at sign-up; editable in Profile → Location)
-  city              text,   -- City (set at sign-up; editable in Profile → Location)
-  voice_preference  text,   -- male_english | female_english | male_hinglish | female_hinglish
+  state             text,   -- Indian state (required at sign-up)
+  city              text,   -- City (required at sign-up)
+  shift             text not null default 'day', -- day | afternoon | night | rotating
+  voice_preference  text,   -- optional; male_english | female_english | male_hinglish | female_hinglish
   consent_checkin   boolean not null default true,
   consent_memory    boolean not null default true,
   checkin_frequency text not null default 'daily',
@@ -66,6 +67,18 @@ create table if not exists memories (
   created_at    timestamptz not null default now()
 );
 create index if not exists memories_profile_idx on memories(profile_id, created_at);
+
+create table if not exists notebook_entries (
+  id               uuid primary key,
+  profile_id       uuid not null references profiles(id) on delete cascade,
+  created_at       timestamptz not null default now(),
+  mode             text not null check (mode in ('write', 'speak')),
+  body             text not null,
+  mood             text not null,
+  topics           text[] not null default '{}',
+  share_with_dhira boolean not null default true
+);
+create index if not exists notebook_entries_profile_idx on notebook_entries(profile_id, created_at desc);
 
 create table if not exists risk_events (
   id         uuid primary key,

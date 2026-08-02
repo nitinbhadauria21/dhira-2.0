@@ -8,10 +8,13 @@ import HomeMiniTimeline from './HomeMiniTimeline';
 import HomeProactiveCard from './HomeProactiveCard';
 import HomeJournalRecent from './HomeJournalRecent';
 import MoodCheckInModal from './MoodCheckInModal';
+import type { ShiftPreference } from '@/lib/timeOfDay';
+import type { MoodId } from '@/lib/artifactDesign';
 
 export interface DashboardData {
   alias: string;
   language: 'english' | 'hinglish';
+  shift?: ShiftPreference;
   latestMood: { mood: string; intensity: number; topic: string } | null;
   memory: { summary: string; carryForward: string } | null;
   streak: number;
@@ -38,6 +41,40 @@ export default function HomeDashboardContent() {
     loadData();
   }, [loadData]);
 
+  const handleMoodSaved = useCallback(
+    (savedMood: { mood: MoodId; intensity: number; createdAt: string; topic: string }) => {
+      const todayKey = savedMood.createdAt.slice(0, 10);
+      setData((current) => {
+        if (!current) return current;
+        const hadTodayMood = current.last7.some((day) => day.date === todayKey && day.mood);
+        const last7 = current.last7.map((day) =>
+          day.date === todayKey ? { ...day, mood: savedMood.mood } : day
+        );
+        const caption = `${savedMood.mood[0].toUpperCase()}${savedMood.mood.slice(1)} check-in at ${Math.round(savedMood.intensity * 100)}%.`;
+        return {
+          ...current,
+          latestMood: {
+            mood: savedMood.mood,
+            intensity: savedMood.intensity,
+            topic: savedMood.topic,
+          },
+          streak: hadTodayMood ? current.streak : Math.max(1, current.streak + 1),
+          totalSessions: hadTodayMood ? current.totalSessions : current.totalSessions + 1,
+          last7,
+          recentJournal: [
+            {
+              summary: caption,
+              topic: savedMood.topic,
+              createdAt: savedMood.createdAt,
+            },
+            ...current.recentJournal,
+          ].slice(0, 3),
+        };
+      });
+    },
+    []
+  );
+
   return (
     <div className="relative min-h-screen">
       {/* ── Organic blob 1: indigo top-right ── */}
@@ -46,7 +83,8 @@ export default function HomeDashboardContent() {
         style={{
           width: '600px',
           height: '550px',
-          background: 'radial-gradient(ellipse 55% 60% at 60% 40%, rgba(90, 103, 184, 0.13) 0%, rgba(174, 161, 218, 0.06) 55%, transparent 75%)',
+          background:
+            'radial-gradient(ellipse 55% 60% at 60% 40%, rgba(90, 103, 184, 0.13) 0%, rgba(174, 161, 218, 0.06) 55%, transparent 75%)',
           filter: 'blur(50px)',
           borderRadius: '40% 60% 55% 45% / 50% 45% 55% 50%',
           zIndex: 0,
@@ -59,7 +97,8 @@ export default function HomeDashboardContent() {
         style={{
           width: '480px',
           height: '420px',
-          background: 'radial-gradient(ellipse 60% 55% at 40% 60%, rgba(239, 169, 74, 0.1) 0%, transparent 65%)',
+          background:
+            'radial-gradient(ellipse 60% 55% at 40% 60%, rgba(239, 169, 74, 0.1) 0%, transparent 65%)',
           filter: 'blur(60px)',
           borderRadius: '55% 45% 40% 60% / 45% 55% 50% 50%',
           zIndex: 0,
@@ -112,8 +151,24 @@ export default function HomeDashboardContent() {
         />
 
         {/* Organic shapes */}
-        <ellipse cx="100" cy="150" rx="20" ry="13" fill="var(--color-lavender)" opacity="0.1" transform="rotate(-15, 100, 150)" />
-        <ellipse cx="1500" cy="300" rx="18" ry="11" fill="var(--color-accent)" opacity="0.1" transform="rotate(12, 1500, 300)" />
+        <ellipse
+          cx="100"
+          cy="150"
+          rx="20"
+          ry="13"
+          fill="var(--color-lavender)"
+          opacity="0.1"
+          transform="rotate(-15, 100, 150)"
+        />
+        <ellipse
+          cx="1500"
+          cy="300"
+          rx="18"
+          ry="11"
+          fill="var(--color-accent)"
+          opacity="0.1"
+          transform="rotate(12, 1500, 300)"
+        />
         <ellipse cx="800" cy="700" rx="22" ry="14" fill="var(--color-sage)" opacity="0.08" />
 
         {/* Asterisk accents */}
@@ -123,32 +178,92 @@ export default function HomeDashboardContent() {
           { x: 700, y: 100, size: 6, color: 'var(--color-accent)', opacity: 0.18 },
           { x: 1200, y: 600, size: 5, color: 'var(--color-sage)', opacity: 0.2 },
         ]?.map((star, i) => (
-          <g key={`dash-star-${i}`} transform={`translate(${star?.x}, ${star?.y})`} opacity={star?.opacity}>
-            <line x1={-star?.size} y1="0" x2={star?.size} y2="0" stroke={star?.color} strokeWidth="1.5" />
-            <line x1="0" y1={-star?.size} x2="0" y2={star?.size} stroke={star?.color} strokeWidth="1.5" />
-            <line x1={-star?.size * 0.7} y1={-star?.size * 0.7} x2={star?.size * 0.7} y2={star?.size * 0.7} stroke={star?.color} strokeWidth="1" />
-            <line x1={star?.size * 0.7} y1={-star?.size * 0.7} x2={-star?.size * 0.7} y2={star?.size * 0.7} stroke={star?.color} strokeWidth="1" />
+          <g
+            key={`dash-star-${i}`}
+            transform={`translate(${star?.x}, ${star?.y})`}
+            opacity={star?.opacity}
+          >
+            <line
+              x1={-star?.size}
+              y1="0"
+              x2={star?.size}
+              y2="0"
+              stroke={star?.color}
+              strokeWidth="1.5"
+            />
+            <line
+              x1="0"
+              y1={-star?.size}
+              x2="0"
+              y2={star?.size}
+              stroke={star?.color}
+              strokeWidth="1.5"
+            />
+            <line
+              x1={-star?.size * 0.7}
+              y1={-star?.size * 0.7}
+              x2={star?.size * 0.7}
+              y2={star?.size * 0.7}
+              stroke={star?.color}
+              strokeWidth="1"
+            />
+            <line
+              x1={star?.size * 0.7}
+              y1={-star?.size * 0.7}
+              x2={-star?.size * 0.7}
+              y2={star?.size * 0.7}
+              stroke={star?.color}
+              strokeWidth="1"
+            />
           </g>
         ))}
 
         {/* Decorative rings */}
-        <circle cx="1550" cy="500" r="18" fill="none" stroke="var(--color-lavender)" strokeWidth="1" opacity="0.15" />
-        <circle cx="50" cy="500" r="14" fill="none" stroke="var(--color-sage)" strokeWidth="1" opacity="0.15" />
+        <circle
+          cx="1550"
+          cy="500"
+          r="18"
+          fill="none"
+          stroke="var(--color-lavender)"
+          strokeWidth="1"
+          opacity="0.15"
+        />
+        <circle
+          cx="50"
+          cy="500"
+          r="14"
+          fill="none"
+          stroke="var(--color-sage)"
+          strokeWidth="1"
+          opacity="0.15"
+        />
 
         {/* Scattered dots */}
         {[
-          [400, 80], [900, 350], [1300, 80], [200, 650], [1100, 700], [600, 500], [1450, 400],
+          [400, 80],
+          [900, 350],
+          [1300, 80],
+          [200, 650],
+          [1100, 700],
+          [600, 500],
+          [1450, 400],
         ]?.map(([cx, cy], i) => (
-          <circle key={`dash-dot-${i}`} cx={cx} cy={cy} r={1.5} fill="var(--color-primary)" opacity={0.18} />
+          <circle
+            key={`dash-dot-${i}`}
+            cx={cx}
+            cy={cy}
+            r={1.5}
+            fill="var(--color-primary)"
+            opacity={0.18}
+          />
         ))}
       </svg>
-      <div
-        className="relative z-10 max-w-screen-xl mx-auto px-6 lg:px-10 2xl:px-16 py-8"
-      >
+      <div className="relative z-10 max-w-screen-xl mx-auto px-6 lg:px-10 2xl:px-16 py-8">
         {/* Greeting + CTA row */}
         <HomeGreeting
           onStartCheckin={() => setMoodModalOpen(true)}
           alias={data?.alias}
+          shift={data?.shift}
           memoryLine={data?.memory?.summary ?? null}
         />
 
@@ -156,28 +271,28 @@ export default function HomeDashboardContent() {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mt-6">
           {/* Mood card — hero, spans 2 cols on xl */}
           <div className="xl:col-span-2">
-        <HomeMoodCard
-          onLogMood={() => setMoodModalOpen(true)}
-          latestMood={
-            data?.latestMood
-              ? {
-                  ...data.latestMood,
-                  loggedAt: new Date().toLocaleTimeString('en-IN', {
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    hour12: true,
-                  }),
-                }
-              : {
-                  // Claude artifact demo mood when the account is still empty
-                  mood: 'anxious',
-                  intensity: 0.66,
-                  topic: 'work',
-                  loggedAt: '10:42 PM',
-                }
-          }
-          trendLabel="Lower than yesterday"
-        />
+            <HomeMoodCard
+              onLogMood={() => setMoodModalOpen(true)}
+              latestMood={
+                data?.latestMood
+                  ? {
+                      ...data.latestMood,
+                      loggedAt: new Date().toLocaleTimeString('en-IN', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true,
+                      }),
+                    }
+                  : {
+                      // Claude artifact demo mood when the account is still empty
+                      mood: 'anxious',
+                      intensity: 0.66,
+                      topic: 'work',
+                      loggedAt: '10:42 PM',
+                    }
+              }
+              trendLabel="Lower than yesterday"
+            />
           </div>
 
           {/* Streak card — artifact demo uses 6 / 14 / 23 when empty */}
@@ -211,7 +326,7 @@ export default function HomeDashboardContent() {
         <MoodCheckInModal
           isOpen={moodModalOpen}
           onClose={() => setMoodModalOpen(false)}
-          onSaved={loadData}
+          onSaved={handleMoodSaved}
         />
       </div>
     </div>

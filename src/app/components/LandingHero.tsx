@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import DhiraAvatar from '@/components/DhiraAvatar';
+import FloatingBuddy from '@/components/FloatingBuddy';
 import { HERO_LINES, HERO_TAGLINE } from '@/lib/artifactDesign';
 
 const rotatingLines = [...HERO_LINES];
@@ -59,10 +60,13 @@ export default function LandingHero() {
       />
 
       <div className="relative z-10 max-w-3xl mx-auto text-center">
-        <div className="flex justify-center mb-8">
-          <div className="pulse-amber rounded-full">
-            <DhiraAvatar size={72} variant="softer" />
-          </div>
+        <div className="flex justify-center mb-5">
+          <FloatingBuddy
+            src="/illustrations/dhira_sitting_calm.png"
+            alt="DHIRA, a small calm robot buddy, sitting with a hand on its heart"
+            width={78}
+            bobAnimation="dhira-bob 5.5s ease-in-out infinite"
+          />
         </div>
 
         <h1
@@ -125,7 +129,11 @@ export default function LandingHero() {
           >
             Begin — it&apos;s free
           </Link>
-          <a href="#features" className="btn-ghost" style={{ fontSize: '16px', padding: '14px 28px' }}>
+          <a
+            href="#features"
+            className="btn-ghost"
+            style={{ fontSize: '16px', padding: '14px 28px' }}
+          >
             How it works
           </a>
         </div>

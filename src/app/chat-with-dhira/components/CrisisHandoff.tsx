@@ -28,7 +28,7 @@ export default function CrisisHandoff({ onBack }: CrisisHandoffProps) {
       }}
     >
       <div className="max-w-lg w-full mx-auto flex flex-col gap-8">
-        {/* Dhira avatar — warm, present */}
+        {/* DHIRA avatar — warm, present */}
         <div className="flex justify-center">
           <DhiraAvatar size={64} variant="softer" />
         </div>
@@ -62,11 +62,11 @@ export default function CrisisHandoff({ onBack }: CrisisHandoffProps) {
               lineHeight: 1.7,
             }}
           >
-            I&apos;m really sorry you&apos;re feeling this way, and I&apos;m concerned about your safety.
-            Please reach out right now to someone who can be with you. In India you can call{' '}
-            <strong style={{ color: 'var(--color-crisis)' }}>Tele-MANAS at 14416</strong> (free, 24×7),
-            or contact your local emergency services. If there&apos;s someone you trust nearby, please
-            reach out to them too. You don&apos;t have to be alone with this.
+            I&apos;m really sorry you&apos;re feeling this way, and I&apos;m concerned about your
+            safety. Please reach out right now to someone who can be with you. In India you can call{' '}
+            <strong style={{ color: 'var(--color-crisis)' }}>Tele-MANAS at 14416</strong> (free,
+            24×7), or contact your local emergency services. If there&apos;s someone you trust
+            nearby, please reach out to them too. You don&apos;t have to be alone with this.
           </p>
         </div>
 
@@ -102,20 +102,41 @@ export default function CrisisHandoff({ onBack }: CrisisHandoffProps) {
           <div className="flex items-center gap-4">
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-              style={{ backgroundColor: 'var(--color-primary-soft)', color: 'var(--color-primary)' }}
+              style={{
+                backgroundColor: 'var(--color-primary-soft)',
+                color: 'var(--color-primary)',
+              }}
             >
               <Heart size={18} />
             </div>
             <div>
-              <p style={{ fontFamily: 'var(--font-ui)', fontSize: '15px', fontWeight: 600, color: 'var(--color-text)' }}>
+              <p
+                style={{
+                  fontFamily: 'var(--font-ui)',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  color: 'var(--color-text)',
+                }}
+              >
                 Verified counsellor
               </p>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span
                   className="inline-block rounded-full"
-                  style={{ width: 7, height: 7, backgroundColor: 'var(--color-sage)', flexShrink: 0 }}
+                  style={{
+                    width: 7,
+                    height: 7,
+                    backgroundColor: 'var(--color-sage)',
+                    flexShrink: 0,
+                  }}
                 />
-                <span style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-sage)' }}>
+                <span
+                  style={{
+                    fontFamily: 'var(--font-ui)',
+                    fontSize: '13px',
+                    color: 'var(--color-sage)',
+                  }}
+                >
                   Available now — tap to connect
                 </span>
               </div>
@@ -123,7 +144,12 @@ export default function CrisisHandoff({ onBack }: CrisisHandoffProps) {
           </div>
           <button
             className="flex items-center gap-1 flex-shrink-0"
-            style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-primary)', fontWeight: 500 }}
+            style={{
+              fontFamily: 'var(--font-ui)',
+              fontSize: '13px',
+              color: 'var(--color-primary)',
+              fontWeight: 500,
+            }}
           >
             Connect
             <ExternalLink size={13} />
@@ -133,11 +159,23 @@ export default function CrisisHandoff({ onBack }: CrisisHandoffProps) {
         {/* Trusted person nudge */}
         <div
           className="rounded-control p-4 text-center"
-          style={{ backgroundColor: 'var(--color-primary-soft)', border: '1px solid var(--color-primary)' }}
+          style={{
+            backgroundColor: 'var(--color-primary-soft)',
+            border: '1px solid var(--color-primary)',
+          }}
         >
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: '15px', color: 'var(--color-text)', lineHeight: 1.6 }}>
+          <p
+            style={{
+              fontFamily: 'var(--font-ui)',
+              fontSize: '15px',
+              color: 'var(--color-text)',
+              lineHeight: 1.6,
+            }}
+          >
             💙 Is there someone you trust nearby? A friend, family member, or neighbour?{' '}
-            <span style={{ color: 'var(--color-primary)', fontWeight: 500 }}>Please reach out to them too.</span>
+            <span style={{ color: 'var(--color-primary)', fontWeight: 500 }}>
+              Please reach out to them too.
+            </span>
           </p>
         </div>
 
@@ -146,7 +184,11 @@ export default function CrisisHandoff({ onBack }: CrisisHandoffProps) {
           <button
             onClick={onBack}
             className="inline-flex items-center gap-2 transition-all duration-200"
-            style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: 'var(--color-text-subtle)' }}
+            style={{
+              fontFamily: 'var(--font-ui)',
+              fontSize: '14px',
+              color: 'var(--color-text-subtle)',
+            }}
             onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-text)')}
             onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-subtle)')}
           >
@@ -158,11 +200,16 @@ export default function CrisisHandoff({ onBack }: CrisisHandoffProps) {
         {/* Footer note */}
         <p
           className="text-center"
-          style={{ fontFamily: 'var(--font-ui)', fontSize: '12px', color: 'var(--color-text-subtle)', lineHeight: 1.5 }}
+          style={{
+            fontFamily: 'var(--font-ui)',
+            fontSize: '12px',
+            color: 'var(--color-text-subtle)',
+            lineHeight: 1.5,
+          }}
         >
           Tele-MANAS 14416 is free, government-backed, and available 24×7 across India.
           <br />
-          dhira is a listening companion — not a crisis service.
+          DHIRA is a listening companion — not a crisis service.
         </p>
       </div>
     </div>

@@ -6,11 +6,11 @@ import { Bell, ArrowRight } from 'lucide-react';
 import { ARTIFACT_CHECKIN_LINE } from '@/lib/artifactDesign';
 
 /**
- * Proactive check-in card — visual match to Claude artifact "Dhira checked in" card.
+ * Proactive check-in card — visual match to Claude artifact "DHIRA checked in" card.
  * Manual trigger calls POST /api/checkin (same endpoint Emergent schedules use).
  */
 export default function HomeProactiveCard() {
-  // Claude artifact always shows a filled "Dhira checked in" card; start from that demo line.
+  // Claude artifact always shows a filled "DHIRA checked in" card; start from that demo line.
   const [message, setMessage] = useState<string | null>(ARTIFACT_CHECKIN_LINE);
   const [loading, setLoading] = useState(false);
   const [note, setNote] = useState<string | null>(null);
@@ -31,7 +31,7 @@ export default function HomeProactiveCard() {
         setNote(
           data?.reason === 'user has not consented to check-ins'
             ? 'Proactive check-ins are turned off in your settings.'
-            : 'Could not generate a check-in right now.',
+            : 'Could not generate a check-in right now.'
         );
       }
     } catch {
@@ -68,7 +68,7 @@ export default function HomeProactiveCard() {
             textTransform: 'uppercase',
           }}
         >
-          {displayMessage ? 'Dhira checked in' : 'Proactive check-in'}
+          {displayMessage ? 'DHIRA checked in' : 'Proactive check-in'}
         </p>
       </div>
 
@@ -84,17 +84,21 @@ export default function HomeProactiveCard() {
       >
         {displayMessage
           ? `\u201C${displayMessage}\u201D`
-          : 'Dhira can reach out first, within your chosen window. Want a gentle check-in right now?'}
+          : 'DHIRA can reach out first, within your chosen window. Want a gentle check-in right now?'}
       </p>
 
       {displayMessage && (
-        <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--color-text-subtle)' }}>
+        <p
+          style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--color-text-subtle)' }}
+        >
           🎚️ Sent within your 8 PM–11 PM window
         </p>
       )}
 
       {note && (
-        <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--color-text-subtle)' }}>
+        <p
+          style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--color-text-subtle)' }}
+        >
           {note}
         </p>
       )}
@@ -110,7 +114,7 @@ export default function HomeProactiveCard() {
             fontWeight: 500,
           }}
         >
-          Respond to Dhira
+          Respond to DHIRA
           <ArrowRight size={14} />
         </Link>
       ) : (
@@ -120,7 +124,7 @@ export default function HomeProactiveCard() {
           className="btn-ghost"
           style={{ fontSize: 13, padding: '8px 14px', alignSelf: 'flex-start' }}
         >
-          {loading ? 'Dhira is thinking…' : 'Ask Dhira to check in now'}
+          {loading ? 'DHIRA is thinking…' : 'Ask DHIRA to check in now'}
         </button>
       )}
 

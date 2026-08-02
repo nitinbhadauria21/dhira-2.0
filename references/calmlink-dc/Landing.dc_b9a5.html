@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&amp;family=Mukta:wght@300;400;500;600;700&amp;display=swap">
+<style>
+body{--bg:#FAF6EF;--surface:#FFFFFF;--surface-alt:#F3EEE4;--border:#E7DFD1;--text:#26263A;--text-muted:#5E5C6E;--text-subtle:#918EA0;--primary:#5A67B8;--primary-hover:#47539A;--primary-soft:#EEF0FB;--accent:#EFA94A;--accent-hover:#D9943A;--lavender:#AEA1DA;--sage:#63A183;--crisis:#C56B5C;--crisis-surface:#F9EDE9;--shadow-soft:0 8px 24px rgba(30,35,64,.08);--shadow-card:0 2px 12px rgba(30,35,64,.06);margin:0;background:var(--bg);color:var(--text);font-family:'Mukta',system-ui,sans-serif;font-size:17px;line-height:1.65;letter-spacing:.01em;transition:background-color .3s,color .3s}
+body.night{--bg:#14162A;--surface:#1D2038;--surface-alt:#262A46;--border:#333857;--text:#ECEBF4;--text-muted:#ABA9C1;--text-subtle:#7E7C95;--primary:#949FDC;--primary-hover:#B0B9E6;--primary-soft:#262A46;--accent:#F6C06B;--accent-hover:#E8A84A;--crisis:#D2796A;--crisis-surface:#2A1E1C;--sage:#8FBCA4;--shadow-soft:0 8px 32px rgba(0,0,0,.32);--shadow-card:0 2px 16px rgba(0,0,0,.24)}
+a{color:var(--primary);text-decoration:none}a:hover{color:var(--primary-hover)}
+h1,h2,h3,p{margin:0}
+@keyframes heroBob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-10px) rotate(1.5deg)}}
+@keyframes heroHalo{0%,100%{opacity:.62;transform:scale(.95)}50%{opacity:.95;transform:scale(1.05)}}
+@keyframes heroGlow{0%,100%{opacity:.42;transform:scale(.92)}50%{opacity:.75;transform:scale(1.08)}}
+@keyframes pulseAmber{0%,100%{box-shadow:0 0 20px rgba(239,169,74,.35)}50%{box-shadow:0 0 36px rgba(239,169,74,.6)}}
+@keyframes dFloatLav{0%{transform:translate(0,0) rotate(0) scale(1)}100%{transform:translate(25px,-30px) rotate(3deg) scale(1.02)}}
+@keyframes dFloatAmb{0%{transform:translate(0,0) rotate(0) scale(1)}100%{transform:translate(-35px,20px) rotate(-4deg) scale(.98)}}
+@keyframes dFloatSag{0%{transform:translate(0,0) rotate(0) scale(1)}100%{transform:translate(20px,35px) rotate(5deg) scale(1.03)}}
+@keyframes dFloatEl{0%{transform:translate(0,0)}100%{transform:translate(15px,-20px)}}
+@keyframes dFloatRev{0%{transform:translate(0,0)}100%{transform:translate(-15px,25px)}}
+@keyframes dDotPulse{0%{opacity:.3;transform:scale(.9)}100%{opacity:.9;transform:scale(1.1)}}
+@keyframes dDrawLine{0%{stroke-dashoffset:1500}100%{stroke-dashoffset:0}}
+@keyframes dScrollDot{0%,100%{transform:translateY(0);opacity:1}50%{transform:translateY(8px);opacity:.3}}
+</style>
+</helmet>
+<div style="min-height:100vh;position:relative;background:var(--bg)">
+<svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style="position:fixed;inset:0;width:100%;height:100%;opacity:{{ backdropOpacity }};z-index:0;pointer-events:none">
+<defs>
+<linearGradient id="gLav" x1="10%" y1="10%" x2="90%" y2="90%"><stop offset="0%" stop-color="#C5BBE4"></stop><stop offset="50%" stop-color="#AEA1DA"></stop><stop offset="100%" stop-color="#9384C4"></stop></linearGradient>
+<linearGradient id="gAmb" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#EFA94A"></stop><stop offset="100%" stop-color="#F6C88A"></stop></linearGradient>
+<linearGradient id="gSag" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#8ABF9F"></stop><stop offset="100%" stop-color="#63A183"></stop></linearGradient>
+<radialGradient id="gVig" cx="50%" cy="50%" r="70%"><stop offset="50%" stop-color="{{ vigCenter }}" stop-opacity="0"></stop><stop offset="100%" stop-color="{{ vigEdge }}" stop-opacity="{{ vigOpacity }}"></stop></radialGradient>
+<filter id="fHand" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" result="noise"></feTurbulence><feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap></filter>
+<filter id="fBlur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="60"></feGaussianBlur></filter>
+</defs>
+<rect width="100%" height="100%" fill="{{ baseColor }}"></rect>
+<g filter="url(#fBlur)"><circle cx="200" cy="150" r="350" fill="#AEA1DA" opacity="0.2"></circle><circle cx="1050" cy="650" r="400" fill="#EFA94A" opacity="0.15"></circle><circle cx="150" cy="700" r="300" fill="#63A183" opacity="0.1"></circle><circle cx="600" cy="400" r="450" fill="#FFFFFF" opacity="{{ whiteGlow }}"></circle></g>
+<g fill="none" stroke-width="1.5" stroke-linecap="round" filter="url(#fHand)" opacity="0.5">
+<path stroke="#5A67B8" d="M 120 280 C 350 150, 550 500, 980 520" style="stroke-dasharray:1500;stroke-dashoffset:1500;animation:dDrawLine 20s ease-in-out infinite alternate"></path>
+<path stroke="#AEA1DA" stroke-width="2" d="M 280 700 C 450 850, 750 550, 1080 350" style="stroke-dasharray:1500;stroke-dashoffset:1500;animation:dDrawLine 20s ease-in-out infinite alternate;animation-delay:-7s"></path>
+<path stroke="#5A67B8" stroke-dasharray="8 12" d="M 400 120 C 550 350, 850 250, 1150 700" style="animation:dDrawLine 20s ease-in-out infinite alternate;animation-delay:-14s"></path>
+<path stroke="#AEA1DA" d="M 50 500 C 250 450, 400 200, 700 100" style="stroke-dasharray:1500;stroke-dashoffset:1500;animation:dDrawLine 20s ease-in-out infinite alternate;animation-delay:-3s"></path>
+</g>
+<g filter="url(#fHand)">
+<path fill="url(#gLav)" opacity="0.9" style="transform-origin:250px 250px;animation:dFloatLav 12s ease-in-out infinite alternate" d="M 240 100 C 480 -10, 620 260, 500 440 C 380 620, 140 540, 50 410 C -40 280, 0 210, 240 100 Z"></path>
+<path fill="url(#gAmb)" opacity="0.9" style="transform-origin:950px 600px;animation:dFloatAmb 10s ease-in-out infinite alternate" d="M 960 320 C 1040 480, 1220 560, 1140 740 C 1060 920, 800 870, 750 730 C 700 590, 880 480, 960 320 Z"></path>
+<path fill="url(#gSag)" opacity="0.9" style="transform-origin:250px 600px;animation:dFloatSag 14s ease-in-out infinite alternate" d="M 260 460 C 440 400, 540 580, 460 760 C 380 940, 100 890, 60 750 C 180 810, 340 680, 260 460 Z"></path>
+</g>
+<g filter="url(#fHand)">
+<circle stroke="#5A67B8" cx="680" cy="220" r="22" fill="none" stroke-width="2" style="animation:dFloatEl 7s ease-in-out infinite alternate"></circle>
+<circle stroke="#5A67B8" cx="880" cy="140" r="14" fill="none" stroke-width="1.5" style="animation:dFloatEl 11s ease-in-out infinite alternate"></circle>
+<circle stroke="#5A67B8" cx="380" cy="680" r="28" fill="none" stroke-width="2" style="animation:dFloatRev 9s ease-in-out infinite alternate"></circle>
+<circle stroke="#5A67B8" cx="1080" cy="580" r="10" fill="none" stroke-width="2" style="animation:dFloatEl 7s ease-in-out infinite alternate"></circle>
+<circle stroke="#AEA1DA" cx="480" cy="160" r="18" fill="none" stroke-width="2.5" style="animation:dFloatEl 11s ease-in-out infinite alternate"></circle>
+<circle stroke="#AEA1DA" cx="780" cy="660" r="24" fill="none" stroke-width="2" style="animation:dFloatRev 9s ease-in-out infinite alternate"></circle>
+<circle stroke="#AEA1DA" cx="160" cy="580" r="12" fill="none" stroke-width="1.5" style="animation:dFloatEl 7s ease-in-out infinite alternate"></circle>
+<path stroke="#5A67B8" d="M 820 420 L 844 420 M 832 408 L 832 432" stroke-width="2.5" stroke-linecap="round" style="animation:dFloatEl 7s ease-in-out infinite alternate"></path>
+<path stroke="#EFA94A" d="M 320 220 L 336 220 M 328 212 L 328 228" stroke-width="2" stroke-linecap="round" style="animation:dFloatEl 11s ease-in-out infinite alternate"></path>
+<path stroke="#AEA1DA" d="M 600 720 L 616 720 M 608 712 L 608 728" stroke-width="2" stroke-linecap="round" style="animation:dFloatRev 9s ease-in-out infinite alternate"></path>
+<path stroke="#5A67B8" d="M 840 180 C 910 140, 940 230, 880 260 C 820 290, 790 200, 860 170" fill="none" stroke-width="1.5" style="animation:dFloatEl 11s ease-in-out infinite alternate"></path>
+</g>
+<g>
+<circle fill="#5A67B8" cx="580" cy="360" r="7" style="animation:dDotPulse 5s ease-in-out infinite alternate"></circle>
+<circle fill="#AEA1DA" cx="920" cy="290" r="9" style="animation:dDotPulse 5s ease-in-out infinite alternate;animation-delay:-2s"></circle>
+<circle fill="#EFA94A" cx="420" cy="520" r="6" style="animation:dDotPulse 5s ease-in-out infinite alternate;animation-delay:-4s"></circle>
+<circle fill="#63A183" cx="720" cy="510" r="8" style="animation:dDotPulse 5s ease-in-out infinite alternate;animation-delay:-1s"></circle>
+<circle fill="#5A67B8" cx="270" cy="310" r="5" style="animation:dDotPulse 5s ease-in-out infinite alternate;animation-delay:-3s"></circle>
+<circle fill="#AEA1DA" cx="1020" cy="780" r="7" style="animation:dDotPulse 5s ease-in-out infinite alternate;animation-delay:-5s"></circle>
+<circle fill="#63A183" cx="120" cy="180" r="6" style="animation:dDotPulse 5s ease-in-out infinite alternate;animation-delay:-2.5s"></circle>
+</g>
+<rect width="100%" height="100%" fill="url(#gVig)" pointer-events="none"></rect>
+</svg>
+<div style="position:relative;z-index:10">
+<nav data-screen-label="Landing nav" style="position:fixed;top:0;left:0;right:0;z-index:50;background:{{ navBg }};border-bottom:1px solid {{ navBorder }};box-shadow:{{ navShadow }};transition:all .3s">
+<div style="max-width:1280px;margin:0 auto;padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:64px">
+<div style="display:flex;align-items:center;flex-shrink:0">
+<a href="#" style="font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:24px;letter-spacing:-0.03em;color:var(--text);display:inline-flex;flex-direction:column;align-items:flex-start;line-height:1"><span style="display:block;line-height:1">DHIRA</span><span style="display:block;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-weight:600;font-size:9px;letter-spacing:.3em;line-height:1;margin-top:4px;opacity:.62;color:var(--text)">CALMLINK</span></a>
+<span style="white-space:nowrap;flex-shrink:0;margin-left:10px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--sage);background:var(--surface-alt);border:1px solid var(--border);border-radius:999px;padding:4px 10px">Cursor local</span>
+</div>
+<div style="display:flex;align-items:center;gap:24px">
+<a href="#features" style="color:var(--text-muted);font-size:15px" style-hover="color:var(--text)">Features</a>
+<a href="#safety" style="color:var(--text-muted);font-size:15px" style-hover="color:var(--text)">Safety</a>
+<a href="SignIn.dc.html" style="color:var(--text-muted);font-size:15px" style-hover="color:var(--text)">Sign In</a>
+<a href="SignUp.dc.html" style="background:var(--primary);color:#fff;border-radius:12px;font-weight:500;font-size:14px;padding:8px 20px;display:inline-flex;align-items:center;gap:8px;transition:background-color .2s" style-hover="background:var(--primary-hover);color:#fff">Get Started</a>
+<button onClick="{{ toggleTheme }}" aria-label="Toggle theme" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:var(--surface-alt);color:var(--text-muted);border:1px solid var(--border);cursor:pointer;font-size:14px">{{ themeGlyph }}</button>
+</div>
+</div>
+</nav>
+<section data-screen-label="Hero" style="position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:96px 40px 80px;overflow:hidden">
+<div style="position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:900px;height:700px;background:radial-gradient(ellipse 60% 55% at 50% 40%, rgba(90,103,184,.14) 0%, rgba(174,161,218,.06) 50%, transparent 75%);filter:blur(24px);z-index:1;pointer-events:none"></div>
+<div style="position:absolute;bottom:5%;right:-5%;width:520px;height:520px;background:radial-gradient(ellipse 55% 60% at 45% 50%, rgba(239,169,74,.14) 0%, transparent 75%);filter:blur(40px);z-index:1;pointer-events:none"></div>
+<div style="position:relative;z-index:10;max-width:768px;margin:0 auto;text-align:center">
+<div style="display:flex;justify-content:center;margin-bottom:20px">
+<div style="position:relative;display:flex;align-items:flex-end;justify-content:center;width:110px">
+<span aria-hidden="true" style="position:absolute;bottom:16%;width:132px;height:132px;border-radius:50%;background:radial-gradient(circle at 50% 46%, rgba(255,240,186,.98) 0%, rgba(250,214,110,.7) 28%, rgba(240,186,72,.4) 50%, rgba(232,172,60,.14) 66%, transparent 78%);filter:blur(7px);animation:heroHalo 6s ease-in-out infinite"></span>
+<span aria-hidden="true" style="position:absolute;bottom:16%;width:132px;height:132px;border-radius:50%;background:radial-gradient(circle at 50% 46%, rgba(255,250,225,.9) 0%, rgba(255,232,150,.5) 34%, transparent 70%);mix-blend-mode:screen;filter:blur(9px);animation:heroHalo 6s ease-in-out infinite"></span>
+<span aria-hidden="true" style="position:absolute;bottom:1px;width:56px;height:13px;border-radius:50%;background:radial-gradient(ellipse,rgba(217,163,63,.3),transparent 72%);animation:heroGlow 5.5s ease-in-out infinite"></span>
+<img src="assets/dhira_sitting_calm.png" alt="DHIRA, a small calm robot buddy, sitting with a hand on its heart" style="position:relative;width:78px;object-fit:contain;filter:drop-shadow(0 8px 16px rgba(120,92,30,.22)) drop-shadow(0 0 18px rgba(255,225,150,.4));animation:heroBob 5.5s ease-in-out infinite;transform-origin:50% 92%">
+</div>
+</div>
+<h1 style="font-family:'Fraunces',Georgia,serif;font-size:clamp(36px,6vw,64px);font-weight:500;color:var(--text);line-height:1.1;letter-spacing:-0.02em;margin-bottom:24px">{{ heroTitleA }}<br><span style="color:var(--primary)">{{ heroTitleB }}</span></h1>
+<div style="margin-bottom:32px;min-height:60px;display:flex;align-items:center;justify-content:center">
+<div style="background:var(--surface);border-radius:16px;box-shadow:var(--shadow-card);border:1px solid var(--border);padding:16px 24px;display:inline-flex;align-items:center;gap:12px;max-width:512px;opacity:{{ lineOpacity }};transition:opacity .35s">
+{{ avatar32 }}
+<p style="font-size:16px;color:var(--text);font-style:italic;text-align:left">&ldquo;{{ heroLine }}&rdquo;</p>
+</div>
+</div>
+<p style="font-size:18px;color:var(--text-muted);line-height:1.65;max-width:480px;margin:0 auto 40px">{{ heroTagline }}</p>
+<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:16px">
+<a href="SignUp.dc.html" style="background:var(--accent);color:#26263A;border-radius:12px;font-weight:600;font-size:17px;padding:14px 32px;display:inline-flex;align-items:center;gap:8px;animation:pulseAmber 2s ease-in-out infinite" style-hover="background:var(--accent-hover);color:#26263A">{{ ctaLabel }}</a>
+<a href="#features" style="color:var(--text-muted);border:1px solid var(--border);border-radius:12px;font-size:16px;padding:14px 28px;display:inline-flex;align-items:center;gap:8px" style-hover="border-color:var(--primary);color:var(--primary);background:var(--primary-soft)">How it works</a>
+</div>
+</div>
+<div aria-hidden="true" style="position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--text-subtle);z-index:10">
+<div style="width:20px;height:32px;border-radius:999px;display:flex;align-items:flex-start;justify-content:center;padding-top:6px;border:1.5px solid var(--border)"><div style="width:4px;height:8px;border-radius:999px;background:var(--text-subtle);animation:dScrollDot 1.8s ease-in-out infinite"></div></div>
+</div>
+</section>
+<section id="features" data-screen-label="Features" style="padding:96px 40px;position:relative;overflow:hidden;background:var(--bg)">
+<div style="max-width:1280px;margin:0 auto;position:relative;z-index:10">
+<div style="text-align:center;margin-bottom:64px">
+<p style="margin-bottom:12px;text-transform:uppercase;font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.12em">What DHIRA does</p>
+<h2 style="font-family:'Fraunces',Georgia,serif;font-size:clamp(26px,4vw,36px);font-weight:500;color:var(--text)">Designed for the hardest hour</h2>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px">
+<sc-for list="{{ features }}" as="f" hint-placeholder-count="4">
+<div style="background:var(--surface);border-radius:16px;box-shadow:var(--shadow-card);border:1px solid var(--border);padding:24px;display:flex;flex-direction:column;gap:16px;transition:transform .25s,box-shadow .25s" style-hover="transform:translateY(-4px);box-shadow:var(--shadow-soft)">
+<div style="width:56px;height:56px;flex-shrink:0">{{ f.icon }}</div>
+<div>
+<h3 style="font-family:'Fraunces',Georgia,serif;font-size:18px;font-weight:500;color:var(--text);margin-bottom:8px">{{ f.title }}</h3>
+<p style="font-size:15px;color:var(--text-muted);line-height:1.65">{{ f.body }}</p>
+</div>
+<div style="margin-top:auto;padding-top:16px;border-top:1px solid var(--border)"><p style="font-size:14px;color:var(--text-subtle);font-style:italic;line-height:1.5">{{ f.detail }}</p></div>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+<section data-screen-label="How it works" style="padding:96px 40px;position:relative;overflow:hidden;background:var(--surface-alt)">
+<div style="max-width:1280px;margin:0 auto;position:relative;z-index:10">
+<div style="text-align:center;margin-bottom:64px">
+<p style="margin-bottom:12px;text-transform:uppercase;font-size:12px;color:var(--lavender);font-weight:600;letter-spacing:.12em">How it works</p>
+<h2 style="font-family:'Fraunces',Georgia,serif;font-size:clamp(26px,4vw,36px);font-weight:500;color:var(--text)">Four quiet steps</h2>
+</div>
+<div style="position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:32px">
+<div aria-hidden="true" style="position:absolute;top:70px;left:12%;right:12%;height:0;border-top:2px dashed var(--border);z-index:0"></div>
+<sc-for list="{{ steps }}" as="st" hint-placeholder-count="4">
+<div style="position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;gap:20px" onMouseEnter="{{ st.enter }}" onMouseLeave="{{ st.leave }}">
+<div style="width:100%;max-width:220px;height:180px;perspective:1200px">
+<div style="position:relative;width:100%;height:100%;text-align:center;cursor:pointer">
+<div style="position:absolute;inset:0;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:10px;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow-card);opacity:{{ st.frontOp }};transform:{{ st.frontT }};transition:opacity .45s ease, transform .55s cubic-bezier(.4,.2,.2,1)">
+<div style="width:56px;height:56px">{{ st.icon }}</div>
+<div style="font-family:'Fraunces',Georgia,serif;font-size:28px;font-weight:600;color:var(--primary);opacity:.4">{{ st.number }}</div>
+</div>
+<div style="position:absolute;inset:0;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;background:var(--primary-soft);border:1px solid var(--primary);opacity:{{ st.backOp }};transform:{{ st.backT }};transition:opacity .45s ease, transform .55s cubic-bezier(.4,.2,.2,1);pointer-events:none">
+<div style="font-family:'Fraunces',Georgia,serif;font-size:16px;font-weight:500;color:var(--text);margin-bottom:8px">{{ st.title }}</div>
+<div style="font-size:13px;color:var(--text-muted);line-height:1.55">{{ st.body }}</div>
+</div>
+</div>
+</div>
+<div aria-hidden="true" style="width:14px;height:14px;border-radius:50%;background:var(--bg);border:3px solid var(--primary)"></div>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+<section data-screen-label="Testimonials" style="padding:96px 40px;position:relative;overflow:hidden;background:var(--bg)">
+<div style="max-width:1280px;margin:0 auto;position:relative;z-index:10">
+<div style="text-align:center;margin-bottom:64px">
+<p style="margin-bottom:12px;text-transform:uppercase;font-size:12px;color:var(--sage);font-weight:600;letter-spacing:.12em">What people say</p>
+<h2 style="font-family:'Fraunces',Georgia,serif;font-size:clamp(26px,4vw,36px);font-weight:500;color:var(--text)">Felt, not just read</h2>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px">
+<sc-for list="{{ testimonials }}" as="t" hint-placeholder-count="3">
+<div style="background:var(--surface);border-radius:16px;box-shadow:var(--shadow-card);border:1px solid var(--border);padding:24px;display:flex;flex-direction:column;gap:20px;transition:transform .25s,box-shadow .25s" style-hover="transform:translateY(-4px);box-shadow:var(--shadow-soft)">
+<div style="display:flex;align-items:center;gap:8px">
+<span style="display:inline-block;width:10px;height:10px;border-radius:50%;flex-shrink:0;background:{{ t.moodColor }}"></span>
+<span style="font-size:13px;color:var(--text-subtle);font-weight:500">Feeling: {{ t.mood }}</span>
+</div>
+<blockquote style="font-size:16px;color:var(--text);line-height:1.65;font-style:italic;margin:0">&ldquo;{{ t.quote }}&rdquo;</blockquote>
+<div style="padding-top:16px;display:flex;align-items:center;gap:12px;border-top:1px solid var(--border)">
+<div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0;background:var(--primary-soft);color:var(--primary)">{{ t.initial }}</div>
+<div>
+<p style="font-size:14px;font-weight:600;color:var(--text)">{{ t.name }}</p>
+<p style="font-size:12px;color:var(--text-subtle)">{{ t.meta }}</p>
+</div>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+<section id="safety" data-screen-label="CTA" style="padding:96px 40px;position:relative;overflow:hidden;background:var(--surface-alt)">
+<div style="max-width:672px;margin:0 auto;text-align:center;position:relative;z-index:10">
+<img src="assets/scene_2am.png" alt="DHIRA sitting cross-legged under a starlit sky, holding a small glowing light" style="width:340px;height:215px;object-fit:cover;border-radius:22px;margin:0 auto 28px;box-shadow:0 18px 40px rgba(38,32,66,.22);display:block;box-shadow:0 0 32px rgba(239,169,74,.3);border:1px solid var(--border)">
+<h2 style="font-family:'Fraunces',Georgia,serif;font-size:clamp(28px,4vw,40px);font-weight:500;color:var(--text);line-height:1.2;margin-bottom:16px">When the world goes quiet, but your mind won&rsquo;t.</h2>
+<p style="font-size:18px;color:var(--text-muted);line-height:1.65;margin-bottom:40px">{{ ctaBody }}</p>
+<a href="SignUp.dc.html" style="background:var(--accent);color:#26263A;border-radius:12px;font-weight:600;font-size:17px;padding:16px 40px;display:inline-flex;align-items:center;gap:8px;box-shadow:0 0 20px rgba(239,169,74,.35)" style-hover="background:var(--accent-hover);color:#26263A">Begin now — it&rsquo;s free</a>
+</div>
+</section>
+<footer data-screen-label="Footer" style="padding:48px clamp(20px,4vw,40px);position:relative;z-index:10;background:var(--bg);border-top:1px solid var(--border)">
+<div style="max-width:1280px;margin:0 auto">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:40px;margin-bottom:40px">
+<div>
+<p  style="font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:24px;letter-spacing:-0.03em;color:var(--text);margin-bottom:12px;display:inline-flex;flex-direction:column;align-items:flex-start;line-height:1"><span style="display:block;line-height:1">DHIRA</span><span style="display:block;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-weight:600;font-size:9px;letter-spacing:.3em;line-height:1;margin-top:4px;opacity:.62;color:var(--text)">CALMLINK</span></p>
+<p style="font-size:14px;color:var(--text-muted);max-width:240px;line-height:1.65">The calm that stays up with you. Private, anonymous, Hinglish-first.</p>
+</div>
+<div>
+<p style="margin-bottom:12px;text-transform:uppercase;font-size:12px;font-weight:600;color:var(--text-subtle);letter-spacing:.08em">App</p>
+<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start">
+<a href="Home.dc.html" style="font-size:14px;color:var(--text-muted)">Home</a>
+<a href="Chat.dc.html" style="font-size:14px;color:var(--text-muted)">Chat with DHIRA</a>
+<a href="#" style="font-size:14px;color:var(--text-muted)">Privacy Promise</a>
+</div>
+</div>
+<div>
+<p style="margin-bottom:12px;text-transform:uppercase;font-size:12px;font-weight:600;color:var(--text-subtle);letter-spacing:.08em">Safety</p>
+<div style="padding:16px;background:var(--crisis-surface);border:1px solid var(--crisis);border-radius:12px">
+<p style="font-size:13px;color:var(--crisis);line-height:1.55">If you or someone you know is in crisis: Please call Tele-MANAS at 14416 — free, 24×7, India-wide. DHIRA is a listening companion, not a crisis service.</p>
+</div>
+</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;padding-top:24px;border-top:1px solid var(--border)">
+<p style="font-size:13px;color:var(--text-subtle)">© 2026 DHIRA · Made with care in India · Cursor local</p>
+<p style="font-size:13px;color:var(--text-subtle)">DHIRA is a listening companion, not a therapist or crisis service.</p>
+</div>
+</div>
+</footer>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;genzCopy&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Gen Z experiments&quot;}}">
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    let theme='night';
+    try{ theme = localStorage.getItem('DHIRA-theme') || 'night'; }catch(e){}
+    this.state = { theme, lineIndex:0, visible:true, flipped:-1 };
+    if (typeof document!=='undefined') document.body.classList.toggle('night', theme==='night');
+  }
+  componentDidMount(){
+    this.timer = setInterval(()=>{
+      this.setState({visible:false});
+      setTimeout(()=>this.setState(s=>({lineIndex:(s.lineIndex+1)%5, visible:true})),400);
+    },3500);
+  }
+  componentWillUnmount(){ clearInterval(this.timer); }
+  blobIcon(uid, glyphKey, variant){
+    const BLOBS=['M10 18C14 6 30 2 42 8C54 14 55 32 46 42C37 52 18 54 9 44C0 34 6 30 10 18Z','M8 28C6 14 22 2 36 4C50 6 54 24 48 38C42 52 22 54 12 46C2 38 10 42 8 28Z','M12 8C26 0 46 4 50 18C54 32 44 50 28 50C12 50 2 36 4 24C6 14 8 12 12 8Z','M6 24C4 10 20 0 34 4C48 8 52 26 46 40C40 54 20 54 10 44C0 34 8 38 6 24Z'];
+    const COLORS=[['#5A67B8','#8B93D9'],['#AEA1DA','#7C6FC4'],['#EFA94A','#F6C88A'],['#63A183','#8FBCA4']];
+    const GLYPHS={
+      ear:'<path d="M23 20c2-2.5 5-4 8-3.5 5 .8 8 5 7.5 10-.4 4.5-4 6-5 10-.6 2.6-2.6 4.5-5.5 4.5-2.4 0-4.3-1.3-5-3.3"></path><path d="M28 22.5c3 0 5.5 2.3 5.5 5.2 0 2.4-1.6 3.4-2.5 5"></path><path d="M13.5 23.5c1.8 1.8 1.8 5.2 0 7"></path><path d="M17.5 20.5c3 3 3 10 0 13"></path>',
+      moon:'<path d="M28 22c-3.2-2.6-7.4-3.2-12-2.2v17.5c4.6-1 8.8-.4 12 2.2 3.2-2.6 7.4-3.2 12-2.2V19.8c-4.6-1-8.8-.4-12 2.2Z" fill="rgba(255,255,255,0.18)"></path><path d="M28 22v17.5"></path><path d="M20 25.5c1.8-.3 3.5-.3 5 .1"></path><path d="M20 30c1.8-.3 3.5-.3 5 .1"></path><path d="M31 25.6c1.5-.4 3.2-.4 5-.1"></path><path d="M31 30.1c1.5-.4 3.2-.4 5-.1"></path><path d="M34.5 10.5a5 5 0 1 0 4.4 6.6 4 4 0 0 1-4.4-6.6Z" fill="rgba(255,255,255,0.35)"></path>',
+      chat:'<path d="M15 30l26-11-8.5 22-4.6-8.2L15 30Z" fill="rgba(255,255,255,0.25)"></path><path d="M41 19 27.9 32.8"></path><path d="M13 18h4"></path><path d="M10.5 23h4.5"></path><path d="M13 13.5h3"></path>',
+      shield:'<path d="M28 14l11 4.3v8.2c0 7.5-4.8 11.8-11 14-6.2-2.2-11-6.5-11-14v-8.2L28 14Z"></path><path d="M28 33.5s-5.6-3.4-5.6-7.2c0-1.7 1.4-3 3-3 1.1 0 2.1.6 2.6 1.6.5-1 1.5-1.6 2.6-1.6 1.6 0 3 1.3 3 3 0 3.8-5.6 7.2-5.6 7.2Z" fill="rgba(255,255,255,0.35)"></path>',
+      person:'<circle cx="28" cy="23" r="5"></circle><path d="M18 40c0-5.5 4.5-9 10-9s10 3.5 10 9"></path>',
+      clock:'<circle cx="28" cy="28" r="11"></circle><path d="M28 21v7l5 3"></path>',
+      chatDots:'<path d="M18 20h20a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H26l-6 5v-5h-2a3 3 0 0 1-3-3v-8a3 3 0 0 1 3-3Z"></path><circle cx="24" cy="27" r="1.2" fill="#ffffff" stroke="none"></circle><circle cx="28" cy="27" r="1.2" fill="#ffffff" stroke="none"></circle><circle cx="32" cy="27" r="1.2" fill="#ffffff" stroke="none"></circle>',
+      pulse:'<path d="M16 28h6l3-8 4 16 3-8h8"></path>'
+    };
+    const svg='<svg width="100%" height="100%" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ill-'+uid+'" x1="0" y1="0" x2="56" y2="56"><stop offset="0%" stop-color="'+COLORS[variant%4][0]+'"/><stop offset="100%" stop-color="'+COLORS[variant%4][1]+'"/></linearGradient></defs><path d="'+BLOBS[variant%4]+'" fill="url(#ill-'+uid+')"/><g stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.95">'+GLYPHS[glyphKey]+'</g></svg>';
+    return React.createElement('div',{style:{width:'100%',height:'100%'},dangerouslySetInnerHTML:{__html:svg}});
+  }
+  avatar(size){
+    return React.createElement('img',{src:'assets/bot_avatar.png',alt:'DHIRA avatar',style:{width:size,height:size,borderRadius:'50%',objectFit:'cover',flexShrink:0,display:'block',boxShadow:'0 0 0 2px rgba(174,161,218,0.35)'}});
+  }
+  renderVals(){
+    const night = this.state.theme==='night';
+    const genz = this.props.genzCopy ?? false;
+    const HERO_LINES=['Aaj thoda heavy lag raha hai kya?',"I'm here. Tell me more.",'Yeh kaafi heavy lag raha hai. Main sun raha hoon.',"What's sitting with you right now?",'That sounds heavy. Take your time.'];
+    const FEATURES=[
+      {glyph:'ear',title:'Listens, never advises',body:'DHIRA reflects your feelings and asks one gentle question at a time. No prescriptions, no unsolicited advice — just a space to be heard.',detail:'"That sounds heavy. Tell me more."'},
+      {glyph:'moon',title:'Remembers gently',body:'After each chat, DHIRA keeps a quiet note of what you shared. Next time, it starts from where you left off.',detail:'"Last time work was sitting heavy on you — how\'s that today?"'},
+      {glyph:'chat',title:'Reaches out first',body:'Within your chosen window, DHIRA checks in unprompted — because sometimes the hardest thing is starting the conversation.',detail:'"Kal thoda heavy lag raha tha. Just checking in."'},
+      {glyph:'shield',title:'Safety built in',body:'When things feel too heavy, DHIRA steps back and connects you to real help — Tele-MANAS 14416, free and 24×7.',detail:"You don't have to be alone with this."}
+    ];
+    const STEPS=[
+      {number:'01',glyph:'person',title:'Create your profile',body:"Sign up and select the language you'd like to talk to DHIRA in."},
+      {number:'02',glyph:'clock',title:'Set your check-in window',body:'Tell DHIRA when it may reach out — 10 PM to 1 AM, a few times a week, in Hinglish. Your rules.'},
+      {number:'03',glyph:'chatDots',title:'Talk. Be heard.',body:'Open a chat anytime, or let DHIRA come to you. It listens, reflects, and asks one gentle question.'},
+      {number:'04',glyph:'pulse',title:'Watch your mood move',body:"A quiet 14-day mood timeline shows you how you've been — no judgement, just colour and continuity."}
+    ];
+    const TESTIMONIALS=[
+      {quote:'Pehli baar kisi ne mujhe sirf suna — bina kuch solve karne ki koshish kiye. That felt different.',name:'Aarav S.',meta:'Mumbai · 3 weeks with DHIRA',moodColor:'#8FBCA4',mood:'Calmer'},
+      {quote:'The 2 AM check-in message felt like someone actually cared enough to show up. Unexpected.',name:'Priya K.',meta:'Bengaluru · 5-day streak',moodColor:'#79C2C4',mood:'Hopeful'},
+      {quote:"Mujhe pata tha ye AI hai, phir bhi laga koi sun raha hai. That's the whole point, isn't it.",name:'Rohan M.',meta:'Delhi · 2 weeks with DHIRA',moodColor:'#F0C46B',mood:'Lighter'}
+    ];
+    return {
+      backdropOpacity: night?0.35:0.2,
+      baseColor: night?'#14162A':'#FAF6EF',
+      vigCenter: night?'#14162A':'#FAF6EF',
+      vigEdge: night?'#0E1020':'#E5DCD0',
+      vigOpacity: night?0.75:0.6,
+      whiteGlow: night?0.08:0.5,
+      navBg:'var(--surface)', navBorder:'var(--border)', navShadow:'var(--shadow-card)',
+      themeGlyph: night?'☀':'☾',
+      toggleTheme: ()=>{
+        const t = night?'day':'night';
+        try{ localStorage.setItem('DHIRA-theme',t); }catch(e){}
+        document.body.classList.toggle('night', t==='night');
+        this.setState({theme:t});
+      },
+      avatar72:this.avatar(72), avatar32:this.avatar(32),
+      heroTitleA: genz?'the calm that stays up':'The calm that stays up',
+      heroTitleB: genz?'with you. fr.':'with you.',
+      heroLine: HERO_LINES[this.state.lineIndex],
+      lineOpacity: this.state.visible?1:0,
+      heroTagline: genz?'no lectures, no fixing — just something that actually listens at 2 am. anonymous, always.':'A private, anonymous companion that listens at the hardest hour — never advising, always present.',
+      ctaLabel: genz?'start free — no real name needed':"Begin — it's free",
+      ctaBody:'DHIRA is already there. Anonymous, private, and ready to listen — no sign-up friction, no real name required.',
+      features: FEATURES.map((f,i)=>({...f, icon:this.blobIcon('feat-'+i, f.glyph, i)})),
+      steps: STEPS.map((st,i)=>{
+        const on=this.state.flipped===i;
+        return {...st, icon:this.blobIcon('step-'+i, st.glyph, i),
+          frontOp:on?0:1, frontT:on?'rotateY(14deg) scale(.96)':'rotateY(0deg) scale(1)',
+          backOp:on?1:0, backT:on?'rotateY(0deg) scale(1)':'rotateY(-14deg) scale(.96)',
+          enter:()=>this.setState({flipped:i}), leave:()=>this.setState({flipped:-1})};
+      }),
+      testimonials: TESTIMONIALS.map(t=>({...t, initial:t.name.charAt(0)}))
+    };
+  }
+}
+</script>
+</body>
+</html>
