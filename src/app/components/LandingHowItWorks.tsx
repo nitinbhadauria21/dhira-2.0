@@ -1,10 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { STEPS } from '@/lib/artifactDesign';
 import { illIconSvg } from '@/lib/artifactIllustrations';
 
 export default function LandingHowItWorks() {
+  const [openStep, setOpenStep] = useState<string | null>(null);
+
   return (
     <section
       className="py-24 px-6 lg:px-10 relative overflow-hidden"
@@ -51,69 +53,85 @@ export default function LandingHowItWorks() {
             aria-hidden="true"
           />
 
-          {STEPS.map((st, i) => (
-            <div
-              key={st.number}
-              className="dhira-flip-card relative z-10 flex flex-col items-center gap-5"
-            >
-              <div style={{ width: '100%', maxWidth: 220, height: 180 }}>
-                <div className="dhira-flip-inner" tabIndex={0} aria-label={`${st.number}: ${st.title}`}>
-                  <div className="dhira-flip-face">
-                    <div
-                      style={{ width: 56, height: 56 }}
-                      dangerouslySetInnerHTML={{
-                        __html: illIconSvg(`step-${i}`, st.glyph, i),
-                      }}
-                    />
-                    <div
-                      style={{
-                        fontFamily: 'var(--font-display)',
-                        fontSize: 28,
-                        fontWeight: 600,
-                        color: 'var(--color-primary)',
-                        opacity: 0.4,
-                      }}
-                    >
-                      {st.number}
+          {STEPS.map((st, i) => {
+            const isOpen = openStep === st.number;
+            return (
+              <div
+                key={st.number}
+                className={`dhira-flip-card relative z-10 flex flex-col items-center gap-5${isOpen ? ' is-open' : ''}`}
+              >
+                <div style={{ width: '100%', maxWidth: 220, height: 180 }}>
+                  <div
+                    className="dhira-flip-inner"
+                    tabIndex={0}
+                    role="button"
+                    aria-expanded={isOpen}
+                    aria-label={`${st.number}: ${st.title}. ${st.body}`}
+                    onClick={() => setOpenStep((current) => (current === st.number ? null : st.number))}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setOpenStep((current) => (current === st.number ? null : st.number));
+                      }
+                    }}
+                  >
+                    <div className="dhira-flip-face">
+                      <div
+                        style={{ width: 56, height: 56 }}
+                        dangerouslySetInnerHTML={{
+                          __html: illIconSvg(`step-${i}`, st.glyph, i),
+                        }}
+                      />
+                      <div
+                        style={{
+                          fontFamily: 'var(--font-display)',
+                          fontSize: 28,
+                          fontWeight: 600,
+                          color: 'var(--color-primary)',
+                          opacity: 0.4,
+                        }}
+                      >
+                        {st.number}
+                      </div>
                     </div>
-                  </div>
-                  <div className="dhira-flip-face-back">
-                    <div
-                      style={{
-                        fontFamily: 'var(--font-display)',
-                        fontSize: 16,
-                        fontWeight: 500,
-                        color: 'var(--color-text)',
-                        marginBottom: 8,
-                      }}
-                    >
-                      {st.title}
-                    </div>
-                    <div
-                      style={{
-                        fontFamily: 'var(--font-ui)',
-                        fontSize: 13,
-                        color: 'var(--color-text-muted)',
-                        lineHeight: 1.55,
-                      }}
-                    >
-                      {st.body}
+                    <div className="dhira-flip-face-back">
+                      <div
+                        style={{
+                          fontFamily: 'var(--font-display)',
+                          fontSize: 16,
+                          fontWeight: 500,
+                          color: 'var(--color-text)',
+                          marginBottom: 8,
+                        }}
+                      >
+                        {st.title}
+                      </div>
+                      <div
+                        style={{
+                          fontFamily: 'var(--font-ui)',
+                          fontSize: 13,
+                          color: 'var(--color-text-muted)',
+                          lineHeight: 1.55,
+                        }}
+                      >
+                        {st.body}
+                      </div>
                     </div>
                   </div>
                 </div>
+                <div
+                  style={{
+                    width: 14,
+                    height: 14,
+                    borderRadius: '50%',
+                    background: 'var(--color-bg)',
+                    border: '3px solid var(--color-primary)',
+                  }}
+                  aria-hidden="true"
+                />
               </div>
-              <div
-                style={{
-                  width: 14,
-                  height: 14,
-                  borderRadius: '50%',
-                  background: 'var(--color-bg)',
-                  border: '3px solid var(--color-primary)',
-                }}
-                aria-hidden="true"
-              />
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

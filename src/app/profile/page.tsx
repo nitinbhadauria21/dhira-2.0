@@ -124,10 +124,10 @@ function ProfileContent() {
   };
 
   const sections = [
-    { id: 'profile', label: 'Profile', icon: User },
-    { id: 'language', label: 'Language', icon: Globe },
-    { id: 'checkins', label: 'Check-ins', icon: Bell },
-    { id: 'account', label: 'Account', icon: Shield },
+    { id: 'profile', label: 'Profile', icon: User, iconColor: '#7C6AED' },
+    { id: 'language', label: 'Language', icon: Globe, iconColor: '#5BA3D9' },
+    { id: 'checkins', label: 'Check-ins', icon: Bell, iconColor: '#E8A87C' },
+    { id: 'account', label: 'Account', icon: Shield, iconColor: '#4A90C4' },
   ];
 
   const frequencyOptions = FREQUENCY_OPTIONS;
@@ -266,8 +266,8 @@ function ProfileContent() {
           <FloatingBuddy
             src="/illustrations/dhira_settings.png"
             alt="DHIRA holding a settings dial"
-            width={96}
-            bobAnimation="dhira-float-lav 5s ease-in-out infinite"
+            width={78}
+            bobAnimation="dhira-bob 5.5s ease-in-out infinite"
           />
           <div>
             <BrandLockup href="/home-dashboard" size={18} className="mb-3" />
@@ -309,7 +309,7 @@ function ProfileContent() {
                       cursor: 'pointer',
                     }}
                   >
-                    <Icon size={16} />
+                    <Icon size={16} color={s.iconColor} aria-hidden />
                     {s.label}
                   </button>
                 );
@@ -322,6 +322,136 @@ function ProfileContent() {
             {/* Profile section */}
             {activeSection === 'profile' && (
               <div className="dhira-card p-6">
+                {/* Growth banner — Profile.dc “Your growth, your story” */}
+                <div
+                  className="relative mb-6 overflow-hidden"
+                  style={{
+                    height: '128px',
+                    borderRadius: '12px',
+                    background:
+                      'linear-gradient(115deg, #CFC6EA 0%, #B4A8DE 34%, #EBDEEE 66%, #F5DCC2 100%)',
+                  }}
+                >
+                  <svg
+                    viewBox="0 0 640 128"
+                    preserveAspectRatio="xMidYMax slice"
+                    aria-hidden="true"
+                    className="absolute inset-0 w-full h-full"
+                  >
+                    <defs>
+                      <radialGradient id="pfSun" cx="50%" cy="40%" r="60%">
+                        <stop offset="0%" stopColor="#FFF3DF" stopOpacity="0.9" />
+                        <stop offset="100%" stopColor="#FFF3DF" stopOpacity="0" />
+                      </radialGradient>
+                      <linearGradient id="pfTrunk" x1="0" y1="1" x2="0" y2="0">
+                        <stop offset="0%" stopColor="#6E4F3A" />
+                        <stop offset="100%" stopColor="#8A6A4E" />
+                      </linearGradient>
+                      <radialGradient id="pfFol1" cx="40%" cy="35%" r="70%">
+                        <stop offset="0%" stopColor="#A9CDB4" />
+                        <stop offset="100%" stopColor="#6FA486" />
+                      </radialGradient>
+                      <radialGradient id="pfFol2" cx="40%" cy="35%" r="70%">
+                        <stop offset="0%" stopColor="#8FBCA4" />
+                        <stop offset="100%" stopColor="#5C976F" />
+                      </radialGradient>
+                      <radialGradient id="pfFol3" cx="45%" cy="40%" r="70%">
+                        <stop offset="0%" stopColor="#7FB093" />
+                        <stop offset="100%" stopColor="#4F8763" />
+                      </radialGradient>
+                    </defs>
+                    <circle cx="500" cy="30" r="90" fill="url(#pfSun)" />
+                    <ellipse cx="505" cy="124" rx="120" ry="10" fill="#5C4A6E" opacity="0.14" />
+                    <path
+                      d="M498 124 C500 100 497 84 494 70 C493 64 490 60 484 55 C489 57 493 60 495 63 C494 52 492 46 487 40 C493 44 497 50 499 58 C501 50 505 45 512 41 C506 48 503 55 503 64 C507 58 512 55 519 53 C512 58 506 65 505 74 C503 90 505 106 508 124 Z"
+                      fill="url(#pfTrunk)"
+                    />
+                    <g>
+                      <ellipse cx="466" cy="46" rx="26" ry="20" fill="url(#pfFol3)" opacity="0.95" />
+                      <ellipse cx="535" cy="44" rx="27" ry="21" fill="url(#pfFol3)" opacity="0.95" />
+                      <ellipse cx="481" cy="28" rx="27" ry="21" fill="url(#pfFol2)" />
+                      <ellipse cx="522" cy="26" rx="26" ry="20" fill="url(#pfFol2)" />
+                      <ellipse cx="501" cy="16" rx="30" ry="20" fill="url(#pfFol1)" />
+                      <ellipse cx="493" cy="30" rx="16" ry="11" fill="#BCD9C4" opacity="0.55" />
+                      <ellipse cx="516" cy="20" rx="10" ry="7" fill="#CDE4D3" opacity="0.5" />
+                    </g>
+                    <circle cx="470" cy="66" r="2.2" fill="#F0C46B" opacity="0.85" />
+                    <circle cx="540" cy="60" r="2.2" fill="#F0C46B" opacity="0.85" />
+                    <circle cx="512" cy="70" r="1.8" fill="#EFA94A" opacity="0.7" />
+                    <g opacity="0.5" fill="#63A183">
+                      <path d="M430 112 q3 -10 1 -16 q6 4 5 12 z" />
+                      <path d="M585 116 q3 -9 1 -14 q5 4 4 11 z" />
+                    </g>
+                  </svg>
+                  <div
+                    className="absolute inset-0 flex flex-col justify-center gap-2.5"
+                    style={{ padding: '0 200px 0 28px' }}
+                  >
+                    <div>
+                      <p
+                        style={{
+                          fontFamily: 'var(--font-display)',
+                          fontSize: '20px',
+                          fontWeight: 600,
+                          color: '#3A3560',
+                          letterSpacing: '-0.02em',
+                        }}
+                      >
+                        Your growth, your story
+                      </p>
+                      <p
+                        style={{
+                          fontFamily: 'var(--font-ui)',
+                          fontSize: '12.5px',
+                          color: '#5C5584',
+                          marginTop: '2px',
+                        }}
+                      >
+                        Small check-ins, quietly adding up.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { n: '24', label: 'days' },
+                        { n: '36', label: 'entries' },
+                        { n: '18', label: 'badges' },
+                      ].map((stat) => (
+                        <div
+                          key={stat.label}
+                          className="flex items-baseline gap-1.5"
+                          style={{
+                            background: 'rgba(255,255,255,.55)',
+                            backdropFilter: 'blur(6px)',
+                            border: '1px solid rgba(255,255,255,.7)',
+                            borderRadius: '10px',
+                            padding: '4px 12px',
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontFamily: 'var(--font-display)',
+                              fontSize: '15px',
+                              fontWeight: 600,
+                              color: '#3A3560',
+                            }}
+                          >
+                            {stat.n}
+                          </span>
+                          <span
+                            style={{
+                              fontFamily: 'var(--font-ui)',
+                              fontSize: '11px',
+                              color: '#5C5584',
+                            }}
+                          >
+                            {stat.label}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
                 <div
                   className="flex items-center gap-4 mb-6 pb-6"
                   style={{ borderBottom: '1px solid var(--color-border)' }}

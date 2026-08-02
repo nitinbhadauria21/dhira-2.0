@@ -101,7 +101,7 @@ function SignInContent() {
   return (
     <div className="min-h-screen flex items-center justify-center px-6 py-10" style={{ backgroundColor: 'var(--color-bg)' }}>
       <div
-        className="w-full grid"
+        className="w-full grid items-stretch"
         style={{
           maxWidth: 1000,
           gridTemplateColumns: 'minmax(0, 1.05fr) minmax(380px, 0.95fr)',
@@ -112,8 +112,8 @@ function SignInContent() {
           backgroundColor: 'var(--color-surface)',
         }}
       >
-        <div className="hidden md:block">
-          <AuthScenePanel variant="sign-in" minHeight={560} />
+        <div className="hidden md:block h-full min-h-full">
+          <AuthScenePanel variant="sign-in" />
         </div>
 
         <section
@@ -123,6 +123,7 @@ function SignInContent() {
             flexDirection: 'column',
             justifyContent: 'center',
             backgroundColor: 'var(--color-surface)',
+            minHeight: 560,
           }}
         >
           <div className="mb-7 flex items-start justify-between gap-4">

@@ -56,6 +56,8 @@ export default function AuthScenePanel({
       style={{
         position: 'relative',
         minHeight,
+        height: '100%',
+        alignSelf: 'stretch',
         padding: '48px 44px',
         display: 'flex',
         flexDirection: 'column',

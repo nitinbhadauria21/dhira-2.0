@@ -35,8 +35,8 @@ export default function HomeGreeting({
           <FloatingBuddy
             src="/illustrations/dhira_sitting_hi.png"
             alt="DHIRA, waving hello"
-            width={86}
-            bobAnimation="dhira-float-lav 5.5s ease-in-out infinite"
+            width={78}
+            bobAnimation="dhira-bob 5.5s ease-in-out infinite"
           />
           <div>
             <h1

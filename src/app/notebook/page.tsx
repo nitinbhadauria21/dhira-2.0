@@ -224,7 +224,8 @@ function NotebookContent() {
             <FloatingBuddy
               src="/illustrations/dhira_wave.png"
               alt="DHIRA, waving hello"
-              width={92}
+              width={78}
+              bobAnimation="dhira-bob 5.5s ease-in-out infinite"
               bobAnimation="dhira-float-lav 5.5s ease-in-out infinite"
             />
             <div>

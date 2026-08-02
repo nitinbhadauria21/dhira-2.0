@@ -138,7 +138,7 @@ function SignUpContent() {
   return (
     <div className="min-h-screen flex items-center justify-center px-6 py-10" style={{ backgroundColor: 'var(--color-bg)' }}>
       <div
-        className="w-full grid"
+        className="w-full grid items-stretch"
         style={{
           maxWidth: 1060,
           gridTemplateColumns: 'minmax(0, 1.02fr) minmax(390px, 0.98fr)',
@@ -149,8 +149,8 @@ function SignUpContent() {
           backgroundColor: 'var(--color-surface)',
         }}
       >
-        <div className="hidden lg:block">
-          <AuthScenePanel variant="sign-up" minHeight={660} />
+        <div className="hidden lg:block h-full min-h-full">
+          <AuthScenePanel variant="sign-up" />
         </div>
 
         <section
@@ -160,6 +160,7 @@ function SignUpContent() {
             flexDirection: 'column',
             justifyContent: 'center',
             backgroundColor: 'var(--color-surface)',
+            minHeight: 660,
           }}
         >
           <div className="mb-6">
