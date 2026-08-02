@@ -201,6 +201,30 @@ export const PROFILE_LANGUAGE_OPTIONS = [
   },
 ];
 
+/** Profile → Manage Voice cards (preference only; TTS not wired yet). */
+export const PROFILE_VOICE_OPTIONS = [
+  {
+    value: 'male_english' as const,
+    label: 'Male voice (English)',
+    sub: 'A calm male voice speaking clear English',
+  },
+  {
+    value: 'female_english' as const,
+    label: 'Female voice (English)',
+    sub: 'A warm female voice speaking clear English',
+  },
+  {
+    value: 'male_hinglish' as const,
+    label: 'Male voice (Hinglish)',
+    sub: 'A calm male voice with a natural Hindi–English mix',
+  },
+  {
+    value: 'female_hinglish' as const,
+    label: 'Female voice (Hinglish)',
+    sub: 'A warm female voice with a natural Hindi–English mix',
+  },
+];
+
 /** Demo 7-day moods from the Claude artifact (for empty accounts). */
 export const DEMO_WEEK_MOODS: { day: string; date: string; mood: MoodId; isToday?: boolean }[] = [
   { day: 'Sat', date: '5', mood: 'calm' },

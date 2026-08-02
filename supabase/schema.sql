@@ -22,6 +22,9 @@ create table if not exists profiles (
   email_opt_in      boolean not null default true,
   whatsapp_opt_in   boolean not null default false,
   timezone          text not null default 'Asia/Kolkata',
+  state             text,   -- Indian state (set at sign-up; editable in Profile → Location)
+  city              text,   -- City (set at sign-up; editable in Profile → Location)
+  voice_preference  text,   -- male_english | female_english | male_hinglish | female_hinglish
   consent_checkin   boolean not null default true,
   consent_memory    boolean not null default true,
   checkin_frequency text not null default 'daily',

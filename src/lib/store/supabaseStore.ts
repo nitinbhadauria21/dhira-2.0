@@ -42,6 +42,9 @@ const toProfile = (r: any): Profile => ({
   emailOptIn: r.email_opt_in ?? true,
   whatsappOptIn: r.whatsapp_opt_in ?? false,
   timezone: r.timezone ?? 'Asia/Kolkata',
+  state: r.state ?? null,
+  city: r.city ?? null,
+  voicePreference: r.voice_preference ?? null,
   consentCheckin: r.consent_checkin,
   consentMemory: r.consent_memory,
   checkinFrequency: r.checkin_frequency,
@@ -113,7 +116,7 @@ export class SupabaseStore implements DhiraStore {
     if (data) return toProfile(data);
 
     const now = new Date().toISOString();
-    const row = {
+    const baseRow: Record<string, unknown> = {
       id,
       alias: 'Friend',
       avatar: 'moon',
@@ -133,7 +136,24 @@ export class SupabaseStore implements DhiraStore {
       created_at: now,
       updated_at: now,
     };
-    const { data: inserted, error } = await sb.from('profiles').insert(row).select('*').single();
+    const withLocationVoice = {
+      ...baseRow,
+      state: null,
+      city: null,
+      voice_preference: null,
+    };
+
+    let { data: inserted, error } = await sb.from('profiles').insert(withLocationVoice).select('*').single();
+    // Older projects before city/voice migration — retry without those columns.
+    if (error && /state|city|voice_preference|last_proactive_at|last_weekly_at|schema cache/i.test(error.message ?? '')) {
+      ({ data: inserted, error } = await sb.from('profiles').insert(baseRow).select('*').single());
+      // Still older — drop timestamp columns too.
+      if (error && /last_proactive_at|last_weekly_at|schema cache/i.test(error.message ?? '')) {
+        delete baseRow.last_proactive_at;
+        delete baseRow.last_weekly_at;
+        ({ data: inserted, error } = await sb.from('profiles').insert(baseRow).select('*').single());
+      }
+    }
     if (error) throw error;
     return toProfile(inserted);
   }
@@ -151,6 +171,9 @@ export class SupabaseStore implements DhiraStore {
     if (patch.emailOptIn !== undefined) row.email_opt_in = patch.emailOptIn;
     if (patch.whatsappOptIn !== undefined) row.whatsapp_opt_in = patch.whatsappOptIn;
     if (patch.timezone !== undefined) row.timezone = patch.timezone;
+    if (patch.state !== undefined) row.state = patch.state;
+    if (patch.city !== undefined) row.city = patch.city;
+    if (patch.voicePreference !== undefined) row.voice_preference = patch.voicePreference;
     if (patch.consentCheckin !== undefined) row.consent_checkin = patch.consentCheckin;
     if (patch.consentMemory !== undefined) row.consent_memory = patch.consentMemory;
     if (patch.checkinFrequency !== undefined) row.checkin_frequency = patch.checkinFrequency;
@@ -158,10 +181,13 @@ export class SupabaseStore implements DhiraStore {
     if (patch.lastProactiveAt !== undefined) row.last_proactive_at = patch.lastProactiveAt;
     if (patch.lastWeeklyAt !== undefined) row.last_weekly_at = patch.lastWeeklyAt;
     let { data, error } = await sb.from('profiles').update(row).eq('id', id).select('*').single();
-    // Older projects before migration — drop new timestamp columns and retry.
-    if (error && /last_proactive_at|last_weekly_at/i.test(error.message ?? '')) {
+    // Older projects before migration — drop new columns and retry.
+    if (error && /last_proactive_at|last_weekly_at|state|city|voice_preference|schema cache/i.test(error.message ?? '')) {
       delete row.last_proactive_at;
       delete row.last_weekly_at;
+      delete row.state;
+      delete row.city;
+      delete row.voice_preference;
       ({ data, error } = await sb.from('profiles').update(row).eq('id', id).select('*').single());
     }
     if (error) throw error;
