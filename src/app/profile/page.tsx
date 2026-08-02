@@ -522,7 +522,7 @@ function ProfileContent() {
                   { label: 'Change password', sub: 'Keep your account secure', action: 'password' as const },
                   { label: 'Export my data', sub: 'Download everything Dhira knows about you', action: 'export' as const },
                   { label: 'Privacy settings', sub: 'Control what Dhira stores', action: 'privacy' as const },
-                  { label: 'Sign out', sub: 'Sign out of Dhira on this device', action: 'signout' as const },
+                  { label: 'LogOut', sub: 'Sign out of Dhira on this device', action: 'signout' as const },
                 ].map((item) => (
                   <button
                     key={item.label}
