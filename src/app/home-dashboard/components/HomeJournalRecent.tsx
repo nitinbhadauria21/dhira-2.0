@@ -4,7 +4,6 @@ import React from 'react';
 import Link from 'next/link';
 import MoodBadge from '@/components/MoodBadge';
 import { ArrowRight } from 'lucide-react';
-import { DEMO_RECENT_ENTRIES } from '@/lib/artifactDesign';
 
 interface JournalEntry {
   summary: string;
@@ -21,20 +20,12 @@ function formatDate(iso: string): string {
 }
 
 export default function HomeJournalRecent({ entries }: HomeJournalRecentProps) {
-  const recentEntries =
-    entries.length > 0
-      ? entries.map((e, i) => ({
-          id: `entry-${i}`,
-          date: formatDate(e.createdAt),
-          preview: e.summary,
-          topicTag: e.topic,
-        }))
-      : DEMO_RECENT_ENTRIES.map((e, i) => ({
-          id: `demo-${i}`,
-          date: e.date,
-          preview: e.preview,
-          topicTag: e.mood,
-        }));
+  const recentEntries = entries.map((e, i) => ({
+    id: `entry-${i}`,
+    date: formatDate(e.createdAt),
+    preview: e.summary,
+    topicTag: e.topic,
+  }));
 
   return (
     <div className="dhira-card p-6 h-full flex flex-col gap-4">
@@ -57,6 +48,18 @@ export default function HomeJournalRecent({ entries }: HomeJournalRecentProps) {
         </Link>
       </div>
       <div className="flex flex-col gap-3 flex-1">
+        {recentEntries.length === 0 ? (
+          <p
+            style={{
+              fontFamily: 'var(--font-ui)',
+              fontSize: 14,
+              color: 'var(--color-text-muted)',
+              lineHeight: 1.55,
+            }}
+          >
+            Nothing saved yet. Your journal and memories will grow here as you talk with DHIRA.
+          </p>
+        ) : null}
         {recentEntries.map((entry) => (
           <div
             key={entry.id}

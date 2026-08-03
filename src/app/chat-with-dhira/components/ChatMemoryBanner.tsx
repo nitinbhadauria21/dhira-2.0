@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { ARTIFACT_MEMORY_LINE } from '@/lib/artifactDesign';
 
 interface Memory {
   summary: string;
@@ -9,11 +8,7 @@ interface Memory {
 }
 
 export default function ChatMemoryBanner() {
-  // Start with Claude artifact demo line so empty accounts still match the design.
-  const [memory, setMemory] = useState<Memory | null>({
-    summary: ARTIFACT_MEMORY_LINE,
-    carryForward: ARTIFACT_MEMORY_LINE,
-  });
+  const [memory, setMemory] = useState<Memory | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -21,11 +16,13 @@ export default function ChatMemoryBanner() {
       try {
         const res = await fetch('/api/memory');
         const data = await res.json();
-        if (!cancelled && data?.memory) {
+        if (!cancelled && data?.memory?.summary) {
           setMemory({ summary: data.memory.summary, carryForward: data.memory.carryForward });
+        } else if (!cancelled) {
+          setMemory(null);
         }
       } catch {
-        /* keep the artifact demo line */
+        if (!cancelled) setMemory(null);
       }
     })();
     return () => {

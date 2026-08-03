@@ -7,7 +7,7 @@ import AppLayout from '@/components/AppLayout';
 import MoodBadge from '@/components/MoodBadge';
 import HorizonMoodTiles, { type HorizonMoodDay } from '@/components/HorizonMoodTiles';
 import { Search, MessageCircle, Bell, BookOpen, BarChart2, Plus } from 'lucide-react';
-import { DEMO_WEEK_MOODS, MOOD_COLORS, type MoodId } from '@/lib/artifactDesign';
+import { MOOD_COLORS, type MoodId } from '@/lib/artifactDesign';
 import type { NotebookEntry } from '@/lib/types';
 
 interface WeekPoint {
@@ -139,26 +139,17 @@ function TimelineContent() {
     );
   });
 
-  const weekDays: HorizonMoodDay[] = homeWeek?.last7?.some((d) => d.mood)
-    ? homeWeek.last7.map((d) => {
-        const dateObj = new Date(`${d.date}T00:00:00`);
-        return {
-          key: `day-${d.date}`,
-          day: WEEKDAYS[dateObj.getDay()],
-          date: String(dateObj.getDate()),
-          mood: d.mood,
-          logged: d.mood != null,
-          isToday: d.date === new Date().toISOString().slice(0, 10),
-        };
-      })
-    : DEMO_WEEK_MOODS.map((d, index) => ({
-        key: `demo-${index}`,
-        day: d.day,
-        date: d.date,
-        mood: d.mood,
-        logged: true,
-        isToday: Boolean(d.isToday),
-      }));
+  const weekDays: HorizonMoodDay[] = (homeWeek?.last7 ?? []).map((d) => {
+    const dateObj = new Date(`${d.date}T00:00:00`);
+    return {
+      key: `day-${d.date}`,
+      day: WEEKDAYS[dateObj.getDay()],
+      date: String(dateObj.getDate()),
+      mood: d.mood,
+      logged: d.mood != null,
+      isToday: d.date === new Date().toISOString().slice(0, 10),
+    };
+  });
 
   return (
     <div className="max-w-screen-lg mx-auto px-6 lg:px-10 py-8 flex flex-col gap-6">

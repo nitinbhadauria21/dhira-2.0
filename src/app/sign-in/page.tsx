@@ -7,7 +7,7 @@ import AuthScenePanel from '@/components/AuthScenePanel';
 import BrandLockup from '@/components/BrandLockup';
 import PasswordRevealInput from '@/components/PasswordRevealInput';
 import { ThemeProvider } from '@/components/ThemeProvider';
-import { signInEmail, requestOtp, verifyOtp } from '@/lib/authClient';
+import { signInEmail, requestOtp, verifyOtp, signInWithGoogle } from '@/lib/authClient';
 
 function GoogleIcon() {
   return (
@@ -43,10 +43,18 @@ const labelStyle: React.CSSProperties = {
   marginBottom: 6,
 };
 
+function resolveResumePath(queryNext: string | null): string {
+  if (queryNext && queryNext.startsWith('/')) return queryNext;
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem('dhira-last-route');
+    if (saved && saved.startsWith('/')) return saved;
+  }
+  return '/home-dashboard';
+}
+
 function SignInContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const nextPath = searchParams.get('next') || '/home-dashboard';
 
   const [mode, setMode] = useState<'email' | 'phone'>('email');
   const [email, setEmail] = useState('');
@@ -58,12 +66,16 @@ function SignInContent() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const goAfterSignIn = () => {
+    router.push(resolveResumePath(searchParams.get('next')));
+  };
+
   const handleEmailSignIn = async () => {
     setError(null);
     setLoading(true);
     try {
       await signInEmail(email.trim(), password);
-      router.push(nextPath);
+      goAfterSignIn();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not sign in');
     } finally {
@@ -90,7 +102,7 @@ function SignInContent() {
     setLoading(true);
     try {
       await verifyOtp(phone.trim(), otp.trim());
-      router.push(nextPath);
+      goAfterSignIn();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not verify code');
     } finally {
@@ -152,7 +164,17 @@ function SignInContent() {
               padding: '12px 16px',
               cursor: 'pointer',
             }}
-            onClick={() => setError('Google sign-in is coming soon - use email or phone for now.')}
+            onClick={async () => {
+              setError(null);
+              setLoading(true);
+              try {
+                const next = resolveResumePath(searchParams.get('next'));
+                await signInWithGoogle(next);
+              } catch (e) {
+                setError(e instanceof Error ? e.message : 'Google sign-in failed');
+                setLoading(false);
+              }
+            }}
           >
             <GoogleIcon />
             Continue with Google

@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import FloatingBuddy from '@/components/FloatingBuddy';
 import { ArrowRight } from 'lucide-react';
-import { ARTIFACT_MEMORY_LINE } from '@/lib/artifactDesign';
 import { homeGreeting, readStoredShift, type ShiftPreference } from '@/lib/timeOfDay';
 
 interface HomeGreetingProps {
@@ -21,7 +20,7 @@ export default function HomeGreeting({
 }: HomeGreetingProps) {
   const userName = alias || 'Friend';
   const [storedShift, setStoredShift] = useState<ShiftPreference>('day');
-  const memory = memoryLine?.trim() || ARTIFACT_MEMORY_LINE;
+  const memory = memoryLine?.trim() || '';
   const greeting = homeGreeting(userName, shift ?? storedShift);
 
   useEffect(() => {
@@ -81,34 +80,36 @@ export default function HomeGreeting({
         </button>
       </div>
 
-      <div className="memory-banner flex items-start gap-3">
-        <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>🌙</span>
-        <div>
-          <p
-            style={{
-              fontFamily: 'var(--font-ui)',
-              fontSize: 12,
-              fontWeight: 600,
-              letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-              color: 'var(--color-text-subtle)',
-              marginBottom: 3,
-            }}
-          >
-            DHIRA remembers
-          </p>
-          <p
-            style={{
-              fontFamily: 'var(--font-ui)',
-              fontSize: 15,
-              color: 'var(--color-text)',
-              lineHeight: 1.55,
-            }}
-          >
-            &ldquo;{memory}&rdquo;
-          </p>
+      {memory ? (
+        <div className="memory-banner flex items-start gap-3">
+          <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>🌙</span>
+          <div>
+            <p
+              style={{
+                fontFamily: 'var(--font-ui)',
+                fontSize: 12,
+                fontWeight: 600,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                color: 'var(--color-text-subtle)',
+                marginBottom: 3,
+              }}
+            >
+              DHIRA remembers
+            </p>
+            <p
+              style={{
+                fontFamily: 'var(--font-ui)',
+                fontSize: 15,
+                color: 'var(--color-text)',
+                lineHeight: 1.55,
+              }}
+            >
+              &ldquo;{memory}&rdquo;
+            </p>
+          </div>
         </div>
-      </div>
+      ) : null}
 
       <div className="sm:hidden mt-4">
         <button

@@ -39,6 +39,43 @@ export default function OnboardingFlow() {
     setData((prev) => (prev.shift === stored ? prev : { ...prev, shift: stored }));
   }, []);
 
+  // Prefill alias (and language) from signup / saved profile so we don't ask twice.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const cachedAlias =
+        typeof window !== 'undefined' ? localStorage.getItem('dhira-alias') || '' : '';
+      const cachedLang =
+        typeof window !== 'undefined' ? localStorage.getItem('dhira-language') : null;
+      try {
+        const res = await fetch('/api/profile');
+        const json = await res.json().catch(() => ({}));
+        if (cancelled) return;
+        const profile = json?.profile;
+        const aliasFromProfile =
+          profile?.alias && profile.alias !== 'Friend' ? String(profile.alias) : '';
+        const alias = aliasFromProfile || cachedAlias;
+        setData((prev) => ({
+          ...prev,
+          ...(alias ? { alias } : {}),
+          ...(profile?.language === 'english' || profile?.language === 'hinglish'
+            ? { language: profile.language }
+            : cachedLang === 'english' || cachedLang === 'hinglish'
+              ? { language: cachedLang }
+              : {}),
+          ...(profile?.shift ? { shift: profile.shift } : {}),
+        }));
+      } catch {
+        if (!cancelled && cachedAlias) {
+          setData((prev) => ({ ...prev, alias: cachedAlias }));
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const next = useCallback(() => setStep((s) => Math.min(s + 1, TOTAL_STEPS - 1)), []);
   const back = useCallback(() => setStep((s) => Math.max(s - 1, 0)), []);
 

@@ -109,3 +109,22 @@ export async function signOut() {
   if (sb) await sb.auth.signOut().catch(() => {});
   await fetch('/api/auth/signout', { method: 'POST' });
 }
+
+/**
+ * Start Google OAuth via Supabase. Requires Google to be enabled in the
+ * Supabase dashboard (Authentication → Providers → Google).
+ */
+export async function signInWithGoogle(next = '/onboarding') {
+  const sb = getBrowserSupabase();
+  if (!sb) {
+    throw new Error(
+      'Google sign-in needs Supabase connected. Add your Supabase URL and anon key, then enable Google in Supabase → Authentication → Providers.',
+    );
+  }
+  const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo },
+  });
+  if (error) throw new Error(error.message);
+}

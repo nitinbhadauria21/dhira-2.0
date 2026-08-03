@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import HorizonMoodTiles, { type HorizonMoodDay } from '@/components/HorizonMoodTiles';
 
-import { DEMO_WEEK_MOODS, type MoodId } from '@/lib/artifactDesign';
+import type { MoodId } from '@/lib/artifactDesign';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -15,28 +15,19 @@ interface HomeMiniTimelineProps {
 
 export default function HomeMiniTimeline({ last7 }: HomeMiniTimelineProps) {
   const todayKey = new Date().toISOString().slice(0, 10);
-  const hasRealMoods = last7.some((d) => d.mood != null);
 
-  const weekMoods: HorizonMoodDay[] = hasRealMoods
-    ? last7.map((d) => {
-        const dateObj = new Date(d.date + 'T00:00:00');
-        return {
-          key: `day-${d.date}`,
-          day: WEEKDAYS[dateObj.getDay()],
-          date: String(dateObj.getDate()),
-          mood: (d.mood ?? null) as MoodId | null,
-          logged: d.mood != null,
-          isToday: d.date === todayKey,
-        };
-      })
-    : DEMO_WEEK_MOODS.map((d, i) => ({
-        key: `demo-${i}`,
-        day: d.day,
-        date: d.date,
-        mood: d.mood,
-        logged: true,
-        isToday: Boolean(d.isToday),
-      }));
+  // Always show the real last-7 window — empty days stay unlogged for new accounts.
+  const weekMoods: HorizonMoodDay[] = last7.map((d) => {
+    const dateObj = new Date(d.date + 'T00:00:00');
+    return {
+      key: `day-${d.date}`,
+      day: WEEKDAYS[dateObj.getDay()],
+      date: String(dateObj.getDate()),
+      mood: (d.mood ?? null) as MoodId | null,
+      logged: d.mood != null,
+      isToday: d.date === todayKey,
+    };
+  });
 
   return (
     <div className="dhira-card p-6 h-full">

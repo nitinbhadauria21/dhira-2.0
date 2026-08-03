@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import Anthropic from '@anthropic-ai/sdk';
 import twilio from 'twilio';
 import { getStore } from '@/lib/store';
+import { normalizeMood, normalizeTopic, valenceForMood } from '@/lib/moodNormalize';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -94,24 +95,39 @@ export async function POST(req: NextRequest) {
     // Detect goodbye → sync mood and send farewell
     if (BYE_PATTERNS.test(body)) {
       const { mood, topicTag, summary, carryForward } = await extractMood(claude, historyText);
-      let valence = 0;
-      const m = mood.toLowerCase();
-      if (['sad', 'anxious', 'overwhelmed', 'lonely', 'angry', 'stressed'].includes(m)) valence = -0.5;
-      if (['hopeful', 'calm', 'happy', 'better', 'good'].includes(m)) valence = 0.5;
+      const m = normalizeMood(mood);
+      const topic = normalizeTopic(topicTag);
 
       await store.addMood({
-        id: randomUUID(), profileId: uid, mood: m, valence,
-        emotionalIntensity: 0.5, topicTag, source: 'elevenlabs', createdAt: now,
+        id: randomUUID(),
+        profileId: uid,
+        mood: m,
+        valence: valenceForMood(m),
+        emotionalIntensity: 0.5,
+        topicTag: topic,
+        source: 'chat',
+        createdAt: now,
       });
       if (summary) {
         await store.addMemory({
-          id: randomUUID(), profileId: uid, summary, mood: m,
-          topicTag, carryForward: carryForward || '', createdAt: now,
+          id: randomUUID(),
+          profileId: uid,
+          summary,
+          mood: m,
+          topicTag: topic,
+          carryForward: carryForward || '',
+          createdAt: now,
         });
       }
 
       const farewell = 'Take care of yourself 🌙 Dhira is always here when you need to talk.';
-      await store.addMessage({ id: randomUUID(), profileId: uid, role: 'assistant', content: farewell, createdAt: new Date().toISOString() });
+      await store.addMessage({
+        id: randomUUID(),
+        profileId: uid,
+        role: 'dhira',
+        content: farewell,
+        createdAt: new Date().toISOString(),
+      });
       return twiml(farewell);
     }
 
@@ -133,7 +149,7 @@ export async function POST(req: NextRequest) {
       : 'I\'m here. Tell me more.';
 
     // Save Dhira's response
-    await store.addMessage({ id: randomUUID(), profileId: uid, role: 'assistant', content: reply, createdAt: new Date().toISOString() });
+    await store.addMessage({ id: randomUUID(), profileId: uid, role: 'dhira', content: reply, createdAt: new Date().toISOString() });
 
     return twiml(reply);
   } catch (err) {
