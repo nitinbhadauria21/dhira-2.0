@@ -8,6 +8,7 @@ import type {
   AuthUser,
   NotificationRecord,
   NotificationStatus,
+  NotebookEntry,
 } from '@/lib/types';
 import type { DhiraStore, AdminStats } from './types';
 
@@ -42,6 +43,10 @@ const toProfile = (r: any): Profile => ({
   emailOptIn: r.email_opt_in ?? true,
   whatsappOptIn: r.whatsapp_opt_in ?? false,
   timezone: r.timezone ?? 'Asia/Kolkata',
+  state: r.state ?? null,
+  city: r.city ?? null,
+  shift: r.shift ?? 'day',
+  voicePreference: r.voice_preference ?? null,
   consentCheckin: r.consent_checkin,
   consentMemory: r.consent_memory,
   checkinFrequency: r.checkin_frequency,
@@ -96,6 +101,17 @@ const toMemory = (r: any): MemoryRecord => ({
   createdAt: r.created_at,
 });
 
+const toNotebookEntry = (r: any): NotebookEntry => ({
+  id: r.id,
+  profileId: r.profile_id,
+  createdAt: r.created_at,
+  mode: r.mode,
+  body: r.body,
+  mood: r.mood,
+  topics: r.topics ?? [],
+  shareWithDhira: r.share_with_dhira ?? true,
+});
+
 const toRisk = (r: any): RiskEventRecord => ({
   id: r.id,
   profileId: r.profile_id,
@@ -113,7 +129,7 @@ export class SupabaseStore implements DhiraStore {
     if (data) return toProfile(data);
 
     const now = new Date().toISOString();
-    const row = {
+    const baseRow: Record<string, unknown> = {
       id,
       alias: 'Friend',
       avatar: 'moon',
@@ -124,6 +140,7 @@ export class SupabaseStore implements DhiraStore {
       email_opt_in: true,
       whatsapp_opt_in: false,
       timezone: 'Asia/Kolkata',
+      shift: 'day',
       consent_checkin: true,
       consent_memory: true,
       checkin_frequency: 'daily',
@@ -133,7 +150,25 @@ export class SupabaseStore implements DhiraStore {
       created_at: now,
       updated_at: now,
     };
-    const { data: inserted, error } = await sb.from('profiles').insert(row).select('*').single();
+    const withLocationVoice = {
+      ...baseRow,
+      state: null,
+      city: null,
+      voice_preference: null,
+    };
+
+    let { data: inserted, error } = await sb.from('profiles').insert(withLocationVoice).select('*').single();
+    // Older projects before city/voice migration — retry without those columns.
+    if (error && /state|city|shift|voice_preference|last_proactive_at|last_weekly_at|schema cache/i.test(error.message ?? '')) {
+      if (/shift/i.test(error.message ?? '')) delete baseRow.shift;
+      ({ data: inserted, error } = await sb.from('profiles').insert(baseRow).select('*').single());
+      // Still older — drop timestamp columns too.
+      if (error && /last_proactive_at|last_weekly_at|schema cache/i.test(error.message ?? '')) {
+        delete baseRow.last_proactive_at;
+        delete baseRow.last_weekly_at;
+        ({ data: inserted, error } = await sb.from('profiles').insert(baseRow).select('*').single());
+      }
+    }
     if (error) throw error;
     return toProfile(inserted);
   }
@@ -151,6 +186,10 @@ export class SupabaseStore implements DhiraStore {
     if (patch.emailOptIn !== undefined) row.email_opt_in = patch.emailOptIn;
     if (patch.whatsappOptIn !== undefined) row.whatsapp_opt_in = patch.whatsappOptIn;
     if (patch.timezone !== undefined) row.timezone = patch.timezone;
+    if (patch.state !== undefined) row.state = patch.state;
+    if (patch.city !== undefined) row.city = patch.city;
+    if (patch.shift !== undefined) row.shift = patch.shift;
+    if (patch.voicePreference !== undefined) row.voice_preference = patch.voicePreference;
     if (patch.consentCheckin !== undefined) row.consent_checkin = patch.consentCheckin;
     if (patch.consentMemory !== undefined) row.consent_memory = patch.consentMemory;
     if (patch.checkinFrequency !== undefined) row.checkin_frequency = patch.checkinFrequency;
@@ -158,10 +197,14 @@ export class SupabaseStore implements DhiraStore {
     if (patch.lastProactiveAt !== undefined) row.last_proactive_at = patch.lastProactiveAt;
     if (patch.lastWeeklyAt !== undefined) row.last_weekly_at = patch.lastWeeklyAt;
     let { data, error } = await sb.from('profiles').update(row).eq('id', id).select('*').single();
-    // Older projects before migration — drop new timestamp columns and retry.
-    if (error && /last_proactive_at|last_weekly_at/i.test(error.message ?? '')) {
+    // Older projects before migration — drop new columns and retry.
+    if (error && /last_proactive_at|last_weekly_at|state|city|shift|voice_preference|schema cache/i.test(error.message ?? '')) {
       delete row.last_proactive_at;
       delete row.last_weekly_at;
+      delete row.state;
+      delete row.city;
+      delete row.shift;
+      delete row.voice_preference;
       ({ data, error } = await sb.from('profiles').update(row).eq('id', id).select('*').single());
     }
     if (error) throw error;
@@ -264,6 +307,33 @@ export class SupabaseStore implements DhiraStore {
       .limit(limit);
     if (error) throw error;
     return (data ?? []).map(toMemory);
+  }
+
+  async addNotebookEntry(record: NotebookEntry): Promise<void> {
+    const sb = client();
+    const { error } = await sb.from('notebook_entries').insert({
+      id: record.id,
+      profile_id: record.profileId,
+      created_at: record.createdAt,
+      mode: record.mode,
+      body: record.body,
+      mood: record.mood,
+      topics: record.topics,
+      share_with_dhira: record.shareWithDhira,
+    });
+    if (error) throw error;
+  }
+
+  async getNotebookEntries(profileId: string, limit = 20): Promise<NotebookEntry[]> {
+    const sb = client();
+    const { data, error } = await sb
+      .from('notebook_entries')
+      .select('*')
+      .eq('profile_id', profileId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return (data ?? []).map(toNotebookEntry);
   }
 
   async addRiskEvent(record: RiskEventRecord): Promise<void> {

@@ -3,6 +3,7 @@
 import React from 'react';
 import type { OnboardingData, Language } from './OnboardingFlow';
 import { LANGUAGE_OPTIONS } from '@/lib/artifactDesign';
+import { SHIFT_OPTIONS, writeStoredShift } from '@/lib/timeOfDay';
 
 interface Props {
   data: OnboardingData;
@@ -41,7 +42,7 @@ export default function StepSetup({ data, onChange, onNext, onBack }: Props) {
             lineHeight: 1.2,
           }}
         >
-          What should Dhira call you?
+          What should DHIRA call you?
         </h2>
         <p
           style={{
@@ -51,7 +52,7 @@ export default function StepSetup({ data, onChange, onNext, onBack }: Props) {
             lineHeight: 1.6,
           }}
         >
-          Use any name or alias — no real name needed. This is just how Dhira will greet you.
+          Use any name or alias — no real name needed. This is just how DHIRA will greet you.
         </p>
       </div>
 
@@ -116,7 +117,7 @@ export default function StepSetup({ data, onChange, onNext, onBack }: Props) {
             color: 'var(--color-text-muted)',
           }}
         >
-          How should Dhira talk to you?
+          How should DHIRA talk to you?
         </label>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {languageOptions.map((opt) => {
@@ -187,6 +188,60 @@ export default function StepSetup({ data, onChange, onNext, onBack }: Props) {
                     {opt.sub}
                   </p>
                 </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Work shift — user-chosen, never inferred */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <label
+          style={{
+            fontFamily: 'var(--font-ui)',
+            fontSize: '14px',
+            fontWeight: 500,
+            color: 'var(--color-text-muted)',
+          }}
+        >
+          When do you usually work?
+        </label>
+        <p style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-subtle)', marginTop: -4 }}>
+          DHIRA will greet you in your frame of time — not the clock&apos;s.
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {SHIFT_OPTIONS.map((opt) => {
+            const selected = data.shift === opt.key;
+            return (
+              <button
+                key={opt.key}
+                type="button"
+                onClick={() => {
+                  writeStoredShift(opt.key);
+                  onChange({ shift: opt.key });
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '12px',
+                  padding: '14px 16px',
+                  borderRadius: 'var(--radius-control)',
+                  border: `1.5px solid ${selected ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                  backgroundColor: selected ? 'var(--color-primary-soft)' : 'var(--color-surface)',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                }}
+              >
+                <div>
+                  <p style={{ fontFamily: 'var(--font-ui)', fontSize: '15px', fontWeight: 500, color: 'var(--color-text)' }}>
+                    {opt.label}
+                  </p>
+                  <p style={{ fontFamily: 'var(--font-ui)', fontSize: '13px', color: 'var(--color-text-muted)' }}>{opt.hint}</p>
+                </div>
+                {selected ? (
+                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--color-primary)' }} />
+                ) : null}
               </button>
             );
           })}

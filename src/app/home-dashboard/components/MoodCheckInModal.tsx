@@ -3,12 +3,17 @@
 import React, { useState } from 'react';
 import { X, Check } from 'lucide-react';
 import { toast } from 'sonner';
-import { MOODS_GRID } from '@/lib/artifactDesign';
+import { MOODS_GRID, type MoodId } from '@/lib/artifactDesign';
 
 interface MoodCheckInModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSaved?: () => void;
+  onSaved?: (savedMood: {
+    mood: MoodId;
+    intensity: number;
+    topic: string;
+    createdAt: string;
+  }) => void;
 }
 
 const MOODS = MOODS_GRID.map((m) => ({
@@ -39,7 +44,12 @@ export default function MoodCheckInModal({ isOpen, onClose, onSaved }: MoodCheck
       });
       if (!res.ok) throw new Error('save failed');
       toast.success(`${selectedMood?.emoji} ${selectedMood?.label} mood saved`);
-      onSaved?.();
+      onSaved?.({
+        mood: selected as MoodId,
+        intensity: intensity / 100,
+        topic: 'self',
+        createdAt: new Date().toISOString(),
+      });
     } catch {
       toast.error('Could not save your mood — please try again.');
     } finally {
@@ -61,19 +71,39 @@ export default function MoodCheckInModal({ isOpen, onClose, onSaved }: MoodCheck
         style={{ maxHeight: '90vh', overflowY: 'auto' }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 pb-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
+        <div
+          className="flex items-center justify-between p-6 pb-4"
+          style={{ borderBottom: '1px solid var(--color-border)' }}
+        >
           <div>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '20px', fontWeight: 500, color: 'var(--color-text)' }}>
+            <h2
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '20px',
+                fontWeight: 500,
+                color: 'var(--color-text)',
+              }}
+            >
               How are you right now?
             </h2>
-            <p style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+            <p
+              style={{
+                fontFamily: 'var(--font-ui)',
+                fontSize: '14px',
+                color: 'var(--color-text-muted)',
+                marginTop: '4px',
+              }}
+            >
               No right or wrong answer.
             </p>
           </div>
           <button
             onClick={onClose}
             className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-150"
-            style={{ backgroundColor: 'var(--color-surface-alt)', color: 'var(--color-text-muted)' }}
+            style={{
+              backgroundColor: 'var(--color-surface-alt)',
+              color: 'var(--color-text-muted)',
+            }}
             aria-label="Close"
           >
             <X size={16} />
@@ -99,7 +129,16 @@ export default function MoodCheckInModal({ isOpen, onClose, onSaved }: MoodCheck
                   aria-pressed={isSelected}
                 >
                   <span style={{ fontSize: '22px' }}>{mood.emoji}</span>
-                  <span style={{ fontFamily: 'var(--font-ui)', fontSize: '10px', color: 'var(--color-text-muted)', fontWeight: isSelected ? 600 : 400, textAlign: 'center', lineHeight: 1.2 }}>
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-ui)',
+                      fontSize: '10px',
+                      color: 'var(--color-text-muted)',
+                      fontWeight: isSelected ? 600 : 400,
+                      textAlign: 'center',
+                      lineHeight: 1.2,
+                    }}
+                  >
                     {mood.label}
                   </span>
                 </button>
@@ -111,10 +150,23 @@ export default function MoodCheckInModal({ isOpen, onClose, onSaved }: MoodCheck
           {selected && (
             <div className="mb-6 fade-in">
               <div className="flex items-center justify-between mb-3">
-                <p style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: 'var(--color-text-muted)' }}>
+                <p
+                  style={{
+                    fontFamily: 'var(--font-ui)',
+                    fontSize: '14px',
+                    color: 'var(--color-text-muted)',
+                  }}
+                >
                   How intense does it feel?
                 </p>
-                <span style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: 'var(--color-text)', fontWeight: 500 }}>
+                <span
+                  style={{
+                    fontFamily: 'var(--font-ui)',
+                    fontSize: '14px',
+                    color: 'var(--color-text)',
+                    fontWeight: 500,
+                  }}
+                >
                   {intensity}%
                 </span>
               </div>
@@ -129,19 +181,31 @@ export default function MoodCheckInModal({ isOpen, onClose, onSaved }: MoodCheck
                 aria-label="Mood intensity"
               />
               <div className="flex justify-between mt-1">
-                <span style={{ fontFamily: 'var(--font-ui)', fontSize: '11px', color: 'var(--color-text-subtle)' }}>Gentle</span>
-                <span style={{ fontFamily: 'var(--font-ui)', fontSize: '11px', color: 'var(--color-text-subtle)' }}>Overwhelming</span>
+                <span
+                  style={{
+                    fontFamily: 'var(--font-ui)',
+                    fontSize: '11px',
+                    color: 'var(--color-text-subtle)',
+                  }}
+                >
+                  Gentle
+                </span>
+                <span
+                  style={{
+                    fontFamily: 'var(--font-ui)',
+                    fontSize: '11px',
+                    color: 'var(--color-text-subtle)',
+                  }}
+                >
+                  Overwhelming
+                </span>
               </div>
             </div>
           )}
 
           {/* Actions */}
           <div className="flex gap-3">
-            <button
-              onClick={onClose}
-              className="btn-ghost flex-1"
-              style={{ fontSize: '15px' }}
-            >
+            <button onClick={onClose} className="btn-ghost flex-1" style={{ fontSize: '15px' }}>
               Not now
             </button>
             <button
@@ -156,7 +220,10 @@ export default function MoodCheckInModal({ isOpen, onClose, onSaved }: MoodCheck
             >
               {saving ? (
                 <span className="flex items-center gap-2">
-                  <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" style={{ animation: 'spin 0.7s linear infinite' }} />
+                  <span
+                    className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                    style={{ animation: 'spin 0.7s linear infinite' }}
+                  />
                   Saving...
                 </span>
               ) : (
@@ -169,7 +236,13 @@ export default function MoodCheckInModal({ isOpen, onClose, onSaved }: MoodCheck
           </div>
         </div>
       </div>
-      <style jsx>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style jsx>{`
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
     </div>
   );
 }

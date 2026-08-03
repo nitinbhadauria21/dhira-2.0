@@ -53,12 +53,25 @@ export async function GET() {
     return NextResponse.json({
       alias: profile.alias,
       language: profile.language,
-      latestMood: latestMood ? { mood: latestMood.mood, intensity: latestMood.emotionalIntensity, topic: latestMood.topicTag } : null,
-      memory: memories[0] ? { summary: memories[0].summary, carryForward: memories[0].carryForward } : null,
+      shift: profile.shift,
+      latestMood: latestMood
+        ? {
+            mood: latestMood.mood,
+            intensity: latestMood.emotionalIntensity,
+            topic: latestMood.topicTag,
+          }
+        : null,
+      memory: memories[0]
+        ? { summary: memories[0].summary, carryForward: memories[0].carryForward }
+        : null,
       streak,
       totalSessions: sessionDays.size,
       last7,
-      recentJournal: memories.map((m) => ({ summary: m.summary, topic: m.topicTag, createdAt: m.createdAt })),
+      recentJournal: memories.map((m) => ({
+        summary: m.summary,
+        topic: m.topicTag,
+        createdAt: m.createdAt,
+      })),
     });
   } catch (err) {
     console.error('[api/home] error', err);

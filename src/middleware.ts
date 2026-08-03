@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
  * Works in both modes because we always set that cookie on login.
  * (Admin pages have their own client-side guard.)
  */
-const PROTECTED = ['/home-dashboard', '/chat-with-dhira', '/profile', '/timeline'];
+const PROTECTED = ['/home-dashboard', '/chat-with-dhira', '/notebook', '/profile', '/timeline'];
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -23,5 +23,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/home-dashboard/:path*', '/chat-with-dhira/:path*', '/profile/:path*', '/timeline/:path*'],
+  matcher: ['/home-dashboard/:path*', '/chat-with-dhira/:path*', '/notebook/:path*', '/profile/:path*', '/timeline/:path*'],
 };
