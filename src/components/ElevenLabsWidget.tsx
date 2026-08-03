@@ -1,17 +1,17 @@
 'use client';
 
 import React, { useCallback, useState } from 'react';
-import { useConversation } from '@elevenlabs/client';
+import { useConversation, ConversationProvider } from '@elevenlabs/react';
 
 const AGENT_ID = 'agent_1301kymjnjbpevba1tncfhmd5b0m';
 
-export default function ElevenLabsWidget() {
+function ElevenLabsWidgetInner() {
   const [hasMicPermission, setHasMicPermission] = useState(false);
 
   const conversation = useConversation({
     onConnect: () => console.log('Connected to Dhira'),
     onDisconnect: () => console.log('Disconnected from Dhira'),
-    onError: (error) => console.error('Dhira error:', error),
+    onError: (error: any) => console.error('Dhira error:', error),
   });
 
   const isActive = conversation.status === 'connected' || conversation.status === 'connecting';
@@ -97,5 +97,13 @@ export default function ElevenLabsWidget() {
         {conversation.status === 'connecting' ? 'Connecting...' : (isActive ? 'End Call' : 'Talk to Dhira')}
       </button>
     </>
+  );
+}
+
+export default function ElevenLabsWidget() {
+  return (
+    <ConversationProvider>
+      <ElevenLabsWidgetInner />
+    </ConversationProvider>
   );
 }
