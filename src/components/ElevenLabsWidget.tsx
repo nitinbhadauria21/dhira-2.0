@@ -77,23 +77,16 @@ function ElevenLabsWidgetInner() {
           (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 24px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.05)';
         }}
       >
-        {isActive ? (
-          // Close/End Call icon
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-          </svg>
-        ) : (
-          // Dhira Breathing Avatar
-          <div
-            style={{
-              width: '18px',
-              height: '18px',
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #c084fc 0%, #facc15 100%)',
-              animation: 'dhira-breathe 3s ease-in-out infinite',
-            }}
-          />
-        )}
+        {/* Dhira Breathing Avatar */}
+        <div
+          style={{
+            width: '18px',
+            height: '18px',
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #c084fc 0%, #facc15 100%)',
+            animation: 'dhira-breathe 3s ease-in-out infinite',
+          }}
+        />
         {conversation.status === 'connecting' ? 'Connecting...' : (isActive ? 'End Call' : 'Talk to Dhira')}
       </button>
     </>
