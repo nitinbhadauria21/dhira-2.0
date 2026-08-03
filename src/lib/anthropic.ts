@@ -1,11 +1,20 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { getModelFor, isLiveBrainEnabled, type AgentName } from '@/config/models';
+import {
+  getBrainApiKey,
+  getBrainBaseURL,
+  getModelFor,
+  isLiveBrainEnabled,
+  isOpenRouterConfigured,
+  type AgentName,
+} from '@/config/models';
 
-export { isLiveBrainEnabled };
+export { isLiveBrainEnabled, isOpenRouterConfigured };
 
 /**
- * Low-level helpers for talking to Claude. Everything funnels through here so
- * model choice, key handling, and JSON parsing live in one place.
+ * Low-level helpers for talking to Dhira's live brain.
+ * Prefer OpenRouter (`OPENROUTER_API_KEY`) as the central host; fall back to a
+ * direct Anthropic key. Everything funnels through here so model choice, key
+ * handling, and JSON parsing live in one place.
  * These throw if no key is set — callers (the agents) fall back to the local
  * offline brain in that case.
  */
@@ -13,7 +22,22 @@ export { isLiveBrainEnabled };
 let anthropic: Anthropic | null = null;
 function client(): Anthropic {
   if (!anthropic) {
-    anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY as string });
+    const apiKey = getBrainApiKey();
+    if (!apiKey) {
+      throw new Error('No live brain API key configured (OPENROUTER_API_KEY or ANTHROPIC_API_KEY)');
+    }
+    const baseURL = getBrainBaseURL();
+    anthropic = new Anthropic({
+      apiKey,
+      ...(baseURL ? { baseURL } : {}),
+      // OpenRouter recommends identifying the app; harmless for Anthropic direct.
+      defaultHeaders: isOpenRouterConfigured()
+        ? {
+            'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:4028',
+            'X-Title': 'Dhira',
+          }
+        : undefined,
+    });
   }
   return anthropic;
 }
@@ -23,7 +47,7 @@ export interface ClaudeTurn {
   content: string;
 }
 
-/** Ask Claude for a plain-text reply. */
+/** Ask the live brain for a plain-text reply. */
 export async function anthropicText(params: {
   agent: AgentName;
   system: string;
@@ -43,7 +67,7 @@ export async function anthropicText(params: {
     .trim();
 }
 
-/** Ask Claude for a JSON object and parse it defensively. */
+/** Ask the live brain for a JSON object and parse it defensively. */
 export async function anthropicJSON<T>(params: {
   agent: AgentName;
   system: string;

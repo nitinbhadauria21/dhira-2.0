@@ -51,7 +51,10 @@ Expect something like:
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Publishable key (`sb_publishable_...`) — browser Auth |
 | `SUPABASE_SERVICE_ROLE_KEY` | Secret key (`sb_secret_...`) — **server only**, cloud DB writes |
-| `ANTHROPIC_API_KEY` | Real Claude brain (`sk-...`). Without it → offline brain |
+| `OPENROUTER_API_KEY` | **Preferred** central brain (`sk-or-v1-...` from [openrouter.ai](https://openrouter.ai)). Without a live brain key → offline brain |
+| `ANTHROPIC_API_KEY` | Legacy fallback direct Claude key (`sk-...`). Not needed if OpenRouter is set |
+| `DHIRA_MODEL_SONNET` | Optional override for voice/safety model (default OpenRouter: `anthropic/claude-sonnet-4.5`) |
+| `DHIRA_MODEL_HAIKU` | Optional override for mood/memory model (default OpenRouter: `anthropic/claude-haiku-4.5`) |
 | `EMERGENT_NOTIFY_WEBHOOK_URL` | Optional email/WhatsApp delivery via Emergent |
 | `EMERGENT_WEBHOOK_SECRET` | Shared secret for Emergent callbacks |
 | `WHATSAPP_ENABLED` | `true` only after WhatsApp Business approval |
@@ -104,7 +107,7 @@ API routes live under `src/app/api/*`. Protected pages use `src/middleware.ts` (
 
 - **Dual mode:** offline local store (`.data/dhira-store.json`) **or** Supabase Postgres when service-role key is set.
 - **Auth:** Supabase Auth when URL + publishable key are set; otherwise local/dev auth APIs.
-- **Brain:** Anthropic six agents in `src/agents/*` when `ANTHROPIC_API_KEY` is a real `sk-` key; else `src/lib/localBrain.ts`.
+- **Brain:** Six agents in `src/agents/*` call OpenRouter (preferred via `OPENROUTER_API_KEY`) or a direct Anthropic key; else `src/lib/localBrain.ts`. Check `GET /api/status` → `liveBrain`.
 - **Safety:** Escalation + Monitor + Tele-MANAS 14416; every outbound chat/notification is monitor-gated.
 - **Notifications:** `src/lib/notify.ts` → Emergent webhook (or `dev-simulated` without webhook).
 
