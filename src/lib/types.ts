@@ -121,7 +121,7 @@ export interface MoodLogRecord {
   valence: number; // -1..1
   emotionalIntensity: number; // 0..1
   topicTag: TopicTag;
-  source: 'chat' | 'manual'; // manual = the mood modal; chat = auto-tagged
+  source: 'chat' | 'manual' | 'elevenlabs'; // manual = mood modal; chat = text; elevenlabs = voice
   createdAt: string;
 }
 

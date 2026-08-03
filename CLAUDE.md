@@ -11,7 +11,7 @@ For teammates: setup is in `README.md`; completed vs pending is in `DEMO_DAY_STA
 
 It has a **real backend layer** that runs in two modes:
 - **Offline/demo (default):** no real keys → deterministic offline brain (`src/lib/localBrain.ts`) + local JSON store (`.data/dhira-store.json`). Full product is testable with no keys.
-- **Live:** real `ANTHROPIC_API_KEY` (starts with `sk-`) enables the six Claude agents; real Supabase keys switch persistence/auth to Postgres. Check mode via `GET /api/status`.
+- **Live:** prefer `OPENROUTER_API_KEY` (`sk-or-v1-...`) as the central brain for the six agents (OpenRouter → Claude); direct `ANTHROPIC_API_KEY` still works as a fallback. Real Supabase keys switch persistence/auth to Postgres. Check mode via `GET /api/status` (`liveBrain`).
 
 `.env` holds placeholders only — put real keys in `.env.local` (git-ignored).
 
