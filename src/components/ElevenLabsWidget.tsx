@@ -1,51 +1,40 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'elevenlabs-convai': React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement> & { 'agent-id': string },
-        HTMLElement
-      >;
-    }
-  }
-}
+import React, { useCallback, useState } from 'react';
+import { useConversation } from '@elevenlabs/client';
 
 const AGENT_ID = 'agent_1301kymjnjbpevba1tncfhmd5b0m';
 
 export default function ElevenLabsWidget() {
-  const [open, setOpen] = useState(false);
-  const widgetRef = useRef<HTMLDivElement>(null);
+  const [hasMicPermission, setHasMicPermission] = useState(false);
 
-  useEffect(() => {
-    if (document.getElementById('elevenlabs-widget-script')) return;
-    const script = document.createElement('script');
-    script.id = 'elevenlabs-widget-script';
-    script.src = 'https://elevenlabs.io/convai-widget/index.js';
-    script.async = true;
-    document.body.appendChild(script);
-  }, []);
+  const conversation = useConversation({
+    onConnect: () => console.log('Connected to Dhira'),
+    onDisconnect: () => console.log('Disconnected from Dhira'),
+    onError: (error) => console.error('Dhira error:', error),
+  });
+
+  const isActive = conversation.status === 'connected' || conversation.status === 'connecting';
+
+  const toggleCall = useCallback(async () => {
+    if (isActive) {
+      await conversation.endSession();
+    } else {
+      try {
+        // Request mic permission manually first to ensure seamless experience
+        if (!hasMicPermission) {
+          await navigator.mediaDevices.getUserMedia({ audio: true });
+          setHasMicPermission(true);
+        }
+        await conversation.startSession({ agentId: AGENT_ID });
+      } catch (err) {
+        console.error('Failed to start Dhira call:', err);
+      }
+    }
+  }, [conversation, isActive, hasMicPermission]);
 
   return (
     <>
-      {/* Hidden ElevenLabs widget — positioned offscreen when closed */}
-      <div
-        ref={widgetRef}
-        style={{
-          position: 'fixed',
-          bottom: open ? '90px' : '-9999px',
-          right: '24px',
-          zIndex: 9999,
-          opacity: open ? 1 : 0,
-          pointerEvents: open ? 'auto' : 'none',
-          transition: 'opacity 0.2s ease, bottom 0.3s ease',
-        }}
-      >
-        <elevenlabs-convai agent-id={AGENT_ID} />
-      </div>
-
       <style>{`
         @keyframes dhira-breathe {
           0% { transform: scale(0.9); box-shadow: 0 0 0px rgba(192, 132, 252, 0.4); }
@@ -56,8 +45,8 @@ export default function ElevenLabsWidget() {
 
       {/* Custom "Talk to Dhira" floating button */}
       <button
-        onClick={() => setOpen((v) => !v)}
-        aria-label="Talk to Dhira"
+        onClick={toggleCall}
+        aria-label={isActive ? "End call with Dhira" : "Talk to Dhira"}
         style={{
           position: 'fixed',
           bottom: '24px',
@@ -70,8 +59,8 @@ export default function ElevenLabsWidget() {
           borderRadius: '50px',
           border: 'none',
           cursor: 'pointer',
-          backgroundColor: open ? 'var(--color-primary, #5a67b8)' : '#ffffff',
-          color: open ? '#ffffff' : 'var(--color-primary, #5a67b8)',
+          backgroundColor: isActive ? '#f87171' : '#ffffff', // Red when active to indicate "End Call", white otherwise
+          color: isActive ? '#ffffff' : 'var(--color-primary, #5a67b8)',
           fontFamily: 'var(--font-ui, Inter, sans-serif)',
           fontSize: '15px',
           fontWeight: 600,
@@ -88,12 +77,13 @@ export default function ElevenLabsWidget() {
           (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 24px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.05)';
         }}
       >
-        {open ? (
+        {isActive ? (
+          // Close/End Call icon
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
           </svg>
         ) : (
+          // Dhira Breathing Avatar
           <div
             style={{
               width: '18px',
@@ -104,7 +94,7 @@ export default function ElevenLabsWidget() {
             }}
           />
         )}
-        {open ? 'Close' : 'Talk to Dhira'}
+        {conversation.status === 'connecting' ? 'Connecting...' : (isActive ? 'End Call' : 'Talk to Dhira')}
       </button>
     </>
   );
