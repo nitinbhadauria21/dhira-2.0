@@ -70,7 +70,8 @@ Expect something like:
 3. **Authentication → Providers → Email** → enable Email.  
    For Demo Day: turn **Confirm email OFF** (avoids email rate limits / confirmation loops).
 4. **Project Settings → API Keys** → copy URL, publishable key, secret key into `.env.local`.
-5. Restart `npm run dev`.
+5. **Google OAuth:** follow [`docs/SUPABASE_GOOGLE_AUTH.md`](./docs/SUPABASE_GOOGLE_AUTH.md) (redirect URLs + Google Cloud client).
+6. Restart `npm run dev`.
 
 ---
 
