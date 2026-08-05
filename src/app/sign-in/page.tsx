@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AuthScenePanel from '@/components/AuthScenePanel';
@@ -65,6 +65,11 @@ function SignInContent() {
   const [devCode, setDevCode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const oauthErr = searchParams.get('error');
+    if (oauthErr) setError(oauthErr);
+  }, [searchParams]);
 
   const goAfterSignIn = () => {
     router.push(resolveResumePath(searchParams.get('next')));
