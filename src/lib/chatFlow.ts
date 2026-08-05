@@ -23,6 +23,9 @@ export interface ChatTurnResult {
   crisis: boolean;
   showReferralCard: boolean;
   riskLevel: RiskLevel;
+  /** Mood assigned to this turn (when tagging succeeded). */
+  mood?: string;
+  topicTag?: string;
 }
 
 export async function runChatTurn(params: {
@@ -111,8 +114,12 @@ export async function runChatTurn(params: {
   });
 
   // 4) Background metadata: mood tagging + memory note (best-effort).
+  let taggedMood: string | undefined;
+  let taggedTopic: string | undefined;
   try {
     const mood = await tagMood(userMessage);
+    taggedMood = mood.mood;
+    taggedTopic = mood.topic_tag;
     await store.addMood({
       id: randomUUID(),
       profileId: uid,
@@ -162,5 +169,7 @@ export async function runChatTurn(params: {
     crisis: false,
     showReferralCard,
     riskLevel: reviewed.risk_level,
+    mood: taggedMood,
+    topicTag: taggedTopic,
   };
 }

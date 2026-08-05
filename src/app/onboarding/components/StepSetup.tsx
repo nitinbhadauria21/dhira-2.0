@@ -16,6 +16,7 @@ const languageOptions: { value: Language; label: string; sub: string }[] = LANGU
 
 export default function StepSetup({ data, onChange, onNext, onBack }: Props) {
   const canContinue = data.alias.trim().length >= 1;
+  const aliasFromSignup = data.alias.trim().length >= 1;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
@@ -42,7 +43,7 @@ export default function StepSetup({ data, onChange, onNext, onBack }: Props) {
             lineHeight: 1.2,
           }}
         >
-          What should DHIRA call you?
+          {aliasFromSignup ? `We'll keep calling you ${data.alias.trim()}` : 'What should DHIRA call you?'}
         </h2>
         <p
           style={{
@@ -52,7 +53,9 @@ export default function StepSetup({ data, onChange, onNext, onBack }: Props) {
             lineHeight: 1.6,
           }}
         >
-          Use any name or alias — no real name needed. This is just how DHIRA will greet you.
+          {aliasFromSignup
+            ? 'You already chose this at sign-up. Change it only if you want — no real name needed.'
+            : 'Use any name or alias — no real name needed. This is just how DHIRA will greet you.'}
         </p>
       </div>
 
@@ -103,7 +106,7 @@ export default function StepSetup({ data, onChange, onNext, onBack }: Props) {
             color: 'var(--color-text-subtle)',
           }}
         >
-          This is stored only in your browser — never on our servers.
+          Saved privately in your DHIRA profile — used only to greet you.
         </p>
       </div>
 

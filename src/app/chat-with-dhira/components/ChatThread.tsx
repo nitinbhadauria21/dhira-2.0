@@ -1,5 +1,6 @@
 import React from 'react';
 import DhiraAvatar from '@/components/DhiraAvatar';
+import MoodBadge from '@/components/MoodBadge';
 import type { ChatMessage } from './ChatContent';
 
 interface ChatThreadProps {
@@ -10,23 +11,25 @@ interface ChatThreadProps {
 export default function ChatThread({ messages, isTyping }: ChatThreadProps) {
   return (
     <div className="flex flex-col gap-5">
-      <div className="mb-3 flex flex-col items-center gap-1 text-center">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/illustrations/dhira_chat_scene.png"
-          alt="DHIRA sitting with open speech bubbles, waiting to listen"
-          style={{
-            width: 'min(220px, 62%)',
-            height: 'auto',
-            filter: 'drop-shadow(0 12px 22px rgba(30,35,64,0.13))',
-          }}
-        />
-        <p
-          style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--color-text-subtle)' }}
-        >
-          This space is yours. Take your time.
-        </p>
-      </div>
+      {messages.length === 0 ? (
+        <div className="mb-3 flex flex-col items-center gap-1 text-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/illustrations/dhira_chat_scene.png"
+            alt="DHIRA sitting with open speech bubbles, waiting to listen"
+            style={{
+              width: 'min(220px, 62%)',
+              height: 'auto',
+              filter: 'drop-shadow(0 12px 22px rgba(30,35,64,0.13))',
+            }}
+          />
+          <p
+            style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--color-text-subtle)' }}
+          >
+            This space is yours. Take your time.
+          </p>
+        </div>
+      ) : null}
       {messages.map((msg) => (
         <div
           key={msg.id}
@@ -65,17 +68,24 @@ export default function ChatThread({ messages, isTyping }: ChatThreadProps) {
                 {msg.content}
               </p>
             </div>
-            <span
+            <div
+              className="flex items-center gap-2"
               style={{
-                fontFamily: 'var(--font-ui)',
-                fontSize: '11px',
-                color: 'var(--color-text-subtle)',
                 paddingLeft: msg.role === 'dhira' ? '4px' : '0',
                 paddingRight: msg.role === 'user' ? '4px' : '0',
               }}
             >
-              {msg.timestamp}
-            </span>
+              <span
+                style={{
+                  fontFamily: 'var(--font-ui)',
+                  fontSize: '11px',
+                  color: 'var(--color-text-subtle)',
+                }}
+              >
+                {msg.timestamp}
+              </span>
+              {msg.mood ? <MoodBadge mood={msg.mood} size="sm" /> : null}
+            </div>
           </div>
         </div>
       ))}

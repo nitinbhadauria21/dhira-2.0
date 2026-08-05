@@ -6,7 +6,6 @@ import ChatMemoryBanner from './ChatMemoryBanner';
 import ChatThread from './ChatThread';
 import ChatInputBar from './ChatInputBar';
 import CrisisHandoff from './CrisisHandoff';
-import { ARTIFACT_CHAT_SEED } from '@/lib/artifactDesign';
 
 export type MessageRole = 'dhira' | 'user' | 'system';
 
@@ -19,21 +18,14 @@ export interface ChatMessage {
   isCrisisDemo?: boolean;
 }
 
-/** Claude artifact demo thread — used only when this user has no saved history yet. */
-const DEMO_THREAD: ChatMessage[] = ARTIFACT_CHAT_SEED.map((m) => ({
-  id: m.id,
-  role: m.role,
-  content: m.content,
-  timestamp: m.timestamp,
-}));
-
 function formatTime(iso?: string): string {
   const d = iso ? new Date(iso) : new Date();
   return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
 }
 
 export default function ChatContent() {
-  const [messages, setMessages] = useState<ChatMessage[]>(DEMO_THREAD);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [crisisMode, setCrisisMode] = useState(false);
   const [showReferral, setShowReferral] = useState(false);
@@ -43,7 +35,7 @@ export default function ChatContent() {
     threadEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
-  // Load this user's saved chat history on mount. Keep Claude artifact demo thread if empty.
+  // Load this user's saved chat history. New accounts stay blank until they talk.
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -62,9 +54,13 @@ export default function ChatContent() {
               })
             )
           );
+        } else {
+          setMessages([]);
         }
       } catch {
-        /* keep the demo thread on failure */
+        if (!cancelled) setMessages([]);
+      } finally {
+        if (!cancelled) setHistoryLoaded(true);
       }
     })();
     return () => {
@@ -105,8 +101,21 @@ export default function ChatContent() {
         role: 'dhira',
         content: data?.reply || "I'm here with you. Tell me a little more?",
         timestamp: formatTime(),
+        mood: typeof data?.mood === 'string' ? data.mood : undefined,
       };
-      setMessages((prev) => [...prev, dhiraReply]);
+      setMessages((prev) => {
+        const next = [...prev];
+        // Attach mood to the latest user turn when the server tagged one.
+        if (data?.mood) {
+          for (let i = next.length - 1; i >= 0; i -= 1) {
+            if (next[i].role === 'user') {
+              next[i] = { ...next[i], mood: data.mood };
+              break;
+            }
+          }
+        }
+        return [...next, dhiraReply];
+      });
       if (data?.showReferralCard) setShowReferral(true);
     } catch {
       setIsTyping(false);
@@ -247,10 +256,19 @@ export default function ChatContent() {
         <ChatHeader messageCount={messages.length} />
       </div>
 
-      {/* Memory banner */}
+      {/* Memory banner — only when we have a real memory */}
       <div className="relative z-10">
         <ChatMemoryBanner />
       </div>
+
+      {!historyLoaded && (
+        <p
+          className="px-4 py-2 relative z-10"
+          style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--color-text-subtle)' }}
+        >
+          Loading your conversation…
+        </p>
+      )}
 
       {/* Crisis demo shortcut */}
       <div

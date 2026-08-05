@@ -7,7 +7,7 @@ import AuthScenePanel from '@/components/AuthScenePanel';
 import BrandLockup from '@/components/BrandLockup';
 import PasswordRevealInput from '@/components/PasswordRevealInput';
 import { ThemeProvider } from '@/components/ThemeProvider';
-import { signUpEmail, requestOtp, verifyOtp } from '@/lib/authClient';
+import { signUpEmail, requestOtp, verifyOtp, signInWithGoogle } from '@/lib/authClient';
 import { INDIA_STATES } from '@/lib/indiaStates';
 
 function GoogleIcon() {
@@ -94,6 +94,9 @@ function SignUpContent() {
         state: state.trim(),
         city: city.trim(),
       });
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('dhira-alias', alias.trim());
+      }
       router.push('/onboarding');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not create your account');
@@ -125,6 +128,9 @@ function SignUpContent() {
         state: state.trim(),
         city: city.trim(),
       });
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('dhira-alias', alias.trim());
+      }
       router.push('/onboarding');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not verify code');
@@ -187,7 +193,16 @@ function SignUpContent() {
               padding: '12px 16px',
               cursor: 'pointer',
             }}
-            onClick={() => setError('Google sign-up is coming soon - use email or phone for now.')}
+            onClick={async () => {
+              setError(null);
+              setLoading(true);
+              try {
+                await signInWithGoogle('/onboarding');
+              } catch (e) {
+                setError(e instanceof Error ? e.message : 'Google sign-up failed');
+                setLoading(false);
+              }
+            }}
           >
             <GoogleIcon />
             Continue with Google

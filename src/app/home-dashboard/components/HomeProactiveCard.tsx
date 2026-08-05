@@ -3,15 +3,11 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Bell, ArrowRight } from 'lucide-react';
-import { ARTIFACT_CHECKIN_LINE } from '@/lib/artifactDesign';
-
 /**
- * Proactive check-in card — visual match to Claude artifact "DHIRA checked in" card.
+ * Proactive check-in card.
  * Manual trigger calls POST /api/checkin (same endpoint Emergent schedules use).
  */
 export default function HomeProactiveCard() {
-  // Claude artifact always shows a filled "DHIRA checked in" card; start from that demo line.
-  // Changed to null so the user can test the "Ask Dhira to check in now" button
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [note, setNote] = useState<string | null>(null);
@@ -129,18 +125,6 @@ export default function HomeProactiveCard() {
         </button>
       )}
 
-      {!displayMessage && !loading && (
-        <p
-          style={{
-            fontFamily: 'var(--font-ui)',
-            fontSize: 12,
-            color: 'var(--color-text-subtle)',
-            fontStyle: 'italic',
-          }}
-        >
-          Example: &ldquo;{ARTIFACT_CHECKIN_LINE}&rdquo;
-        </p>
-      )}
     </div>
   );
 }

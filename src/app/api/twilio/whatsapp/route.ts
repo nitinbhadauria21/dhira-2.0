@@ -8,6 +8,7 @@ import {
   type ClaudeTurn,
 } from '@/lib/anthropic';
 import type { MoodLabel, TopicTag } from '@/lib/types';
+import { normalizeMood, normalizeTopic, valenceForMood } from '@/lib/moodNormalize';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -30,45 +31,6 @@ Reply ONLY as JSON: {"mood": "...", "topicTag": "...", "summary": "...", "carryF
 
 const BYE_PATTERNS =
   /\b(bye|goodbye|alvida|ok bye|take care|cya|gtg|got to go|talk later|baad mein|good night|shubh ratri|ok thanks|that's all)\b/i;
-
-const MOODS: MoodLabel[] = [
-  'happy',
-  'calm',
-  'neutral',
-  'hopeful',
-  'stressed',
-  'lonely',
-  'angry',
-  'anxious',
-  'overwhelmed',
-  'sad',
-];
-
-const TOPICS: TopicTag[] = [
-  'work',
-  'family',
-  'relationships',
-  'health',
-  'finances',
-  'self',
-  'other',
-];
-
-function asMood(raw: string | undefined): MoodLabel {
-  const m = (raw || 'neutral').toLowerCase().trim();
-  return (MOODS as string[]).includes(m) ? (m as MoodLabel) : 'neutral';
-}
-
-function asTopic(raw: string | undefined): TopicTag {
-  const t = (raw || 'self').toLowerCase().trim();
-  return (TOPICS as string[]).includes(t) ? (t as TopicTag) : 'self';
-}
-
-function valenceFor(mood: MoodLabel): number {
-  if (['happy', 'calm', 'hopeful'].includes(mood)) return 0.5;
-  if (['sad', 'anxious', 'overwhelmed', 'lonely', 'angry', 'stressed'].includes(mood)) return -0.5;
-  return 0;
-}
 
 /** Parse Twilio's URL-encoded webhook body */
 async function parseTwilioBody(req: NextRequest): Promise<Record<string, string>> {
@@ -117,8 +79,8 @@ async function extractMood(history: string): Promise<{
       maxTokens: 200,
     });
     return {
-      mood: asMood(result.mood),
-      topicTag: asTopic(result.topicTag),
+      mood: normalizeMood(result.mood),
+      topicTag: normalizeTopic(result.topicTag),
       summary: result.summary || 'User had a conversation with Dhira.',
       carryForward: result.carryForward || '',
     };
@@ -185,7 +147,7 @@ export async function POST(req: NextRequest) {
         id: randomUUID(),
         profileId: uid,
         mood,
-        valence: valenceFor(mood),
+        valence: valenceForMood(mood),
         emotionalIntensity: 0.5,
         topicTag,
         source: 'chat',

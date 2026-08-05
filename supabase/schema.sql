@@ -52,7 +52,7 @@ create table if not exists mood_logs (
   valence             real not null default 0,
   emotional_intensity real not null default 0,
   topic_tag           text not null default 'self',
-  source              text not null default 'chat' check (source in ('chat', 'manual')),
+  source              text not null default 'chat' check (source in ('chat', 'manual', 'elevenlabs')),
   created_at          timestamptz not null default now()
 );
 create index if not exists mood_logs_profile_idx on mood_logs(profile_id, created_at);

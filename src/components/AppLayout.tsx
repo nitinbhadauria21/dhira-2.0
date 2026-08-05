@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { ThemeProvider } from './ThemeProvider';
 import AppNav from './AppNav';
 import { Toaster } from 'sonner';
@@ -11,7 +12,29 @@ interface AppLayoutProps {
   showNav?: boolean;
 }
 
+const TRACKED_PREFIXES = [
+  '/home-dashboard',
+  '/chat-with-dhira',
+  '/notebook',
+  '/timeline',
+  '/profile',
+];
+
 export default function AppLayout({ children, showNav = true }: AppLayoutProps) {
+  const pathname = usePathname();
+
+  // Remember where the signed-in user last spent time, so sign-in can resume there.
+  useEffect(() => {
+    if (!showNav || !pathname) return;
+    if (TRACKED_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
+      try {
+        localStorage.setItem('dhira-last-route', pathname);
+      } catch {
+        /* ignore quota / private mode */
+      }
+    }
+  }, [pathname, showNav]);
+
   return (
     <ThemeProvider>
       {showNav && <AppNav />}
