@@ -2,6 +2,11 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Send } from 'lucide-react';
+import {
+  isBrowserSpeechRecognitionAvailable,
+  startContinuousSpeechRecognition,
+  type ContinuousSpeechSession,
+} from '@/lib/browserSpeechRecognition';
 
 interface ChatInputBarProps {
   onSend: (message: string) => void;
@@ -13,14 +18,13 @@ export default function ChatInputBar({ onSend, disabled = false }: ChatInputBarP
   const [isRecording, setIsRecording] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const recognitionRef = useRef<any>(null);
+  const speechSessionRef = useRef<ContinuousSpeechSession | null>(null);
+  /** Text in the box before this Speak session started — finals append after it. */
+  const baseTextRef = useRef('');
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    setVoiceSupported(Boolean(SR));
+    setVoiceSupported(isBrowserSpeechRecognitionAvailable());
+    return () => speechSessionRef.current?.stop();
   }, []);
 
   // Auto-resize textarea
@@ -47,37 +51,34 @@ export default function ChatInputBar({ onSend, disabled = false }: ChatInputBarP
     }
   };
 
+  const stopRecording = () => {
+    speechSessionRef.current?.stop();
+    speechSessionRef.current = null;
+    setIsRecording(false);
+  };
+
   const toggleRecording = () => {
     if (!voiceSupported) return;
 
-    // Stop if already recording.
-    if (isRecording && recognitionRef.current) {
-      recognitionRef.current.stop();
+    if (isRecording) {
+      stopRecording();
       return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SR) return;
-    const recognition = new SR();
-    recognition.lang = 'en-IN'; // Hinglish speakers are understood well by en-IN
-    recognition.interimResults = false;
-    recognition.continuous = false;
+    baseTextRef.current = value.trim();
+    const session = startContinuousSpeechRecognition({
+      onUpdate: (combined) => {
+        const base = baseTextRef.current;
+        setValue(base ? (combined ? `${base} ${combined}` : base) : combined);
+      },
+      onFatalError: () => {
+        stopRecording();
+      },
+    });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    recognition.onresult = (event: any) => {
-      const transcript = Array.from(event.results)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .map((r: any) => r[0].transcript)
-        .join(' ');
-      setValue((prev) => (prev ? `${prev} ${transcript}` : transcript));
-    };
-    recognition.onend = () => setIsRecording(false);
-    recognition.onerror = () => setIsRecording(false);
-
-    recognitionRef.current = recognition;
+    if (!session) return;
+    speechSessionRef.current = session;
     setIsRecording(true);
-    recognition.start();
   };
 
   const canSend = value.trim().length > 0 && !disabled;

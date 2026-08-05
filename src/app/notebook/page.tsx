@@ -9,26 +9,13 @@ import FloatingBuddy from '@/components/FloatingBuddy';
 import { MOOD_COLORS, MOODS_GRID, MOOD_EMOJI } from '@/lib/artifactDesign';
 import { notebookHeadline } from '@/lib/timeOfDay';
 import type { MoodLabel, NotebookEntry } from '@/lib/types';
+import {
+  isBrowserSpeechRecognitionAvailable,
+  startContinuousSpeechRecognition,
+  type ContinuousSpeechSession,
+} from '@/lib/browserSpeechRecognition';
 
 type NotebookMode = 'write' | 'speak';
-
-type SpeechRecognitionLike = {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  onresult: ((event: { results: ArrayLike<{ 0: { transcript: string } }> }) => void) | null;
-  onerror: (() => void) | null;
-  onend: (() => void) | null;
-  start: () => void;
-  stop: () => void;
-};
-
-declare global {
-  interface Window {
-    SpeechRecognition?: new () => SpeechRecognitionLike;
-    webkitSpeechRecognition?: new () => SpeechRecognitionLike;
-  }
-}
 
 const OPENER_CHIPS = [
   { label: 'What sat heaviest today?', seed: 'Aaj sabse zyada bhaari kya laga - ' },
@@ -79,7 +66,7 @@ function NotebookContent() {
   const [speechAvailable, setSpeechAvailable] = useState(true);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
-  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const speechSessionRef = useRef<ContinuousSpeechSession | null>(null);
 
   const body = mode === 'write' ? draft : transcript;
   const canSave = body.trim().length >= 2 && selectedMood && !recording && !saving;
@@ -87,6 +74,11 @@ function NotebookContent() {
   const carryPreview = shareWithDhira
     ? CARRY_FORWARD[carryTopic] ?? 'Something mattered here - worth returning to.'
     : 'Kept private. This one stays yours alone.';
+
+  useEffect(() => {
+    setSpeechAvailable(isBrowserSpeechRecognitionAvailable());
+    return () => speechSessionRef.current?.stop();
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -110,10 +102,6 @@ function NotebookContent() {
     return () => window.clearInterval(id);
   }, [recording]);
 
-  useEffect(() => {
-    return () => recognitionRef.current?.stop();
-  }, []);
-
   const appendOpener = (seed: string) => {
     setMode('write');
     setDraft((current) => `${current}${current.trim() ? '\n\n' : ''}${seed}`);
@@ -127,13 +115,13 @@ function NotebookContent() {
 
   const toggleRecording = () => {
     if (recording) {
-      recognitionRef.current?.stop();
+      speechSessionRef.current?.stop();
+      speechSessionRef.current = null;
       setRecording(false);
       return;
     }
 
-    const Recognition = window.SpeechRecognition ?? window.webkitSpeechRecognition;
-    if (!Recognition) {
+    if (!isBrowserSpeechRecognitionAvailable()) {
       setSpeechAvailable(false);
       setMode('speak');
       setToast('Speech recognition is not available here. Type or paste your transcript instead.');
@@ -141,26 +129,21 @@ function NotebookContent() {
     }
 
     try {
-      const recognition = new Recognition();
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = 'en-IN';
-      recognition.onresult = (event) => {
-        let nextTranscript = '';
-        for (let i = 0; i < event.results.length; i += 1) {
-          nextTranscript += event.results[i][0].transcript;
-        }
-        setTranscript(nextTranscript.trimStart());
-      };
-      recognition.onerror = () => {
+      const session = startContinuousSpeechRecognition({
+        onUpdate: (combined) => setTranscript(combined),
+        onFatalError: () => {
+          setSpeechAvailable(false);
+          setRecording(false);
+        },
+      });
+      if (!session) {
         setSpeechAvailable(false);
         setRecording(false);
-      };
-      recognition.onend = () => setRecording(false);
-      recognitionRef.current = recognition;
+        return;
+      }
+      speechSessionRef.current = session;
       setRecordingSeconds(0);
       setRecording(true);
-      recognition.start();
     } catch {
       setSpeechAvailable(false);
       setRecording(false);
@@ -168,7 +151,8 @@ function NotebookContent() {
   };
 
   const discard = () => {
-    recognitionRef.current?.stop();
+    speechSessionRef.current?.stop();
+    speechSessionRef.current = null;
     setDraft('');
     setTranscript('');
     setSelectedMood(null);
