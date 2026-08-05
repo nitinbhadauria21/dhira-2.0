@@ -1,5 +1,5 @@
 /**
- * Which Claude model each Dhira "agent" uses.
+ * Which model each Dhira "agent" uses.
  *
  * Plain-English summary for non-developers:
  * - Dhira is made of six small helpers ("agents"). Each one has a job.
@@ -8,8 +8,8 @@
  * - The simple background jobs (tagging a mood, writing a short memory note)
  *   use the cheaper, faster model ("Background" = Claude Haiku).
  *
- * If Anthropic ever renames a model, just update the IDs below. You can ask
- * Cursor: "What is the current model ID for the latest Claude Sonnet and Haiku?"
+ * Preferred brain host: OpenRouter (one key for all agents).
+ * Fallback: direct Anthropic API key.
  */
 
 export type AgentName =
@@ -20,35 +20,71 @@ export type AgentName =
   | 'moodTagging'
   | 'memoryAgent';
 
-// "Voice & Safety" — the careful model used for anything the user reads.
-// Overridable via env in case Anthropic renames the model.
-const VOICE_AND_SAFETY = process.env.DHIRA_MODEL_SONNET?.trim() || 'claude-sonnet-4-5';
-// "Background" — the fast/cheap model for silent metadata jobs.
-const BACKGROUND = process.env.DHIRA_MODEL_HAIKU?.trim() || 'claude-haiku-4-5';
+const OPENROUTER_BASE_URL = 'https://openrouter.ai/api';
 
-const MODEL_MAP: Record<AgentName, string> = {
-  primaryAgent: VOICE_AND_SAFETY,
-  safetyMonitor: VOICE_AND_SAFETY,
-  escalationAgent: VOICE_AND_SAFETY,
-  proactiveCheckin: VOICE_AND_SAFETY,
-  moodTagging: BACKGROUND,
-  memoryAgent: BACKGROUND,
-};
+function looksLikePlaceholder(value: string): boolean {
+  const v = value.toLowerCase();
+  return !v || v.includes('your-') || v.includes('changeme') || v.includes('dummy');
+}
 
-/** Returns the Claude model id that a given agent should use. */
+/** True when OPENROUTER_API_KEY looks like a real OpenRouter key. */
+export function isOpenRouterConfigured(): boolean {
+  const key = process.env.OPENROUTER_API_KEY?.trim() ?? '';
+  if (looksLikePlaceholder(key)) return false;
+  return key.startsWith('sk-or-');
+}
+
+/** Resolve the API key for the shared brain client (OpenRouter preferred). */
+export function getBrainApiKey(): string | null {
+  const openRouter = process.env.OPENROUTER_API_KEY?.trim() ?? '';
+  if (!looksLikePlaceholder(openRouter) && openRouter.startsWith('sk-or-')) {
+    return openRouter;
+  }
+  const anthropic = process.env.ANTHROPIC_API_KEY?.trim() ?? '';
+  if (!looksLikePlaceholder(anthropic) && anthropic.startsWith('sk-')) {
+    return anthropic;
+  }
+  return null;
+}
+
+/** Base URL for the Anthropic-compatible client (OpenRouter or default Anthropic). */
+export function getBrainBaseURL(): string | undefined {
+  if (isOpenRouterConfigured()) {
+    return process.env.ANTHROPIC_BASE_URL?.trim() || OPENROUTER_BASE_URL;
+  }
+  const custom = process.env.ANTHROPIC_BASE_URL?.trim();
+  return custom || undefined;
+}
+
+function voiceAndSafetyModel(): string {
+  return (
+    process.env.DHIRA_MODEL_SONNET?.trim() ||
+    (isOpenRouterConfigured() ? 'anthropic/claude-sonnet-4.5' : 'claude-sonnet-4-5')
+  );
+}
+
+function backgroundModel(): string {
+  return (
+    process.env.DHIRA_MODEL_HAIKU?.trim() ||
+    (isOpenRouterConfigured() ? 'anthropic/claude-haiku-4.5' : 'claude-haiku-4-5')
+  );
+}
+
+/** Returns the model id that a given agent should use. */
 export function getModelFor(agent: AgentName): string {
-  return MODEL_MAP[agent];
+  switch (agent) {
+    case 'moodTagging':
+    case 'memoryAgent':
+      return backgroundModel();
+    default:
+      return voiceAndSafetyModel();
+  }
 }
 
 /**
- * True when a REAL Anthropic key is configured (i.e. the live brain is on).
- * The committed .env ships a placeholder ("your-anthropic-api-key-here"); we
- * must treat that (and any obvious placeholder) as "not set" so the app cleanly
- * uses the offline brain instead of making calls that would 401.
+ * True when a REAL brain key is configured (OpenRouter or Anthropic).
+ * Placeholder values in committed .env must not turn the live brain on.
  */
 export function isLiveBrainEnabled(): boolean {
-  const key = process.env.ANTHROPIC_API_KEY?.trim() ?? '';
-  if (!key) return false;
-  if (key.toLowerCase().includes('your-')) return false; // placeholder
-  return key.startsWith('sk-'); // real Anthropic keys start with sk-ant-...
+  return getBrainApiKey() !== null;
 }
