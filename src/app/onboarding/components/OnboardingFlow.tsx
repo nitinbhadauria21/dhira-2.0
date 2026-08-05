@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import BrandLockup from '@/components/BrandLockup';
 import StepSplash from './StepSplash';
 import StepPrivacy from './StepPrivacy';
@@ -24,6 +24,7 @@ const TOTAL_STEPS = 4;
 
 export default function OnboardingFlow() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [step, setStep] = useState(0);
   const [data, setData] = useState<OnboardingData>({
     alias: '',
@@ -42,9 +43,14 @@ export default function OnboardingFlow() {
   // Prefill alias (and language) from signup / saved profile so we don't ask twice.
   useEffect(() => {
     let cancelled = false;
+    const aliasFromOAuth = searchParams.get('alias')?.trim() || '';
+    if (aliasFromOAuth && typeof window !== 'undefined') {
+      localStorage.setItem('dhira-alias', aliasFromOAuth);
+    }
     (async () => {
       const cachedAlias =
-        typeof window !== 'undefined' ? localStorage.getItem('dhira-alias') || '' : '';
+        aliasFromOAuth ||
+        (typeof window !== 'undefined' ? localStorage.getItem('dhira-alias') || '' : '');
       const cachedLang =
         typeof window !== 'undefined' ? localStorage.getItem('dhira-language') : null;
       try {
@@ -74,7 +80,7 @@ export default function OnboardingFlow() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [searchParams]);
 
   const next = useCallback(() => setStep((s) => Math.min(s + 1, TOTAL_STEPS - 1)), []);
   const back = useCallback(() => setStep((s) => Math.max(s - 1, 0)), []);
