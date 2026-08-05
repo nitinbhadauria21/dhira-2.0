@@ -4,14 +4,17 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useConversation, ConversationProvider } from '@elevenlabs/react';
 
-const AGENT_ID = 'agent_1301kymjnjbpevba1tncfhmd5b0m';
-
 type LogTurn = {
   id: string;
   role: 'user' | 'dhira';
   content: string;
   at: string;
 };
+
+type VoiceSessionPayload =
+  | { connectionType: 'websocket'; signedUrl: string; agentId?: string }
+  | { connectionType: 'webrtc'; conversationToken: string; agentId?: string }
+  | { connectionType: 'webrtc'; agentId: string };
 
 function formatClock() {
   return new Date().toLocaleTimeString('en-IN', {
@@ -22,19 +25,36 @@ function formatClock() {
 }
 
 function ElevenLabsWidgetInner() {
-  const [hasMicPermission, setHasMicPermission] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
   const [turns, setTurns] = useState<LogTurn[]>([]);
   const [statusNote, setStatusNote] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [savedMood, setSavedMood] = useState<string | null>(null);
   const [closingReply, setClosingReply] = useState<string | null>(null);
+  const [isStarting, setIsStarting] = useState(false);
   const turnsRef = useRef<LogTurn[]>([]);
   const finalizedRef = useRef(false);
+  const startingRef = useRef(false);
+  const micStreamRef = useRef<MediaStream | null>(null);
+  const wakeLockRef = useRef<{ release: () => Promise<void> } | null>(null);
 
   useEffect(() => {
     turnsRef.current = turns;
   }, [turns]);
+
+  const releaseMic = useCallback(() => {
+    micStreamRef.current?.getTracks().forEach((t) => t.stop());
+    micStreamRef.current = null;
+  }, []);
+
+  const releaseWakeLock = useCallback(async () => {
+    try {
+      await wakeLockRef.current?.release();
+    } catch {
+      /* ignore */
+    }
+    wakeLockRef.current = null;
+  }, []);
 
   const finalizeVoice = useCallback(async (snapshot: LogTurn[]) => {
     if (finalizedRef.current || snapshot.length === 0) return;
@@ -72,16 +92,24 @@ function ElevenLabsWidgetInner() {
 
   const conversation = useConversation({
     onConnect: () => {
-      setStatusNote('Connected — speaking with DHIRA. This log is saving to your account when you end the call.');
+      setStatusNote('Connected — speak whenever you are ready. Tap End Call when you are done.');
       setPanelOpen(true);
     },
     onDisconnect: () => {
+      void releaseWakeLock();
+      releaseMic();
       setStatusNote('Call ended. Writing the log…');
       void finalizeVoice(turnsRef.current);
     },
     onError: (error: unknown) => {
       console.error('Dhira voice error:', error);
-      setStatusNote('Voice connection hit a snag. You can try again or use text chat.');
+      const message =
+        typeof error === 'string'
+          ? error
+          : error instanceof Error
+            ? error.message
+            : 'Voice connection hit a snag.';
+      setStatusNote(`${message} You can try again or use text chat.`);
       setPanelOpen(true);
     },
     onMessage: (payload) => {
@@ -104,30 +132,97 @@ function ElevenLabsWidgetInner() {
 
   const isActive = conversation.status === 'connected' || conversation.status === 'connecting';
 
+  useEffect(() => {
+    return () => {
+      releaseMic();
+      void releaseWakeLock();
+    };
+  }, [releaseMic, releaseWakeLock]);
+
   const toggleCall = useCallback(async () => {
     if (isActive) {
       await conversation.endSession();
       return;
     }
+    if (startingRef.current) return;
+    startingRef.current = true;
+    setIsStarting(true);
+
     try {
       setClosingReply(null);
       setSavedMood(null);
-      setStatusNote(null);
+      setStatusNote('Connecting to DHIRA…');
       setTurns([]);
       turnsRef.current = [];
       finalizedRef.current = false;
       setPanelOpen(true);
-      if (!hasMicPermission) {
-        await navigator.mediaDevices.getUserMedia({ audio: true });
-        setHasMicPermission(true);
+
+      const sessionRes = await fetch('/api/elevenlabs/session', { credentials: 'include' });
+      const sessionJson = (await sessionRes.json().catch(() => ({}))) as VoiceSessionPayload & {
+        error?: string;
+      };
+      if (!sessionRes.ok) {
+        setStatusNote(sessionJson.error || 'Could not start voice. Please sign in and try again.');
+        return;
       }
-      await conversation.startSession({ agentId: AGENT_ID });
+
+      try {
+        micStreamRef.current = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          },
+        });
+      } catch {
+        setStatusNote('Microphone permission is needed for Talk to Dhira.');
+        return;
+      }
+
+      if ('wakeLock' in navigator) {
+        try {
+          wakeLockRef.current = await (
+            navigator as Navigator & {
+              wakeLock: { request: (type: 'screen') => Promise<{ release: () => Promise<void> }> };
+            }
+          ).wakeLock.request('screen');
+        } catch {
+          /* optional — ignore if blocked */
+        }
+      }
+
+      if (sessionJson.connectionType === 'websocket' && 'signedUrl' in sessionJson) {
+        await conversation.startSession({
+          signedUrl: sessionJson.signedUrl,
+          connectionType: 'websocket',
+          useWakeLock: true,
+        });
+      } else if ('conversationToken' in sessionJson && sessionJson.conversationToken) {
+        await conversation.startSession({
+          conversationToken: sessionJson.conversationToken,
+          connectionType: 'webrtc',
+          useWakeLock: true,
+        });
+      } else if ('agentId' in sessionJson && sessionJson.agentId) {
+        await conversation.startSession({
+          agentId: sessionJson.agentId,
+          connectionType: 'webrtc',
+          useWakeLock: true,
+        });
+      } else {
+        setStatusNote('Voice setup is incomplete on the server. Please try text chat.');
+      }
     } catch (err) {
       console.error('Failed to start Dhira call:', err);
-      setStatusNote('Microphone permission is needed for Talk to Dhira.');
+      releaseMic();
+      void releaseWakeLock();
+      setStatusNote('Could not connect to voice. Check your network and try again.');
       setPanelOpen(true);
+    } finally {
+      startingRef.current = false;
+      setIsStarting(false);
     }
-  }, [conversation, isActive, hasMicPermission]);
+  }, [conversation, isActive, releaseMic, releaseWakeLock]);
 
   return (
     <>
@@ -324,6 +419,7 @@ function ElevenLabsWidgetInner() {
 
       <button
         onClick={toggleCall}
+        disabled={conversation.status === 'connecting' || isStarting}
         aria-label={isActive ? 'End call with Dhira' : 'Talk to Dhira'}
         style={{
           position: 'fixed',
@@ -336,7 +432,8 @@ function ElevenLabsWidgetInner() {
           padding: '12px 20px',
           borderRadius: '50px',
           border: 'none',
-          cursor: 'pointer',
+          cursor: conversation.status === 'connecting' ? 'wait' : 'pointer',
+          opacity: conversation.status === 'connecting' ? 0.85 : 1,
           backgroundColor: isActive ? '#f87171' : '#ffffff',
           color: isActive ? '#ffffff' : 'var(--color-primary, #5a67b8)',
           fontFamily: 'var(--font-ui, Inter, sans-serif)',
