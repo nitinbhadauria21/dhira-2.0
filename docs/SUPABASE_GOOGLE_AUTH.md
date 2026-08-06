@@ -35,6 +35,25 @@ Supabase project ref (from URL): **dfebsdwtktfnmzpmwlqp**
 
 Paste **Client ID** and **Client secret** into Supabase → **Authentication → Providers → Google** (enabled).
 
+### Option B — One command (for developers / Cursor agent)
+
+If you have a **Supabase access token** and Google OAuth credentials in env:
+
+```bash
+SUPABASE_ACCESS_TOKEN=sbp_... \
+GOOGLE_OAUTH_CLIENT_ID=... \
+GOOGLE_OAUTH_CLIENT_SECRET=... \
+npm run configure:google-auth
+```
+
+This sets Site URL, redirect URLs, and enables Google via the [Management API](https://supabase.com/docs/reference/api/v1-update-auth-service-config).
+
+Verify:
+
+```bash
+npm run verify:google-auth
+```
+
 ## 4. App flow (code)
 
 1. User clicks **Continue with Google** → `signInWithOAuth` (PKCE cookies via `@supabase/ssr`).
