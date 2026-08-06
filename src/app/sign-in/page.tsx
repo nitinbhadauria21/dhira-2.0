@@ -65,6 +65,7 @@ function SignInContent() {
   const [devCode, setDevCode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [googleOAuthPending, setGoogleOAuthPending] = useState(false);
 
   useEffect(() => {
     const oauthErr = searchParams.get('error');
@@ -130,7 +131,7 @@ function SignInContent() {
         }}
       >
         <div className="hidden md:block h-full min-h-full">
-          <AuthScenePanel variant="sign-in" />
+          <AuthScenePanel variant="sign-in" carouselEmphasis={googleOAuthPending} />
         </div>
 
         <section
@@ -172,12 +173,14 @@ function SignInContent() {
             onClick={async () => {
               setError(null);
               setLoading(true);
+              setGoogleOAuthPending(true);
               try {
                 const next = resolveResumePath(searchParams.get('next'));
                 await signInWithGoogle(next);
               } catch (e) {
                 setError(e instanceof Error ? e.message : 'Google sign-in failed');
                 setLoading(false);
+                setGoogleOAuthPending(false);
               }
             }}
           >

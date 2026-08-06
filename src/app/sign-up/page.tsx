@@ -63,6 +63,7 @@ function SignUpContent() {
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [googleOAuthPending, setGoogleOAuthPending] = useState(false);
 
   const firstError = () => {
     if (!alias.trim()) return 'Please choose a DHIRA alias.';
@@ -156,7 +157,7 @@ function SignUpContent() {
         }}
       >
         <div className="hidden lg:block h-full min-h-full">
-          <AuthScenePanel variant="sign-up" />
+          <AuthScenePanel variant="sign-up" carouselEmphasis={googleOAuthPending} />
         </div>
 
         <section
@@ -196,11 +197,13 @@ function SignUpContent() {
             onClick={async () => {
               setError(null);
               setLoading(true);
+              setGoogleOAuthPending(true);
               try {
                 await signInWithGoogle('/onboarding');
               } catch (e) {
                 setError(e instanceof Error ? e.message : 'Google sign-up failed');
                 setLoading(false);
+                setGoogleOAuthPending(false);
               }
             }}
           >

@@ -22,6 +22,12 @@ export interface OnboardingData {
 
 const TOTAL_STEPS = 4;
 
+function scrollToTop() {
+  if (typeof window === 'undefined') return;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.scrollTo({ top: 0, behavior: reduced ? 'instant' : 'smooth' });
+}
+
 export default function OnboardingFlow() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -82,8 +88,18 @@ export default function OnboardingFlow() {
     };
   }, [searchParams]);
 
-  const next = useCallback(() => setStep((s) => Math.min(s + 1, TOTAL_STEPS - 1)), []);
-  const back = useCallback(() => setStep((s) => Math.max(s - 1, 0)), []);
+  const next = useCallback(() => {
+    scrollToTop();
+    setStep((s) => Math.min(s + 1, TOTAL_STEPS - 1));
+  }, []);
+  const back = useCallback(() => {
+    scrollToTop();
+    setStep((s) => Math.max(s - 1, 0));
+  }, []);
+
+  useEffect(() => {
+    scrollToTop();
+  }, [step]);
 
   const updateData = useCallback((patch: Partial<OnboardingData>) => {
     setData((prev) => ({ ...prev, ...patch }));
