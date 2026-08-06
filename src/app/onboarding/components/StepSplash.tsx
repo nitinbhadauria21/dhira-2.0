@@ -1,14 +1,24 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import BuddyGestureCarousel from '@/components/BuddyGestureCarousel';
 
 interface Props {
   onNext: () => void;
 }
 
 export default function StepSplash({ onNext }: Props) {
+  const [emphasis, setEmphasis] = useState(false);
+
+  const handleBegin = () => {
+    setEmphasis(true);
+    onNext();
+  };
+
   return (
     <div className="flex flex-col items-center text-center" style={{ gap: '32px' }}>
+      <BuddyGestureCarousel active emphasis={emphasis} width={100} />
+
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/illustrations/spot_welcome.png"
@@ -53,7 +63,7 @@ export default function StepSplash({ onNext }: Props) {
 
       {/* Begin CTA */}
       <button
-        onClick={onNext}
+        onClick={handleBegin}
         className="btn-accent"
         style={{ fontSize: '17px', padding: '16px 48px', marginTop: '8px' }}
       >

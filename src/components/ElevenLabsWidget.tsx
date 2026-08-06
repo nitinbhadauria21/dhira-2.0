@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useConversation, ConversationProvider } from '@elevenlabs/react';
+import VoiceBuddyOverlay from '@/components/VoiceBuddyOverlay';
 
 type LogTurn = {
   id: string;
@@ -32,6 +33,9 @@ function ElevenLabsWidgetInner() {
   const [savedMood, setSavedMood] = useState<string | null>(null);
   const [closingReply, setClosingReply] = useState<string | null>(null);
   const [isStarting, setIsStarting] = useState(false);
+  const [buddyOverlayVisible, setBuddyOverlayVisible] = useState(false);
+  const [buddyFadingOut, setBuddyFadingOut] = useState(false);
+  const buddyFadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const turnsRef = useRef<LogTurn[]>([]);
   const finalizedRef = useRef(false);
   const startingRef = useRef(false);
@@ -92,10 +96,19 @@ function ElevenLabsWidgetInner() {
 
   const conversation = useConversation({
     onConnect: () => {
+      setBuddyFadingOut(false);
+      setBuddyOverlayVisible(true);
       setStatusNote('Connected — speak whenever you are ready. Tap End Call when you are done.');
       setPanelOpen(true);
     },
     onDisconnect: () => {
+      setBuddyFadingOut(true);
+      if (buddyFadeTimerRef.current) clearTimeout(buddyFadeTimerRef.current);
+      buddyFadeTimerRef.current = setTimeout(() => {
+        setBuddyOverlayVisible(false);
+        setBuddyFadingOut(false);
+        buddyFadeTimerRef.current = null;
+      }, 700);
       void releaseWakeLock();
       releaseMic();
       setStatusNote('Call ended. Writing the log…');
@@ -103,6 +116,13 @@ function ElevenLabsWidgetInner() {
     },
     onError: (error: unknown) => {
       console.error('Dhira voice error:', error);
+      setBuddyFadingOut(true);
+      if (buddyFadeTimerRef.current) clearTimeout(buddyFadeTimerRef.current);
+      buddyFadeTimerRef.current = setTimeout(() => {
+        setBuddyOverlayVisible(false);
+        setBuddyFadingOut(false);
+        buddyFadeTimerRef.current = null;
+      }, 700);
       const message =
         typeof error === 'string'
           ? error
@@ -136,8 +156,11 @@ function ElevenLabsWidgetInner() {
     return () => {
       releaseMic();
       void releaseWakeLock();
+      if (buddyFadeTimerRef.current) clearTimeout(buddyFadeTimerRef.current);
     };
   }, [releaseMic, releaseWakeLock]);
+
+  const showBuddyOverlay = buddyOverlayVisible || buddyFadingOut || isStarting;
 
   const toggleCall = useCallback(async () => {
     if (isActive) {
@@ -147,6 +170,8 @@ function ElevenLabsWidgetInner() {
     if (startingRef.current) return;
     startingRef.current = true;
     setIsStarting(true);
+    setBuddyFadingOut(false);
+    setBuddyOverlayVisible(true);
 
     try {
       setClosingReply(null);
@@ -163,6 +188,7 @@ function ElevenLabsWidgetInner() {
       };
       if (!sessionRes.ok) {
         setStatusNote(sessionJson.error || 'Could not start voice. Please sign in and try again.');
+        setBuddyOverlayVisible(false);
         return;
       }
 
@@ -176,6 +202,7 @@ function ElevenLabsWidgetInner() {
         });
       } catch {
         setStatusNote('Microphone permission is needed for Talk to Dhira.');
+        setBuddyOverlayVisible(false);
         return;
       }
 
@@ -211,12 +238,14 @@ function ElevenLabsWidgetInner() {
         });
       } else {
         setStatusNote('Voice setup is incomplete on the server. Please try text chat.');
+        setBuddyOverlayVisible(false);
       }
     } catch (err) {
       console.error('Failed to start Dhira call:', err);
       releaseMic();
       void releaseWakeLock();
       setStatusNote('Could not connect to voice. Check your network and try again.');
+      setBuddyOverlayVisible(false);
       setPanelOpen(true);
     } finally {
       startingRef.current = false;
@@ -226,6 +255,7 @@ function ElevenLabsWidgetInner() {
 
   return (
     <>
+      <VoiceBuddyOverlay visible={showBuddyOverlay} fadingOut={buddyFadingOut} />
       <style>{`
         @keyframes dhira-breathe {
           0% { transform: scale(0.9); box-shadow: 0 0 0px rgba(192, 132, 252, 0.4); }

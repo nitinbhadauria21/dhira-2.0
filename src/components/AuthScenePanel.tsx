@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import BrandLockup from '@/components/BrandLockup';
-import FloatingBuddy from '@/components/FloatingBuddy';
+import BuddyGestureCarousel from '@/components/BuddyGestureCarousel';
 import {
   authSceneForNow,
   readStoredShift,
@@ -15,6 +15,8 @@ type AuthScenePanelProps = {
   variant: 'sign-in' | 'sign-up';
   minHeight?: number;
   onShiftChange?: (shift: ShiftPreference) => void;
+  /** Faster carousel while Google OAuth is in progress. */
+  carouselEmphasis?: boolean;
 };
 
 function saveShiftToProfile(shift: ShiftPreference) {
@@ -31,6 +33,7 @@ export default function AuthScenePanel({
   variant,
   minHeight = 560,
   onShiftChange,
+  carouselEmphasis = false,
 }: AuthScenePanelProps) {
   const [shift, setShift] = useState<ShiftPreference>('day');
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -156,11 +159,7 @@ export default function AuthScenePanel({
       </div>
 
       <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', gap: 22 }}>
-        <FloatingBuddy
-          src="/illustrations/dhira_orb.png"
-          alt="DHIRA, a small robot buddy holding a glowing light"
-          width={78}
-        />
+        <BuddyGestureCarousel active emphasis={carouselEmphasis} width={78} />
 
         <div>
           <p
