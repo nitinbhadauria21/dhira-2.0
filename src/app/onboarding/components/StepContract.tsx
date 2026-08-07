@@ -94,7 +94,7 @@ function ConsentRow({ checked, onChange, title, body }: ConsentRowProps) {
 export default function StepContract({ data, onChange, onFinish, onBack }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+      <div className="onboarding-split-hero">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'left' }}>
           <p
             style={{
