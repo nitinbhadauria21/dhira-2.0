@@ -1,39 +1,28 @@
 'use client';
 
-import React, { useState } from 'react';
-import BuddyGestureCarousel from '@/components/BuddyGestureCarousel';
+import React from 'react';
 
 interface Props {
   onNext: () => void;
 }
 
 export default function StepSplash({ onNext }: Props) {
-  const [emphasis, setEmphasis] = useState(false);
-
-  const handleBegin = () => {
-    setEmphasis(true);
-    onNext();
-  };
-
   return (
     <div className="flex flex-col items-center text-center" style={{ gap: '32px' }}>
-      <BuddyGestureCarousel active emphasis={emphasis} width={100} />
-
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/illustrations/spot_welcome.png"
-        alt="Beginning your journey down a soft sunrise path"
+        src="/illustrations/spot_onboarding_dhira_path.png"
+        alt="DHIRA on a soft garden path at sunrise, welcoming you forward"
         style={{
-          width: 280,
-          height: 126,
-          objectFit: 'cover',
+          width: 'min(320px, 90vw)',
+          height: 'auto',
+          objectFit: 'contain',
           borderRadius: 20,
           border: '1px solid var(--color-border)',
           boxShadow: '0 0 40px rgba(239,169,74,0.35)',
         }}
       />
 
-      {/* Headline */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <h1
           style={{
@@ -45,7 +34,7 @@ export default function StepSplash({ onNext }: Props) {
             letterSpacing: '-0.03em',
           }}
         >
-          Kuch feel ho raha hai?
+          Aaj, kahan se shuru karein?
         </h1>
         <p
           style={{
@@ -53,24 +42,23 @@ export default function StepSplash({ onNext }: Props) {
             fontSize: '17px',
             color: 'var(--color-text-muted)',
             lineHeight: 1.65,
-            maxWidth: '34ch',
+            maxWidth: '42ch',
             marginInline: 'auto',
           }}
         >
-          DHIRA is here to listen — no advice, no judgment, no real name needed. Just a quiet space that remembers.
+          Say as much or as little as you want. DHIRA is here to listen — quietly, patiently, without
+          judgment.
         </p>
       </div>
 
-      {/* Begin CTA */}
       <button
-        onClick={handleBegin}
+        onClick={onNext}
         className="btn-accent"
         style={{ fontSize: '17px', padding: '16px 48px', marginTop: '8px' }}
       >
         Begin
       </button>
 
-      {/* Trust micro-copy */}
       <p
         style={{
           fontFamily: 'var(--font-ui)',

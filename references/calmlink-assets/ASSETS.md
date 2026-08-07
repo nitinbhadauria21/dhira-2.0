@@ -23,7 +23,8 @@ will get holes punched in them.
 | `dhira_wave.png` | 704×1025 | Notebook | Floating buddy greeting the user on the page. |
 | `dhira_settings.png` | 738×1202 | Profile | Settings illustration. |
 | `bot_avatar.png` | 256×256 | Chat, Landing, Profile, Sign up | Small round avatar — chat bubbles, nav, testimonials. |
-| `spot_welcome.png` | 466×206 | Onboarding | Welcome step spot illustration. |
+| `spot_welcome.png` | 466×206 | Onboarding (legacy) | Former welcome step spot; superseded by `spot_onboarding_dhira_path.png` on splash. |
+| `spot_onboarding_dhira_path.png` | — | Onboarding | Step 0 splash hero — DHIRA on the garden path. |
 | `spot_privacy.png` | 468×206 | Onboarding | Privacy step spot illustration. |
 | `spot_timeline.png` | 502×194 | Timeline | Section spot illustration. |
 
