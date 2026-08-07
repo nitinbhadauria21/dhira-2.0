@@ -1,13 +1,11 @@
 'use client';
 
 import React from 'react';
+import { onboardingAssets } from '@/app/onboarding/onboardingAssets';
 
 interface Props {
   onNext: () => void;
 }
-
-/** Horizontal 3D path hero — same framing as CalmLink onboarding DC (wide banner + warm glow). */
-const SPLASH_HERO_SRC = '/illustrations/spot_onboarding_dhira_path_landscape.png';
 
 export default function StepSplash({ onNext }: Props) {
   return (
@@ -16,26 +14,25 @@ export default function StepSplash({ onNext }: Props) {
         className="w-full"
         style={{
           maxWidth: 480,
-          borderRadius: 20,
-          border: '1px solid var(--color-border)',
-          boxShadow: '0 0 40px rgba(239,169,74,0.35)',
-          overflow: 'hidden',
+          filter: 'drop-shadow(0 0 28px rgba(239,169,74,0.35))',
           lineHeight: 0,
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={SPLASH_HERO_SRC}
+          src={onboardingAssets.splashHero}
           alt="DHIRA on a soft garden path at sunrise, welcoming you forward"
           width={932}
           height={412}
+          data-testid="onboarding-splash-hero"
           style={{
             width: '100%',
             height: 'auto',
             aspectRatio: '466 / 206',
-            objectFit: 'cover',
+            objectFit: 'contain',
             objectPosition: 'center center',
             display: 'block',
+            borderRadius: 20,
           }}
         />
       </div>

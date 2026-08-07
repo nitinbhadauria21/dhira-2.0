@@ -4,6 +4,7 @@ import React from 'react';
 import type { OnboardingData, Language } from './OnboardingFlow';
 import { LANGUAGE_OPTIONS } from '@/lib/artifactDesign';
 import { SHIFT_OPTIONS, writeStoredShift } from '@/lib/timeOfDay';
+import { onboardingAssets } from '@/app/onboarding/onboardingAssets';
 import OnboardingGreetingRow from './OnboardingGreetingRow';
 
 interface Props {
@@ -22,7 +23,7 @@ export default function StepSetup({ data, onChange, onNext, onBack }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       <OnboardingGreetingRow
-        buddySrc="/illustrations/dhira_setup_wave.png"
+        buddySrc={onboardingAssets.setupBuddy}
         buddyAlt="DHIRA waving hello while you choose your alias"
         eyebrow="Step 1 of 2"
         title={
