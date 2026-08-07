@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import SignUpLink from '@/components/SignUpLink';
 import DhiraAvatar from '@/components/DhiraAvatar';
 import FloatingBuddy from '@/components/FloatingBuddy';
 import { HERO_LINES, HERO_TAGLINE } from '@/lib/artifactDesign';
@@ -122,13 +123,13 @@ export default function LandingHero() {
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link
+          <SignUpLink
             href="/sign-up"
             className="btn-accent pulse-amber"
             style={{ fontSize: '17px', padding: '14px 32px', fontWeight: 600 }}
           >
             Begin — it&apos;s free
-          </Link>
+          </SignUpLink>
           <a
             href="#features"
             className="btn-ghost"

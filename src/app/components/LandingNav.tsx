@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Moon, Sun, Menu, X } from 'lucide-react';
 import { useTheme } from '@/components/ThemeProvider';
 import BrandLockup from '@/components/BrandLockup';
+import SignUpLink from '@/components/SignUpLink';
 
 export default function LandingNav() {
   const { theme, toggleTheme } = useTheme();
@@ -87,13 +88,13 @@ export default function LandingNav() {
               Sign In
             </Link>
 
-            <Link
+            <SignUpLink
               href="/sign-up"
               className="btn-primary"
               style={{ fontSize: '14px', padding: '8px 20px', fontWeight: 500 }}
             >
               Get Started
-            </Link>
+            </SignUpLink>
 
             <button
               onClick={toggleTheme}
@@ -187,13 +188,13 @@ export default function LandingNav() {
               >
                 Sign In
               </Link>
-              <Link
+              <SignUpLink
                 href="/sign-up"
                 onClick={() => setMobileOpen(false)}
                 className="btn-primary w-full justify-center"
               >
                 Get Started
-              </Link>
+              </SignUpLink>
             </div>
           </div>
         )}
