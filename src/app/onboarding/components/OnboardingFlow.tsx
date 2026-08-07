@@ -132,7 +132,7 @@ export default function OnboardingFlow() {
     router.push('/home-dashboard');
   }, [data, router]);
 
-  const contentMaxClass = step === 1 || step === 2 ? 'max-w-4xl' : 'max-w-lg';
+  const contentMaxClass = step >= 1 && step <= 3 ? 'max-w-4xl' : 'max-w-lg';
 
   return (
     <div
