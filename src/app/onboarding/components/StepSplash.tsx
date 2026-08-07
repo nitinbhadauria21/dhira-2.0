@@ -6,22 +6,39 @@ interface Props {
   onNext: () => void;
 }
 
+/** Horizontal 3D path hero — same framing as CalmLink onboarding DC (wide banner + warm glow). */
+const SPLASH_HERO_SRC = '/illustrations/spot_onboarding_dhira_path_landscape.png';
+
 export default function StepSplash({ onNext }: Props) {
   return (
     <div className="flex flex-col items-center text-center" style={{ gap: '32px' }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/illustrations/spot_onboarding_dhira_path.png"
-        alt="DHIRA on a soft garden path at sunrise, welcoming you forward"
+      <div
+        className="w-full"
         style={{
-          width: 'min(320px, 90vw)',
-          height: 'auto',
-          objectFit: 'contain',
+          maxWidth: 480,
           borderRadius: 20,
           border: '1px solid var(--color-border)',
           boxShadow: '0 0 40px rgba(239,169,74,0.35)',
+          overflow: 'hidden',
+          lineHeight: 0,
         }}
-      />
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={SPLASH_HERO_SRC}
+          alt="DHIRA on a soft garden path at sunrise, welcoming you forward"
+          width={932}
+          height={412}
+          style={{
+            width: '100%',
+            height: 'auto',
+            aspectRatio: '466 / 206',
+            objectFit: 'cover',
+            objectPosition: 'center center',
+            display: 'block',
+          }}
+        />
+      </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <h1

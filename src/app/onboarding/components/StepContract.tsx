@@ -1,10 +1,9 @@
 'use client';
 
 import React from 'react';
-import FloatingBuddy from '@/components/FloatingBuddy';
 import type { OnboardingData } from './OnboardingFlow';
 import { FREQUENCY_OPTIONS } from '@/lib/artifactDesign';
-import { onboardingBuddyPanelStyle } from './onboardingBuddyPanel';
+import OnboardingGreetingRow from './OnboardingGreetingRow';
 
 interface Props {
   data: OnboardingData;
@@ -94,51 +93,15 @@ function ConsentRow({ checked, onChange, title, body }: ConsentRowProps) {
 export default function StepContract({ data, onChange, onFinish, onBack }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
-      <div className="onboarding-split-hero">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'left' }}>
-          <p
-            style={{
-              fontFamily: 'var(--font-ui)',
-              fontSize: '13px',
-              fontWeight: 500,
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              color: 'var(--color-text-subtle)',
-            }}
-          >
-            Step 2 of 2
-          </p>
-          <h2
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(26px, 5vw, 36px)',
-              fontWeight: 500,
-              color: 'var(--color-text)',
-              lineHeight: 1.2,
-            }}
-          >
-            {data.alias ? `${data.alias}, how often should DHIRA check in?` : 'How often should DHIRA check in?'}
-          </h2>
-          <p
-            style={{
-              fontFamily: 'var(--font-ui)',
-              fontSize: '16px',
-              color: 'var(--color-text-muted)',
-              lineHeight: 1.6,
-            }}
-          >
-            You can change this anytime in Settings. DHIRA will never reach out without your permission.
-          </p>
-        </div>
-
-        <div style={{ ...onboardingBuddyPanelStyle, minHeight: 220 }}>
-          <FloatingBuddy
-            src="/illustrations/dhira_contract_checkin.png"
-            alt="DHIRA helping you choose a gentle check-in rhythm"
-            width={100}
-          />
-        </div>
-      </div>
+      <OnboardingGreetingRow
+        buddySrc="/illustrations/dhira_contract_checkin.png"
+        buddyAlt="DHIRA helping you choose a gentle check-in rhythm"
+        eyebrow="Step 2 of 2"
+        title={
+          data.alias ? `${data.alias}, how often should DHIRA check in?` : 'How often should DHIRA check in?'
+        }
+        subtitle="You can change this anytime in Settings. DHIRA will never reach out without your permission."
+      />
 
       {/* Frequency selector */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
