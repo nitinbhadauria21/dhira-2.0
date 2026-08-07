@@ -132,13 +132,15 @@ export default function OnboardingFlow() {
     router.push('/home-dashboard');
   }, [data, router]);
 
+  const contentMaxClass = step === 1 ? 'max-w-4xl' : 'max-w-lg';
+
   return (
     <div
       className="min-h-screen flex flex-col"
       style={{ backgroundColor: 'var(--color-bg)' }}
     >
       {/* Top wordmark */}
-      <header className="flex items-center justify-between px-6 pt-6 pb-2 max-w-lg mx-auto w-full">
+      <header className={`flex items-center justify-between px-6 pt-6 pb-2 mx-auto w-full ${contentMaxClass}`}>
         <BrandLockup href="/" size={22} />
 
         {/* Step dots */}
@@ -167,7 +169,7 @@ export default function OnboardingFlow() {
 
       {/* Step content */}
       <main className="flex-1 flex flex-col items-center justify-center px-6 py-8">
-        <div className="w-full max-w-lg">
+        <div className={`w-full ${contentMaxClass}`}>
           {step === 0 && <StepSplash onNext={next} />}
           {step === 1 && <StepPrivacy onNext={next} onBack={back} />}
           {step === 2 && (
@@ -190,7 +192,7 @@ export default function OnboardingFlow() {
       </main>
 
       {/* Safety footer */}
-      <footer className="px-6 pb-6 text-center max-w-lg mx-auto w-full">
+      <footer className={`px-6 pb-6 text-center mx-auto w-full ${contentMaxClass}`}>
         <p
           style={{
             fontFamily: 'var(--font-ui)',

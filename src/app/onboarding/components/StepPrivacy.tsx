@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import FloatingBuddy from '@/components/FloatingBuddy';
 import { PROMISES } from '@/lib/artifactDesign';
 
 interface Props {
@@ -15,57 +16,68 @@ const PROMISE_EMOJI: Record<string, string> = {
   heart: '💛',
 };
 
+const artPanelStyle: React.CSSProperties = {
+  borderRadius: 22,
+  border: '1px solid var(--color-border)',
+  boxShadow: 'var(--shadow-card)',
+  background:
+    'radial-gradient(ellipse 85% 75% at 50% 42%, color-mix(in srgb, var(--color-primary) 14%, transparent) 0%, transparent 68%), linear-gradient(165deg, var(--color-surface-alt) 0%, var(--color-surface) 100%)',
+  minHeight: 240,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: '28px 20px',
+};
+
 export default function StepPrivacy({ onNext, onBack }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <p
-          style={{
-            fontFamily: 'var(--font-ui)',
-            fontSize: '13px',
-            fontWeight: 500,
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            color: 'var(--color-text-subtle)',
-          }}
-        >
-          Our Promise
-        </p>
-        <h2
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(26px, 5vw, 36px)',
-            fontWeight: 500,
-            color: 'var(--color-text)',
-            lineHeight: 1.2,
-          }}
-        >
-          Your safety comes first.
-        </h2>
-        <p
-          style={{
-            fontFamily: 'var(--font-ui)',
-            fontSize: '16px',
-            color: 'var(--color-text-muted)',
-            lineHeight: 1.6,
-          }}
-        >
-          Before we begin, here is what DHIRA promises you — always.
-        </p>
-      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'left' }}>
+          <p
+            style={{
+              fontFamily: 'var(--font-ui)',
+              fontSize: '13px',
+              fontWeight: 500,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              color: 'var(--color-text-subtle)',
+            }}
+          >
+            Our Promise
+          </p>
+          <h2
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(26px, 5vw, 36px)',
+              fontWeight: 500,
+              color: 'var(--color-text)',
+              lineHeight: 1.2,
+            }}
+          >
+            Your safety comes first.
+          </h2>
+          <p
+            style={{
+              fontFamily: 'var(--font-ui)',
+              fontSize: '16px',
+              color: 'var(--color-text-muted)',
+              lineHeight: 1.6,
+              maxWidth: '36ch',
+            }}
+          >
+            Before we begin, here is what DHIRA promises you — always.
+          </p>
+        </div>
 
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/illustrations/spot_privacy.png"
-        alt="A shield with a lock — you are in control"
-        style={{
-          width: '100%',
-          height: 120,
-          objectFit: 'cover',
-          borderRadius: 16,
-          border: '1px solid var(--color-border)',
-        }}
-      />
+        <div style={artPanelStyle}>
+          <FloatingBuddy
+            src="/illustrations/dhira_promise_shield.png"
+            alt="DHIRA holding a glowing shield with a lock, promising your safety and privacy"
+            width={108}
+          />
+        </div>
+      </div>
 
       <div
         style={{
