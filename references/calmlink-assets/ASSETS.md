@@ -24,7 +24,8 @@ will get holes punched in them.
 | `dhira_settings.png` | 738×1202 | Profile | Settings illustration. |
 | `bot_avatar.png` | 256×256 | Chat, Landing, Profile, Sign up | Small round avatar — chat bubbles, nav, testimonials. |
 | `spot_welcome.png` | 466×206 | Onboarding (legacy) | Former welcome step spot; superseded by `spot_onboarding_dhira_path.png` on splash. |
-| `spot_onboarding_dhira_path.png` | — | Onboarding | Step 0 splash hero — DHIRA on the garden path. |
+| `spot_onboarding_dhira_path.png` | 1024×1536 | Onboarding (source) | Full portrait 3D path scene — source for landscape crop. |
+| `spot_onboarding_dhira_path_landscape.png` | 932×412 | Onboarding | Step 0 splash — **horizontal** banner (`466:206`), warm glow frame. |
 | `dhira_contract_checkin.png` | — | Onboarding | Step 2 of 2 — `OnboardingGreetingRow` / `FloatingBuddy` @ **78px**, left of headline (same as Home). |
 | `dhira_setup_wave.png` | — | Onboarding | Step 1 of 2 — `OnboardingGreetingRow` / **78px**, waving pose. |
 | `dhira_promise_shield.png` | — | Onboarding | Our Promise — `OnboardingGreetingRow` / **78px**, shield pose. |
