@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { PROMISES } from '@/lib/artifactDesign';
+import { onboardingAssets } from '@/app/onboarding/onboardingAssets';
 import OnboardingGreetingRow from './OnboardingGreetingRow';
 
 interface Props {
@@ -20,7 +21,7 @@ export default function StepPrivacy({ onNext, onBack }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       <OnboardingGreetingRow
-        buddySrc="/illustrations/dhira_promise_shield.png"
+        buddySrc={onboardingAssets.promiseBuddy}
         buddyAlt="DHIRA holding a glowing shield with a lock, promising your safety and privacy"
         eyebrow="Our Promise"
         title="Your safety comes first."

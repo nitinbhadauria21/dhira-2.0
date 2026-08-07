@@ -2,9 +2,9 @@
 
 import React from 'react';
 import FloatingBuddy from '@/components/FloatingBuddy';
+import { ONBOARDING_BUDDY_WIDTH } from '@/app/onboarding/onboardingAssets';
 
 /** Match home dashboard hero (`HomeGreeting`) — same buddy size, halo, and bob. */
-export const ONBOARDING_BUDDY_WIDTH = 78;
 export const ONBOARDING_BUDDY_BOB = 'dhira-bob 5.5s ease-in-out infinite';
 
 type Props = {
@@ -23,6 +23,7 @@ export default function OnboardingGreetingRow({ buddySrc, buddyAlt, eyebrow, tit
         alt={buddyAlt}
         width={ONBOARDING_BUDDY_WIDTH}
         bobAnimation={ONBOARDING_BUDDY_BOB}
+        className="onboarding-greeting-buddy"
       />
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'left', minWidth: 0 }}>
         <p
