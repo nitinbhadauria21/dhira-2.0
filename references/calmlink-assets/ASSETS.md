@@ -25,6 +25,7 @@ will get holes punched in them.
 | `bot_avatar.png` | 256×256 | Chat, Landing, Profile, Sign up | Small round avatar — chat bubbles, nav, testimonials. |
 | `spot_welcome.png` | 466×206 | Onboarding (legacy) | Former welcome step spot; superseded by `spot_onboarding_dhira_path.png` on splash. |
 | `spot_onboarding_dhira_path.png` | — | Onboarding | Step 0 splash hero — DHIRA on the garden path. |
+| `dhira_setup_wave.png` | — | Onboarding | Step 1 of 2 (alias setup) — `FloatingBuddy` @ ~100px, waving pose. |
 | `dhira_promise_shield.png` | — | Onboarding | Step 1 (Our Promise) — `FloatingBuddy` @ ~108px, shield pose. |
 | `spot_privacy.png` | 468×206 | Onboarding (legacy) | Former thin privacy banner; superseded by split hero + `dhira_promise_shield.png`. |
 | `spot_timeline.png` | 502×194 | Timeline | Section spot illustration. |
@@ -33,7 +34,7 @@ will get holes punched in them.
 
 ## Rendering the floating buddy
 
-Applies to `dhira_sitting_calm`, `dhira_orb`, `dhira_sitting_hi`, `dhira_wave`, `dhira_promise_shield`.
+Applies to `dhira_sitting_calm`, `dhira_orb`, `dhira_sitting_hi`, `dhira_wave`, `dhira_promise_shield`, `dhira_setup_wave`.
 Bot renders at **78px** wide inside a relative container, with three layers behind it:
 
 ```css

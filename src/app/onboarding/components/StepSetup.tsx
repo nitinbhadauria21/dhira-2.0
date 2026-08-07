@@ -1,9 +1,11 @@
 'use client';
 
 import React from 'react';
+import FloatingBuddy from '@/components/FloatingBuddy';
 import type { OnboardingData, Language } from './OnboardingFlow';
 import { LANGUAGE_OPTIONS } from '@/lib/artifactDesign';
 import { SHIFT_OPTIONS, writeStoredShift } from '@/lib/timeOfDay';
+import { onboardingBuddyPanelStyle } from './onboardingBuddyPanel';
 
 interface Props {
   data: OnboardingData;
@@ -20,43 +22,52 @@ export default function StepSetup({ data, onChange, onNext, onBack }: Props) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-      {/* Heading */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <p
-          style={{
-            fontFamily: 'var(--font-ui)',
-            fontSize: '13px',
-            fontWeight: 500,
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            color: 'var(--color-text-subtle)',
-          }}
-        >
-          Step 1 of 2
-        </p>
-        <h2
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(26px, 5vw, 36px)',
-            fontWeight: 500,
-            color: 'var(--color-text)',
-            lineHeight: 1.2,
-          }}
-        >
-          {aliasFromSignup ? `We'll keep calling you ${data.alias.trim()}` : 'What should DHIRA call you?'}
-        </h2>
-        <p
-          style={{
-            fontFamily: 'var(--font-ui)',
-            fontSize: '16px',
-            color: 'var(--color-text-muted)',
-            lineHeight: 1.6,
-          }}
-        >
-          {aliasFromSignup
-            ? 'You already chose this at sign-up. Change it only if you want — no real name needed.'
-            : 'Use any name or alias — no real name needed. This is just how DHIRA will greet you.'}
-        </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'left' }}>
+          <p
+            style={{
+              fontFamily: 'var(--font-ui)',
+              fontSize: '13px',
+              fontWeight: 500,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              color: 'var(--color-text-subtle)',
+            }}
+          >
+            Step 1 of 2
+          </p>
+          <h2
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(26px, 5vw, 36px)',
+              fontWeight: 500,
+              color: 'var(--color-text)',
+              lineHeight: 1.2,
+            }}
+          >
+            {aliasFromSignup ? `We'll keep calling you ${data.alias.trim()}` : 'What should DHIRA call you?'}
+          </h2>
+          <p
+            style={{
+              fontFamily: 'var(--font-ui)',
+              fontSize: '16px',
+              color: 'var(--color-text-muted)',
+              lineHeight: 1.6,
+            }}
+          >
+            {aliasFromSignup
+              ? 'You already chose this at sign-up. Change it only if you want — no real name needed.'
+              : 'Use any name or alias — no real name needed. This is just how DHIRA will greet you.'}
+          </p>
+        </div>
+
+        <div style={{ ...onboardingBuddyPanelStyle, minHeight: 220 }}>
+          <FloatingBuddy
+            src="/illustrations/dhira_setup_wave.png"
+            alt="DHIRA waving hello while you choose your alias"
+            width={100}
+          />
+        </div>
       </div>
 
       {/* Name input */}
