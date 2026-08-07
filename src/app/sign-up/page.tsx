@@ -8,6 +8,7 @@ import BrandLockup from '@/components/BrandLockup';
 import PasswordRevealInput from '@/components/PasswordRevealInput';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { signUpEmail, requestOtp, verifyOtp, signInWithGoogle } from '@/lib/authClient';
+import { resetDhiraClientStateForNewAccount } from '@/lib/dhiraClientCache';
 import { INDIA_STATES } from '@/lib/indiaStates';
 
 function GoogleIcon() {
@@ -63,7 +64,6 @@ function SignUpContent() {
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [googleOAuthPending, setGoogleOAuthPending] = useState(false);
 
   const firstError = () => {
     if (!alias.trim()) return 'Please choose a DHIRA alias.';
@@ -95,6 +95,7 @@ function SignUpContent() {
         state: state.trim(),
         city: city.trim(),
       });
+      resetDhiraClientStateForNewAccount();
       if (typeof window !== 'undefined') {
         localStorage.setItem('dhira-alias', alias.trim());
       }
@@ -129,6 +130,7 @@ function SignUpContent() {
         state: state.trim(),
         city: city.trim(),
       });
+      resetDhiraClientStateForNewAccount();
       if (typeof window !== 'undefined') {
         localStorage.setItem('dhira-alias', alias.trim());
       }
@@ -157,7 +159,7 @@ function SignUpContent() {
         }}
       >
         <div className="hidden lg:block h-full min-h-full">
-          <AuthScenePanel variant="sign-up" carouselEmphasis={googleOAuthPending} />
+          <AuthScenePanel variant="sign-up" />
         </div>
 
         <section
@@ -197,13 +199,12 @@ function SignUpContent() {
             onClick={async () => {
               setError(null);
               setLoading(true);
-              setGoogleOAuthPending(true);
+              resetDhiraClientStateForNewAccount();
               try {
                 await signInWithGoogle('/onboarding');
               } catch (e) {
                 setError(e instanceof Error ? e.message : 'Google sign-up failed');
                 setLoading(false);
-                setGoogleOAuthPending(false);
               }
             }}
           >

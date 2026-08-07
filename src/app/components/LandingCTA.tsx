@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import SignUpLink from '@/components/SignUpLink';
 import { CTA_BODY } from '@/lib/artifactDesign';
 
 export default function LandingCTA() {
@@ -52,9 +53,9 @@ export default function LandingCTA() {
           {CTA_BODY}
         </p>
 
-        <Link href="/sign-up" className="btn-accent" style={{ fontSize: '17px', padding: '16px 40px' }}>
+        <SignUpLink href="/sign-up" className="btn-accent" style={{ fontSize: '17px', padding: '16px 40px' }}>
           Begin now — it&apos;s free
-        </Link>
+        </SignUpLink>
       </div>
     </section>
   );
