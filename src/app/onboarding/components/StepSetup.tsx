@@ -22,7 +22,7 @@ export default function StepSetup({ data, onChange, onNext, onBack }: Props) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+      <div className="onboarding-split-hero">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'left' }}>
           <p
             style={{
