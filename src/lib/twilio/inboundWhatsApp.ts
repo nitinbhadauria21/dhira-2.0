@@ -201,7 +201,7 @@ export async function handleInboundWhatsApp(params: Record<string, string>): Pro
 
   try {
     const uid = await findOrCreateProfileByPhone(phoneE164);
-    const turn = await runChatTurn({ uid, userMessage: body });
+    const turn = await runChatTurn({ uid, userMessage: body, channel: 'whatsapp' });
     return twimlMessage(turn.reply);
   } catch (err) {
     console.error('[twilio/inbound] handle error', err);

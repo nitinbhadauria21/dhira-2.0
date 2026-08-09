@@ -40,7 +40,9 @@ export function sanityCheckEscalation(
   if (
     (verdict.risk_level === 'CRISIS' || verdict.risk_level === 'HIGH') &&
     isTrivialLowRiskMessage(userMessage) &&
-    !contextHasElevatedRisk(context)
+    !contextHasElevatedRisk(context) &&
+    verdict.classification !== 'genuine_risk_self' &&
+    verdict.classification !== 'genuine_risk_others'
   ) {
     console.warn('[riskSanity] downgraded over-trigger', {
       userMessage: userMessage.slice(0, 40),
@@ -64,6 +66,8 @@ export function normalizeEscalationResult(result: EscalationResult): EscalationR
     risk_level,
     escalate: risk_level === 'CRISIS',
     signal: result.signal?.trim() || 'none',
+    classification: result.classification,
+    context_used: result.context_used,
   };
 }
 

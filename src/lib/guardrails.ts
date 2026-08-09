@@ -1,9 +1,10 @@
 /**
  * Guardrail phrase patterns from the Agent Prompts spec §7.
  *
- * These are a *tripwire*, not the judge: when one fires on Dhira's OUTGOING
- * draft, we ask the Safety & Persona Monitor to rewrite it warmly rather than
- * hard-blocking. We only ever scan Dhira's reply, never the user's message.
+ * Outgoing-only: advice/diagnosis/dependency tripwires on Dhira's drafts.
+ * User-side crisis in production is assessed contextually (v3 §6.3 / §5) via
+ * Escalation + Monitor. Legacy user regex: DHIRA_LEGACY_USER_CRISIS_REGEX=1.
+ * Offline/tests use src/lib/contextualRiskOffline.ts.
  */
 
 // Advice / diagnosis / dependency patterns (case-insensitive).

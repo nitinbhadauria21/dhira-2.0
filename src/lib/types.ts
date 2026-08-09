@@ -17,6 +17,20 @@ export type VoicePreference =
 
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRISIS';
 
+/** Escalation Agent Step 2 labels (Agent Prompts v3 §6.3). */
+export type RiskClassification =
+  | 'genuine_risk_self'
+  | 'genuine_risk_others'
+  | 'third_party_concern'
+  | 'distress'
+  | 'venting'
+  | 'figure_of_speech'
+  | 'humour'
+  | 'media_or_hypothetical'
+  | 'neutral';
+
+export type ChatChannel = 'app' | 'whatsapp';
+
 export type MoodLabel =
   | 'happy'
   | 'calm'
@@ -70,6 +84,8 @@ export interface Profile {
   lastProactiveAt: string | null;
   /** Last successful weekly summary enqueue (ISO). */
   lastWeeklyAt: string | null;
+  /** Behavioural communication patterns (v3 §6.2) — no PII, no clinical labels. */
+  userPatternProfile: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -111,6 +127,7 @@ export interface ChatMessageRecord {
   profileId: string;
   role: 'user' | 'dhira';
   content: string;
+  channel?: ChatChannel;
   createdAt: string;
 }
 
@@ -152,6 +169,7 @@ export interface RiskEventRecord {
   profileId: string;
   riskLevel: RiskLevel;
   signal: string;
+  riskClassification?: RiskClassification | null;
   handled: boolean;
   createdAt: string;
 }
@@ -169,14 +187,8 @@ export interface EscalationResult {
   risk_level: RiskLevel;
   escalate: boolean;
   signal: string;
-}
-
-/** Output of the Mood Tagging Agent (agent §6.1). */
-export interface MoodTagResult {
-  mood: MoodLabel;
-  valence: number;
-  emotional_intensity: number;
-  topic_tag: TopicTag;
+  classification?: RiskClassification;
+  context_used?: string;
 }
 
 /** Output of the Memory Agent (agent §6.2). */
@@ -185,4 +197,14 @@ export interface MemoryResult {
   mood: MoodLabel;
   topic_tag: TopicTag;
   carry_forward: string;
+  channel?: ChatChannel;
+  pattern_profile_update?: string;
+}
+
+/** Output of the Mood Tagging Agent (agent §6.1). */
+export interface MoodTagResult {
+  mood: MoodLabel;
+  valence: number;
+  emotional_intensity: number;
+  topic_tag: TopicTag;
 }

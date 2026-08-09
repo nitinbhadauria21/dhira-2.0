@@ -45,6 +45,7 @@ export interface DhiraStore {
 
   addRiskEvent(record: RiskEventRecord): Promise<void>;
   getRiskEvents(limit?: number): Promise<RiskEventRecord[]>;
+  getRecentRiskEventsForProfile(profileId: string, limit?: number): Promise<RiskEventRecord[]>;
 
   // Notifications
   addNotification(record: NotificationRecord): Promise<void>;

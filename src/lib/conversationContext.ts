@@ -1,7 +1,7 @@
 import { getStore } from '@/lib/store';
 import { isLiveBrainEnabled } from '@/lib/anthropic';
 import type { ClaudeTurn } from '@/lib/anthropic';
-import type { ChatMessageRecord, Language } from '@/lib/types';
+import type { ChatMessageRecord, Language, RiskEventRecord } from '@/lib/types';
 import { summarizeMemory } from '@/agents/memory';
 import { CRISIS_MESSAGE } from '@/lib/safetyCopy';
 
@@ -37,9 +37,19 @@ export function formatTurnsTranscript(turns: ClaudeTurn[]): string {
     .join('\n');
 }
 
-/** Monitor / Escalation context block (summary + recent turns). */
-export function formatContextForMonitor(summary: string | null, turns: ClaudeTurn[]): string {
+/** Monitor / Escalation context block (summary + recent turns + v3 extras). */
+export function formatContextForMonitor(
+  summary: string | null,
+  turns: ClaudeTurn[],
+  extras?: { userPatternProfile?: string | null; recentRiskSummary?: string | null },
+): string {
   const parts: string[] = [];
+  if (extras?.recentRiskSummary?.trim()) {
+    parts.push(`RECENT RISK SUMMARY: ${extras.recentRiskSummary.trim()}`);
+  }
+  if (extras?.userPatternProfile?.trim()) {
+    parts.push(`USER PATTERN PROFILE: ${extras.userPatternProfile.trim()}`);
+  }
   if (summary?.trim()) {
     parts.push(`CONVERSATION SO FAR: ${summary.trim()}`);
   }
@@ -47,6 +57,16 @@ export function formatContextForMonitor(summary: string | null, turns: ClaudeTur
     parts.push(formatTurnsTranscript(turns));
   }
   return parts.join('\n\n') || '(no prior conversation)';
+}
+
+export function formatRecentRiskSummary(events: RiskEventRecord[]): string | null {
+  const elevated = events.filter((e) => e.riskLevel === 'HIGH' || e.riskLevel === 'CRISIS');
+  if (!elevated.length) return null;
+  const lines = elevated.slice(0, 3).map((e) => {
+    const cls = e.riskClassification ? ` ${e.riskClassification}` : '';
+    return `${e.riskLevel}${cls} at ${e.createdAt}: ${e.signal}`;
+  });
+  return lines.join('; ');
 }
 
 export interface TrimmedConversation {
@@ -94,21 +114,31 @@ export interface ConversationContext {
   historyTurns: ClaudeTurn[];
   conversationSummary: string | null;
   contextString: string;
+  userPatternProfile: string | null;
+  recentRiskSummary: string | null;
 }
 
 /** Load store history (before the current user message is saved). */
 export async function buildConversationContext(
   uid: string,
   language: Language = 'english',
+  opts?: { userPatternProfile?: string | null; recentRiskSummary?: string | null },
 ): Promise<ConversationContext> {
   const store = getStore();
   const raw = await store.getRecentMessages(uid, DEFAULT_FETCH_LIMIT);
   const allTurns = messagesToClaudeTurns(raw);
   const { summary, turns } = await trimWithRollingSummary(allTurns, DEFAULT_MAX_TURNS, language);
+  const userPatternProfile = opts?.userPatternProfile ?? null;
+  const recentRiskSummary = opts?.recentRiskSummary ?? null;
   return {
     historyTurns: turns,
     conversationSummary: summary,
-    contextString: formatContextForMonitor(summary, turns),
+    contextString: formatContextForMonitor(summary, turns, {
+      userPatternProfile,
+      recentRiskSummary,
+    }),
+    userPatternProfile,
+    recentRiskSummary,
   };
 }
 
@@ -123,6 +153,7 @@ export function buildPrimaryMessageBundle(params: {
   historyTurns: ClaudeTurn[];
   conversationSummary: string | null;
   memorySummary?: string | null;
+  userPatternProfile?: string | null;
   language: Language;
   userMessage: string;
 }): PrimaryMessageBundle {
@@ -132,6 +163,9 @@ export function buildPrimaryMessageBundle(params: {
       ? `MEMORY NOTE: ${params.memorySummary.trim()}`
       : 'MEMORY NOTE: none',
   );
+  if (params.userPatternProfile?.trim()) {
+    systemParts.push(`USER PATTERN PROFILE: ${params.userPatternProfile.trim()}`);
+  }
   if (params.conversationSummary?.trim()) {
     systemParts.push(`CONVERSATION SO FAR: ${params.conversationSummary.trim()}`);
   }
