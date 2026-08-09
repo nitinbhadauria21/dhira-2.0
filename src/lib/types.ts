@@ -139,6 +139,8 @@ export interface MoodLogRecord {
   emotionalIntensity: number; // 0..1
   topicTag: TopicTag;
   source: 'chat' | 'manual' | 'elevenlabs'; // manual = mood modal; chat = text; elevenlabs = voice
+  /** live = Mood Tagging Agent; offline = localMoodTag keyword heuristic */
+  moodTagSource?: 'live' | 'offline';
   createdAt: string;
 }
 

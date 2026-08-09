@@ -218,6 +218,14 @@ export class LocalStore implements DhiraStore {
       .slice(0, limit);
   }
 
+  async getRiskEventsForProfileSince(profileId: string, sinceIso: string): Promise<RiskEventRecord[]> {
+    const db = readDb();
+    const since = new Date(sinceIso).getTime();
+    return db.riskEvents
+      .filter((r) => r.profileId === profileId && new Date(r.createdAt).getTime() >= since)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+
   async addNotification(record: NotificationRecord): Promise<void> {
     const db = readDb();
     db.notifications.push(record);

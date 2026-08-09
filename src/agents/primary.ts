@@ -1,5 +1,5 @@
 import { anthropicText, isLiveBrainEnabled } from '@/lib/anthropic';
-import { PRIMARY_SYSTEM_V3 } from '@/agents/prompts/v3Prompts';
+import { PRIMARY_LIVE_SYSTEM } from '@/agents/prompts/agentPromptsLive';
 import { localPrimaryReply } from '@/lib/localBrain';
 import { buildPrimaryMessageBundle } from '@/lib/conversationContext';
 import { NEUTRAL_FAILSAFE } from '@/lib/safetyCopy';
@@ -13,6 +13,7 @@ export interface PrimaryInput {
   conversationSummary?: string | null;
   userPatternProfile?: string | null;
   language: Language;
+  contextUnavailable?: boolean;
 }
 
 /** Produce Dhira's warm listener draft reply. */
@@ -28,9 +29,10 @@ export async function draftReply(input: PrimaryInput): Promise<string> {
     userPatternProfile: input.userPatternProfile,
     language: input.language,
     userMessage: input.userMessage,
+    contextUnavailable: input.contextUnavailable,
   });
 
-  const system = `${PRIMARY_SYSTEM_V3}\n\n---\n${bundle.systemAppendix}`;
+  const system = `${PRIMARY_LIVE_SYSTEM}\n\n---\n${bundle.systemAppendix}`;
   const messages: ClaudeTurn[] = [...bundle.turns, { role: 'user', content: bundle.userMessage }];
 
   try {

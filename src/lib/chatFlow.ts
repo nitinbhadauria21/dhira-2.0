@@ -1,4 +1,5 @@
 import { randomUUID } from 'crypto';
+import { isLiveBrainEnabled } from '@/lib/anthropic';
 import { getStore } from '@/lib/store';
 import { checkRisk } from '@/agents/escalation';
 import { draftReply } from '@/agents/primary';
@@ -9,9 +10,12 @@ import { CRISIS_MESSAGE } from '@/lib/safetyCopy';
 import {
   buildConversationContext,
   formatRecentRiskSummary,
+  formatRiskHistory72h,
   isEscalateCrisisDraft,
+  turnsForMoodTagging,
 } from '@/lib/conversationContext';
 import { mergePatternProfile } from '@/lib/localBrain';
+import { setBrainCallContext, recordBrainUsed, getLiveBrainTelemetry } from '@/lib/liveBrainTelemetry';
 import {
   shouldUseEarlyCrisisHandoff,
   sanityCheckMonitor,
@@ -28,6 +32,12 @@ export interface ChatTurnResult {
   riskLevel: RiskLevel;
   mood?: string;
   topicTag?: string;
+  moodTagSource?: 'live' | 'offline';
+  brainUsed?: 'live' | 'offline';
+}
+
+function hoursAgoIso(hours: number): string {
+  return new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
 }
 
 export async function runChatTurn(params: {
@@ -36,16 +46,21 @@ export async function runChatTurn(params: {
   channel?: ChatChannel;
 }): Promise<ChatTurnResult> {
   const { uid, userMessage, channel = 'app' } = params;
+  setBrainCallContext({ channel });
+  const liveConfigured = isLiveBrainEnabled();
+  const fallbackCountAtTurnStart = getLiveBrainTelemetry().fallbackCount;
   const store = getStore();
   const profile = await store.getOrCreateProfile(uid);
   const now = () => new Date().toISOString();
 
-  const recentRisk = await store.getRecentRiskEventsForProfile(uid, 5);
-  const recentRiskSummary = formatRecentRiskSummary(recentRisk);
+  const risk72hEvents = await store.getRiskEventsForProfileSince(uid, hoursAgoIso(72));
+  const riskHistory72h = formatRiskHistory72h(risk72hEvents);
+  const recentRiskSummary = formatRecentRiskSummary(risk72hEvents);
 
   const convo = await buildConversationContext(uid, profile.language, {
     userPatternProfile: profile.userPatternProfile,
     recentRiskSummary,
+    riskHistory72h,
   });
 
   await store.addMessage({
@@ -57,12 +72,34 @@ export async function runChatTurn(params: {
     createdAt: now(),
   });
 
+  const moodContextTurns = turnsForMoodTagging([
+    ...convo.historyTurns,
+    { role: 'user', content: userMessage },
+  ]);
+
   const risk = await checkRisk({
     userMessage,
     context: convo.contextString,
     userPatternProfile: profile.userPatternProfile,
     recentRiskSummary,
+    riskHistory72h: riskHistory72h ?? undefined,
+    contextUnavailable: convo.contextUnavailable,
   });
+
+  const finish = (partial: Omit<ChatTurnResult, 'brainUsed'>): ChatTurnResult => {
+    const fellBackDuringTurn =
+      getLiveBrainTelemetry().fallbackCount > fallbackCountAtTurnStart;
+    const brainUsed: 'live' | 'offline' =
+      liveConfigured && !fellBackDuringTurn ? 'live' : 'offline';
+    recordBrainUsed({
+      brainUsed,
+      channel,
+      riskLevel: partial.riskLevel,
+      moodLabel: partial.mood,
+      moodTagSource: partial.moodTagSource,
+    });
+    return { ...partial, brainUsed };
+  };
 
   if (shouldUseEarlyCrisisHandoff(risk)) {
     debugRiskLog({ path: 'early_crisis', risk, userMessage: userMessage.slice(0, 80) });
@@ -83,7 +120,12 @@ export async function runChatTurn(params: {
       channel,
       createdAt: now(),
     });
-    return { reply: CRISIS_MESSAGE, crisis: true, showReferralCard: false, riskLevel: 'CRISIS' };
+    return finish({
+      reply: CRISIS_MESSAGE,
+      crisis: true,
+      showReferralCard: false,
+      riskLevel: 'CRISIS',
+    });
   }
 
   const memory = profile.consentMemory ? await store.getLatestMemory(uid) : null;
@@ -94,6 +136,7 @@ export async function runChatTurn(params: {
     memorySummary: memory?.summary ?? null,
     userPatternProfile: profile.userPatternProfile,
     language: profile.language,
+    contextUnavailable: convo.contextUnavailable,
   });
 
   const primaryEscalate =
@@ -119,7 +162,12 @@ export async function runChatTurn(params: {
       channel,
       createdAt: now(),
     });
-    return { reply: CRISIS_MESSAGE, crisis: true, showReferralCard: false, riskLevel: 'CRISIS' };
+    return finish({
+      reply: CRISIS_MESSAGE,
+      crisis: true,
+      showReferralCard: false,
+      riskLevel: 'CRISIS',
+    });
   }
 
   let reviewed = await reviewReply({
@@ -128,6 +176,8 @@ export async function runChatTurn(params: {
     draftReply: draft,
     escalation: risk,
     userPatternProfile: profile.userPatternProfile,
+    recentSentReplies: convo.recentSentReplies,
+    contextUnavailable: convo.contextUnavailable,
   });
   reviewed = sanityCheckMonitor(userMessage, convo.contextString, reviewed);
 
@@ -136,6 +186,7 @@ export async function runChatTurn(params: {
     monitorDecision: reviewed.decision,
     monitorRisk: reviewed.risk_level,
     escalation: risk,
+    recentSentReplies: convo.recentSentReplies?.slice(0, 200),
     userMessage: userMessage.slice(0, 80),
   });
 
@@ -157,12 +208,12 @@ export async function runChatTurn(params: {
       channel,
       createdAt: now(),
     });
-    return {
+    return finish({
       reply: reviewed.approved_or_rewritten_response,
       crisis: true,
       showReferralCard: false,
       riskLevel: 'CRISIS',
-    };
+    });
   }
 
   const finalReply = reviewed.approved_or_rewritten_response;
@@ -178,10 +229,16 @@ export async function runChatTurn(params: {
 
   let taggedMood: string | undefined;
   let taggedTopic: string | undefined;
+  let moodTagSource: 'live' | 'offline' | undefined;
   try {
-    const mood = await tagMood(userMessage);
+    const mood = await tagMood({
+      text: userMessage,
+      recentTurns: moodContextTurns,
+      channel,
+    });
     taggedMood = mood.mood;
     taggedTopic = mood.topic_tag;
+    moodTagSource = mood.moodTagSource;
     await store.addMood({
       id: randomUUID(),
       profileId: uid,
@@ -190,6 +247,7 @@ export async function runChatTurn(params: {
       emotionalIntensity: mood.emotional_intensity,
       topicTag: mood.topic_tag,
       source: 'chat',
+      moodTagSource: mood.moodTagSource,
       createdAt: now(),
     });
   } catch {
@@ -241,12 +299,13 @@ export async function runChatTurn(params: {
     });
   }
 
-  return {
+  return finish({
     reply: finalReply,
     crisis: false,
     showReferralCard,
     riskLevel: reviewed.risk_level,
     mood: taggedMood,
     topicTag: taggedTopic,
-  };
+    moodTagSource,
+  });
 }

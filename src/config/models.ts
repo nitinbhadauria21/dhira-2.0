@@ -21,6 +21,7 @@ export type AgentName =
   | 'memoryAgent';
 
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api';
+/** OpenRouter: SDK appends /v1/messages — do NOT set base to .../api/v1 (double /v1). */
 
 function looksLikePlaceholder(value: string): boolean {
   const v = value.toLowerCase();
