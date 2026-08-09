@@ -18,6 +18,15 @@ For the **default workspace guardrail** (and any guardrail tied to your Dhira AP
 
 Save changes. Wait 1–2 minutes.
 
+**If Anthropic models still return 404** but `openrouter/auto` works (smoke test passes with model override), set on Vercel (and optionally `.env.local`):
+
+```bash
+DHIRA_MODEL_SONNET=openrouter/auto
+DHIRA_MODEL_HAIKU=openrouter/auto
+```
+
+Then redeploy. Dhira already reads these in `src/config/models.ts`.
+
 ## 3. Credits
 
 https://openrouter.ai/settings/credits — balance must be &gt; $0.
