@@ -11,6 +11,7 @@ Stack: **Next.js 15 · React 19 · TypeScript · Tailwind · Supabase Auth + Pos
 > Team status snapshot (completed vs pending): see **[DEMO_DAY_STATUS.md](./DEMO_DAY_STATUS.md)**  
 > Emergent Demo Day workflow (attach in Emergent): **[docs/emergent/EMERGENT_DEMO_DAY_WORKFLOW.md](./docs/emergent/EMERGENT_DEMO_DAY_WORKFLOW.md)**  
 > Email / WhatsApp templates: **[docs/emergent/TEMPLATES.md](./docs/emergent/TEMPLATES.md)**  
+> Team user-testing Form kit: **[docs/user-testing/FACILITATOR_NOTES.md](./docs/user-testing/FACILITATOR_NOTES.md)**  
 > Cloud-agent notes: **[AGENTS.md](./AGENTS.md)** · Product routes/safety: **[CLAUDE.md](./CLAUDE.md)** · Data model: **[supabase/DATA_MODEL.md](./supabase/DATA_MODEL.md)**
 
 ### Re-create Emergent workflows from this repo
