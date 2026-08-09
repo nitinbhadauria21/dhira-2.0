@@ -8,8 +8,8 @@ import { tagMood } from '@/agents/moodTagging';
 import { summarizeMemory } from '@/agents/memory';
 import { checkRisk } from '@/agents/escalation';
 import { CRISIS_MESSAGE } from '@/lib/safetyCopy';
+import { buildConversationContext, isEscalateCrisisDraft } from '@/lib/conversationContext';
 import { normalizeMood, normalizeTopic, valenceForMood } from '@/lib/moodNormalize';
-import type { ClaudeTurn } from '@/lib/anthropic';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -102,8 +102,15 @@ export async function POST(req: NextRequest) {
       createdAt: now(),
     });
 
-    // Crisis check on the spoken content before drafting a reflection.
-    const risk = await checkRisk(userText || lastUser);
+    const voiceContext = turns
+      .map((t) => `${t.role === 'dhira' ? 'Dhira' : 'User'}: ${t.content}`)
+      .join('\n');
+    const convo = await buildConversationContext(uid, profile.language);
+    const contextString = [convo.contextString, `VOICE SESSION JUST NOW:\n${voiceContext}`]
+      .filter(Boolean)
+      .join('\n\n');
+
+    const risk = await checkRisk({ userMessage: lastUser, context: contextString });
     if (risk.risk_level === 'CRISIS' || risk.escalate) {
       await store.addRiskEvent({
         id: randomUUID(),
@@ -130,12 +137,6 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // In-character reflection through Primary → Safety Monitor.
-    const prior = await store.getRecentMessages(uid, 12);
-    const history: ClaudeTurn[] = prior.map((m) => ({
-      role: m.role === 'dhira' ? 'assistant' : 'user',
-      content: m.content,
-    }));
     const reflectionPrompt =
       `I just finished a voice conversation with you. Here is what we covered:\n` +
       `${turns.map((t) => `${t.role === 'user' ? 'Me' : 'You'}: ${t.content}`).join('\n')}\n\n` +
@@ -143,18 +144,42 @@ export async function POST(req: NextRequest) {
 
     const memory = profile.consentMemory ? await store.getLatestMemory(uid) : null;
     const draft = await draftReply({
-      history,
+      history: convo.historyTurns,
+      conversationSummary: convo.conversationSummary,
       userMessage: reflectionPrompt,
       memorySummary: memory?.summary ?? null,
       language: profile.language,
     });
-    const context = turns
-      .slice(-6)
-      .map((t) => `${t.role === 'dhira' ? 'Dhira' : 'User'}: ${t.content}`)
-      .join('\n');
+
+    if (isEscalateCrisisDraft(draft)) {
+      await store.addRiskEvent({
+        id: randomUUID(),
+        profileId: uid,
+        riskLevel: 'CRISIS',
+        signal: 'primary ESCALATE_CRISIS after voice',
+        handled: true,
+        createdAt: now(),
+      });
+      await store.addMessage({
+        id: randomUUID(),
+        profileId: uid,
+        role: 'dhira',
+        content: CRISIS_MESSAGE,
+        createdAt: now(),
+      });
+      return NextResponse.json({
+        success: true,
+        crisis: true,
+        mood,
+        topicTag,
+        reply: CRISIS_MESSAGE,
+        savedTurns: turns.length + 1,
+      });
+    }
+
     const reviewed = await reviewReply({
       userMessage: lastUser,
-      context,
+      context: contextString,
       draftReply: draft,
     });
 
