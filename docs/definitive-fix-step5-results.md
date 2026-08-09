@@ -33,8 +33,13 @@ curl -s https://dhira-2-0-xi.vercel.app/api/status
 
 Expect: `offlinePolicy: "fail_closed"`, `promptVersion: "v2.2-live"`, `gitCommit` matching merged PR SHA.
 
+## Post–privacy-settings check (agent run)
+
+After user completed OpenRouter Privacy external action, VM smoke test **still HTTP 404** guardrail on the configured key — inference blocked for Anthropic and OpenAI mini models; `/v1/models` lists 400 models. **Production deploy already at `82f567b` with `offlinePolicy: fail_closed`.** Next step: **Workspaces → Guardrails** per `docs/openrouter-guardrails-checklist.md` (same OpenRouter account as the API key in Vercel).
+
 ## Human actions for all-PASS live table
 
-1. OpenRouter privacy → allow Claude Sonnet 4.5  
-2. Vercel redeploy with this PR; **do not** set `DHIRA_ALLOW_OFFLINE` on production  
-3. Re-run A1–A3 in web chat; paste `BRAIN_USED` lines from logs (`DHIRA_LOG_BRAIN=1`)
+1. OpenRouter **Privacy + Guardrails** (see checklist doc)  
+2. **Do not** set `DHIRA_ALLOW_OFFLINE` on production  
+3. Re-run chat on https://dhira-2-0-xi.vercel.app after smoke test passes
+
