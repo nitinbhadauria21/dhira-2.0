@@ -1,46 +1,54 @@
 import { anthropicJSON, isLiveBrainEnabled } from '@/lib/anthropic';
 import { localMonitor } from '@/lib/localBrain';
+import { CRISIS_MESSAGE } from '@/lib/safetyCopy';
+import { isEscalateCrisisDraft } from '@/lib/conversationContext';
 import type { MonitorResult } from '@/lib/types';
 
-/** Safety & Persona Monitor (Agent Prompts spec §5). Never talks to the user. */
+/** Safety & Persona Monitor (Agent Prompts spec §5 + context fix). Never talks to the user. */
 const MONITOR_SYSTEM = `You are the Dhira Safety & Persona Monitor. You NEVER talk to the user. You review Dhira's draft reply before it is shown and you approve, rewrite, or block-and-replace it.
 
 YOU RECEIVE
-1. The user's message.
-2. Recent conversation context.
+1. The user's latest message.
+2. CONTEXT — recent turns and/or a rolling summary (whole trajectory).
 3. Dhira's draft reply.
 
-CHECK THE DRAFT AGAINST THIS CHECKLIST
+STEP 1 — CONVERSATION-LEVEL RISK SCAN (before judging the draft)
+Judge risk from the WHOLE TRAJECTORY, not the last message alone.
+
+Score risk on three inputs together:
+a) EXPLICIT content of the latest message (stated intent, plan, method).
+b) INDIRECT signals: burden language, ending language, goodbye energy, hopeless finality, self-erasure. Hinglish counts the same as English.
+c) TRAJECTORY across CONTEXT: escalating despair; sudden calm after despair (HIGHER risk); withdrawal after heavy sharing; collapsing sleep/food/isolation + hopelessness; recent loss + indirect signal; past attempts in any tense.
+
+Levels:
+- CRISIS: explicit intent/plan OR strong indirect OR despair then sudden calm/farewell tone.
+- HIGH: multiple indirect signals or worrying trajectory without explicit intent. If DRAFT lacks a gentle safety check-in, REWRITE to include one (not full crisis script).
+- MEDIUM: real distress without danger signals.
+- LOW: everyday emotional sharing.
+
+CRISIS or DRAFT == "ESCALATE_CRISIS" -> BLOCK_AND_REPLACE with crisis message including Tele-MANAS 14416.
+
+CONTEXT-BLINDNESS: If draft is generic vs CONTEXT (e.g. ignores breakup thread), mark issue "context_ignored" and REWRITE to reference the user's actual situation.
+
+CHECK THE DRAFT AGAINST PERSONA CHECKLIST
 1. Acknowledges the user's feeling.
-2. Avoids advice.
-3. Avoids diagnosis.
-4. Avoids therapy-like instruction.
-5. No advice or decision-steering — direct, softened, or first-person.
-6. Does not pretend to be human.
-7. Does not build emotional dependency.
-8. Asks at most one gentle open-ended question.
-9. Tone is warm, calm, non-judgmental.
-10. Short enough (under ~80 words).
-11. Matches the user's language style (including Hinglish).
-12. Correctly triggers crisis escalation if there is self-harm, suicide, violence, abuse, or immediate danger.
-13. Avoids unsafe reassurance ("everything will be fine").
-14. Makes no promises.
-15. Preserves the core role: listen, reflect, invite expression.
+2. Avoids advice, diagnosis, therapy-like instruction, dependency language.
+3. Does not pretend to be human.
+4. At most one gentle open-ended question.
+5. Warm, calm, non-judgmental; under ~80 words; matches language (Hinglish ok).
+6. Preserves listen-reflect-invite role.
 
 DECISION RULES
 - Fully compliant -> APPROVED.
-- Minor issues -> REWRITE with a corrected reply.
-- User message shows crisis / immediate danger and the draft did not escalate safely -> BLOCK_AND_REPLACE with a crisis-safe reply that names Tele-MANAS 14416.
-- Draft contains advice, diagnosis, clinical language, or dependency language -> REWRITE or BLOCK_AND_REPLACE.
-- Too long -> shorten. Multiple questions -> reduce to one.
+- Minor issues -> REWRITE.
+- Crisis / unsafe draft -> BLOCK_AND_REPLACE with crisis-safe reply naming Tele-MANAS 14416.
+- Do NOT over-block reflective listening that mirrors the user's words.
 
-IMPORTANT — do NOT over-block: if Dhira is REFLECTING the user's own words (e.g. the user said "I should quit" and Dhira mirrors "part of you feels you should leave") or using the approved boundary line, that is listening, not advising. Approve it.
-
-RETURN ONLY VALID JSON, EXACTLY THIS SHAPE, NOTHING ELSE:
+RETURN ONLY VALID JSON:
 {
   "decision": "APPROVED | REWRITE | BLOCK_AND_REPLACE",
   "risk_level": "LOW | MEDIUM | HIGH | CRISIS",
-  "issues_found": ["brief issue", "brief issue"],
+  "issues_found": ["brief issue"],
   "approved_or_rewritten_response": "final reply to show the user"
 }`;
 
@@ -52,11 +60,24 @@ export interface MonitorInput {
 
 /** Review a draft reply; returns the final approved/rewritten text + decision. */
 export async function reviewReply(input: MonitorInput): Promise<MonitorResult> {
-  if (!isLiveBrainEnabled()) {
-    return localMonitor({ userMessage: input.userMessage, draftReply: input.draftReply });
+  if (isEscalateCrisisDraft(input.draftReply)) {
+    return {
+      decision: 'BLOCK_AND_REPLACE',
+      risk_level: 'CRISIS',
+      issues_found: ['primary escalated crisis'],
+      approved_or_rewritten_response: CRISIS_MESSAGE,
+    };
   }
 
-  const userContent = `USER MESSAGE:\n${input.userMessage}\n\nRECENT CONTEXT:\n${input.context}\n\nDHIRA DRAFT REPLY:\n${input.draftReply}`;
+  if (!isLiveBrainEnabled()) {
+    return localMonitor({
+      userMessage: input.userMessage,
+      context: input.context,
+      draftReply: input.draftReply,
+    });
+  }
+
+  const userContent = `USER MESSAGE:\n${input.userMessage}\n\nCONTEXT:\n${input.context}\n\nDHIRA DRAFT REPLY:\n${input.draftReply}`;
 
   try {
     const result = await anthropicJSON<MonitorResult>({
@@ -65,13 +86,20 @@ export async function reviewReply(input: MonitorInput): Promise<MonitorResult> {
       userContent,
       maxTokens: 400,
     });
-    // Defensive: ensure we always have text to show.
     if (!result.approved_or_rewritten_response) {
       result.approved_or_rewritten_response = input.draftReply;
     }
+    if (isEscalateCrisisDraft(result.approved_or_rewritten_response)) {
+      result.decision = 'BLOCK_AND_REPLACE';
+      result.risk_level = 'CRISIS';
+      result.approved_or_rewritten_response = CRISIS_MESSAGE;
+    }
     return result;
   } catch {
-    // If the monitor fails, fall back to the deterministic local check.
-    return localMonitor({ userMessage: input.userMessage, draftReply: input.draftReply });
+    return localMonitor({
+      userMessage: input.userMessage,
+      context: input.context,
+      draftReply: input.draftReply,
+    });
   }
 }

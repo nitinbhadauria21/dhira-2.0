@@ -9,6 +9,9 @@ import {
   isCrisis,
   isMedium,
   containsAdviceOrDiagnosis,
+  scanCombinedForCrisis,
+  isHighDistress,
+  isNotSafeAfterCheckIn,
 } from '@/lib/guardrails';
 import { BOUNDARY_LINE, CRISIS_MESSAGE } from '@/lib/safetyCopy';
 
@@ -60,9 +63,20 @@ function reflect(userMessage: string, language: Language): string {
     : "That sounds heavy. I'm here — take your time. What's sitting with you most right now?";
 }
 
-export function localEscalation(userMessage: string): EscalationResult {
+export function localEscalation(input: { userMessage: string; context: string }): EscalationResult {
+  const { userMessage, context } = input;
+  const combined = scanCombinedForCrisis(userMessage, context);
+  if (combined.crisis) {
+    return { risk_level: 'CRISIS', escalate: true, signal: combined.signal };
+  }
   if (isCrisis(userMessage)) {
     return { risk_level: 'CRISIS', escalate: true, signal: 'self-harm / crisis language detected' };
+  }
+  if (isNotSafeAfterCheckIn(userMessage, context)) {
+    return { risk_level: 'CRISIS', escalate: true, signal: 'user not safe after check-in' };
+  }
+  if (isHighDistress(userMessage, context)) {
+    return { risk_level: 'HIGH', escalate: false, signal: 'indirect or trajectory distress' };
   }
   if (isMedium(userMessage)) {
     return { risk_level: 'MEDIUM', escalate: false, signal: 'distress language (not immediate danger)' };
@@ -79,17 +93,67 @@ export function localPrimaryReply(params: {
 
 export function localMonitor(params: {
   userMessage: string;
+  context?: string;
   draftReply: string;
 }): MonitorResult {
   const { userMessage, draftReply } = params;
+  const context = params.context ?? '';
 
-  // Crisis in the user's message must always escalate.
-  if (isCrisis(userMessage)) {
+  const combined = scanCombinedForCrisis(userMessage, context);
+  if (combined.crisis || isCrisis(userMessage)) {
     return {
       decision: 'BLOCK_AND_REPLACE',
       risk_level: 'CRISIS',
       issues_found: ['user in crisis — replaced with crisis hand-off'],
       approved_or_rewritten_response: CRISIS_MESSAGE,
+    };
+  }
+
+  if (isNotSafeAfterCheckIn(userMessage, context)) {
+    return {
+      decision: 'BLOCK_AND_REPLACE',
+      risk_level: 'CRISIS',
+      issues_found: ['user not safe after check-in'],
+      approved_or_rewritten_response: CRISIS_MESSAGE,
+    };
+  }
+
+  if (isHighDistress(userMessage, context)) {
+    const hasSafetyCheck = /\bsafe right now\b|\bfeeling safe\b/i.test(draftReply);
+    if (!hasSafetyCheck && !containsAdviceOrDiagnosis(draftReply).length) {
+      return {
+        decision: 'REWRITE',
+        risk_level: 'HIGH',
+        issues_found: ['high distress — add safety check-in'],
+        approved_or_rewritten_response:
+          'That sounds like a heavy kind of tired — not just sleep. I want to make sure I understand: are you feeling safe right now?',
+      };
+    }
+  }
+
+  if (
+    /\b(?:forget it|sorry for bothering)\b/i.test(userMessage) &&
+    /\b(?:breakup|not eaten|eaten properly|destroyed)\b/i.test(context)
+  ) {
+    return {
+      decision: 'REWRITE',
+      risk_level: 'HIGH',
+      issues_found: ['withdrawal after heavy sharing'],
+      approved_or_rewritten_response:
+        "You don't have to apologize for sharing that — what you said about the breakup and eating mattered. I'm still here with you. What's feeling hardest right now?",
+    };
+  }
+
+  const genericDraft =
+    /\bthat sounds hard\b.*\bwhat'?s on your mind\b/i.test(draftReply) &&
+    context.length > 80;
+  if (genericDraft) {
+    return {
+      decision: 'REWRITE',
+      risk_level: isMedium(userMessage) ? 'MEDIUM' : 'LOW',
+      issues_found: ['context_ignored'],
+      approved_or_rewritten_response:
+        "I hear you — and I'm still with what you shared earlier in this chat. What part of it is sitting heaviest right now?",
     };
   }
 

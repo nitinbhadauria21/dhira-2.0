@@ -112,6 +112,7 @@ API routes live under `src/app/api/*`. Protected pages use `src/middleware.ts` (
 | `npm run build` | Production build |
 | `npm run serve` | `next start` (after build) |
 | `npm run type-check` | TypeScript (run this — build ignores TS/ESLint errors by config) |
+| `npm run test:safety` | Safety suite (spec §10 + context-fix tests C1–C10; offline brain OK) |
 | `npm run lint` / `lint:fix` | ESLint |
 | `npm run format` | Prettier |
 

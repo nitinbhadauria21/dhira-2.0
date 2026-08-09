@@ -70,6 +70,33 @@ export const CRISIS_PATTERNS: RegExp[] = [
   /\b(?:want|going)\s+to\s+hurt\s+(?:someone|him|her|them|people)\b/i,
 ];
 
+/** Indirect crisis signals (context-fix spec); scan user text + optional context. */
+export const INDIRECT_CRISIS_PATTERNS: RegExp[] = [
+  /\bbetter off without me\b/i,
+  /\bbetter off (?:if i was|if i'm) gone\b/i,
+  /\bsab pe bojh\b/i,
+  /\b(?:life|things) (?:would be|will be) easier without me\b/i,
+  /\bsab khatam karna\b/i,
+  /\bsab khatam ho jaye\b/i,
+  /\b(?:want|wanted) (?:it all )?to end\b/i,
+  /\bjust want to disappear\b/i,
+  /\bdon'?t want to wake up\b/i,
+  /\bhamesha ke liye so jaun\b/i,
+  /\bthank you for everything\b/i,
+  /\bwon'?t have to worry about me soon\b/i,
+  /\bno point anymore\b/i,
+  /\bit'?s too late for me\b/i,
+  /\b(?:i'?m )?done\b/i,
+  /\bno one would notice\b/i,
+  /\btried to end it\b/i,
+  /\bpast attempt\b/i,
+  /\bfamily would be better off\b/i,
+  /\beveryone would be better off\b/i,
+];
+
+/** Dark humour in light context — avoid false positive when only this matches alone. */
+export const DARK_HUMOUR_CRISIS = /\bkill me lol\b/i;
+
 /** Medium-risk distress (not immediate danger, but surfaces gentle support). */
 export const MEDIUM_PATTERNS: RegExp[] = [
   /\bhopeless\b/i,
@@ -100,4 +127,94 @@ export function isCrisis(userMessage: string): boolean {
 
 export function isMedium(userMessage: string): boolean {
   return Boolean(matchesAny(userMessage, MEDIUM_PATTERNS));
+}
+
+export function scanCombinedForCrisis(
+  userMessage: string,
+  context: string,
+): { crisis: boolean; signal: string } {
+  const latest = userMessage.trim();
+  const blob = `${context}\n${latest}`.trim();
+
+  if (isCrisis(latest) || isCrisis(blob)) {
+    return { crisis: true, signal: 'explicit crisis language detected' };
+  }
+
+  if (DARK_HUMOUR_CRISIS.test(latest) && !matchesAny(blob, INDIRECT_CRISIS_PATTERNS)) {
+    const lightContext = /\blol\b|\blmao\b|\bmeeting\b|\bjoke\b/i.test(latest + context);
+    if (lightContext && !matchesAny(context, INDIRECT_CRISIS_PATTERNS)) {
+      return { crisis: false, signal: 'no risk signals' };
+    }
+  }
+
+  if (matchesAny(latest, INDIRECT_CRISIS_PATTERNS)) {
+    return { crisis: true, signal: 'indirect crisis language in latest message' };
+  }
+
+  const suddenCalm =
+    /\b(?:fine now|totally fine|thanks for everything|take care)\b/i.test(latest) &&
+    /\b(?:hopeless|can'?t|die|end|kill|worthless|khatam|tired of everything)\b/i.test(context);
+  if (suddenCalm) {
+    return { crisis: true, signal: 'sudden calm or farewell after despair in context' };
+  }
+
+  const burdenInContext =
+    matchesAny(latest, INDIRECT_CRISIS_PATTERNS) || matchesAny(context.slice(-800), INDIRECT_CRISIS_PATTERNS);
+  if (burdenInContext && /\b(?:forget it|sorry for bothering|it'?s fine)\b/i.test(latest)) {
+    return { crisis: true, signal: 'withdrawal after indirect distress in context' };
+  }
+
+  if (
+    /\b(?:forget it|sorry for bothering)\b/i.test(latest) &&
+    /\b(?:breakup|not eaten|eaten properly|destroyed|haven'?t eaten)\b/i.test(context)
+  ) {
+    return { crisis: false, signal: 'withdrawal after heavy sharing (HIGH, not automatic CRISIS)' };
+  }
+
+  if (
+    /\b(?:can'?t|cannot) do this anymore\b/i.test(latest) &&
+    /\b(?:exam|failed|parents|furious)\b/i.test(context)
+  ) {
+    return { crisis: true, signal: 'hopelessness tied to ongoing stressor in context' };
+  }
+
+  return { crisis: false, signal: 'no risk signals' };
+}
+
+export function isHighDistress(userMessage: string, context: string): boolean {
+  const blob = `${context}\n${userMessage}`;
+  if (scanCombinedForCrisis(userMessage, context).crisis) return false;
+
+  if (
+    /\b(?:no|nah)\b[\s.,!]{0,12}\bnot really\b/i.test(userMessage) &&
+    /\bsafe right now\b/i.test(context)
+  ) {
+    return true;
+  }
+
+  if (
+    /\b(?:forget it|sorry for bothering)\b/i.test(userMessage) &&
+    /\b(?:breakup|not eaten|eaten properly|destroyed)\b/i.test(context)
+  ) {
+    return true;
+  }
+
+  if (
+    /\bcan'?t do this anymore\b/i.test(userMessage) &&
+    /\b(?:exam|failed|parents|furious)\b/i.test(context)
+  ) {
+    return true;
+  }
+
+  return (
+    /\b(?:tired of everything|safe right now|feeling safe)\b/i.test(userMessage) ||
+    (Boolean(matchesAny(blob, INDIRECT_CRISIS_PATTERNS)) && !isCrisis(userMessage))
+  );
+}
+
+export function isNotSafeAfterCheckIn(userMessage: string, context: string): boolean {
+  return (
+    /\b(?:no|nah)\b[\s.,!]{0,12}\bnot really\b/i.test(userMessage) &&
+    /\bsafe right now\b/i.test(context)
+  );
 }

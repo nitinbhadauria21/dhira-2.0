@@ -70,6 +70,19 @@ function backgroundModel(): string {
   );
 }
 
+/** Default sampling temperature per agent (context-fix spec). */
+export function getTemperatureFor(agent: AgentName): number {
+  switch (agent) {
+    case 'primaryAgent':
+      return 0.7;
+    case 'safetyMonitor':
+    case 'escalationAgent':
+      return 0.2;
+    default:
+      return 0.5;
+  }
+}
+
 /** Returns the model id that a given agent should use. */
 export function getModelFor(agent: AgentName): string {
   switch (agent) {

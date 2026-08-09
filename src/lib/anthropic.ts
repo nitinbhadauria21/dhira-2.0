@@ -3,6 +3,7 @@ import {
   getBrainApiKey,
   getBrainBaseURL,
   getModelFor,
+  getTemperatureFor,
   isLiveBrainEnabled,
   isOpenRouterConfigured,
   type AgentName,
@@ -57,6 +58,7 @@ export async function anthropicText(params: {
   const res = await client().messages.create({
     model: getModelFor(params.agent),
     max_tokens: params.maxTokens ?? 400,
+    temperature: getTemperatureFor(params.agent),
     system: params.system,
     messages: params.messages,
   });
