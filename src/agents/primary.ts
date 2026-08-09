@@ -15,6 +15,7 @@ export interface PrimaryInput {
   userPatternProfile?: string | null;
   language: Language;
   contextUnavailable?: boolean;
+  channel?: 'app' | 'whatsapp';
 }
 
 /** Produce Dhira's warm listener draft reply. */
@@ -34,6 +35,7 @@ export async function draftReply(input: PrimaryInput): Promise<string> {
     language: input.language,
     userMessage: input.userMessage,
     contextUnavailable: input.contextUnavailable,
+    channel: input.channel,
   });
 
   const system = `${PRIMARY_LIVE_SYSTEM}\n\n---\n${bundle.systemAppendix}`;

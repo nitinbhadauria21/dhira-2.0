@@ -12,6 +12,7 @@ import type {
   NotebookEntry,
 } from '@/lib/types';
 import type { DhiraStore, AdminStats } from './types';
+import { phoneE164LookupVariants } from '@/lib/twilio/phone';
 
 /**
  * File-backed store used when Supabase is not configured.
@@ -265,7 +266,14 @@ export class LocalStore implements DhiraStore {
 
   async getAuthUserByPhone(phoneE164: string): Promise<AuthUser | null> {
     const db = readDb();
-    return db.authUsers.find((u) => u.phoneE164 === phoneE164) ?? null;
+    const variants = new Set(phoneE164LookupVariants(phoneE164));
+    return db.authUsers.find((u) => u.phoneE164 && variants.has(u.phoneE164)) ?? null;
+  }
+
+  async getProfileByPhoneE164(phoneE164: string): Promise<Profile | null> {
+    const db = readDb();
+    const variants = new Set(phoneE164LookupVariants(phoneE164));
+    return db.profiles.find((p) => p.phoneE164 && variants.has(p.phoneE164)) ?? null;
   }
 
   async allProfiles(): Promise<Profile[]> {

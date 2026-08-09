@@ -36,6 +36,7 @@ import {
 } from '@/lib/riskSanity';
 import type { ChatChannel, Language, RiskLevel } from '@/lib/types';
 import type { EscalationResult } from '@/lib/types';
+import { languageForTurn } from '@/lib/inferLanguage';
 
 export interface ChatTurnResult {
   reply: string;
@@ -67,17 +68,22 @@ export async function runChatTurn(params: {
   const fallbackCountAtTurnStart = getLiveBrainTelemetry().fallbackCount;
   const store = getStore();
   const profile = await store.getOrCreateProfile(uid);
-  const language: Language = profile.language;
+  const turnLanguage = languageForTurn({
+    channel,
+    userMessage,
+    profileLanguage: profile.language,
+  });
   const now = () => new Date().toISOString();
 
   const risk72hEvents = await store.getRiskEventsForProfileSince(uid, hoursAgoIso(72));
   const riskHistory72h = formatRiskHistory72h(risk72hEvents);
   const recentRiskSummary = formatRecentRiskSummary(risk72hEvents);
 
-  const convo = await buildConversationContext(uid, language, {
+  const convo = await buildConversationContext(uid, turnLanguage, {
     userPatternProfile: profile.userPatternProfile,
     recentRiskSummary,
     riskHistory72h,
+    channel,
   });
 
   await store.addMessage({
@@ -129,7 +135,7 @@ export async function runChatTurn(params: {
     riskLevel: RiskLevel,
     escalation: EscalationResult,
   ): Promise<ChatTurnResult> => {
-    const reply = holdingReply(language);
+    const reply = holdingReply(turnLanguage);
     await store.addMessage({
       id: randomUUID(),
       profileId: uid,
@@ -204,8 +210,9 @@ export async function runChatTurn(params: {
       userMessage,
       memorySummary: memory?.summary ?? null,
       userPatternProfile: profile.userPatternProfile,
-      language,
+      language: turnLanguage,
       contextUnavailable: convo.contextUnavailable,
+      channel,
     });
 
     if (liveFailedDuringTurn(fallbackCountAtTurnStart) && !mayUseOfflineDemoTemplates()) {
@@ -342,7 +349,7 @@ export async function runChatTurn(params: {
         const convoText = prior.map((m) => `${m.role}: ${m.content}`).join('\n');
         const mem = await summarizeMemory({
           conversation: convoText,
-          language,
+          language: turnLanguage,
           channel,
         });
         await store.addMemory({

@@ -4,7 +4,8 @@ import twilio from 'twilio';
 import { getStore, isSupabaseConfigured } from '@/lib/store';
 import { runChatTurn } from '@/lib/chatFlow';
 import { newUserId } from '@/lib/auth';
-import { normalizePhoneE164 } from '@/lib/twilio/phone';
+import { normalizePhoneE164, phoneE164LookupVariants } from '@/lib/twilio/phone';
+import { CRISIS_MESSAGE } from '@/lib/safetyCopy';
 
 export function escapeXml(unsafe: string): string {
   return unsafe.replace(/[<>&'"]/g, (c) => {
@@ -25,8 +26,15 @@ export function escapeXml(unsafe: string): string {
   });
 }
 
+/** Twilio WhatsApp body limit (chars). */
+const WHATSAPP_REPLY_MAX = 4000;
+
 export function twimlMessage(message: string): NextResponse {
-  const xml = `<?xml version="1.0" encoding="UTF-8"?><Response><Message>${escapeXml(message)}</Message></Response>`;
+  const body =
+    message.length > WHATSAPP_REPLY_MAX
+      ? `${message.slice(0, WHATSAPP_REPLY_MAX - 1)}…`
+      : message;
+  const xml = `<?xml version="1.0" encoding="UTF-8"?><Response><Message>${escapeXml(body)}</Message></Response>`;
   return new NextResponse(xml, { headers: { 'Content-Type': 'text/xml' } });
 }
 
@@ -124,10 +132,19 @@ export function validateTwilioRequest(
 }
 
 async function findOrCreateProfileByPhone(phoneE164: string): Promise<string> {
+  const phone = normalizePhoneE164(phoneE164);
   const store = getStore();
-  const profiles = await store.allProfiles();
-  const byPhone = profiles.find((p) => p.phoneE164 === phoneE164);
-  if (byPhone) return byPhone.id;
+
+  const existing = await store.getProfileByPhoneE164(phone);
+  if (existing) {
+    const patch: Parameters<typeof store.updateProfile>[1] = {
+      phoneE164: phone,
+      whatsappOptIn: true,
+    };
+    if (!existing.preferredChannel) patch.preferredChannel = 'whatsapp';
+    await store.updateProfile(existing.id, patch);
+    return existing.id;
+  }
 
   if (isSupabaseConfigured()) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
@@ -136,8 +153,23 @@ async function findOrCreateProfileByPhone(phoneE164: string): Promise<string> {
       auth: { persistSession: false, autoRefreshToken: false },
     });
 
+    const variants = phoneE164LookupVariants(phone);
+    for (const v of variants) {
+      const { data: list } = await sb.auth.admin.listUsers({ perPage: 1000 });
+      const match = list?.users?.find((u) => u.phone === v || u.phone === phone);
+      if (match?.id) {
+        await store.getOrCreateProfile(match.id);
+        await store.updateProfile(match.id, {
+          phoneE164: phone,
+          whatsappOptIn: true,
+          preferredChannel: 'whatsapp',
+        });
+        return match.id;
+      }
+    }
+
     const { data: created, error } = await sb.auth.admin.createUser({
-      phone: phoneE164,
+      phone,
       phone_confirm: true,
       user_metadata: { source: 'whatsapp', alias: 'Friend' },
     });
@@ -146,7 +178,11 @@ async function findOrCreateProfileByPhone(phoneE164: string): Promise<string> {
 
     if (error && !uid) {
       const { data: list } = await sb.auth.admin.listUsers({ perPage: 1000 });
-      const match = list?.users?.find((u) => u.phone === phoneE164 || u.phone === phoneE164.replace('+', ''));
+      const match = list?.users?.find(
+        (u) =>
+          u.phone === phone ||
+          variants.some((v) => u.phone === v),
+      );
       uid = match?.id ?? null;
     }
 
@@ -156,7 +192,7 @@ async function findOrCreateProfileByPhone(phoneE164: string): Promise<string> {
 
     await store.getOrCreateProfile(uid);
     await store.updateProfile(uid, {
-      phoneE164,
+      phoneE164: phone,
       alias: 'Friend',
       preferredChannel: 'whatsapp',
       whatsappOptIn: true,
@@ -164,13 +200,13 @@ async function findOrCreateProfileByPhone(phoneE164: string): Promise<string> {
     return uid;
   }
 
-  let user = await store.getAuthUserByPhone(phoneE164);
+  let user = await store.getAuthUserByPhone(phone);
   if (!user) {
     const id = newUserId();
     user = {
       id,
       email: null,
-      phoneE164,
+      phoneE164: phone,
       passwordHash: null,
       createdAt: new Date().toISOString(),
     };
@@ -179,7 +215,7 @@ async function findOrCreateProfileByPhone(phoneE164: string): Promise<string> {
 
   await store.getOrCreateProfile(user.id);
   await store.updateProfile(user.id, {
-    phoneE164,
+    phoneE164: phone,
     alias: 'Friend',
     preferredChannel: 'whatsapp',
     whatsappOptIn: true,
@@ -202,7 +238,16 @@ export async function handleInboundWhatsApp(params: Record<string, string>): Pro
   try {
     const uid = await findOrCreateProfileByPhone(phoneE164);
     const turn = await runChatTurn({ uid, userMessage: body, channel: 'whatsapp' });
-    return twimlMessage(turn.reply);
+    const outbound =
+      turn.crisis && !turn.reply.includes('14416') ? CRISIS_MESSAGE : turn.reply;
+    console.info('[twilio/inbound] turn complete', {
+      uid: uid.slice(0, 8),
+      brainUsed: turn.brainUsed,
+      riskLevel: turn.riskLevel,
+      crisis: turn.crisis,
+      replyLen: outbound.length,
+    });
+    return twimlMessage(outbound);
   } catch (err) {
     console.error('[twilio/inbound] handle error', err);
     return twimlMessage(

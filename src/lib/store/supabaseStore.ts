@@ -11,6 +11,7 @@ import type {
   NotebookEntry,
 } from '@/lib/types';
 import type { DhiraStore, AdminStats } from './types';
+import { phoneE164LookupVariants } from '@/lib/twilio/phone';
 
 /**
  * Supabase-backed store (used when the Supabase keys are set).
@@ -447,6 +448,16 @@ export class SupabaseStore implements DhiraStore {
     return null;
   }
   async getAuthUserByPhone(): Promise<AuthUser | null> {
+    return null;
+  }
+
+  async getProfileByPhoneE164(phoneE164: string): Promise<Profile | null> {
+    const sb = client();
+    const variants = phoneE164LookupVariants(phoneE164);
+    for (const v of variants) {
+      const { data } = await sb.from('profiles').select('*').eq('phone_e164', v).maybeSingle();
+      if (data) return toProfile(data);
+    }
     return null;
   }
 

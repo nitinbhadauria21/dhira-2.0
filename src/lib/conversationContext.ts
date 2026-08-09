@@ -46,9 +46,15 @@ export function formatContextForMonitor(
     recentRiskSummary?: string | null;
     recentSentReplies?: string | null;
     contextUnavailable?: boolean;
+    channel?: 'app' | 'whatsapp';
   },
 ): string {
   const parts: string[] = [];
+  if (extras?.channel === 'whatsapp') {
+    parts.push(
+      'CURRENT CHANNEL: WhatsApp (merge with app chat for this user when phone is linked on their profile).',
+    );
+  }
   if (extras?.contextUnavailable) {
     parts.push('context_unavailable: true');
   }
@@ -169,6 +175,7 @@ export async function buildConversationContext(
     userPatternProfile?: string | null;
     recentRiskSummary?: string | null;
     riskHistory72h?: string | null;
+    channel?: 'app' | 'whatsapp';
   },
 ): Promise<ConversationContext> {
   const store = getStore();
@@ -194,6 +201,7 @@ export async function buildConversationContext(
       recentRiskSummary,
       recentSentReplies,
       contextUnavailable,
+      channel: opts?.channel,
     }),
     userPatternProfile,
     recentRiskSummary,
@@ -219,6 +227,7 @@ export function buildPrimaryMessageBundle(params: {
   language: Language;
   userMessage: string;
   contextUnavailable?: boolean;
+  channel?: 'app' | 'whatsapp';
 }): PrimaryMessageBundle {
   const systemParts: string[] = [];
   if (params.contextUnavailable) {
@@ -234,6 +243,11 @@ export function buildPrimaryMessageBundle(params: {
   }
   if (params.conversationSummary?.trim()) {
     systemParts.push(`CONVERSATION SO FAR: ${params.conversationSummary.trim()}`);
+  }
+  if (params.channel === 'whatsapp') {
+    systemParts.push(
+      'CURRENT CHANNEL: WhatsApp — same person and thread as in-app chat when their profile phone is linked. Match the language of their latest message.',
+    );
   }
   systemParts.push(`(The user is writing in ${params.language}. Match their language.)`);
 

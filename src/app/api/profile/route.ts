@@ -3,6 +3,7 @@ import { getUserId } from '@/lib/auth';
 import { getStore } from '@/lib/store';
 import type { Profile } from '@/lib/types';
 import { isShiftPreference } from '@/lib/timeOfDay';
+import { normalizePhoneE164 } from '@/lib/twilio/phone';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -33,7 +34,10 @@ export async function PUT(req: NextRequest) {
     if (typeof body.avatar === 'string') patch.avatar = body.avatar;
     if (body.language === 'english' || body.language === 'hinglish') patch.language = body.language;
     if (typeof body.email === 'string') patch.email = body.email.slice(0, 200);
-    if (typeof body.phoneE164 === 'string') patch.phoneE164 = body.phoneE164.slice(0, 20);
+    if (typeof body.phoneE164 === 'string') {
+      const raw = body.phoneE164.trim();
+      patch.phoneE164 = raw ? normalizePhoneE164(raw).slice(0, 20) : null;
+    }
     if (body.preferredChannel === 'email' || body.preferredChannel === 'whatsapp') patch.preferredChannel = body.preferredChannel;
     if (typeof body.emailOptIn === 'boolean') patch.emailOptIn = body.emailOptIn;
     if (typeof body.whatsappOptIn === 'boolean') patch.whatsappOptIn = body.whatsappOptIn;
