@@ -23,6 +23,16 @@ Anyone can rebuild the Demo Day clock + send flows without tribal knowledge:
 4. Use templates from `docs/emergent/TEMPLATES.md`.
 5. Match env secrets listed in `.env.example` (`EMERGENT_*`, `CHECKIN_SECRET`, `APP_URL`).
 
+### Twilio WhatsApp (inbound chat)
+
+Users message your Twilio WhatsApp number → Twilio POSTs to **`/api/twilio/whatsapp`** → Dhira runs the same **`runChatTurn`** pipeline as web chat (escalation + monitor + Tele-MANAS **14416** on crisis) → response is **TwiML** `<Message>`.
+
+1. Set `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_NUMBER` (+`OPENROUTER_API_KEY` or `ANTHROPIC_API_KEY`) in `.env.local` / Vercel. Use **E.164** for the number (`+17016958623`), not `whatsapp:+...`.
+2. Set `APP_URL` to your public origin (required for webhook signature validation in production).
+3. Twilio Console → WhatsApp sender → **When a message comes in** → `POST` `https://<host>/api/twilio/whatsapp`.
+4. Local dev: tunnel (ngrok) to `http://localhost:4028/api/twilio/whatsapp`, or set `TWILIO_VALIDATE_WEBHOOK=false` and test with `curl`.
+5. Legacy alias: `/api/twilio/webhook` uses the same handler. **Rotate** Auth Token if it was ever pasted in chat or committed.
+
 ---
 
 ## Quick start (any teammate)
@@ -57,9 +67,11 @@ Expect something like:
 | `DHIRA_MODEL_HAIKU` | Optional override for mood/memory model (default OpenRouter: `anthropic/claude-haiku-4.5`) |
 | `EMERGENT_NOTIFY_WEBHOOK_URL` | Optional email/WhatsApp delivery via Emergent |
 | `EMERGENT_WEBHOOK_SECRET` | Shared secret for Emergent callbacks |
-| `WHATSAPP_ENABLED` | `true` only after WhatsApp Business approval |
+| `WHATSAPP_ENABLED` | `true` for proactive outbound WhatsApp via Twilio (`notify.ts`) |
+| `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` / `TWILIO_WHATSAPP_NUMBER` | Twilio WhatsApp (E.164 for number, no `whatsapp:` prefix) |
+| `TWILIO_VALIDATE_WEBHOOK` | Set `false` locally to POST test webhooks without Twilio signature |
 | `CHECKIN_SECRET` | Protects scheduled `/api/checkin` triggers |
-| `APP_URL` | Public app URL for callbacks |
+| `APP_URL` | Public app URL (Emergent callbacks + Twilio signature URL) |
 
 **Never commit** `.env.local` or secret keys. `.gitignore` already blocks them.
 
