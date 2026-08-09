@@ -16,7 +16,8 @@ Edge flood-fill helper: `python3 scripts/edge-flood-fill-png.py public/illustrat
 | File | Size | Page | Placement |
 |---|---|---|---|
 | `dhira_sitting_calm.png` | 665×1129 | Landing | Hero. Floating buddy, **78px** wide, with halo. |
-| `scene_2am.png` | 1200×760 | Landing | Background scene in the "2 a.m." story block. |
+| `scene_2am.png` | 1200×760 | Landing (legacy ref) | Former CTA card art; keep in pack for reference. |
+| `scene_landing_cta_quiet.png` | 1200×760 | Landing | **CTA section only** (`LandingCTA`) — full-bleed background with scrim; replace with designer twilight scene. |
 | `dhira_orb.png` | 539×705 | Sign in, Sign up | Left story panel, **78px**, floating with halo. Replaces the old circular avatar. |
 | `dhira_sitting_hi.png` | 678×1202 | Home | Greeting block, **left** of the text. Floating, welcoming pose. |
 | `dhira_chat_scene.png` | 1130×1024 | Chat | Empty / intro state of the conversation. |
