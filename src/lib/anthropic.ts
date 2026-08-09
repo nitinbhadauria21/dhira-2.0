@@ -8,30 +8,27 @@ import {
   isOpenRouterConfigured,
   type AgentName,
 } from '@/config/models';
+import { getBrainCallContext, recordLiveBrainFallback } from '@/lib/liveBrainTelemetry';
 
 export { isLiveBrainEnabled, isOpenRouterConfigured };
 
-/**
- * Low-level helpers for talking to Dhira's live brain.
- * Prefer OpenRouter (`OPENROUTER_API_KEY`) as the central host; fall back to a
- * direct Anthropic key. Everything funnels through here so model choice, key
- * handling, and JSON parsing live in one place.
- * These throw if no key is set — callers (the agents) fall back to the local
- * offline brain in that case.
- */
-
 let anthropic: Anthropic | null = null;
+let cachedKey: string | null = null;
+
 function client(): Anthropic {
+  const apiKey = getBrainApiKey();
+  if (!apiKey) {
+    throw new Error('No live brain API key configured (OPENROUTER_API_KEY or ANTHROPIC_API_KEY)');
+  }
+  if (anthropic && cachedKey !== apiKey) {
+    anthropic = null;
+  }
   if (!anthropic) {
-    const apiKey = getBrainApiKey();
-    if (!apiKey) {
-      throw new Error('No live brain API key configured (OPENROUTER_API_KEY or ANTHROPIC_API_KEY)');
-    }
+    cachedKey = apiKey;
     const baseURL = getBrainBaseURL();
     anthropic = new Anthropic({
       apiKey,
       ...(baseURL ? { baseURL } : {}),
-      // OpenRouter recommends identifying the app; harmless for Anthropic direct.
       defaultHeaders: isOpenRouterConfigured()
         ? {
             'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:4028',
@@ -43,9 +40,23 @@ function client(): Anthropic {
   return anthropic;
 }
 
+export function resetAnthropicClientForTests(): void {
+  anthropic = null;
+  cachedKey = null;
+}
+
 export interface ClaudeTurn {
   role: 'user' | 'assistant';
   content: string;
+}
+
+function apiErrorMeta(err: unknown): { status?: number; message: string } {
+  if (err && typeof err === 'object' && 'status' in err) {
+    const status = (err as { status?: number }).status;
+    const message = err instanceof Error ? err.message : String(err);
+    return { status, message };
+  }
+  return { status: undefined, message: err instanceof Error ? err.message : String(err) };
 }
 
 /** Ask the live brain for a plain-text reply. */
@@ -55,18 +66,33 @@ export async function anthropicText(params: {
   messages: ClaudeTurn[];
   maxTokens?: number;
 }): Promise<string> {
-  const res = await client().messages.create({
-    model: getModelFor(params.agent),
-    max_tokens: params.maxTokens ?? 400,
-    temperature: getTemperatureFor(params.agent),
-    system: params.system,
-    messages: params.messages,
-  });
-  return res.content
-    .filter((b): b is Anthropic.TextBlock => b.type === 'text')
-    .map((b) => b.text)
-    .join('')
-    .trim();
+  const model = getModelFor(params.agent);
+  const ctx = getBrainCallContext();
+  try {
+    const res = await client().messages.create({
+      model,
+      max_tokens: params.maxTokens ?? 400,
+      temperature: getTemperatureFor(params.agent),
+      system: params.system,
+      messages: params.messages,
+    });
+    return res.content
+      .filter((b): b is Anthropic.TextBlock => b.type === 'text')
+      .map((b) => b.text)
+      .join('')
+      .trim();
+  } catch (err) {
+    const meta = apiErrorMeta(err);
+    recordLiveBrainFallback({
+      agent: params.agent,
+      model,
+      reason: 'anthropicText failed',
+      status: meta.status,
+      detail: meta.message,
+      channel: ctx.channel,
+    });
+    throw err;
+  }
 }
 
 /** Ask the live brain for a JSON object and parse it defensively. */
@@ -82,7 +108,18 @@ export async function anthropicJSON<T>(params: {
     messages: [{ role: 'user', content: params.userContent }],
     maxTokens: params.maxTokens ?? 400,
   });
-  return parseJsonLoose<T>(raw);
+  try {
+    return parseJsonLoose<T>(raw);
+  } catch (err) {
+    recordLiveBrainFallback({
+      agent: params.agent,
+      model: getModelFor(params.agent),
+      reason: 'JSON parse failed',
+      detail: err instanceof Error ? err.message : String(err),
+      channel: getBrainCallContext().channel,
+    });
+    throw err;
+  }
 }
 
 /** Pulls the first {...} JSON object out of a model response, tolerating fences. */

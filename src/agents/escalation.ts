@@ -1,5 +1,5 @@
 import { anthropicJSON, isLiveBrainEnabled } from '@/lib/anthropic';
-import { ESCALATION_SYSTEM_V3 } from '@/agents/prompts/v3Prompts';
+import { ESCALATION_LIVE_SYSTEM } from '@/agents/prompts/agentPromptsLive';
 import { assessContextualRisk } from '@/lib/contextualRiskOffline';
 import { isNotSafeAfterCheckIn, scanCombinedForCrisis, isCrisis, isHighDistress } from '@/lib/guardrails';
 import {
@@ -13,6 +13,8 @@ export interface EscalationInput {
   context: string;
   userPatternProfile?: string | null;
   recentRiskSummary?: string | null;
+  riskHistory72h?: string | null;
+  contextUnavailable?: boolean;
 }
 
 function useLegacyUserCrisisRegex(): boolean {
@@ -112,11 +114,17 @@ export async function checkRisk(input: EscalationInput | string): Promise<Escala
   if (params.recentRiskSummary?.trim()) {
     parts.push(`RECENT RISK SUMMARY:\n${params.recentRiskSummary.trim()}`);
   }
+  if (params.riskHistory72h?.trim()) {
+    parts.push(params.riskHistory72h.trim());
+  }
+  if (params.contextUnavailable) {
+    parts.push('context_unavailable: true');
+  }
 
   try {
     const result = await anthropicJSON<EscalationResult>({
       agent: 'escalationAgent',
-      system: ESCALATION_SYSTEM_V3,
+      system: ESCALATION_LIVE_SYSTEM,
       userContent: parts.join('\n\n'),
       maxTokens: 220,
     });

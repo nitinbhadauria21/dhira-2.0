@@ -89,6 +89,7 @@ const toMood = (r: any): MoodLogRecord => ({
   emotionalIntensity: r.emotional_intensity,
   topicTag: r.topic_tag,
   source: r.source,
+  moodTagSource: r.mood_tag_source ?? undefined,
   createdAt: r.created_at,
 });
 
@@ -249,6 +250,7 @@ export class SupabaseStore implements DhiraStore {
       emotional_intensity: record.emotionalIntensity,
       topic_tag: record.topicTag,
       source: record.source,
+      mood_tag_source: record.moodTagSource ?? null,
       created_at: record.createdAt,
     });
     if (error) throw error;
@@ -378,6 +380,18 @@ export class SupabaseStore implements DhiraStore {
       .eq('profile_id', profileId)
       .order('created_at', { ascending: false })
       .limit(limit);
+    if (error) throw error;
+    return (data ?? []).map(toRisk);
+  }
+
+  async getRiskEventsForProfileSince(profileId: string, sinceIso: string): Promise<RiskEventRecord[]> {
+    const sb = client();
+    const { data, error } = await sb
+      .from('risk_events')
+      .select('*')
+      .eq('profile_id', profileId)
+      .gte('created_at', sinceIso)
+      .order('created_at', { ascending: false });
     if (error) throw error;
     return (data ?? []).map(toRisk);
   }

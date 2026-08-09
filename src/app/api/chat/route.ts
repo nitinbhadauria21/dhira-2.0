@@ -17,6 +17,11 @@ export async function POST(req: NextRequest) {
     const uid = await getUserId();
     if (!uid) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
     const result = await runChatTurn({ uid, userMessage: message });
+    const isDev = process.env.NODE_ENV === 'development';
+    if (!isDev) {
+      const { brainUsed: _b, moodTagSource: _m, ...rest } = result;
+      return NextResponse.json(rest);
+    }
     return NextResponse.json(result);
   } catch (err) {
     console.error('[api/chat] error', err);

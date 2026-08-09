@@ -1,5 +1,5 @@
 import { anthropicJSON, isLiveBrainEnabled } from '@/lib/anthropic';
-import { MONITOR_SYSTEM_V3 } from '@/agents/prompts/v3Prompts';
+import { MONITOR_LIVE_SYSTEM } from '@/agents/prompts/agentPromptsLive';
 import {
   assessContextualRisk,
   shouldBlockCrisisForClassification,
@@ -17,6 +17,8 @@ export interface MonitorInput {
   draftReply: string;
   escalation?: EscalationResult;
   userPatternProfile?: string | null;
+  recentSentReplies?: string | null;
+  contextUnavailable?: boolean;
 }
 
 function failSafeMonitor(draftReply: string): MonitorResult {
@@ -116,6 +118,12 @@ export async function reviewReply(input: MonitorInput): Promise<MonitorResult> {
       ? `ESCALATION ASSESSMENT:\n${JSON.stringify(esc, null, 2)}`
       : 'ESCALATION ASSESSMENT: (not provided)',
   ];
+  if (input.contextUnavailable) {
+    parts.push('context_unavailable: true');
+  }
+  if (input.recentSentReplies?.trim()) {
+    parts.push(input.recentSentReplies.trim());
+  }
   if (input.userPatternProfile?.trim()) {
     parts.push(`USER PATTERN PROFILE:\n${input.userPatternProfile.trim()}`);
   }
@@ -124,7 +132,7 @@ export async function reviewReply(input: MonitorInput): Promise<MonitorResult> {
   try {
     const result = await anthropicJSON<MonitorResult>({
       agent: 'safetyMonitor',
-      system: MONITOR_SYSTEM_V3,
+      system: MONITOR_LIVE_SYSTEM,
       userContent: parts.join('\n\n'),
       maxTokens: 450,
     });

@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
     let valence = valenceForMood(mood);
     let intensity = 0.55;
     try {
-      const tagged = await tagMood(userText || lastUser);
+      const tagged = await tagMood({ text: userText || lastUser });
       mood = tagged.mood;
       topicTag = tagged.topic_tag;
       valence = tagged.valence;

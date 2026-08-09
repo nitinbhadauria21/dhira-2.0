@@ -29,6 +29,7 @@ export default function ChatContent() {
   const [isTyping, setIsTyping] = useState(false);
   const [crisisMode, setCrisisMode] = useState(false);
   const [showReferral, setShowReferral] = useState(false);
+  const [showOfflineBanner, setShowOfflineBanner] = useState(false);
   const threadEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -61,6 +62,24 @@ export default function ChatContent() {
         if (!cancelled) setMessages([]);
       } finally {
         if (!cancelled) setHistoryLoaded(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        if (!cancelled && data?.showOfflineBanner === true) {
+          setShowOfflineBanner(true);
+        }
+      } catch {
+        /* ignore */
       }
     })();
     return () => {
@@ -254,6 +273,22 @@ export default function ChatContent() {
       {/* Chat header */}
       <div className="relative z-10">
         <ChatHeader messageCount={messages.length} />
+        {showOfflineBanner && (
+          <div
+            className="mx-4 mt-2 px-3 py-2 rounded-lg"
+            style={{
+              backgroundColor: 'var(--color-surface-alt)',
+              border: '1px solid var(--color-border)',
+              fontFamily: 'var(--font-ui)',
+              fontSize: 12,
+              color: 'var(--color-text-subtle)',
+            }}
+            role="status"
+          >
+            Demo mode (offline brain) — replies are canned. Set OPENROUTER_API_KEY in .env.local for
+            live Claude via OpenRouter.
+          </div>
+        )}
       </div>
 
       {/* Memory banner — only when we have a real memory */}

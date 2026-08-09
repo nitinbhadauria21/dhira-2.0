@@ -41,11 +41,22 @@ export function formatTurnsTranscript(turns: ClaudeTurn[]): string {
 export function formatContextForMonitor(
   summary: string | null,
   turns: ClaudeTurn[],
-  extras?: { userPatternProfile?: string | null; recentRiskSummary?: string | null },
+  extras?: {
+    userPatternProfile?: string | null;
+    recentRiskSummary?: string | null;
+    recentSentReplies?: string | null;
+    contextUnavailable?: boolean;
+  },
 ): string {
   const parts: string[] = [];
+  if (extras?.contextUnavailable) {
+    parts.push('context_unavailable: true');
+  }
   if (extras?.recentRiskSummary?.trim()) {
     parts.push(`RECENT RISK SUMMARY: ${extras.recentRiskSummary.trim()}`);
+  }
+  if (extras?.recentSentReplies?.trim()) {
+    parts.push(extras.recentSentReplies.trim());
   }
   if (extras?.userPatternProfile?.trim()) {
     parts.push(`USER PATTERN PROFILE: ${extras.userPatternProfile.trim()}`);
@@ -62,11 +73,35 @@ export function formatContextForMonitor(
 export function formatRecentRiskSummary(events: RiskEventRecord[]): string | null {
   const elevated = events.filter((e) => e.riskLevel === 'HIGH' || e.riskLevel === 'CRISIS');
   if (!elevated.length) return null;
-  const lines = elevated.slice(0, 3).map((e) => {
+  const lines = elevated.slice(0, 8).map((e) => {
     const cls = e.riskClassification ? ` ${e.riskClassification}` : '';
     return `${e.riskLevel}${cls} at ${e.createdAt}: ${e.signal}`;
   });
   return lines.join('; ');
+}
+
+/** Spec §2.1 — last N Dhira messages actually sent to the user (post-Monitor). */
+export function formatRecentSentReplies(messages: ChatMessageRecord[], limit = 6): string | null {
+  const dhira = messages.filter((m) => m.role === 'dhira').slice(-limit);
+  if (!dhira.length) return null;
+  const lines = dhira.map((m, i) => {
+    const ch = m.channel ? ` [${m.channel}]` : '';
+    return `${i + 1}. (${m.createdAt}${ch}) ${m.content.slice(0, 280)}`;
+  });
+  return `RECENT SENT REPLIES (do not repeat verbatim):\n${lines.join('\n')}`;
+}
+
+export function formatRiskHistory72h(events: RiskEventRecord[]): string | null {
+  if (!events.length) return null;
+  const lines = events.slice(0, 12).map((e) => {
+    const cls = e.riskClassification ? ` ${e.riskClassification}` : '';
+    return `- ${e.createdAt}: ${e.riskLevel}${cls} — ${e.signal}`;
+  });
+  return `RISK HISTORY (72h, cross-channel):\n${lines.join('\n')}`;
+}
+
+export function turnsForMoodTagging(turns: ClaudeTurn[], minTurns = 5): ClaudeTurn[] {
+  return turns.length >= minTurns ? turns.slice(-Math.max(minTurns, turns.length)) : turns;
 }
 
 export interface TrimmedConversation {
@@ -116,29 +151,56 @@ export interface ConversationContext {
   contextString: string;
   userPatternProfile: string | null;
   recentRiskSummary: string | null;
+  recentSentReplies: string | null;
+  riskHistory72h: string | null;
+  contextUnavailable: boolean;
+  rawMessages: ChatMessageRecord[];
+}
+
+function hoursAgoIso(hours: number): string {
+  return new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
 }
 
 /** Load store history (before the current user message is saved). */
 export async function buildConversationContext(
   uid: string,
   language: Language = 'english',
-  opts?: { userPatternProfile?: string | null; recentRiskSummary?: string | null },
+  opts?: {
+    userPatternProfile?: string | null;
+    recentRiskSummary?: string | null;
+    riskHistory72h?: string | null;
+  },
 ): Promise<ConversationContext> {
   const store = getStore();
-  const raw = await store.getRecentMessages(uid, DEFAULT_FETCH_LIMIT);
+  let raw: ChatMessageRecord[] = [];
+  let contextUnavailable = false;
+  try {
+    raw = await store.getRecentMessages(uid, DEFAULT_FETCH_LIMIT);
+  } catch {
+    contextUnavailable = true;
+    raw = [];
+  }
+  const recentSentReplies = formatRecentSentReplies(raw);
   const allTurns = messagesToClaudeTurns(raw);
   const { summary, turns } = await trimWithRollingSummary(allTurns, DEFAULT_MAX_TURNS, language);
   const userPatternProfile = opts?.userPatternProfile ?? null;
   const recentRiskSummary = opts?.recentRiskSummary ?? null;
+  const riskHistory72h = opts?.riskHistory72h ?? null;
   return {
     historyTurns: turns,
     conversationSummary: summary,
     contextString: formatContextForMonitor(summary, turns, {
       userPatternProfile,
       recentRiskSummary,
+      recentSentReplies,
+      contextUnavailable,
     }),
     userPatternProfile,
     recentRiskSummary,
+    recentSentReplies,
+    riskHistory72h,
+    contextUnavailable,
+    rawMessages: raw,
   };
 }
 
@@ -156,8 +218,12 @@ export function buildPrimaryMessageBundle(params: {
   userPatternProfile?: string | null;
   language: Language;
   userMessage: string;
+  contextUnavailable?: boolean;
 }): PrimaryMessageBundle {
   const systemParts: string[] = [];
+  if (params.contextUnavailable) {
+    systemParts.push('context_unavailable: true');
+  }
   systemParts.push(
     params.memorySummary?.trim()
       ? `MEMORY NOTE: ${params.memorySummary.trim()}`
