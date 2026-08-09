@@ -5,25 +5,13 @@ import type {
   MemoryResult,
   Language,
 } from '@/lib/types';
+import { assessContextualRisk } from '@/lib/contextualRiskOffline';
 import {
-  isCrisis,
   isMedium,
   containsAdviceOrDiagnosis,
-  scanCombinedForCrisis,
-  isHighDistress,
   isNotSafeAfterCheckIn,
 } from '@/lib/guardrails';
 import { BOUNDARY_LINE, CRISIS_MESSAGE } from '@/lib/safetyCopy';
-
-/**
- * Offline fallback "brain".
- *
- * Plain English: when no Anthropic key is set, Dhira still needs to behave —
- * especially the SAFETY parts. These functions are deliberately simple but
- * follow the same rules as the real agents: listen, never advise, one gentle
- * question, and always catch a crisis. Once you add a key, the real Claude
- * agents take over automatically and these are no longer used.
- */
 
 const ADVICE_REQUEST = /\b(should i|what should i|kya karu|kya karoon|advise me|tell me what to do)\b/i;
 const DIAGNOSIS_REQUEST = /\b(am i depressed|do i have|diagnos|is it depression|anxiety disorder)\b/i;
@@ -32,6 +20,11 @@ function reflect(userMessage: string, language: Language): string {
   const lower = userMessage.toLowerCase();
   const hinglish = language === 'hinglish';
 
+  if (/^(?:hey|hi|hello|hii|kya haal)/i.test(userMessage.trim())) {
+    return hinglish
+      ? 'Hey — achha laga tumne message kiya. Main yahan hoon. Aaj mann mein kya chal raha hai?'
+      : "Hey — good to see you. I'm here. What's on your mind today?";
+  }
   if (ADVICE_REQUEST.test(lower)) {
     return `${BOUNDARY_LINE} What feels most stuck for you right now?`;
   }
@@ -43,6 +36,11 @@ function reflect(userMessage: string, language: Language): string {
       ? 'Yeh kaafi isolating lag raha hai — bolna aur phir lagna ki kisi ne suna hi nahi. Us waqt sabse zyada kya feel ho raha tha?'
       : "That sounds really isolating — to speak and feel like no one received it. What was the main feeling sitting with you in that moment?";
   }
+  if (/\b(work|office|job|boss|kaam|traffic|commute)\b/.test(lower) && /\bkill(?:ing)?\s+me\b/i.test(lower)) {
+    return hinglish
+      ? 'Uff, commute itna drain kar deta hai. Aaj specifically kya sabse zyada tang kiya?'
+      : 'That commute sounds exhausting. What part of it got to you most today?';
+  }
   if (/\b(work|office|job|boss|kaam)\b/.test(lower)) {
     return hinglish
       ? 'Yeh work pressure kaafi heavy ho sakta hai. Aaj ka din unusually bhaari tha, ya kuch time se aisa chal raha hai?'
@@ -52,6 +50,9 @@ function reflect(userMessage: string, language: Language): string {
     return hinglish
       ? 'Loneliness sabse quiet tarah ki heaviness hoti hai. Yeh feeling mostly kahan aati hai — logon ke beech, ya akele mein?'
       : 'Loneliness is one of the quietest kinds of heavy. Where does it show up most for you?';
+  }
+  if (/\b(?:don'?t know how much longer|futility|overwhelming)\b/i.test(lower)) {
+    return 'That sounds really heavy to carry. When you say you are not sure how much longer — what is going on for you right now? I am here.';
   }
   if (/\b(better|okay|theek|thik|acha|good)\b/.test(lower)) {
     return hinglish
@@ -63,25 +64,13 @@ function reflect(userMessage: string, language: Language): string {
     : "That sounds heavy. I'm here — take your time. What's sitting with you most right now?";
 }
 
-export function localEscalation(input: { userMessage: string; context: string }): EscalationResult {
-  const { userMessage, context } = input;
-  const combined = scanCombinedForCrisis(userMessage, context);
-  if (combined.crisis) {
-    return { risk_level: 'CRISIS', escalate: true, signal: combined.signal };
-  }
-  if (isCrisis(userMessage)) {
-    return { risk_level: 'CRISIS', escalate: true, signal: 'self-harm / crisis language detected' };
-  }
-  if (isNotSafeAfterCheckIn(userMessage, context)) {
-    return { risk_level: 'CRISIS', escalate: true, signal: 'user not safe after check-in' };
-  }
-  if (isHighDistress(userMessage, context)) {
-    return { risk_level: 'HIGH', escalate: false, signal: 'indirect or trajectory distress' };
-  }
-  if (isMedium(userMessage)) {
-    return { risk_level: 'MEDIUM', escalate: false, signal: 'distress language (not immediate danger)' };
-  }
-  return { risk_level: 'LOW', escalate: false, signal: 'no risk signals' };
+export function localEscalation(input: {
+  userMessage: string;
+  context: string;
+  userPatternProfile?: string | null;
+  recentRiskSummary?: string | null;
+}): EscalationResult {
+  return assessContextualRisk(input);
 }
 
 export function localPrimaryReply(params: {
@@ -95,16 +84,19 @@ export function localMonitor(params: {
   userMessage: string;
   context?: string;
   draftReply: string;
+  escalation?: EscalationResult;
 }): MonitorResult {
   const { userMessage, draftReply } = params;
   const context = params.context ?? '';
+  const esc =
+    params.escalation ??
+    assessContextualRisk({ userMessage, context });
 
-  const combined = scanCombinedForCrisis(userMessage, context);
-  if (combined.crisis || isCrisis(userMessage)) {
+  if (esc.risk_level === 'CRISIS' && esc.escalate) {
     return {
       decision: 'BLOCK_AND_REPLACE',
       risk_level: 'CRISIS',
-      issues_found: ['user in crisis — replaced with crisis hand-off'],
+      issues_found: ['contextual crisis assessment'],
       approved_or_rewritten_response: CRISIS_MESSAGE,
     };
   }
@@ -118,15 +110,17 @@ export function localMonitor(params: {
     };
   }
 
-  if (isHighDistress(userMessage, context)) {
-    const hasSafetyCheck = /\bsafe right now\b|\bfeeling safe\b/i.test(draftReply);
+  if (esc.risk_level === 'HIGH') {
+    const hasSafetyCheck = /\bsafe right now\b|\bfeeling safe\b|how much longer/i.test(draftReply);
     if (!hasSafetyCheck && !containsAdviceOrDiagnosis(draftReply).length) {
       return {
         decision: 'REWRITE',
         risk_level: 'HIGH',
         issues_found: ['high distress — add safety check-in'],
         approved_or_rewritten_response:
-          'That sounds like a heavy kind of tired — not just sleep. I want to make sure I understand: are you feeling safe right now?',
+          esc.classification === 'distress' && /\blonger\b/i.test(userMessage)
+            ? 'That sounds really heavy to carry. When you say you are not sure how much longer — what is going on for you right now? I am here.'
+            : 'That sounds like a heavy kind of tired — not just sleep. I want to make sure I understand: are you feeling safe right now?',
       };
     }
   }
@@ -157,7 +151,6 @@ export function localMonitor(params: {
     };
   }
 
-  // Scan Dhira's OUTGOING draft only for advice/diagnosis/dependency.
   const issues = containsAdviceOrDiagnosis(draftReply);
   if (issues.length > 0) {
     return {
@@ -171,7 +164,7 @@ export function localMonitor(params: {
 
   return {
     decision: 'APPROVED',
-    risk_level: isMedium(userMessage) ? 'MEDIUM' : 'LOW',
+    risk_level: esc.risk_level === 'MEDIUM' ? 'MEDIUM' : esc.risk_level === 'HIGH' ? 'HIGH' : 'LOW',
     issues_found: [],
     approved_or_rewritten_response: draftReply,
   };
@@ -217,6 +210,8 @@ export function localMemory(params: {
     mood: mood.mood,
     topic_tag: mood.topic_tag,
     carry_forward: 'Gently check whether that heaviness has eased since last time.',
+    channel: 'app',
+    pattern_profile_update: 'Tends to share feelings in plain, direct language.',
   };
 }
 
@@ -233,4 +228,13 @@ export function localProactive(params: {
   return hinglish
     ? 'Hey, bas yaad karke check kar raha tha — aaj din kaisa jaa raha hai?'
     : "Hey — just thinking of you and checking in. How's today going so far?";
+}
+
+export function mergePatternProfile(
+  existing: string | null | undefined,
+  update: string | null | undefined,
+): string | null {
+  if (!update?.trim()) return existing?.trim() || null;
+  const merged = [existing?.trim(), update.trim()].filter(Boolean).join(' ');
+  return merged.slice(0, 1200) || null;
 }

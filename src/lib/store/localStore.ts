@@ -95,6 +95,7 @@ export class LocalStore implements DhiraStore {
         checkinWindow: '22:00-23:00',
         lastProactiveAt: null,
         lastWeeklyAt: null,
+        userPatternProfile: null,
         createdAt: now,
         updatedAt: now,
       };
@@ -108,6 +109,7 @@ export class LocalStore implements DhiraStore {
     if (profile.city === undefined) (profile as Profile).city = null;
     if (profile.shift === undefined) (profile as Profile).shift = 'day';
     if (profile.voicePreference === undefined) (profile as Profile).voicePreference = null;
+    if (profile.userPatternProfile === undefined) (profile as Profile).userPatternProfile = null;
     return profile;
   }
 
@@ -204,6 +206,14 @@ export class LocalStore implements DhiraStore {
   async getRiskEvents(limit = 50): Promise<RiskEventRecord[]> {
     const db = readDb();
     return db.riskEvents
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, limit);
+  }
+
+  async getRecentRiskEventsForProfile(profileId: string, limit = 5): Promise<RiskEventRecord[]> {
+    const db = readDb();
+    return db.riskEvents
+      .filter((r) => r.profileId === profileId)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
       .slice(0, limit);
   }

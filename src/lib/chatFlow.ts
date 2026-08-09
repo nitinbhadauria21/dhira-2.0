@@ -8,8 +8,10 @@ import { summarizeMemory } from '@/agents/memory';
 import { CRISIS_MESSAGE } from '@/lib/safetyCopy';
 import {
   buildConversationContext,
+  formatRecentRiskSummary,
   isEscalateCrisisDraft,
 } from '@/lib/conversationContext';
+import { mergePatternProfile } from '@/lib/localBrain';
 import {
   shouldUseEarlyCrisisHandoff,
   sanityCheckMonitor,
@@ -17,7 +19,7 @@ import {
   isTrivialLowRiskMessage,
   contextHasElevatedRisk,
 } from '@/lib/riskSanity';
-import type { RiskLevel } from '@/lib/types';
+import type { ChatChannel, RiskLevel } from '@/lib/types';
 
 export interface ChatTurnResult {
   reply: string;
@@ -31,23 +33,36 @@ export interface ChatTurnResult {
 export async function runChatTurn(params: {
   uid: string;
   userMessage: string;
+  channel?: ChatChannel;
 }): Promise<ChatTurnResult> {
-  const { uid, userMessage } = params;
+  const { uid, userMessage, channel = 'app' } = params;
   const store = getStore();
   const profile = await store.getOrCreateProfile(uid);
   const now = () => new Date().toISOString();
 
-  const convo = await buildConversationContext(uid, profile.language);
+  const recentRisk = await store.getRecentRiskEventsForProfile(uid, 5);
+  const recentRiskSummary = formatRecentRiskSummary(recentRisk);
+
+  const convo = await buildConversationContext(uid, profile.language, {
+    userPatternProfile: profile.userPatternProfile,
+    recentRiskSummary,
+  });
 
   await store.addMessage({
     id: randomUUID(),
     profileId: uid,
     role: 'user',
     content: userMessage,
+    channel,
     createdAt: now(),
   });
 
-  const risk = await checkRisk({ userMessage, context: convo.contextString });
+  const risk = await checkRisk({
+    userMessage,
+    context: convo.contextString,
+    userPatternProfile: profile.userPatternProfile,
+    recentRiskSummary,
+  });
 
   if (shouldUseEarlyCrisisHandoff(risk)) {
     debugRiskLog({ path: 'early_crisis', risk, userMessage: userMessage.slice(0, 80) });
@@ -56,6 +71,7 @@ export async function runChatTurn(params: {
       profileId: uid,
       riskLevel: 'CRISIS',
       signal: risk.signal || 'self-harm / crisis language detected',
+      riskClassification: risk.classification ?? null,
       handled: true,
       createdAt: now(),
     });
@@ -64,6 +80,7 @@ export async function runChatTurn(params: {
       profileId: uid,
       role: 'dhira',
       content: CRISIS_MESSAGE,
+      channel,
       createdAt: now(),
     });
     return { reply: CRISIS_MESSAGE, crisis: true, showReferralCard: false, riskLevel: 'CRISIS' };
@@ -75,6 +92,7 @@ export async function runChatTurn(params: {
     conversationSummary: convo.conversationSummary,
     userMessage,
     memorySummary: memory?.summary ?? null,
+    userPatternProfile: profile.userPatternProfile,
     language: profile.language,
   });
 
@@ -89,6 +107,7 @@ export async function runChatTurn(params: {
       profileId: uid,
       riskLevel: 'CRISIS',
       signal: 'primary ESCALATE_CRISIS',
+      riskClassification: 'genuine_risk_self',
       handled: true,
       createdAt: now(),
     });
@@ -97,6 +116,7 @@ export async function runChatTurn(params: {
       profileId: uid,
       role: 'dhira',
       content: CRISIS_MESSAGE,
+      channel,
       createdAt: now(),
     });
     return { reply: CRISIS_MESSAGE, crisis: true, showReferralCard: false, riskLevel: 'CRISIS' };
@@ -106,6 +126,8 @@ export async function runChatTurn(params: {
     userMessage,
     context: convo.contextString,
     draftReply: draft,
+    escalation: risk,
+    userPatternProfile: profile.userPatternProfile,
   });
   reviewed = sanityCheckMonitor(userMessage, convo.contextString, reviewed);
 
@@ -113,6 +135,7 @@ export async function runChatTurn(params: {
     draft: draft.slice(0, 120),
     monitorDecision: reviewed.decision,
     monitorRisk: reviewed.risk_level,
+    escalation: risk,
     userMessage: userMessage.slice(0, 80),
   });
 
@@ -122,6 +145,7 @@ export async function runChatTurn(params: {
       profileId: uid,
       riskLevel: 'CRISIS',
       signal: reviewed.issues_found.join('; ') || 'monitor crisis block',
+      riskClassification: risk.classification ?? 'genuine_risk_self',
       handled: true,
       createdAt: now(),
     });
@@ -130,6 +154,7 @@ export async function runChatTurn(params: {
       profileId: uid,
       role: 'dhira',
       content: reviewed.approved_or_rewritten_response,
+      channel,
       createdAt: now(),
     });
     return {
@@ -147,6 +172,7 @@ export async function runChatTurn(params: {
     profileId: uid,
     role: 'dhira',
     content: finalReply,
+    channel,
     createdAt: now(),
   });
 
@@ -174,7 +200,11 @@ export async function runChatTurn(params: {
     try {
       const prior = await store.getRecentMessages(uid, 8);
       const convoText = prior.map((m) => `${m.role}: ${m.content}`).join('\n');
-      const mem = await summarizeMemory({ conversation: convoText, language: profile.language });
+      const mem = await summarizeMemory({
+        conversation: convoText,
+        language: profile.language,
+        channel,
+      });
       await store.addMemory({
         id: randomUUID(),
         profileId: uid,
@@ -184,6 +214,10 @@ export async function runChatTurn(params: {
         carryForward: mem.carry_forward,
         createdAt: now(),
       });
+      const mergedProfile = mergePatternProfile(profile.userPatternProfile, mem.pattern_profile_update);
+      if (mergedProfile !== profile.userPatternProfile) {
+        await store.updateProfile(uid, { userPatternProfile: mergedProfile });
+      }
     } catch {
       /* best-effort */
     }
@@ -199,8 +233,9 @@ export async function runChatTurn(params: {
     await store.addRiskEvent({
       id: randomUUID(),
       profileId: uid,
-      riskLevel: reviewed.risk_level === 'HIGH' ? 'HIGH' : 'MEDIUM',
+      riskLevel: reviewed.risk_level === 'HIGH' || risk.risk_level === 'HIGH' ? 'HIGH' : 'MEDIUM',
       signal: risk.signal || reviewed.issues_found.join('; ') || 'distress',
+      riskClassification: risk.classification ?? null,
       handled: true,
       createdAt: now(),
     });

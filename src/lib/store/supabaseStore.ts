@@ -53,6 +53,7 @@ const toProfile = (r: any): Profile => ({
   checkinWindow: r.checkin_window,
   lastProactiveAt: r.last_proactive_at ?? null,
   lastWeeklyAt: r.last_weekly_at ?? null,
+  userPatternProfile: r.user_pattern_profile ?? null,
   createdAt: r.created_at,
   updatedAt: r.updated_at,
 });
@@ -117,6 +118,7 @@ const toRisk = (r: any): RiskEventRecord => ({
   profileId: r.profile_id,
   riskLevel: r.risk_level,
   signal: r.signal,
+  riskClassification: r.risk_classification ?? null,
   handled: r.handled,
   createdAt: r.created_at,
 });
@@ -196,15 +198,17 @@ export class SupabaseStore implements DhiraStore {
     if (patch.checkinWindow !== undefined) row.checkin_window = patch.checkinWindow;
     if (patch.lastProactiveAt !== undefined) row.last_proactive_at = patch.lastProactiveAt;
     if (patch.lastWeeklyAt !== undefined) row.last_weekly_at = patch.lastWeeklyAt;
+    if (patch.userPatternProfile !== undefined) row.user_pattern_profile = patch.userPatternProfile;
     let { data, error } = await sb.from('profiles').update(row).eq('id', id).select('*').single();
     // Older projects before migration — drop new columns and retry.
-    if (error && /last_proactive_at|last_weekly_at|state|city|shift|voice_preference|schema cache/i.test(error.message ?? '')) {
+    if (error && /last_proactive_at|last_weekly_at|state|city|shift|voice_preference|user_pattern_profile|schema cache/i.test(error.message ?? '')) {
       delete row.last_proactive_at;
       delete row.last_weekly_at;
       delete row.state;
       delete row.city;
       delete row.shift;
       delete row.voice_preference;
+      delete row.user_pattern_profile;
       ({ data, error } = await sb.from('profiles').update(row).eq('id', id).select('*').single());
     }
     if (error) throw error;
@@ -338,14 +342,20 @@ export class SupabaseStore implements DhiraStore {
 
   async addRiskEvent(record: RiskEventRecord): Promise<void> {
     const sb = client();
-    const { error } = await sb.from('risk_events').insert({
+    const row: Record<string, unknown> = {
       id: record.id,
       profile_id: record.profileId,
       risk_level: record.riskLevel,
       signal: record.signal,
       handled: record.handled,
       created_at: record.createdAt,
-    });
+    };
+    if (record.riskClassification) row.risk_classification = record.riskClassification;
+    let { error } = await sb.from('risk_events').insert(row);
+    if (error && /risk_classification|schema cache/i.test(error.message ?? '')) {
+      delete row.risk_classification;
+      ({ error } = await sb.from('risk_events').insert(row));
+    }
     if (error) throw error;
   }
 
@@ -354,6 +364,18 @@ export class SupabaseStore implements DhiraStore {
     const { data, error } = await sb
       .from('risk_events')
       .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return (data ?? []).map(toRisk);
+  }
+
+  async getRecentRiskEventsForProfile(profileId: string, limit = 5): Promise<RiskEventRecord[]> {
+    const sb = client();
+    const { data, error } = await sb
+      .from('risk_events')
+      .select('*')
+      .eq('profile_id', profileId)
       .order('created_at', { ascending: false })
       .limit(limit);
     if (error) throw error;
