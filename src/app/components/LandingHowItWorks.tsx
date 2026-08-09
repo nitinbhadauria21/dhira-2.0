@@ -9,7 +9,8 @@ export default function LandingHowItWorks() {
 
   return (
     <section
-      className="py-24 px-6 lg:px-10 relative overflow-hidden"
+      id="how-it-works"
+      className="py-24 px-6 lg:px-10 relative overflow-hidden scroll-mt-20"
       style={{ backgroundColor: 'var(--color-surface-alt)' }}
     >
       <div className="max-w-screen-xl mx-auto relative z-10">

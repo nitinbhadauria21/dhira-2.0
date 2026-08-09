@@ -131,7 +131,7 @@ export default function LandingHero() {
             Begin — it&apos;s free
           </SignUpLink>
           <a
-            href="#features"
+            href="#how-it-works"
             className="btn-ghost"
             style={{ fontSize: '16px', padding: '14px 28px' }}
           >
