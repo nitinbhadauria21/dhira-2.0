@@ -44,12 +44,50 @@ function shouldValidateTwilioSignature(): boolean {
   return !!process.env.TWILIO_AUTH_TOKEN?.trim();
 }
 
-/** Public URL Twilio posted to (APP_URL + path). */
+/** Mask phone for logs (e.g. +91******3210). */
+export function maskPhoneForLog(e164OrRaw: string): string {
+  const bare = normalizePhoneE164(e164OrRaw);
+  if (bare.length < 6) return '***';
+  return `${bare.slice(0, 3)}******${bare.slice(-4)}`;
+}
+
+/**
+ * Public URL Twilio signed when POSTing this webhook.
+ * Prefer the incoming request host (what Twilio actually called), then APP_URL, then override env.
+ */
 export function twilioWebhookUrl(req: NextRequest): string {
-  const base = (process.env.APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? '').replace(/\/$/, '');
+  const override = process.env.TWILIO_WEBHOOK_PUBLIC_URL?.trim();
+  if (override) return override.replace(/\/$/, '');
+
   const path = req.nextUrl.pathname;
+  const hostHeader = req.headers.get('x-forwarded-host') ?? req.headers.get('host');
+  if (hostHeader) {
+    const host = hostHeader.split(',')[0]?.trim();
+    const proto = (req.headers.get('x-forwarded-proto') ?? 'https').split(',')[0]?.trim() || 'https';
+    if (host) return `${proto}://${host}${path}`;
+  }
+
+  const base = (process.env.APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? '').replace(/\/$/, '');
   if (base) return `${base}${path}`;
   return req.url.split('?')[0] ?? path;
+}
+
+/** Candidate URLs to try for signature validation (Twilio signs the configured webhook URL). */
+export function twilioWebhookUrlCandidates(req: NextRequest): string[] {
+  const primary = twilioWebhookUrl(req);
+  const path = req.nextUrl.pathname;
+  const base = (process.env.APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? '').replace(/\/$/, '');
+  const fromAppUrl = base ? `${base}${path}` : null;
+
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const u of [primary, fromAppUrl]) {
+    if (u && !seen.has(u)) {
+      seen.add(u);
+      out.push(u);
+    }
+  }
+  return out;
 }
 
 export function validateTwilioRequest(
@@ -66,12 +104,22 @@ export function validateTwilioRequest(
   }
 
   const url = twilioWebhookUrl(req);
-  const valid = twilio.validateRequest(authToken, signature, url, params);
+  const candidates = twilioWebhookUrlCandidates(req);
+  let valid = false;
+  let matchedUrl = url;
+  for (const candidate of candidates) {
+    if (twilio.validateRequest(authToken, signature, candidate, params)) {
+      valid = true;
+      matchedUrl = candidate;
+      break;
+    }
+  }
   if (!valid) {
-    console.warn('[twilio/inbound] invalid Twilio signature', { url });
+    console.warn('[twilio/inbound] invalid Twilio signature', { tried: candidates });
     return new NextResponse('Forbidden', { status: 403 });
   }
 
+  console.info('[twilio/inbound] signature ok', { url: matchedUrl });
   return null;
 }
 
@@ -166,6 +214,11 @@ export async function handleInboundWhatsApp(params: Record<string, string>): Pro
 export async function processTwilioWhatsAppWebhook(req: NextRequest): Promise<NextResponse> {
   const rawBody = await req.text();
   const params = parseTwilioFormBody(rawBody);
+  console.info('[twilio/inbound] webhook POST', {
+    path: req.nextUrl.pathname,
+    from: maskPhoneForLog(params.From ?? ''),
+    bodyLen: (params.Body ?? '').length,
+  });
   const forbidden = validateTwilioRequest(req, params);
   if (forbidden) return forbidden;
   return handleInboundWhatsApp(params);
