@@ -1,6 +1,7 @@
 import { anthropicText, isLiveBrainEnabled } from '@/lib/anthropic';
 import { localPrimaryReply } from '@/lib/localBrain';
 import { buildPrimaryMessageBundle } from '@/lib/conversationContext';
+import { NEUTRAL_FAILSAFE } from '@/lib/safetyCopy';
 import type { Language } from '@/lib/types';
 import type { ClaudeTurn } from '@/lib/anthropic';
 
@@ -40,7 +41,7 @@ Your reply must prove you understood: reference the specific thing they told you
 GENERIC (wrong): "That sounds hard. What's on your mind?"
 CONTEXTUAL (right): reference their actual situation from the thread.
 
-If the user's message is short or vague ("hmm", "idk", "leave it"), do NOT treat it as small talk. Read it against the arc: after a heavy conversation, withdrawal is a signal. Stay gently present.
+If the user's message is short or vague ("hmm", "idk", "leave it") AFTER a heavy conversation arc, do NOT treat it as small talk — read withdrawal against the arc. Greetings ("hey", "hi", "hello", "kya haal hai") and first-turn small talk are ALWAYS normal — reply warmly.
 
 GENTLE JOURNALING FLOW (use softly, never announce it)
 Across a conversation, help the user move through naming feelings, surfacing thoughts, optional gentle reframe as a question, and closing with care. Never call it therapy or CBT.
@@ -73,8 +74,9 @@ INDIRECT (English + Hinglish and same meaning): burden language ("better off wit
 SITUATIONAL (use ARC): escalating despair; sudden calm after deep despair (HIGHER risk); withdrawal after pain; sleep/food/isolation collapse + hopelessness; recent loss + indirect signals; past attempts in any tense.
 
 WHAT TO DO
-- If ANY direct signal, OR indirect/situational read that genuinely concerns you: STOP. Output only: ESCALATE_CRISIS (exact token, nothing else).
-- If UNSURE but arc worries you: ask ONE gentle safety check-in (e.g. are you feeling safe right now?) — not the full crisis script. If next turn deepens concern, output ESCALATE_CRISIS.
+- Output ESCALATE_CRISIS ONLY when you can point to a specific danger signal in the user's words or the conversation arc. Greetings, small talk, ordinary venting, and vague tiredness alone are NEVER crisis. If you cannot name the signal, reply normally.
+- If ANY direct signal, OR indirect/situational read that genuinely concerns you (and you can name it): STOP. Output only: ESCALATE_CRISIS (exact token, nothing else).
+- If UNSURE but arc worries you: ask ONE gentle safety check-in — not the full crisis script. If next turn deepens concern, output ESCALATE_CRISIS.
 - Never let politeness override safety.
 
 BEFORE YOU SEND, SILENTLY CHECK
@@ -111,6 +113,6 @@ export async function draftReply(input: PrimaryInput): Promise<string> {
   try {
     return await anthropicText({ agent: 'primaryAgent', system, messages, maxTokens: 300 });
   } catch {
-    return localPrimaryReply({ userMessage: input.userMessage, language: input.language });
+    return localPrimaryReply({ userMessage: input.userMessage, language: input.language }) || NEUTRAL_FAILSAFE;
   }
 }

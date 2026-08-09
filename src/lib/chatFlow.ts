@@ -10,13 +10,14 @@ import {
   buildConversationContext,
   isEscalateCrisisDraft,
 } from '@/lib/conversationContext';
+import {
+  shouldUseEarlyCrisisHandoff,
+  sanityCheckMonitor,
+  debugRiskLog,
+  isTrivialLowRiskMessage,
+  contextHasElevatedRisk,
+} from '@/lib/riskSanity';
 import type { RiskLevel } from '@/lib/types';
-
-/**
- * The normal-message flow (Agent Prompts spec §4g):
- *   User message -> Escalation Agent -> Primary Agent -> Safety & Persona Monitor
- *   -> shown to user -> Mood Tagging + Memory (store metadata)
- */
 
 export interface ChatTurnResult {
   reply: string;
@@ -47,7 +48,9 @@ export async function runChatTurn(params: {
   });
 
   const risk = await checkRisk({ userMessage, context: convo.contextString });
-  if (risk.risk_level === 'CRISIS' || risk.escalate) {
+
+  if (shouldUseEarlyCrisisHandoff(risk)) {
+    debugRiskLog({ path: 'early_crisis', risk, userMessage: userMessage.slice(0, 80) });
     await store.addRiskEvent({
       id: randomUUID(),
       profileId: uid,
@@ -75,7 +78,12 @@ export async function runChatTurn(params: {
     language: profile.language,
   });
 
-  if (isEscalateCrisisDraft(draft)) {
+  const primaryEscalate =
+    isEscalateCrisisDraft(draft) &&
+    !(isTrivialLowRiskMessage(userMessage) && !contextHasElevatedRisk(convo.contextString));
+
+  if (primaryEscalate) {
+    debugRiskLog({ path: 'primary_escalate_crisis', draft, userMessage });
     await store.addRiskEvent({
       id: randomUUID(),
       profileId: uid,
@@ -94,10 +102,18 @@ export async function runChatTurn(params: {
     return { reply: CRISIS_MESSAGE, crisis: true, showReferralCard: false, riskLevel: 'CRISIS' };
   }
 
-  const reviewed = await reviewReply({
+  let reviewed = await reviewReply({
     userMessage,
     context: convo.contextString,
     draftReply: draft,
+  });
+  reviewed = sanityCheckMonitor(userMessage, convo.contextString, reviewed);
+
+  debugRiskLog({
+    draft: draft.slice(0, 120),
+    monitorDecision: reviewed.decision,
+    monitorRisk: reviewed.risk_level,
+    userMessage: userMessage.slice(0, 80),
   });
 
   if (reviewed.decision === 'BLOCK_AND_REPLACE' && reviewed.risk_level === 'CRISIS') {

@@ -123,7 +123,7 @@ API routes live under `src/app/api/*`. Protected pages use `src/middleware.ts` (
 - **Dual mode:** offline local store (`.data/dhira-store.json`) **or** Supabase Postgres when service-role key is set.
 - **Auth:** Supabase Auth when URL + publishable key are set; otherwise local/dev auth APIs.
 - **Brain:** Six agents in `src/agents/*` call OpenRouter (preferred via `OPENROUTER_API_KEY`) or a direct Anthropic key; else `src/lib/localBrain.ts`. Check `GET /api/status` → `liveBrain`.
-- **Safety:** Escalation + Monitor + Tele-MANAS 14416; every outbound chat/notification is monitor-gated.
+- **Safety:** Escalation + Monitor + Tele-MANAS 14416; trajectory-aware context via `src/lib/conversationContext.ts`; every outbound chat/notification is monitor-gated.
 - **Notifications:** `src/lib/notify.ts` → Emergent webhook (or `dev-simulated` without webhook).
 
 ---
