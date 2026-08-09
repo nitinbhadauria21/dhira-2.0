@@ -1,41 +1,28 @@
 import React from 'react';
-import Link from 'next/link';
 import SignUpLink from '@/components/SignUpLink';
 import { CTA_BODY } from '@/lib/artifactDesign';
+
+/** Full-bleed background for this section only — see scene_landing_cta_quiet.png */
+export const LANDING_CTA_BG = '/illustrations/scene_landing_cta_quiet.png';
 
 export default function LandingCTA() {
   return (
     <section
       id="safety"
-      className="py-24 px-6 lg:px-10 relative overflow-hidden"
-      style={{ backgroundColor: 'var(--color-surface-alt)' }}
+      className="landing-cta-section py-24 px-6 lg:px-10 relative overflow-hidden"
+      aria-labelledby="landing-cta-heading"
     >
-      <div className="max-w-2xl mx-auto text-center relative z-10">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/illustrations/scene_2am.png"
-          alt="DHIRA sitting cross-legged under a starlit sky, holding a small glowing light"
-          width={340}
-          height={215}
-          className="mx-auto mb-7 block"
-          style={{
-            width: 340,
-            maxWidth: '100%',
-            height: 215,
-            objectFit: 'cover',
-            borderRadius: 22,
-            border: '1px solid var(--color-border)',
-            boxShadow: '0 18px 40px rgba(38,32,66,0.22), 0 0 32px rgba(239,169,74,0.3)',
-          }}
-        />
+      <div aria-hidden className="landing-cta-bg absolute inset-0" />
+      <div aria-hidden className="landing-cta-scrim absolute inset-0" />
 
+      <div className="landing-cta-content max-w-2xl mx-auto text-center relative z-10">
         <h2
+          id="landing-cta-heading"
           className="mb-4"
           style={{
             fontFamily: 'var(--font-display)',
             fontSize: 'clamp(28px, 4vw, 40px)',
             fontWeight: 500,
-            color: 'var(--color-text)',
             lineHeight: 1.2,
           }}
         >
@@ -46,7 +33,6 @@ export default function LandingCTA() {
           style={{
             fontFamily: 'var(--font-ui)',
             fontSize: '18px',
-            color: 'var(--color-text-muted)',
             lineHeight: 1.65,
           }}
         >
