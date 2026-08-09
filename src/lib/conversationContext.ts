@@ -3,6 +3,7 @@ import { isLiveBrainEnabled } from '@/lib/anthropic';
 import type { ClaudeTurn } from '@/lib/anthropic';
 import type { ChatMessageRecord, Language } from '@/lib/types';
 import { summarizeMemory } from '@/agents/memory';
+import { CRISIS_MESSAGE } from '@/lib/safetyCopy';
 
 export const ESCALATE_CRISIS_TOKEN = 'ESCALATE_CRISIS';
 
@@ -10,10 +11,23 @@ export const DEFAULT_FETCH_LIMIT = 32;
 export const DEFAULT_MAX_TURNS = 16;
 export const TURNS_AFTER_TRIM = 8;
 
+const CRISIS_HISTORY_MARKER = '[safety resources were shared here]';
+
+export function sanitizeAssistantContentForModel(content: string): string {
+  if (content.includes('Tele-MANAS') || content.includes('14416')) {
+    return CRISIS_HISTORY_MARKER;
+  }
+  if (content.trim() === CRISIS_MESSAGE.trim()) {
+    return CRISIS_HISTORY_MARKER;
+  }
+  return content;
+}
+
 export function messagesToClaudeTurns(messages: ChatMessageRecord[]): ClaudeTurn[] {
   return messages.map((m) => ({
     role: m.role === 'dhira' ? 'assistant' : 'user',
-    content: m.content,
+    content:
+      m.role === 'dhira' ? sanitizeAssistantContentForModel(m.content) : m.content,
   }));
 }
 

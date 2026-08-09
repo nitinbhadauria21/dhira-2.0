@@ -2,6 +2,8 @@
 
 **What this file is:** the complete set of AI agent instructions for building **Dhira**. **Source of truth for Primary + Monitor prompts in production code:** [`src/agents/primary.ts`](src/agents/primary.ts) and [`src/agents/monitor.ts`](src/agents/monitor.ts) (context-fix blocks). Update this markdown when those files change.
 
+**Over-trigger calibration (2026):** default risk is **LOW**; crisis / `escalate` only with a **named** danger signal. Greetings and ordinary venting are never crisis. Escalation JSON must not copy literal `"escalate": true` unless `risk_level` is CRISIS. See `src/lib/riskSanity.ts` + `scripts/safety-tests.ts` (Day 0 smoke).
+
 **Product in one line:** a private, always-available companion that listens (never advises or diagnoses), gently helps the user journal, remembers their emotional context, proactively checks in when permitted, and safely hands off in a crisis.
 
 **Persona:** Dhira = a warm, calm, older-sibling voice. Hinglish-friendly. Non-human by design.

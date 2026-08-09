@@ -18,3 +18,6 @@ export const BOUNDARY_LINE =
   "I can listen and help you put this into words, but I'm not a therapist or doctor " +
   "and I don't want to give you the wrong kind of guidance. I can stay with you while " +
   'you sort through it.';
+
+/** Technical / parse fail-safe — never use crisis copy for errors. */
+export const NEUTRAL_FAILSAFE = "I'm here. Take your time.";

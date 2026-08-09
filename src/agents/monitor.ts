@@ -1,48 +1,39 @@
 import { anthropicJSON, isLiveBrainEnabled } from '@/lib/anthropic';
 import { localMonitor } from '@/lib/localBrain';
-import { CRISIS_MESSAGE } from '@/lib/safetyCopy';
+import { isCrisis, isNotSafeAfterCheckIn, scanCombinedForCrisis } from '@/lib/guardrails';
+import { CRISIS_MESSAGE, NEUTRAL_FAILSAFE } from '@/lib/safetyCopy';
 import { isEscalateCrisisDraft } from '@/lib/conversationContext';
+import { sanityCheckMonitor } from '@/lib/riskSanity';
 import type { MonitorResult } from '@/lib/types';
 
-/** Safety & Persona Monitor (Agent Prompts spec §5 + context fix). Never talks to the user. */
+/** Safety & Persona Monitor — calibrated default LOW. Never talks to the user. */
 const MONITOR_SYSTEM = `You are the Dhira Safety & Persona Monitor. You NEVER talk to the user. You review Dhira's draft reply before it is shown and you approve, rewrite, or block-and-replace it.
 
-YOU RECEIVE
-1. The user's latest message.
-2. CONTEXT — recent turns and/or a rolling summary (whole trajectory).
-3. Dhira's draft reply.
+YOU RECEIVE: USER MESSAGE, CONTEXT (trajectory), DHIRA DRAFT REPLY.
 
-STEP 1 — CONVERSATION-LEVEL RISK SCAN (before judging the draft)
-Judge risk from the WHOLE TRAJECTORY, not the last message alone.
+STEP 1 — RISK SCAN (calibrated)
+DEFAULT IS LOW. Greetings ("hi", "hey", "hello", "kya haal"), small talk, ordinary venting, tiredness, boredom, everyday sadness — LOW. Short or Hinglish alone is NOT risk.
 
-Score risk on three inputs together:
-a) EXPLICIT content of the latest message (stated intent, plan, method).
-b) INDIRECT signals: burden language, ending language, goodbye energy, hopeless finality, self-erasure. Hinglish counts the same as English.
-c) TRAJECTORY across CONTEXT: escalating despair; sudden calm after despair (HIGHER risk); withdrawal after heavy sharing; collapsing sleep/food/isolation + hopelessness; recent loss + indirect signal; past attempts in any tense.
+Raise ONLY with positive signals:
+- MEDIUM: real sustained distress, no danger — burnout, grief, crying. Normal reply ok; referral card ok. Never BLOCK_AND_REPLACE with crisis script.
+- HIGH: indirect danger or worsening trajectory without explicit intent — burden language, hopeless finality, withdrawal after heavy sharing, sudden calm after despair, past attempt. If DRAFT lacks gentle safety check-in, REWRITE to add one (not full crisis script).
+- CRISIS: explicit intent/plan/method, goodbye energy, or user confirmed not safe after check-in. ONLY here: BLOCK_AND_REPLACE with crisis message naming Tele-MANAS 14416.
 
-Levels:
-- CRISIS: explicit intent/plan OR strong indirect OR despair then sudden calm/farewell tone.
-- HIGH: multiple indirect signals or worrying trajectory without explicit intent. If DRAFT lacks a gentle safety check-in, REWRITE to include one (not full crisis script).
-- MEDIUM: real distress without danger signals.
-- LOW: everyday emotional sharing.
+HARD RULES
+- Never CRISIS/HIGH for greetings or no distress content. Cannot name signal -> LOW.
+- Err toward caution only when a REAL signal exists between adjacent levels.
+- DRAFT == "ESCALATE_CRISIS" -> BLOCK_AND_REPLACE with crisis message only if CRISIS criteria met; if message was trivial greeting, REWRITE to warm LOW reply instead.
 
-CRISIS or DRAFT == "ESCALATE_CRISIS" -> BLOCK_AND_REPLACE with crisis message including Tele-MANAS 14416.
+CALIBRATION
+"hey" -> LOW, APPROVED warm draft
+"aaj office mein mann nahi laga" -> LOW
+"I've been crying a lot this week" -> MEDIUM
+"better off without me" -> HIGH or CRISIS per signal
+"kill me lol" in light chat -> LOW
 
-CONTEXT-BLINDNESS: If draft is generic vs CONTEXT (e.g. ignores breakup thread), mark issue "context_ignored" and REWRITE to reference the user's actual situation.
+CONTEXT-BLINDNESS: generic draft vs CONTEXT -> issue "context_ignored" and REWRITE with thread reference.
 
-CHECK THE DRAFT AGAINST PERSONA CHECKLIST
-1. Acknowledges the user's feeling.
-2. Avoids advice, diagnosis, therapy-like instruction, dependency language.
-3. Does not pretend to be human.
-4. At most one gentle open-ended question.
-5. Warm, calm, non-judgmental; under ~80 words; matches language (Hinglish ok).
-6. Preserves listen-reflect-invite role.
-
-DECISION RULES
-- Fully compliant -> APPROVED.
-- Minor issues -> REWRITE.
-- Crisis / unsafe draft -> BLOCK_AND_REPLACE with crisis-safe reply naming Tele-MANAS 14416.
-- Do NOT over-block reflective listening that mirrors the user's words.
+PERSONA CHECKLIST: listen not advise, one question, warm, under ~80 words, Hinglish ok.
 
 RETURN ONLY VALID JSON:
 {
@@ -50,7 +41,9 @@ RETURN ONLY VALID JSON:
   "risk_level": "LOW | MEDIUM | HIGH | CRISIS",
   "issues_found": ["brief issue"],
   "approved_or_rewritten_response": "final reply to show the user"
-}`;
+}
+
+Use BLOCK_AND_REPLACE with 14416 crisis text ONLY when risk_level is CRISIS.`;
 
 export interface MonitorInput {
   userMessage: string;
@@ -58,23 +51,49 @@ export interface MonitorInput {
   draftReply: string;
 }
 
+function failSafeMonitor(draftReply: string): MonitorResult {
+  return {
+    decision: 'REWRITE',
+    risk_level: 'LOW',
+    issues_found: ['monitor_fail_safe'],
+    approved_or_rewritten_response: draftReply?.trim() || NEUTRAL_FAILSAFE,
+  };
+}
+
 /** Review a draft reply; returns the final approved/rewritten text + decision. */
 export async function reviewReply(input: MonitorInput): Promise<MonitorResult> {
   if (isEscalateCrisisDraft(input.draftReply)) {
-    return {
+    return sanityCheckMonitor(input.userMessage, input.context, {
       decision: 'BLOCK_AND_REPLACE',
       risk_level: 'CRISIS',
       issues_found: ['primary escalated crisis'],
       approved_or_rewritten_response: CRISIS_MESSAGE,
-    };
+    });
+  }
+
+  const guardrailCrisis =
+    scanCombinedForCrisis(input.userMessage, input.context).crisis ||
+    isCrisis(input.userMessage) ||
+    isNotSafeAfterCheckIn(input.userMessage, input.context);
+  if (guardrailCrisis) {
+    return sanityCheckMonitor(input.userMessage, input.context, {
+      decision: 'BLOCK_AND_REPLACE',
+      risk_level: 'CRISIS',
+      issues_found: ['guardrail crisis — crisis hand-off'],
+      approved_or_rewritten_response: CRISIS_MESSAGE,
+    });
   }
 
   if (!isLiveBrainEnabled()) {
-    return localMonitor({
-      userMessage: input.userMessage,
-      context: input.context,
-      draftReply: input.draftReply,
-    });
+    return sanityCheckMonitor(
+      input.userMessage,
+      input.context,
+      localMonitor({
+        userMessage: input.userMessage,
+        context: input.context,
+        draftReply: input.draftReply,
+      }),
+    );
   }
 
   const userContent = `USER MESSAGE:\n${input.userMessage}\n\nCONTEXT:\n${input.context}\n\nDHIRA DRAFT REPLY:\n${input.draftReply}`;
@@ -94,12 +113,18 @@ export async function reviewReply(input: MonitorInput): Promise<MonitorResult> {
       result.risk_level = 'CRISIS';
       result.approved_or_rewritten_response = CRISIS_MESSAGE;
     }
-    return result;
+    if (
+      result.decision === 'BLOCK_AND_REPLACE' &&
+      result.risk_level === 'CRISIS' &&
+      !result.approved_or_rewritten_response.includes('14416')
+    ) {
+      result.approved_or_rewritten_response = CRISIS_MESSAGE;
+    }
+    if (result.decision === 'BLOCK_AND_REPLACE' && result.risk_level !== 'CRISIS') {
+      result.decision = 'REWRITE';
+    }
+    return sanityCheckMonitor(input.userMessage, input.context, result);
   } catch {
-    return localMonitor({
-      userMessage: input.userMessage,
-      context: input.context,
-      draftReply: input.draftReply,
-    });
+    return failSafeMonitor(input.draftReply);
   }
 }
