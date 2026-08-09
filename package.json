@@ -11,7 +11,8 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css,md,json}\"",
     "serve": "next start -p 4028",
     "type-check": "tsc --noEmit",
-    "test:safety": "OPENROUTER_API_KEY= ANTHROPIC_API_KEY= tsx scripts/safety-tests.ts",
+    "test:safety": "OPENROUTER_API_KEY= ANTHROPIC_API_KEY= DHIRA_ALLOW_OFFLINE=true tsx scripts/safety-tests.ts",
+    "test:definitive-transcript": "tsx scripts/definitive-transcript-tests.ts",
     "test:live-brain-smoke": "tsx scripts/live-brain-smoke.ts",
     "configure:google-auth": "tsx scripts/configure-supabase-google-auth.ts",
     "verify:google-auth": "tsx scripts/verify-google-auth.ts"

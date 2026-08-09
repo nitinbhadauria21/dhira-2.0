@@ -9,6 +9,7 @@ import { localMonitor } from '@/lib/localBrain';
 import { CRISIS_MESSAGE, NEUTRAL_FAILSAFE } from '@/lib/safetyCopy';
 import { isEscalateCrisisDraft } from '@/lib/conversationContext';
 import { sanityCheckMonitor } from '@/lib/riskSanity';
+import { mayUseOfflineDemoTemplates, LiveBrainUnavailableError } from '@/lib/brainPolicy';
 import type { EscalationResult, MonitorResult } from '@/lib/types';
 
 export interface MonitorInput {
@@ -108,6 +109,9 @@ export async function reviewReply(input: MonitorInput): Promise<MonitorResult> {
   }
 
   if (!isLiveBrainEnabled()) {
+    if (!mayUseOfflineDemoTemplates()) {
+      throw new LiveBrainUnavailableError('no live brain for monitor');
+    }
     return sanityCheckMonitor(input.userMessage, input.context, offlineMonitor(input));
   }
 

@@ -2,6 +2,7 @@ import { anthropicText, isLiveBrainEnabled } from '@/lib/anthropic';
 import { PRIMARY_LIVE_SYSTEM } from '@/agents/prompts/agentPromptsLive';
 import { localPrimaryReply } from '@/lib/localBrain';
 import { buildPrimaryMessageBundle } from '@/lib/conversationContext';
+import { LiveBrainUnavailableError, mayUseOfflineDemoTemplates } from '@/lib/brainPolicy';
 import { NEUTRAL_FAILSAFE } from '@/lib/safetyCopy';
 import type { Language } from '@/lib/types';
 import type { ClaudeTurn } from '@/lib/anthropic';
@@ -19,6 +20,9 @@ export interface PrimaryInput {
 /** Produce Dhira's warm listener draft reply. */
 export async function draftReply(input: PrimaryInput): Promise<string> {
   if (!isLiveBrainEnabled()) {
+    if (!mayUseOfflineDemoTemplates()) {
+      throw new LiveBrainUnavailableError('no live brain key');
+    }
     return localPrimaryReply({ userMessage: input.userMessage, language: input.language });
   }
 
@@ -38,6 +42,9 @@ export async function draftReply(input: PrimaryInput): Promise<string> {
   try {
     return await anthropicText({ agent: 'primaryAgent', system, messages, maxTokens: 300 });
   } catch {
+    if (!mayUseOfflineDemoTemplates()) {
+      throw new LiveBrainUnavailableError('primary live call failed');
+    }
     return localPrimaryReply({ userMessage: input.userMessage, language: input.language }) || NEUTRAL_FAILSAFE;
   }
 }
