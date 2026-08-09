@@ -28,8 +28,8 @@ Anyone can rebuild the Demo Day clock + send flows without tribal knowledge:
 Users message your Twilio WhatsApp number → Twilio POSTs to **`/api/twilio/whatsapp`** → Dhira runs the same **`runChatTurn`** pipeline as web chat (escalation + monitor + Tele-MANAS **14416** on crisis) → response is **TwiML** `<Message>`.
 
 1. Set `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_NUMBER` (+`OPENROUTER_API_KEY` or `ANTHROPIC_API_KEY`) in `.env.local` / Vercel. Use **E.164** for the number (`+17016958623`), not `whatsapp:+...`.
-2. Set `APP_URL` to your public origin (required for webhook signature validation in production).
-3. Twilio Console → WhatsApp sender → **When a message comes in** → `POST` `https://<host>/api/twilio/whatsapp`.
+2. Set `APP_URL` to your public origin (used for Emergent callbacks; inbound Twilio signature uses the **same URL as Twilio Console** — usually the request host on Vercel).
+3. Twilio Console → WhatsApp sender (or Sandbox) → **When a message comes in** → `POST` `https://<host>/api/twilio/whatsapp` (**no trailing slash**). Sandbox `+14155238886`: testers must send `join <sandbox-keyword>` once before chatting.
 4. Local dev: tunnel (ngrok) to `http://localhost:4028/api/twilio/whatsapp`, or set `TWILIO_VALIDATE_WEBHOOK=false` and test with `curl`.
 5. Legacy alias: `/api/twilio/webhook` uses the same handler. **Rotate** Auth Token if it was ever pasted in chat or committed.
 
@@ -70,6 +70,7 @@ Expect something like:
 | `WHATSAPP_ENABLED` | `true` for proactive outbound WhatsApp via Twilio (`notify.ts`) |
 | `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` / `TWILIO_WHATSAPP_NUMBER` | Twilio WhatsApp (E.164 for number, no `whatsapp:` prefix) |
 | `TWILIO_VALIDATE_WEBHOOK` | Set `false` locally to POST test webhooks without Twilio signature |
+| `TWILIO_WEBHOOK_PUBLIC_URL` | Optional full webhook URL if Console differs from `APP_URL` + path |
 | `CHECKIN_SECRET` | Protects scheduled `/api/checkin` triggers |
 | `APP_URL` | Public app URL (Emergent callbacks + Twilio signature URL) |
 
