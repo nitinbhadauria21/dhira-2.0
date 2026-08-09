@@ -15,7 +15,18 @@ import {
   turnsForMoodTagging,
 } from '@/lib/conversationContext';
 import { mergePatternProfile } from '@/lib/localBrain';
-import { setBrainCallContext, recordBrainUsed, getLiveBrainTelemetry } from '@/lib/liveBrainTelemetry';
+import {
+  setBrainCallContext,
+  recordBrainUsed,
+  getLiveBrainTelemetry,
+  type BrainUsed,
+} from '@/lib/liveBrainTelemetry';
+import { LIVE_PROMPT_VERSION } from '@/agents/prompts/agentPromptsLive';
+import {
+  holdingReply,
+  LiveBrainUnavailableError,
+  mayUseOfflineDemoTemplates,
+} from '@/lib/brainPolicy';
 import {
   shouldUseEarlyCrisisHandoff,
   sanityCheckMonitor,
@@ -23,7 +34,8 @@ import {
   isTrivialLowRiskMessage,
   contextHasElevatedRisk,
 } from '@/lib/riskSanity';
-import type { ChatChannel, RiskLevel } from '@/lib/types';
+import type { ChatChannel, Language, RiskLevel } from '@/lib/types';
+import type { EscalationResult } from '@/lib/types';
 
 export interface ChatTurnResult {
   reply: string;
@@ -33,11 +45,15 @@ export interface ChatTurnResult {
   mood?: string;
   topicTag?: string;
   moodTagSource?: 'live' | 'offline';
-  brainUsed?: 'live' | 'offline';
+  brainUsed?: BrainUsed;
 }
 
 function hoursAgoIso(hours: number): string {
   return new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
+}
+
+function liveFailedDuringTurn(fallbackCountAtTurnStart: number): boolean {
+  return getLiveBrainTelemetry().fallbackCount > fallbackCountAtTurnStart;
 }
 
 export async function runChatTurn(params: {
@@ -51,13 +67,14 @@ export async function runChatTurn(params: {
   const fallbackCountAtTurnStart = getLiveBrainTelemetry().fallbackCount;
   const store = getStore();
   const profile = await store.getOrCreateProfile(uid);
+  const language: Language = profile.language;
   const now = () => new Date().toISOString();
 
   const risk72hEvents = await store.getRiskEventsForProfileSince(uid, hoursAgoIso(72));
   const riskHistory72h = formatRiskHistory72h(risk72hEvents);
   const recentRiskSummary = formatRecentRiskSummary(risk72hEvents);
 
-  const convo = await buildConversationContext(uid, profile.language, {
+  const convo = await buildConversationContext(uid, language, {
     userPatternProfile: profile.userPatternProfile,
     recentRiskSummary,
     riskHistory72h,
@@ -86,19 +103,66 @@ export async function runChatTurn(params: {
     contextUnavailable: convo.contextUnavailable,
   });
 
-  const finish = (partial: Omit<ChatTurnResult, 'brainUsed'>): ChatTurnResult => {
-    const fellBackDuringTurn =
-      getLiveBrainTelemetry().fallbackCount > fallbackCountAtTurnStart;
-    const brainUsed: 'live' | 'offline' =
-      liveConfigured && !fellBackDuringTurn ? 'live' : 'offline';
+  const finish = (
+    partial: Omit<ChatTurnResult, 'brainUsed'>,
+    brainUsedOverride?: BrainUsed,
+  ): ChatTurnResult => {
+    const fellBackDuringTurn = liveFailedDuringTurn(fallbackCountAtTurnStart);
+    let brainUsed: BrainUsed =
+      brainUsedOverride ??
+      (liveConfigured && !fellBackDuringTurn ? 'live' : mayUseOfflineDemoTemplates() ? 'offline' : 'holding');
+    if (!brainUsedOverride && fellBackDuringTurn && !mayUseOfflineDemoTemplates()) {
+      brainUsed = 'holding';
+    }
     recordBrainUsed({
       brainUsed,
       channel,
       riskLevel: partial.riskLevel,
-      moodLabel: partial.mood,
+      moodLabel: partial.mood ?? (brainUsed === 'holding' ? 'untagged' : undefined),
       moodTagSource: partial.moodTagSource,
+      promptVersion: LIVE_PROMPT_VERSION,
     });
     return { ...partial, brainUsed };
+  };
+
+  const completeHoldingTurn = async (
+    riskLevel: RiskLevel,
+    escalation: EscalationResult,
+  ): Promise<ChatTurnResult> => {
+    const reply = holdingReply(language);
+    await store.addMessage({
+      id: randomUUID(),
+      profileId: uid,
+      role: 'dhira',
+      content: reply,
+      channel,
+      createdAt: now(),
+    });
+    const showReferralCard =
+      riskLevel === 'MEDIUM' ||
+      riskLevel === 'HIGH' ||
+      escalation.risk_level === 'MEDIUM' ||
+      escalation.risk_level === 'HIGH';
+    if (showReferralCard) {
+      await store.addRiskEvent({
+        id: randomUUID(),
+        profileId: uid,
+        riskLevel: riskLevel === 'HIGH' || escalation.risk_level === 'HIGH' ? 'HIGH' : 'MEDIUM',
+        signal: escalation.signal || 'distress (holding path)',
+        riskClassification: escalation.classification ?? null,
+        handled: true,
+        createdAt: now(),
+      });
+    }
+    return finish(
+      {
+        reply,
+        crisis: false,
+        showReferralCard,
+        riskLevel,
+      },
+      'holding',
+    );
   };
 
   if (shouldUseEarlyCrisisHandoff(risk)) {
@@ -128,184 +192,208 @@ export async function runChatTurn(params: {
     });
   }
 
-  const memory = profile.consentMemory ? await store.getLatestMemory(uid) : null;
-  const draft = await draftReply({
-    history: convo.historyTurns,
-    conversationSummary: convo.conversationSummary,
-    userMessage,
-    memorySummary: memory?.summary ?? null,
-    userPatternProfile: profile.userPatternProfile,
-    language: profile.language,
-    contextUnavailable: convo.contextUnavailable,
-  });
-
-  const primaryEscalate =
-    isEscalateCrisisDraft(draft) &&
-    !(isTrivialLowRiskMessage(userMessage) && !contextHasElevatedRisk(convo.contextString));
-
-  if (primaryEscalate) {
-    debugRiskLog({ path: 'primary_escalate_crisis', draft, userMessage });
-    await store.addRiskEvent({
-      id: randomUUID(),
-      profileId: uid,
-      riskLevel: 'CRISIS',
-      signal: 'primary ESCALATE_CRISIS',
-      riskClassification: 'genuine_risk_self',
-      handled: true,
-      createdAt: now(),
-    });
-    await store.addMessage({
-      id: randomUUID(),
-      profileId: uid,
-      role: 'dhira',
-      content: CRISIS_MESSAGE,
-      channel,
-      createdAt: now(),
-    });
-    return finish({
-      reply: CRISIS_MESSAGE,
-      crisis: true,
-      showReferralCard: false,
-      riskLevel: 'CRISIS',
-    });
+  if (!liveConfigured && !mayUseOfflineDemoTemplates()) {
+    return completeHoldingTurn(risk.risk_level, risk);
   }
 
-  let reviewed = await reviewReply({
-    userMessage,
-    context: convo.contextString,
-    draftReply: draft,
-    escalation: risk,
-    userPatternProfile: profile.userPatternProfile,
-    recentSentReplies: convo.recentSentReplies,
-    contextUnavailable: convo.contextUnavailable,
-  });
-  reviewed = sanityCheckMonitor(userMessage, convo.contextString, reviewed);
-
-  debugRiskLog({
-    draft: draft.slice(0, 120),
-    monitorDecision: reviewed.decision,
-    monitorRisk: reviewed.risk_level,
-    escalation: risk,
-    recentSentReplies: convo.recentSentReplies?.slice(0, 200),
-    userMessage: userMessage.slice(0, 80),
-  });
-
-  if (reviewed.decision === 'BLOCK_AND_REPLACE' && reviewed.risk_level === 'CRISIS') {
-    await store.addRiskEvent({
-      id: randomUUID(),
-      profileId: uid,
-      riskLevel: 'CRISIS',
-      signal: reviewed.issues_found.join('; ') || 'monitor crisis block',
-      riskClassification: risk.classification ?? 'genuine_risk_self',
-      handled: true,
-      createdAt: now(),
-    });
-    await store.addMessage({
-      id: randomUUID(),
-      profileId: uid,
-      role: 'dhira',
-      content: reviewed.approved_or_rewritten_response,
-      channel,
-      createdAt: now(),
-    });
-    return finish({
-      reply: reviewed.approved_or_rewritten_response,
-      crisis: true,
-      showReferralCard: false,
-      riskLevel: 'CRISIS',
-    });
-  }
-
-  const finalReply = reviewed.approved_or_rewritten_response;
-
-  await store.addMessage({
-    id: randomUUID(),
-    profileId: uid,
-    role: 'dhira',
-    content: finalReply,
-    channel,
-    createdAt: now(),
-  });
-
-  let taggedMood: string | undefined;
-  let taggedTopic: string | undefined;
-  let moodTagSource: 'live' | 'offline' | undefined;
   try {
-    const mood = await tagMood({
-      text: userMessage,
-      recentTurns: moodContextTurns,
-      channel,
+    const memory = profile.consentMemory ? await store.getLatestMemory(uid) : null;
+    const draft = await draftReply({
+      history: convo.historyTurns,
+      conversationSummary: convo.conversationSummary,
+      userMessage,
+      memorySummary: memory?.summary ?? null,
+      userPatternProfile: profile.userPatternProfile,
+      language,
+      contextUnavailable: convo.contextUnavailable,
     });
-    taggedMood = mood.mood;
-    taggedTopic = mood.topic_tag;
-    moodTagSource = mood.moodTagSource;
-    await store.addMood({
-      id: randomUUID(),
-      profileId: uid,
-      mood: mood.mood,
-      valence: mood.valence,
-      emotionalIntensity: mood.emotional_intensity,
-      topicTag: mood.topic_tag,
-      source: 'chat',
-      moodTagSource: mood.moodTagSource,
-      createdAt: now(),
-    });
-  } catch {
-    /* best-effort */
-  }
 
-  if (profile.consentMemory) {
-    try {
-      const prior = await store.getRecentMessages(uid, 8);
-      const convoText = prior.map((m) => `${m.role}: ${m.content}`).join('\n');
-      const mem = await summarizeMemory({
-        conversation: convoText,
-        language: profile.language,
-        channel,
-      });
-      await store.addMemory({
+    if (liveFailedDuringTurn(fallbackCountAtTurnStart) && !mayUseOfflineDemoTemplates()) {
+      return completeHoldingTurn(risk.risk_level, risk);
+    }
+
+    const primaryEscalate =
+      isEscalateCrisisDraft(draft) &&
+      !(isTrivialLowRiskMessage(userMessage) && !contextHasElevatedRisk(convo.contextString));
+
+    if (primaryEscalate) {
+      debugRiskLog({ path: 'primary_escalate_crisis', draft, userMessage });
+      await store.addRiskEvent({
         id: randomUUID(),
         profileId: uid,
-        summary: mem.summary,
-        mood: mem.mood,
-        topicTag: mem.topic_tag,
-        carryForward: mem.carry_forward,
+        riskLevel: 'CRISIS',
+        signal: 'primary ESCALATE_CRISIS',
+        riskClassification: 'genuine_risk_self',
+        handled: true,
         createdAt: now(),
       });
-      const mergedProfile = mergePatternProfile(profile.userPatternProfile, mem.pattern_profile_update);
-      if (mergedProfile !== profile.userPatternProfile) {
-        await store.updateProfile(uid, { userPatternProfile: mergedProfile });
-      }
-    } catch {
-      /* best-effort */
+      await store.addMessage({
+        id: randomUUID(),
+        profileId: uid,
+        role: 'dhira',
+        content: CRISIS_MESSAGE,
+        channel,
+        createdAt: now(),
+      });
+      return finish({
+        reply: CRISIS_MESSAGE,
+        crisis: true,
+        showReferralCard: false,
+        riskLevel: 'CRISIS',
+      });
     }
-  }
 
-  const showReferralCard =
-    reviewed.risk_level === 'MEDIUM' ||
-    reviewed.risk_level === 'HIGH' ||
-    risk.risk_level === 'MEDIUM' ||
-    risk.risk_level === 'HIGH';
+    let reviewed = await reviewReply({
+      userMessage,
+      context: convo.contextString,
+      draftReply: draft,
+      escalation: risk,
+      userPatternProfile: profile.userPatternProfile,
+      recentSentReplies: convo.recentSentReplies,
+      contextUnavailable: convo.contextUnavailable,
+    });
+    reviewed = sanityCheckMonitor(userMessage, convo.contextString, reviewed);
 
-  if (showReferralCard) {
-    await store.addRiskEvent({
+    if (liveFailedDuringTurn(fallbackCountAtTurnStart) && !mayUseOfflineDemoTemplates()) {
+      return completeHoldingTurn(reviewed.risk_level, risk);
+    }
+
+    debugRiskLog({
+      draft: draft.slice(0, 120),
+      monitorDecision: reviewed.decision,
+      monitorRisk: reviewed.risk_level,
+      escalation: risk,
+      recentSentReplies: convo.recentSentReplies?.slice(0, 200),
+      userMessage: userMessage.slice(0, 80),
+    });
+
+    if (reviewed.decision === 'BLOCK_AND_REPLACE' && reviewed.risk_level === 'CRISIS') {
+      await store.addRiskEvent({
+        id: randomUUID(),
+        profileId: uid,
+        riskLevel: 'CRISIS',
+        signal: reviewed.issues_found.join('; ') || 'monitor crisis block',
+        riskClassification: risk.classification ?? 'genuine_risk_self',
+        handled: true,
+        createdAt: now(),
+      });
+      await store.addMessage({
+        id: randomUUID(),
+        profileId: uid,
+        role: 'dhira',
+        content: reviewed.approved_or_rewritten_response,
+        channel,
+        createdAt: now(),
+      });
+      return finish({
+        reply: reviewed.approved_or_rewritten_response,
+        crisis: true,
+        showReferralCard: false,
+        riskLevel: 'CRISIS',
+      });
+    }
+
+    const finalReply = reviewed.approved_or_rewritten_response;
+
+    await store.addMessage({
       id: randomUUID(),
       profileId: uid,
-      riskLevel: reviewed.risk_level === 'HIGH' || risk.risk_level === 'HIGH' ? 'HIGH' : 'MEDIUM',
-      signal: risk.signal || reviewed.issues_found.join('; ') || 'distress',
-      riskClassification: risk.classification ?? null,
-      handled: true,
+      role: 'dhira',
+      content: finalReply,
+      channel,
       createdAt: now(),
     });
-  }
 
-  return finish({
-    reply: finalReply,
-    crisis: false,
-    showReferralCard,
-    riskLevel: reviewed.risk_level,
-    mood: taggedMood,
-    topicTag: taggedTopic,
-    moodTagSource,
-  });
+    let taggedMood: string | undefined;
+    let taggedTopic: string | undefined;
+    let moodTagSource: 'live' | 'offline' | undefined;
+    const mayTagMood = mayUseOfflineDemoTemplates() || (liveConfigured && !liveFailedDuringTurn(fallbackCountAtTurnStart));
+    if (mayTagMood) {
+      try {
+        const mood = await tagMood({
+          text: userMessage,
+          recentTurns: moodContextTurns,
+          channel,
+        });
+        taggedMood = mood.mood;
+        taggedTopic = mood.topic_tag;
+        moodTagSource = mood.moodTagSource;
+        await store.addMood({
+          id: randomUUID(),
+          profileId: uid,
+          mood: mood.mood,
+          valence: mood.valence,
+          emotionalIntensity: mood.emotional_intensity,
+          topicTag: mood.topic_tag,
+          source: 'chat',
+          moodTagSource: mood.moodTagSource,
+          createdAt: now(),
+        });
+      } catch (err) {
+        if (err instanceof LiveBrainUnavailableError && !mayUseOfflineDemoTemplates()) {
+          /* holding path: no keyword mood */
+        }
+      }
+    }
+
+    if (profile.consentMemory) {
+      try {
+        const prior = await store.getRecentMessages(uid, 8);
+        const convoText = prior.map((m) => `${m.role}: ${m.content}`).join('\n');
+        const mem = await summarizeMemory({
+          conversation: convoText,
+          language,
+          channel,
+        });
+        await store.addMemory({
+          id: randomUUID(),
+          profileId: uid,
+          summary: mem.summary,
+          mood: mem.mood,
+          topicTag: mem.topic_tag,
+          carryForward: mem.carry_forward,
+          createdAt: now(),
+        });
+        const mergedProfile = mergePatternProfile(profile.userPatternProfile, mem.pattern_profile_update);
+        if (mergedProfile !== profile.userPatternProfile) {
+          await store.updateProfile(uid, { userPatternProfile: mergedProfile });
+        }
+      } catch {
+        /* best-effort */
+      }
+    }
+
+    const showReferralCard =
+      reviewed.risk_level === 'MEDIUM' ||
+      reviewed.risk_level === 'HIGH' ||
+      risk.risk_level === 'MEDIUM' ||
+      risk.risk_level === 'HIGH';
+
+    if (showReferralCard) {
+      await store.addRiskEvent({
+        id: randomUUID(),
+        profileId: uid,
+        riskLevel: reviewed.risk_level === 'HIGH' || risk.risk_level === 'HIGH' ? 'HIGH' : 'MEDIUM',
+        signal: risk.signal || reviewed.issues_found.join('; ') || 'distress',
+        riskClassification: risk.classification ?? null,
+        handled: true,
+        createdAt: now(),
+      });
+    }
+
+    return finish({
+      reply: finalReply,
+      crisis: false,
+      showReferralCard,
+      riskLevel: reviewed.risk_level,
+      mood: taggedMood,
+      topicTag: taggedTopic,
+      moodTagSource,
+    });
+  } catch (err) {
+    if (err instanceof LiveBrainUnavailableError || (!mayUseOfflineDemoTemplates() && liveConfigured)) {
+      return completeHoldingTurn(risk.risk_level, risk);
+    }
+    throw err;
+  }
 }

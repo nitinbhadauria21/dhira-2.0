@@ -2,6 +2,7 @@ import { anthropicJSON, isLiveBrainEnabled } from '@/lib/anthropic';
 import { MOOD_LIVE_SYSTEM } from '@/agents/prompts/agentPromptsLive';
 import { formatTurnsTranscript } from '@/lib/conversationContext';
 import { localMoodTag } from '@/lib/localBrain';
+import { LiveBrainUnavailableError, mayUseOfflineDemoTemplates } from '@/lib/brainPolicy';
 import { recordLiveBrainFallback, getBrainCallContext } from '@/lib/liveBrainTelemetry';
 import type { MoodTagResult, ChatChannel } from '@/lib/types';
 import type { ClaudeTurn } from '@/lib/anthropic';
@@ -16,6 +17,9 @@ export async function tagMood(params: {
   const { text, recentTurns = [], channel = 'app' } = params;
 
   if (!isLiveBrainEnabled()) {
+    if (!mayUseOfflineDemoTemplates()) {
+      throw new LiveBrainUnavailableError('no live brain for mood tagging');
+    }
     return { ...localMoodTag(text), moodTagSource: 'offline' };
   }
 
@@ -41,6 +45,9 @@ export async function tagMood(params: {
       detail: err instanceof Error ? err.message : String(err),
       channel: channel ?? getBrainCallContext().channel,
     });
+    if (!mayUseOfflineDemoTemplates()) {
+      throw new LiveBrainUnavailableError('mood tagging live call failed');
+    }
     return { ...localMoodTag(text), moodTagSource: 'offline' };
   }
 }

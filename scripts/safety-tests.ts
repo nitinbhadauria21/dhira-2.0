@@ -17,6 +17,8 @@ import { formatTurnsTranscript } from '../src/lib/conversationContext';
 import type { ClaudeTurn } from '../src/lib/anthropic';
 import { BOUNDARY_LINE, CRISIS_MESSAGE, NEUTRAL_FAILSAFE } from '../src/lib/safetyCopy';
 import { shouldUseEarlyCrisisHandoff } from '../src/lib/riskSanity';
+import { LiveBrainUnavailableError, holdingReply } from '../src/lib/brainPolicy';
+import { localMoodTag } from '../src/lib/localBrain';
 
 let passed = 0;
 let failed = 0;
@@ -426,6 +428,41 @@ async function main() {
       'kms',
     ]);
     check('CRISIS or HIGH path', r.escalation.risk_level === 'CRISIS' || r.escalation.risk_level === 'HIGH' || r.finalReply.includes('14416'));
+  }
+
+  console.log('\n--- Definitive fail-closed (D2, F) ---');
+
+  console.log('\nD2. Fail-closed holding (no offline templates without flag)');
+  {
+    const prevAllow = process.env.DHIRA_ALLOW_OFFLINE;
+    const prevOr = process.env.OPENROUTER_API_KEY;
+    const prevAnth = process.env.ANTHROPIC_API_KEY;
+    process.env.DHIRA_ALLOW_OFFLINE = '';
+    process.env.OPENROUTER_API_KEY = '';
+    process.env.ANTHROPIC_API_KEY = '';
+    let threw = false;
+    try {
+      await draftReply({
+        history: [],
+        userMessage: 'I feel like locking myself in a room.',
+        language: 'hinglish',
+      });
+    } catch (e) {
+      threw = e instanceof LiveBrainUnavailableError;
+    }
+    check('draftReply throws LiveBrainUnavailableError', threw);
+    const hold = holdingReply('english');
+    check('holding mentions 14416', hold.includes('14416'));
+    check('holding is not hopeful template', !hold.includes('Achha laga sunke'));
+    process.env.DHIRA_ALLOW_OFFLINE = prevAllow;
+    process.env.OPENROUTER_API_KEY = prevOr;
+    process.env.ANTHROPIC_API_KEY = prevAnth;
+  }
+
+  console.log('\nF. Keyword-tag extinction (offline demo classifier)');
+  {
+    const m = localMoodTag('Nothing feels good anymore, honestly.');
+    check('not hopeful on negated good', m.mood !== 'hopeful' && m.valence <= 0);
   }
 
   console.log(`\n${passed} passed, ${failed} failed.`);

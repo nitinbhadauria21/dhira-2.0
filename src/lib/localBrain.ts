@@ -185,6 +185,12 @@ export function localMoodTag(text: string): MoodTagResult {
     return { mood: 'overwhelmed', valence: -0.6, emotional_intensity: 0.7, topic_tag: topic(lower) };
   if (has(/\b(stressed|pressure|deadline)\b/))
     return { mood: 'stressed', valence: -0.4, emotional_intensity: 0.55, topic_tag: topic(lower) };
+  if (
+    /\b(nothing|no|not|n't|never|hardly|without)\b/.test(lower) &&
+    /\bgood\b/.test(lower)
+  ) {
+    return { mood: 'sad', valence: -0.55, emotional_intensity: 0.55, topic_tag: topic(lower) };
+  }
   if (has(/\b(better|okay|theek|hopeful|calm|good|acha)\b/))
     return { mood: 'hopeful', valence: 0.4, emotional_intensity: 0.4, topic_tag: topic(lower) };
   return { mood: 'neutral', valence: 0, emotional_intensity: 0.3, topic_tag: topic(lower) };

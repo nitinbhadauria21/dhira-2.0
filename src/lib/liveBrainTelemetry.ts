@@ -1,7 +1,8 @@
 import type { AgentName } from '@/config/models';
 import type { ChatChannel } from '@/lib/types';
+import { LIVE_PROMPT_VERSION } from '@/agents/prompts/agentPromptsLive';
 
-export type BrainUsed = 'live' | 'offline';
+export type BrainUsed = 'live' | 'offline' | 'holding';
 
 interface BrainCallContext {
   channel?: ChatChannel;
@@ -20,6 +21,7 @@ const state = {
     moodLabel?: string;
     moodTagSource?: string;
     brainUsed: BrainUsed;
+    promptVersion: string;
   } | null,
 };
 
@@ -54,10 +56,12 @@ export function recordBrainUsed(params: {
   riskLevel: string;
   moodLabel?: string;
   moodTagSource?: string;
+  promptVersion?: string;
 }): void {
+  const promptVersion = params.promptVersion ?? LIVE_PROMPT_VERSION;
   state.lastBrainUsed = params.brainUsed;
-  state.lastTurnMeta = params;
-  const line = `BRAIN_USED: ${params.brainUsed} | ${params.channel} | ${params.riskLevel} | ${params.moodLabel ?? 'n/a'} | ${params.moodTagSource ?? 'n/a'}`;
+  state.lastTurnMeta = { ...params, promptVersion };
+  const line = `BRAIN_USED: ${params.brainUsed} | ${params.channel} | ${params.riskLevel} | ${params.moodLabel ?? 'untagged'} | ${params.moodTagSource ?? 'n/a'} | ${promptVersion}`;
   if (process.env.NODE_ENV === 'development' || process.env.DHIRA_LOG_BRAIN === '1') {
     console.info(line);
   }

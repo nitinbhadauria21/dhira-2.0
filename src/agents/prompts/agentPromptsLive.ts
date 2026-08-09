@@ -8,6 +8,8 @@ import {
   PRIMARY_SYSTEM_V3,
 } from '@/agents/prompts/v3Prompts';
 
+export const LIVE_PROMPT_VERSION = 'v2.2-live';
+
 /** Primary — full v2/v2.2 humanization (spec §4); v3 block includes UNDERSTAND FIRST + register matching. */
 export const PRIMARY_LIVE_SYSTEM = `${PRIMARY_SYSTEM_V3}
 
