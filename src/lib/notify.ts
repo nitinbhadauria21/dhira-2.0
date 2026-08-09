@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
 import twilio from 'twilio';
+import { normalizeTwilioWhatsAppAddress } from '@/lib/twilio/phone';
 import { getStore } from '@/lib/store';
 import type { NotifyChannel, NotificationType, Profile, NotificationRecord } from '@/lib/types';
 
@@ -97,9 +98,9 @@ export async function enqueueAndSend(params: EnqueueParams): Promise<Notificatio
       if (!toPhone) throw new Error('Missing phone number');
 
       const message = await client.messages.create({
-        from: `whatsapp:${fromNumber}`,
-        to: `whatsapp:${toPhone}`,
-        body: params.content, // Using raw content for Twilio messaging
+        from: normalizeTwilioWhatsAppAddress(fromNumber),
+        to: normalizeTwilioWhatsAppAddress(toPhone),
+        body: params.content,
       });
 
       await store.updateNotificationStatus(record.id, 'sent', message.sid);
