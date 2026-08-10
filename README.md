@@ -86,7 +86,8 @@ Expect something like:
 4. **Project Settings → API Keys** → copy URL, publishable key, secret key into `.env.local`.
 5. **Google OAuth:** follow [`docs/SUPABASE_GOOGLE_AUTH.md`](./docs/SUPABASE_GOOGLE_AUTH.md) (redirect URLs + Google Cloud client).
 6. **Phone OTP (SMS):** follow [`docs/SUPABASE_PHONE_OTP.md`](./docs/SUPABASE_PHONE_OTP.md) (Supabase Phone provider + Twilio SMS — separate from WhatsApp webhook).
-7. Restart `npm run dev`.
+7. **Password reset:** follow [`docs/SUPABASE_PASSWORD_RESET.md`](./docs/SUPABASE_PASSWORD_RESET.md) (Forgot Password on sign-in).
+8. Restart `npm run dev`.
 
 ---
 

@@ -116,6 +116,49 @@ export async function verifyOtp(
   return postJson('/api/auth/otp/verify', { phone: normalized, code, alias, state, city });
 }
 
+const PASSWORD_RESET_DEV_MSG =
+  'Password reset needs Supabase connected. Add your Supabase URL and anon key in .env.local (see docs/SUPABASE_PASSWORD_RESET.md).';
+
+/** Where Supabase sends the user after they click the reset link in email. */
+export function passwordResetCallbackUrl(): string {
+  return `${window.location.origin}/auth/callback?next=${encodeURIComponent('/reset-password')}`;
+}
+
+/** Email a reset link (Supabase Auth). Always show success in UI if no throw — avoids email enumeration. */
+export async function requestPasswordReset(email: string): Promise<void> {
+  const trimmed = email.trim();
+  if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+    throw new Error('Please enter a valid email address.');
+  }
+  const sb = getBrowserSupabase();
+  if (!sb) throw new Error(PASSWORD_RESET_DEV_MSG);
+  const { error } = await sb.auth.resetPasswordForEmail(trimmed, {
+    redirectTo: passwordResetCallbackUrl(),
+  });
+  if (error) throw new Error(error.message);
+}
+
+/** After recovery link opened: set new password, then Dhira session cookie. */
+export async function completePasswordReset(newPassword: string): Promise<void> {
+  if (newPassword.length < 8) {
+    throw new Error('Please use at least 8 characters for your new password.');
+  }
+  const sb = getBrowserSupabase();
+  if (!sb) throw new Error(PASSWORD_RESET_DEV_MSG);
+  const { error: updateError } = await sb.auth.updateUser({ password: newPassword });
+  if (updateError) throw new Error(updateError.message);
+  const { data: sessionData, error: sessionError } = await sb.auth.getSession();
+  if (sessionError || !sessionData.session?.access_token) {
+    throw new Error('Password updated but session missing. Please sign in with your new password.');
+  }
+  const { data: userData } = await sb.auth.getUser();
+  const email = userData.user?.email ?? undefined;
+  await postJson('/api/auth/session', {
+    accessToken: sessionData.session.access_token,
+    email,
+  });
+}
+
 export async function signOut() {
   const sb = getBrowserSupabase();
   if (sb) await sb.auth.signOut().catch(() => {});
