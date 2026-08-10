@@ -88,6 +88,25 @@ See [AGENTS.md](../AGENTS.md) (cross-channel / v3 §8.1).
 | WhatsApp thread separate from app | Profile phone ≠ WhatsApp **From**; fix number on Profile or re-verify OTP with correct E.164 |
 | Sign-in via phone only, alias “Friend” | Expected if user skipped **/sign-up** — use sign-up for alias + location |
 
+### Invalid From / `VA…` (Twilio error 21212)
+
+**Symptom (in the app):**  
+`Error sending confirmation OTP to provider: Invalid From Number (caller ID): VAxxxxxxxx…`  
+([Twilio 21212](https://www.twilio.com/docs/errors/21212))
+
+**Cause:** A **Twilio Verify Service SID** (starts with **`VA`**) was saved in the **Programmable SMS “From”** field. Verify IDs are not phone numbers and cannot be used as SMS caller ID.
+
+**Fix (pick one path in Supabase → Authentication → Providers → Phone):**
+
+| You want | Supabase SMS provider | What to paste |
+|----------|----------------------|---------------|
+| **OTP via Twilio Verify** (common for login codes) | **Twilio Verify** | Account SID, Auth Token, **Verify Service SID** (`VA…`) in the Verify service field — not in “From phone number” |
+| **OTP via plain SMS** | **Twilio** | Account SID, Auth Token, and a **Twilio phone number** in E.164 (e.g. `+14155551234`) or a **Messaging Service SID** (`MG…`) — **never** `VA…` |
+
+After saving, wait a minute and tap **Send verification code** again.
+
+**India (`+91`):** Your Twilio number or Verify service must be allowed to send SMS to India (regulatory / geo permissions in Twilio Console).
+
 ## 8. Edge cases
 
 - **Sign-in** with phone only (no sign-up) creates a Supabase user and profile with default alias **Friend** — fine for quick login; onboarding path is **/sign-up** → Phone OTP.

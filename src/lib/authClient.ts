@@ -2,6 +2,7 @@
 
 import { getBrowserSupabase } from './supabaseBrowser';
 import { normalizePhoneE164, phoneAuthError } from './twilio/phone';
+import { formatPhoneOtpSendError } from './phoneOtpErrors';
 
 /**
  * Client auth helpers. Each one works in both modes:
@@ -79,7 +80,7 @@ export async function requestOtp(phone: string): Promise<{ devCode?: string }> {
   const sb = getBrowserSupabase();
   if (sb) {
     const { error } = await sb.auth.signInWithOtp({ phone: normalized });
-    if (error) throw new Error(error.message);
+    if (error) throw new Error(formatPhoneOtpSendError(error.message));
     return {};
   }
   return postJson('/api/auth/otp/request', { phone: normalized });
@@ -103,7 +104,7 @@ export async function verifyOtp(
       token: code,
       type: 'sms',
     });
-    if (error) throw new Error(error.message);
+    if (error) throw new Error(formatPhoneOtpSendError(error.message));
     return postJson('/api/auth/session', {
       accessToken: data.session?.access_token,
       phone: normalized,
