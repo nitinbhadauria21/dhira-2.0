@@ -1,6 +1,8 @@
 'use client';
 
 import { getBrowserSupabase } from './supabaseBrowser';
+import { normalizePhoneE164, phoneAuthError } from './twilio/phone';
+import { formatPhoneOtpSendError } from './phoneOtpErrors';
 
 /**
  * Client auth helpers. Each one works in both modes:
@@ -72,13 +74,16 @@ export async function signInEmail(email: string, password: string) {
 
 /** Returns { devCode } in dev mode so the tester can enter it. */
 export async function requestOtp(phone: string): Promise<{ devCode?: string }> {
+  const authErr = phoneAuthError(phone);
+  if (authErr) throw new Error(authErr);
+  const normalized = normalizePhoneE164(phone);
   const sb = getBrowserSupabase();
   if (sb) {
-    const { error } = await sb.auth.signInWithOtp({ phone });
-    if (error) throw new Error(error.message);
+    const { error } = await sb.auth.signInWithOtp({ phone: normalized });
+    if (error) throw new Error(formatPhoneOtpSendError(error.message));
     return {};
   }
-  return postJson('/api/auth/otp/request', { phone });
+  return postJson('/api/auth/otp/request', { phone: normalized });
 }
 
 export async function verifyOtp(
@@ -87,21 +92,28 @@ export async function verifyOtp(
   alias?: string,
   location?: SignUpLocation,
 ) {
+  const authErr = phoneAuthError(phone);
+  if (authErr) throw new Error(authErr);
+  const normalized = normalizePhoneE164(phone);
   const state = location?.state?.trim() || undefined;
   const city = location?.city?.trim() || undefined;
   const sb = getBrowserSupabase();
   if (sb) {
-    const { data, error } = await sb.auth.verifyOtp({ phone, token: code, type: 'sms' });
-    if (error) throw new Error(error.message);
+    const { data, error } = await sb.auth.verifyOtp({
+      phone: normalized,
+      token: code,
+      type: 'sms',
+    });
+    if (error) throw new Error(formatPhoneOtpSendError(error.message));
     return postJson('/api/auth/session', {
       accessToken: data.session?.access_token,
-      phone,
+      phone: normalized,
       state,
       city,
       alias: alias || 'Friend',
     });
   }
-  return postJson('/api/auth/otp/verify', { phone, code, alias, state, city });
+  return postJson('/api/auth/otp/verify', { phone: normalized, code, alias, state, city });
 }
 
 export async function signOut() {
