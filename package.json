@@ -15,7 +15,9 @@
     "test:definitive-transcript": "tsx scripts/definitive-transcript-tests.ts",
     "test:live-brain-smoke": "tsx scripts/live-brain-smoke.ts",
     "configure:google-auth": "tsx scripts/configure-supabase-google-auth.ts",
-    "verify:google-auth": "tsx scripts/verify-google-auth.ts"
+    "verify:google-auth": "tsx scripts/verify-google-auth.ts",
+    "ensure:supabase-auth-urls": "tsx scripts/ensure-supabase-auth-urls.ts",
+    "verify:password-reset": "tsx scripts/verify-password-reset.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.112.3",

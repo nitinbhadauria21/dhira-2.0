@@ -10,20 +10,22 @@ export const dynamic = 'force-dynamic';
 function safeNextPath(raw: string | null): string {
   if (!raw || !raw.startsWith('/') || raw.startsWith('//')) return '/onboarding';
   if (raw.startsWith('/auth/callback')) return '/onboarding';
+  if (raw === '/reset-password') return '/reset-password';
   return raw;
 }
 
 /**
- * GET /auth/callback — completes Supabase OAuth (Google) on the server.
- * Exchanges ?code= for a session (PKCE cookies), sets dhira_session, redirects.
+ * GET /auth/callback — Supabase PKCE: Google OAuth and password recovery links.
+ * Exchanges ?code= for a session (PKCE cookies). Recovery stops before dhira_session.
  */
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
+  const rawNext = requestUrl.searchParams.get('next');
+  const isPasswordRecovery = rawNext === '/reset-password';
   const oauthError =
     requestUrl.searchParams.get('error_description') ||
     requestUrl.searchParams.get('error');
-  const next = safeNextPath(requestUrl.searchParams.get('next'));
 
   if (oauthError) {
     const signIn = new URL('/sign-in', requestUrl.origin);
@@ -33,7 +35,12 @@ export async function GET(request: Request) {
 
   if (!code) {
     const signIn = new URL('/sign-in', requestUrl.origin);
-    signIn.searchParams.set('error', 'Google sign-in did not return an authorization code.');
+    signIn.searchParams.set(
+      'error',
+      isPasswordRecovery
+        ? 'Password reset link did not include a valid code. Request a new link.'
+        : 'Google sign-in did not return an authorization code.',
+    );
     return NextResponse.redirect(signIn);
   }
 
@@ -50,10 +57,17 @@ export async function GET(request: Request) {
     const signIn = new URL('/sign-in', requestUrl.origin);
     signIn.searchParams.set(
       'error',
-      exchangeError.message || 'Could not complete Google sign-in.',
+      exchangeError.message ||
+        (isPasswordRecovery ? 'Could not open password reset link.' : 'Could not complete Google sign-in.'),
     );
     return NextResponse.redirect(signIn);
   }
+
+  if (isPasswordRecovery) {
+    return NextResponse.redirect(new URL('/reset-password', requestUrl.origin));
+  }
+
+  const next = safeNextPath(rawNext);
 
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError || !userData.user) {

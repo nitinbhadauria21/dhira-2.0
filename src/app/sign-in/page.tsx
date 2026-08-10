@@ -244,9 +244,12 @@ function SignInContent() {
                   onChange={setPassword}
                   label="Password"
                   labelRight={
-                    <a href="#" style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--color-primary)' }}>
-                      Forgot?
-                    </a>
+                    <Link
+                      href="/forgot-password"
+                      style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--color-primary)' }}
+                    >
+                      Forgot Password
+                    </Link>
                   }
                 />
               </div>
