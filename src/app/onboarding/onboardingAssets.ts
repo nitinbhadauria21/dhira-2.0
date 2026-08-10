@@ -12,8 +12,10 @@
 export const ONBOARDING_BUDDY_WIDTH = 78;
 
 export const onboardingAssets = {
-  /** Step 0 splash — full-bleed page background (robot right; copy left). */
-  splashBackground: '/illustrations/spot_onboarding_dhira_path.png',
+  /** Step 0 splash — landscape frame; full scene visible (contain), robot on the right. */
+  splashBackground: '/illustrations/spot_onboarding_dhira_path_landscape.png',
+  /** Portrait source for narrow viewports (still contained inside landscape-ratio card). */
+  splashBackgroundPortrait: '/illustrations/spot_onboarding_dhira_path.png',
   /** Step 0 inline hero (legacy banner; unused when splash uses full background). */
   splashHero: '/illustrations/spot_onboarding_dhira_path_landscape.png',
   /** Portrait source kept for archive / re-export only. */
