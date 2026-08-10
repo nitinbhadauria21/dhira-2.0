@@ -18,7 +18,8 @@
     "verify:google-auth": "tsx scripts/verify-google-auth.ts",
     "ensure:supabase-auth-urls": "tsx scripts/ensure-supabase-auth-urls.ts",
     "verify:password-reset": "tsx scripts/verify-password-reset.ts",
-    "configure:password-reset-template": "tsx scripts/configure-password-reset-template.ts"
+    "configure:password-reset-template": "tsx scripts/configure-password-reset-template.ts",
+    "configure:password-reset": "tsx scripts/configure-password-reset.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.112.3",

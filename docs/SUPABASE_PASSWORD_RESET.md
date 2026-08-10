@@ -1,120 +1,47 @@
-# Email password reset (Supabase) — Dhira checklist
+# Email password reset (Supabase)
 
-Passwords for **email + password** accounts live in **Supabase Auth** only. After reset, sign-in always uses the new password—no extra sync in Dhira’s profile store.
+Passwords for **email + password** accounts live in **Supabase Auth**. Dhira does not store your password separately.
 
-**Related:** [Google sign-in](./SUPABASE_GOOGLE_AUTH.md) · [Phone OTP](./SUPABASE_PHONE_OTP.md) (no password to reset)
+## For you (after setup is done)
 
-## 1. Environment (Vercel + `.env.local`)
+1. **Sign in** → **Forgot Password** → enter your email → **Send reset link**.
+2. Open the **new** email (request a fresh link if an older one failed) → **Reset password** → choose a new password.
+3. You should land on the **home dashboard**. Sign out and sign in again with the **new** password to confirm.
 
-Same keys as other Supabase auth docs:
+Use an account created with **email + password**, not phone-only OTP.
 
-| Variable | Where |
-|----------|--------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Settings → API |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Publishable / anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Secret key (server `/api/auth/session`) |
+Production app: **https://dhira-2-0-xi.vercel.app**
 
-Production: **https://dhira-2-0-xi.vercel.app**
+**Related:** [Google sign-in](./SUPABASE_GOOGLE_AUTH.md) · [Phone OTP](./SUPABASE_PHONE_OTP.md)
 
-## 2. Supabase → Authentication
+---
 
-1. **Providers → Email** — enabled (password reset uses email).
-2. **URL configuration** — redirect URLs must include:
-   - `https://dhira-2-0-xi.vercel.app/auth/callback`
-   - `http://localhost:4028/auth/callback`  
-   (Google OAuth uses `/auth/callback`. Password reset uses **`/auth/confirm`** — same Site URL, no extra whitelist for query params.)
+## Setup (Cloud Agent / developers)
 
-3. **Email templates → Reset password (required for mobile / different browser)**
+The agent runs **`npm run configure:password-reset`** once per Supabase project (needs `SUPABASE_ACCESS_TOKEN` in the environment). That sets redirect URLs and the recovery email template (`token_hash` → `/auth/confirm`, works on phone and desktop).
 
-   The default link uses PKCE and often fails with *“PKCE code verifier not found”* when the email opens on a phone or another browser.
-
-   **Option A — one command (recommended, no dashboard editing):**
-
-   ```bash
-   SUPABASE_ACCESS_TOKEN=sbp_... npm run configure:password-reset-template
-   ```
-
-   Create a token under [Supabase Account → Access Tokens](https://supabase.com/dashboard/account/tokens). Then request a **new** reset email from Dhira.
-
-   **Option B — dashboard (if the UI lets you edit):**
-
-   1. Open **Authentication → Email Templates → Reset password**.
-   2. Click **Source** (not **Preview** — Preview is read-only).
-   3. Either paste [`supabase/templates/reset-password.html`](../supabase/templates/reset-password.html), **or** keep your current text and only change the **Reset password** link `href` to:
-
-      ```text
-      {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password
-      ```
-
-   4. **Save**, then request a **new** reset email.
-
-   If **Save** is greyed out or variables are stripped, use **Option A** instead.
-
-### One command (developers / agent)
-
-If you have a Supabase access token:
-
-```bash
-SUPABASE_ACCESS_TOKEN=sbp_... npm run ensure:supabase-auth-urls
-```
-
-Verify:
+Verify production:
 
 ```bash
 npm run verify:password-reset
 ```
 
-## 3. App flow (code)
+### App routes
 
-| Step | Route / file |
-|------|----------------|
-| Sign-in link | [`/sign-in`](/sign-in) → **Forgot Password** → [`/forgot-password`](/forgot-password) |
-| Send link | `requestPasswordReset` in [`src/lib/authClient.ts`](../src/lib/authClient.ts) |
-| Email link | Supabase → [`GET /auth/confirm?token_hash=…&type=recovery`](../src/app/auth/confirm/route.ts) (server `verifyOtp`, no PKCE) |
-| New password | [`/reset-password`](../src/app/reset-password/page.tsx) → `updateUser` + `/api/auth/session` |
-| Done | Redirect **`/home-dashboard`** |
+| Step | Route |
+|------|--------|
+| Forgot Password link | `/forgot-password` |
+| Email link | `/auth/confirm?token_hash=…&type=recovery` |
+| New password | `/reset-password` → `/home-dashboard` |
 
-```mermaid
-sequenceDiagram
-  participant User
-  participant Forgot as forgot_password
-  participant Supabase
-  participant Callback as auth_callback
-  participant Reset as reset_password
+Implementation: [`src/lib/authClient.ts`](../src/lib/authClient.ts), [`src/app/auth/confirm/route.ts`](../src/app/auth/confirm/route.ts).
 
-  User->>Forgot: Email + Send reset link
-  Forgot->>Supabase: resetPasswordForEmail
-  User->>Callback: Click email link
-  Callback->>Reset: auth/confirm verifyOtp token_hash
-  User->>Reset: New password
-  Reset->>Supabase: updateUser
-  Reset->>User: dhira_session + dashboard
-```
+### Troubleshooting
 
-## 4. Test
+| Symptom | Fix |
+|---------|-----|
+| PKCE code verifier not found | Run `configure:password-reset` again; request a **new** reset email |
+| Link expired | Request a new reset email from Forgot Password |
+| Phone-only account | Use **Phone OTP** on sign-in — no password to reset |
 
-```bash
-npm run dev
-```
-
-1. Open **http://localhost:4028/sign-in** (Email tab) → **Forgot Password**.
-2. Enter an account that was created with **email + password** (not phone-only).
-3. Open the email → set new password → land on **home dashboard**.
-4. Sign out → sign in with the **new** password only.
-
-## 5. Troubleshooting
-
-| Symptom | Likely cause |
-|---------|----------------|
-| **PKCE code verifier not found** | Reset email still uses default PKCE template — paste [`supabase/templates/reset-password.html`](../supabase/templates/reset-password.html) in Supabase, **Save**, request a **new** link |
-| No email | Supabase mailer / SMTP; spam folder; rate limits |
-| Redirect / “invalid link” | Missing `/auth/callback` in Supabase redirect URLs — run `ensure:supabase-auth-urls` |
-| Reset page says link expired | Open link on same browser; request a new link (links expire) |
-| Phone user | No password — use **Phone OTP** on sign-in instead |
-| Dev without Supabase keys | Forgot flow shows “Connect Supabase” — use `.env.local` with real keys |
-
-## 6. Who can reset?
-
-- **Email + password** sign-up or sign-in: yes.
-- **Google OAuth** only: use Google account recovery, not this page.
-- **Phone OTP** only: no password — not applicable.
+Technical checklist for agents: [AGENTS.md](../AGENTS.md).
