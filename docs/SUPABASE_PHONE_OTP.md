@@ -82,6 +82,7 @@ See [AGENTS.md](../AGENTS.md) (cross-channel / v3 §8.1).
 | Symptom | Likely cause |
 |---------|----------------|
 | No SMS | Phone provider off in Supabase; wrong Twilio creds; trial/geo limits |
+| **Trial / unverified number (21608)** | Twilio Trial — verify the signup number under Verified caller IDs, or upgrade Twilio |
 | Invalid phone / OTP | Not E.164; typo; expired code — use **Send Code** again |
 | `Use Supabase phone OTP in live mode` (network) | Client called `/api/auth/otp/*` while Supabase is configured — use sign-in UI / `authClient` |
 | Verify OK but not logged in | **`/api/auth/session`** failed — check server logs, **`SUPABASE_SERVICE_ROLE_KEY`** |
@@ -106,6 +107,25 @@ See [AGENTS.md](../AGENTS.md) (cross-channel / v3 §8.1).
 After saving, wait a minute and tap **Send verification code** again.
 
 **India (`+91`):** Your Twilio number or Verify service must be allowed to send SMS to India (regulatory / geo permissions in Twilio Console).
+
+### Twilio trial — unverified number (21608)
+
+**Symptom in Dhira:**  
+`The phone number is unverified. Trial accounts cannot send messages to unverified numbers`  
+([Twilio 21608](https://www.twilio.com/docs/errors/21608))
+
+**Cause:** Supabase sends login OTP through **Twilio**. On a **Trial** Twilio account, SMS can only go to numbers you add under **Verified caller IDs** — not every Indian mobile until the account is upgraded.
+
+**Fix for testing (same number you use in sign-up, e.g. `+919665029933`):**
+
+1. Open [Twilio Console → Verified caller IDs](https://console.twilio.com/us1/develop/phone-numbers/manage/verified).
+2. Click **Add a new number**, enter the full E.164 number (with `+91`).
+3. Complete Twilio’s verification step (they SMS/call you once).
+4. In Dhira, tap **Send verification code** again.
+
+**Fix for production (any user can sign up):** Upgrade Twilio from Trial to a paid account and complete SMS/geo requirements for **India (+91)** in Twilio (and keep Supabase Phone provider credentials in sync).
+
+**Optional — Supabase test OTP (no SMS):** Supabase Dashboard → **Authentication → Phone** (or Auth settings) → configure **test phone numbers** with fixed OTP codes for demo only — see [Supabase phone auth docs](https://supabase.com/docs/guides/auth/phone-login).
 
 ## 8. Edge cases
 

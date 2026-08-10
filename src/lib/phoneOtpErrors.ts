@@ -18,6 +18,18 @@ export function formatPhoneOtpSendError(raw: string): string {
     );
   }
 
+  // Twilio 21608 — trial account, destination not on Verified Caller IDs
+  if (
+    lower.includes('21608') ||
+    (lower.includes('unverified') && lower.includes('trial'))
+  ) {
+    return (
+      'This phone number cannot receive SMS yet because your Twilio account is on a free trial. ' +
+      'In Twilio Console → Phone Numbers → Verified caller IDs, add this exact number (+91… in E.164), confirm the code Twilio texts you, then tap Send verification code again. ' +
+      'For real users in production, upgrade the Twilio account (or use a paid messaging setup). See docs/SUPABASE_PHONE_OTP.md § Twilio trial (21608).'
+    );
+  }
+
   if (lower.includes('error sending confirmation otp') && lower.includes('provider')) {
     return `${msg} — Check Supabase → Authentication → Phone (Twilio vs Twilio Verify). See docs/SUPABASE_PHONE_OTP.md.`;
   }
