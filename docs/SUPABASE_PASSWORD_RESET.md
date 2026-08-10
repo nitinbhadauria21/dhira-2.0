@@ -24,10 +24,31 @@ Production: **https://dhira-2-0-xi.vercel.app**
    - `http://localhost:4028/auth/callback`  
    (Google OAuth uses `/auth/callback`. Password reset uses **`/auth/confirm`** — same Site URL, no extra whitelist for query params.)
 
-3. **Email templates → Reset password (required)** — use **`token_hash`**, not the default PKCE `ConfirmationURL`.  
-   Copy the body from [`supabase/templates/reset-password.html`](../supabase/templates/reset-password.html) into Supabase Dashboard → **Authentication → Email Templates → Reset password**, then **Save**.
+3. **Email templates → Reset password (required for mobile / different browser)**
 
-   Why: default PKCE links fail with *“PKCE code verifier not found”* when the email opens on another browser or device (very common on mobile).
+   The default link uses PKCE and often fails with *“PKCE code verifier not found”* when the email opens on a phone or another browser.
+
+   **Option A — one command (recommended, no dashboard editing):**
+
+   ```bash
+   SUPABASE_ACCESS_TOKEN=sbp_... npm run configure:password-reset-template
+   ```
+
+   Create a token under [Supabase Account → Access Tokens](https://supabase.com/dashboard/account/tokens). Then request a **new** reset email from Dhira.
+
+   **Option B — dashboard (if the UI lets you edit):**
+
+   1. Open **Authentication → Email Templates → Reset password**.
+   2. Click **Source** (not **Preview** — Preview is read-only).
+   3. Either paste [`supabase/templates/reset-password.html`](../supabase/templates/reset-password.html), **or** keep your current text and only change the **Reset password** link `href` to:
+
+      ```text
+      {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password
+      ```
+
+   4. **Save**, then request a **new** reset email.
+
+   If **Save** is greyed out or variables are stripped, use **Option A** instead.
 
 ### One command (developers / agent)
 

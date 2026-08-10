@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import type { EmailOtpType } from '@supabase/supabase-js';
 import AuthScenePanel from '@/components/AuthScenePanel';
 import BrandLockup from '@/components/BrandLockup';
 import PasswordRevealInput from '@/components/PasswordRevealInput';
@@ -12,6 +13,7 @@ import { getBrowserSupabase } from '@/lib/supabaseBrowser';
 
 function ResetPasswordContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -29,6 +31,48 @@ function ResetPasswordContent() {
         }
         return;
       }
+
+      const tokenHash = searchParams.get('token_hash');
+      const otpType = searchParams.get('type') as EmailOtpType | null;
+      if (tokenHash && otpType) {
+        const { error: verifyErr } = await sb.auth.verifyOtp({
+          type: otpType,
+          token_hash: tokenHash,
+        });
+        if (verifyErr) {
+          if (!cancelled) {
+            router.replace(
+              `/forgot-password?error=${encodeURIComponent(verifyErr.message || 'Invalid reset link')}`,
+            );
+          }
+          return;
+        }
+        if (!cancelled) {
+          router.replace('/reset-password');
+          setCheckingSession(false);
+        }
+        return;
+      }
+
+      const code = searchParams.get('code');
+      if (code) {
+        const { error: exchangeErr } = await sb.auth.exchangeCodeForSession(code);
+        if (exchangeErr) {
+          if (!cancelled) {
+            const msg = /pkce|code verifier/i.test(exchangeErr.message)
+              ? 'Open the reset email on the same browser where you clicked Send reset link, or ask your developer to run configure:password-reset-template.'
+              : exchangeErr.message;
+            router.replace(`/forgot-password?error=${encodeURIComponent(msg)}`);
+          }
+          return;
+        }
+        if (!cancelled) {
+          router.replace('/reset-password');
+          setCheckingSession(false);
+        }
+        return;
+      }
+
       const { data } = await sb.auth.getSession();
       if (!cancelled) {
         if (!data.session) {
@@ -41,7 +85,7 @@ function ResetPasswordContent() {
     return () => {
       cancelled = true;
     };
-  }, [router]);
+  }, [router, searchParams]);
 
   const handleSubmit = async () => {
     setError(null);
@@ -168,7 +212,13 @@ function ResetPasswordContent() {
 export default function ResetPasswordPage() {
   return (
     <ThemeProvider>
-      <ResetPasswordContent />
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg)' }}>
+          <p style={{ fontFamily: 'var(--font-ui)', color: 'var(--color-text-muted)' }}>Loading…</p>
+        </div>
+      }>
+        <ResetPasswordContent />
+      </Suspense>
     </ThemeProvider>
   );
 }
