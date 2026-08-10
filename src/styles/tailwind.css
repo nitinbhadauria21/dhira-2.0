@@ -653,6 +653,122 @@
       0 8px 24px rgba(0, 0, 0, 0.35);
   }
 
+  /* Onboarding splash — full-bleed scene; copy on left, DHIRA robot stays on the right */
+  .onboarding-splash-scene {
+    position: relative;
+    width: 100%;
+    min-height: min(88vh, 820px);
+    border-radius: clamp(20px, 3vw, 28px);
+    overflow: hidden;
+    background-color: #1a1530;
+    box-shadow:
+      inset 0 0 80px rgba(0, 0, 0, 0.35),
+      var(--shadow-soft);
+  }
+
+  [data-theme='day'] .onboarding-splash-scene {
+    background-color: #e8e4f4;
+  }
+
+  .onboarding-splash-bg {
+    background-image: var(--onboarding-splash-bg-url);
+    background-size: cover;
+    background-position: 68% center;
+    background-repeat: no-repeat;
+  }
+
+  .onboarding-splash-scrim {
+    background: linear-gradient(
+      to right,
+      rgba(18, 14, 32, 0.94) 0%,
+      rgba(18, 14, 32, 0.88) 38%,
+      rgba(18, 14, 32, 0.35) 52%,
+      rgba(18, 14, 32, 0.08) 62%,
+      transparent 72%
+    );
+  }
+
+  [data-theme='day'] .onboarding-splash-scrim {
+    background: linear-gradient(
+      to right,
+      rgba(252, 250, 255, 0.96) 0%,
+      rgba(252, 250, 255, 0.9) 38%,
+      rgba(252, 250, 255, 0.45) 52%,
+      rgba(252, 250, 255, 0.12) 62%,
+      transparent 72%
+    );
+  }
+
+  .onboarding-splash-inner {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: inherit;
+    height: 100%;
+    padding: clamp(28px, 6vw, 56px) clamp(24px, 5vw, 48px);
+    box-sizing: border-box;
+  }
+
+  .onboarding-splash-copy {
+    width: min(100%, 420px);
+    text-align: left;
+  }
+
+  .onboarding-splash-copy h1 {
+    color: var(--color-text);
+    text-shadow:
+      0 2px 20px color-mix(in srgb, var(--color-bg) 85%, transparent),
+      0 1px 2px color-mix(in srgb, var(--color-bg) 70%, transparent);
+  }
+
+  .onboarding-splash-copy p,
+  .onboarding-splash-copy .onboarding-splash-footnote {
+    color: var(--color-text-muted);
+    text-shadow: 0 1px 12px color-mix(in srgb, var(--color-bg) 80%, transparent);
+  }
+
+  .onboarding-splash-copy .btn-accent {
+    box-shadow:
+      0 0 20px rgba(239, 169, 74, 0.4),
+      0 8px 24px rgba(0, 0, 0, 0.25);
+  }
+
+  @media (max-width: 767px) {
+    .onboarding-splash-bg {
+      background-position: center 55%;
+    }
+
+    .onboarding-splash-scrim {
+      background: linear-gradient(
+        to bottom,
+        rgba(18, 14, 32, 0.94) 0%,
+        rgba(18, 14, 32, 0.9) 42%,
+        rgba(18, 14, 32, 0.45) 58%,
+        transparent 78%
+      );
+    }
+
+    [data-theme='day'] .onboarding-splash-scrim {
+      background: linear-gradient(
+        to bottom,
+        rgba(252, 250, 255, 0.97) 0%,
+        rgba(252, 250, 255, 0.92) 42%,
+        rgba(252, 250, 255, 0.5) 58%,
+        transparent 78%
+      );
+    }
+
+    .onboarding-splash-inner {
+      align-items: flex-start;
+      padding-top: clamp(32px, 8vw, 48px);
+    }
+
+    .onboarding-splash-copy {
+      width: 100%;
+      max-width: 36rem;
+    }
+  }
+
   /* CalmLink floating buddy — bob / halo / contact shadow */
   @keyframes dhira-bob {
     0%,
