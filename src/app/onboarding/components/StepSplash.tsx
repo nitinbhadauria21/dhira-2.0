@@ -12,13 +12,18 @@ export default function StepSplash({ onNext }: Props) {
     <section
       className="onboarding-splash-scene"
       aria-labelledby="onboarding-splash-heading"
-      style={
-        {
-          ['--onboarding-splash-bg-url' as string]: `url('${onboardingAssets.splashBackground}')`,
-        } as React.CSSProperties
-      }
     >
-      <div aria-hidden className="onboarding-splash-bg absolute inset-0" />
+      {/* Full-width image sets scene height — nothing cropped (no background-size: cover). */}
+      <img
+        src={onboardingAssets.splashBackground}
+        alt=""
+        aria-hidden
+        className="onboarding-splash-bg block w-full h-auto"
+        width={1024}
+        height={1536}
+        decoding="async"
+        fetchPriority="high"
+      />
       <div aria-hidden className="onboarding-splash-scrim absolute inset-0" />
 
       <div className="onboarding-splash-inner relative z-10">

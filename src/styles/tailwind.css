@@ -657,7 +657,6 @@
   .onboarding-splash-scene {
     position: relative;
     width: 100%;
-    min-height: min(88vh, 820px);
     border-radius: clamp(20px, 3vw, 28px);
     overflow: hidden;
     background-color: #1a1530;
@@ -671,10 +670,12 @@
   }
 
   .onboarding-splash-bg {
-    background-image: var(--onboarding-splash-bg-url);
-    background-size: cover;
-    background-position: 68% center;
-    background-repeat: no-repeat;
+    display: block;
+    width: 100%;
+    height: auto;
+    vertical-align: middle;
+    pointer-events: none;
+    user-select: none;
   }
 
   .onboarding-splash-scrim {
@@ -700,11 +701,11 @@
   }
 
   .onboarding-splash-inner {
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    min-height: inherit;
-    height: 100%;
     padding: clamp(28px, 6vw, 56px) clamp(24px, 5vw, 48px);
     box-sizing: border-box;
   }
@@ -734,10 +735,6 @@
   }
 
   @media (max-width: 767px) {
-    .onboarding-splash-bg {
-      background-position: center 55%;
-    }
-
     .onboarding-splash-scrim {
       background: linear-gradient(
         to bottom,
