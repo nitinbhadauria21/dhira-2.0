@@ -168,8 +168,10 @@ export default function OnboardingFlow() {
       </header>
 
       {/* Step content */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 py-8">
-        <div className={`w-full ${contentMaxClass}`}>
+      <main
+        className={`flex-1 flex flex-col items-center px-6 py-8 ${step === 0 ? 'justify-center' : 'justify-center'}`}
+      >
+        <div className={`w-full ${step === 0 ? 'max-w-5xl' : contentMaxClass}`}>
           {step === 0 && <StepSplash onNext={next} />}
           {step === 1 && <StepPrivacy onNext={next} onBack={back} />}
           {step === 2 && (
