@@ -22,8 +22,12 @@ Production: **https://dhira-2-0-xi.vercel.app**
 2. **URL configuration** — redirect URLs must include:
    - `https://dhira-2-0-xi.vercel.app/auth/callback`
    - `http://localhost:4028/auth/callback`  
-   (Same as Google; query `?next=/reset-password` does not need a separate whitelist entry.)
-3. **Email templates → Reset password** — optional branding; link must reach your app via `redirectTo`.
+   (Google OAuth uses `/auth/callback`. Password reset uses **`/auth/confirm`** — same Site URL, no extra whitelist for query params.)
+
+3. **Email templates → Reset password (required)** — use **`token_hash`**, not the default PKCE `ConfirmationURL`.  
+   Copy the body from [`supabase/templates/reset-password.html`](../supabase/templates/reset-password.html) into Supabase Dashboard → **Authentication → Email Templates → Reset password**, then **Save**.
+
+   Why: default PKCE links fail with *“PKCE code verifier not found”* when the email opens on another browser or device (very common on mobile).
 
 ### One command (developers / agent)
 
@@ -45,7 +49,7 @@ npm run verify:password-reset
 |------|----------------|
 | Sign-in link | [`/sign-in`](/sign-in) → **Forgot Password** → [`/forgot-password`](/forgot-password) |
 | Send link | `requestPasswordReset` in [`src/lib/authClient.ts`](../src/lib/authClient.ts) |
-| Email link | Supabase → [`GET /auth/callback?code=…&next=/reset-password`](../src/app/auth/callback/route.ts) |
+| Email link | Supabase → [`GET /auth/confirm?token_hash=…&type=recovery`](../src/app/auth/confirm/route.ts) (server `verifyOtp`, no PKCE) |
 | New password | [`/reset-password`](../src/app/reset-password/page.tsx) → `updateUser` + `/api/auth/session` |
 | Done | Redirect **`/home-dashboard`** |
 
@@ -60,7 +64,7 @@ sequenceDiagram
   User->>Forgot: Email + Send reset link
   Forgot->>Supabase: resetPasswordForEmail
   User->>Callback: Click email link
-  Callback->>Reset: exchangeCode no dhira_session yet
+  Callback->>Reset: auth/confirm verifyOtp token_hash
   User->>Reset: New password
   Reset->>Supabase: updateUser
   Reset->>User: dhira_session + dashboard
@@ -81,6 +85,7 @@ npm run dev
 
 | Symptom | Likely cause |
 |---------|----------------|
+| **PKCE code verifier not found** | Reset email still uses default PKCE template — paste [`supabase/templates/reset-password.html`](../supabase/templates/reset-password.html) in Supabase, **Save**, request a **new** link |
 | No email | Supabase mailer / SMTP; spam folder; rate limits |
 | Redirect / “invalid link” | Missing `/auth/callback` in Supabase redirect URLs — run `ensure:supabase-auth-urls` |
 | Reset page says link expired | Open link on same browser; request a new link (links expire) |

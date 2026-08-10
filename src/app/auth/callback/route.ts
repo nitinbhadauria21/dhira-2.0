@@ -54,6 +54,17 @@ export async function GET(request: Request) {
   const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
   if (exchangeError) {
     console.error('[auth/callback] exchangeCodeForSession', exchangeError.message);
+    const pkceRecovery =
+      isPasswordRecovery &&
+      /pkce|code verifier/i.test(exchangeError.message);
+    if (pkceRecovery) {
+      const forgot = new URL('/forgot-password', requestUrl.origin);
+      forgot.searchParams.set(
+        'error',
+        'This reset link needs the updated email template in Supabase (token_hash). See docs/SUPABASE_PASSWORD_RESET.md — then request a new link.',
+      );
+      return NextResponse.redirect(forgot);
+    }
     const signIn = new URL('/sign-in', requestUrl.origin);
     signIn.searchParams.set(
       'error',
