@@ -10,6 +10,19 @@ export function normalizePhoneE164(raw: string): string {
   return s;
 }
 
+/** E.164 after normalize (country code + subscriber, 7–15 digits). */
+export const PHONE_E164_RE = /^\+[1-9]\d{6,14}$/;
+
+/** Normalize then validate for auth OTP. Returns error message or null if OK. */
+export function phoneAuthError(raw: string): string | null {
+  const normalized = normalizePhoneE164(raw);
+  if (!normalized) return 'Please enter your phone number.';
+  if (!PHONE_E164_RE.test(normalized)) {
+    return 'Include country code, e.g. +919876543210';
+  }
+  return null;
+}
+
 /** Lookup keys for matching stored profile phones to Twilio From. */
 export function phoneE164LookupVariants(e164: string): string[] {
   const primary = normalizePhoneE164(e164);

@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isSupabaseAuthConfigured } from '@/lib/store';
 import { createDevOtp } from '@/lib/auth';
+import { normalizePhoneE164, PHONE_E164_RE } from '@/lib/twilio/phone';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-
-const PHONE_RE = /^\+?[1-9]\d{6,14}$/;
 
 /**
  * POST /api/auth/otp/request  { phone }
@@ -19,9 +18,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Use Supabase phone OTP in live mode' }, { status: 400 });
     }
     const { phone } = await req.json().catch(() => ({}));
-    const normalized = String(phone ?? '').replace(/[\s-]/g, '');
-    if (!PHONE_RE.test(normalized)) {
-      return NextResponse.json({ error: 'Enter a valid phone number with country code' }, { status: 400 });
+    const normalized = normalizePhoneE164(String(phone ?? ''));
+    if (!PHONE_E164_RE.test(normalized)) {
+      return NextResponse.json(
+        { error: 'Enter a valid phone number with country code, e.g. +919876543210' },
+        { status: 400 },
+      );
     }
     const code = createDevOtp(normalized);
     // DEV ONLY: returning the code so it can be entered without real SMS.

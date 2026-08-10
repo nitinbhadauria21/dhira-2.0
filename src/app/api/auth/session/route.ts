@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getStore } from '@/lib/store';
 import { verifySupabaseToken, setSession } from '@/lib/auth';
 import type { Profile } from '@/lib/types';
+import { normalizePhoneE164 } from '@/lib/twilio/phone';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -25,7 +26,9 @@ export async function POST(req: NextRequest) {
     await store.getOrCreateProfile(uid);
     const patch: Partial<Profile> = {};
     if (typeof email === 'string') patch.email = email;
-    if (typeof phone === 'string') patch.phoneE164 = phone;
+    if (typeof phone === 'string' && phone.trim()) {
+      patch.phoneE164 = normalizePhoneE164(phone).slice(0, 20);
+    }
     if (typeof alias === 'string' && alias.trim()) patch.alias = alias.trim().slice(0, 60);
     if (typeof state === 'string' && state.trim()) patch.state = state.trim().slice(0, 80);
     if (typeof city === 'string' && city.trim()) patch.city = city.trim().slice(0, 80);

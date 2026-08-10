@@ -10,6 +10,7 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import { signUpEmail, requestOtp, verifyOtp, signInWithGoogle } from '@/lib/authClient';
 import { resetDhiraClientStateForNewAccount } from '@/lib/dhiraClientCache';
 import { INDIA_STATES } from '@/lib/indiaStates';
+import { phoneAuthError } from '@/lib/twilio/phone';
 
 function GoogleIcon() {
   return (
@@ -57,7 +58,7 @@ function SignUpContent() {
   const [city, setCity] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState('+91');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [devCode, setDevCode] = useState<string | null>(null);
@@ -74,7 +75,9 @@ function SignUpContent() {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return 'That email address does not look quite right.';
       if (password.length < 8) return 'Please create a password with at least 8 characters.';
     } else {
-      if (!phone.trim()) return 'Please enter your phone number with country code.';
+      if (!phone.trim() || phone.trim() === '+91') return 'Please enter your phone number with country code.';
+      const phoneErr = phoneAuthError(phone);
+      if (phoneErr) return phoneErr;
       if (otpSent && !otp.trim()) return 'Please enter the OTP code.';
     }
     if (!agreedTerms) return 'Please agree to the terms and conditions to continue.';
