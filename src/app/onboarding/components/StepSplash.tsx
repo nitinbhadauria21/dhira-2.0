@@ -12,27 +12,23 @@ export default function StepSplash({ onNext }: Props) {
     <section
       className="onboarding-splash-scene"
       aria-labelledby="onboarding-splash-heading"
+      style={
+        {
+          aspectRatio: '1200 / 760',
+          ['--onboarding-splash-bg-url' as string]: `url('${onboardingAssets.splashBackground}')`,
+          ['--onboarding-splash-bg-portrait-url' as string]: `url('${onboardingAssets.splashBackgroundPortrait}')`,
+        } as React.CSSProperties
+      }
     >
-      {/* Full-width image sets scene height — nothing cropped (no background-size: cover). */}
-      <img
-        src={onboardingAssets.splashBackground}
-        alt=""
-        aria-hidden
-        className="onboarding-splash-bg block w-full h-auto"
-        width={1024}
-        height={1536}
-        decoding="async"
-        fetchPriority="high"
-      />
+      <div aria-hidden className="onboarding-splash-bg absolute inset-0" />
       <div aria-hidden className="onboarding-splash-scrim absolute inset-0" />
-
-      <div className="onboarding-splash-inner relative z-10">
+      <div className="onboarding-splash-inner absolute inset-0 z-10">
         <div className="onboarding-splash-copy" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <h1
             id="onboarding-splash-heading"
             style={{
               fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(28px, 5vw, 44px)',
+              fontSize: 'clamp(26px, 4.2vw, 40px)',
               fontWeight: 650,
               lineHeight: 1.12,
               letterSpacing: '-0.03em',
@@ -44,9 +40,9 @@ export default function StepSplash({ onNext }: Props) {
           <p
             style={{
               fontFamily: 'var(--font-ui)',
-              fontSize: '17px',
+              fontSize: '16px',
               lineHeight: 1.65,
-              maxWidth: '38ch',
+              maxWidth: '36ch',
               margin: 0,
             }}
           >
@@ -58,7 +54,7 @@ export default function StepSplash({ onNext }: Props) {
             type="button"
             onClick={onNext}
             className="btn-accent"
-            style={{ fontSize: '17px', padding: '16px 48px', marginTop: '8px', alignSelf: 'flex-start' }}
+            style={{ fontSize: '16px', padding: '14px 40px', marginTop: '4px', alignSelf: 'flex-start' }}
           >
             Begin
           </button>
@@ -67,10 +63,10 @@ export default function StepSplash({ onNext }: Props) {
             className="onboarding-splash-footnote"
             style={{
               fontFamily: 'var(--font-ui)',
-              fontSize: '13px',
+              fontSize: '12px',
               lineHeight: 1.5,
               margin: 0,
-              marginTop: '4px',
+              marginTop: '2px',
             }}
           >
             Anonymous · Private · Free to use

@@ -653,10 +653,12 @@
       0 8px 24px rgba(0, 0, 0, 0.35);
   }
 
-  /* Onboarding splash — full-bleed scene; copy on left, DHIRA robot stays on the right */
+  /* Onboarding splash — landscape card (same ratio as landing CTA); art contained / zoomed out */
   .onboarding-splash-scene {
     position: relative;
     width: 100%;
+    aspect-ratio: 1200 / 760;
+    min-height: 240px;
     border-radius: clamp(20px, 3vw, 28px);
     overflow: hidden;
     background-color: #1a1530;
@@ -670,48 +672,44 @@
   }
 
   .onboarding-splash-bg {
-    display: block;
-    width: 100%;
-    height: auto;
-    vertical-align: middle;
-    pointer-events: none;
-    user-select: none;
+    background-image: var(--onboarding-splash-bg-url);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: right center;
   }
 
   .onboarding-splash-scrim {
     background: linear-gradient(
       to right,
       rgba(18, 14, 32, 0.94) 0%,
-      rgba(18, 14, 32, 0.88) 38%,
-      rgba(18, 14, 32, 0.35) 52%,
-      rgba(18, 14, 32, 0.08) 62%,
-      transparent 72%
+      rgba(18, 14, 32, 0.9) 32%,
+      rgba(18, 14, 32, 0.55) 44%,
+      rgba(18, 14, 32, 0.15) 52%,
+      transparent 62%
     );
   }
 
   [data-theme='day'] .onboarding-splash-scrim {
     background: linear-gradient(
       to right,
-      rgba(252, 250, 255, 0.96) 0%,
-      rgba(252, 250, 255, 0.9) 38%,
-      rgba(252, 250, 255, 0.45) 52%,
-      rgba(252, 250, 255, 0.12) 62%,
-      transparent 72%
+      rgba(252, 250, 255, 0.97) 0%,
+      rgba(252, 250, 255, 0.93) 32%,
+      rgba(252, 250, 255, 0.62) 44%,
+      rgba(252, 250, 255, 0.2) 52%,
+      transparent 62%
     );
   }
 
   .onboarding-splash-inner {
-    position: absolute;
-    inset: 0;
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    padding: clamp(28px, 6vw, 56px) clamp(24px, 5vw, 48px);
+    padding: clamp(20px, 4vw, 40px) clamp(20px, 4vw, 44px);
     box-sizing: border-box;
   }
 
   .onboarding-splash-copy {
-    width: min(100%, 420px);
+    width: min(100%, 380px);
     text-align: left;
   }
 
@@ -735,6 +733,17 @@
   }
 
   @media (max-width: 767px) {
+    .onboarding-splash-scene {
+      aspect-ratio: 16 / 10;
+      min-height: 200px;
+    }
+
+    .onboarding-splash-bg {
+      background-image: var(--onboarding-splash-bg-portrait-url);
+      background-position: center bottom;
+      background-size: contain;
+    }
+
     .onboarding-splash-scrim {
       background: linear-gradient(
         to bottom,
