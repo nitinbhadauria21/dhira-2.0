@@ -65,11 +65,15 @@ function SignInContent() {
   const [otpSent, setOtpSent] = useState(false);
   const [devCode, setDevCode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const oauthErr = searchParams.get('error');
     if (oauthErr) setError(oauthErr);
+    if (searchParams.get('passwordUpdated') === '1') {
+      setSuccess('Password updated. Sign in with your new password.');
+    }
   }, [searchParams]);
 
   const goAfterSignIn = () => {
@@ -221,6 +225,23 @@ function SignInContent() {
                   {m === 'email' ? 'Email' : 'Phone OTP'}
                 </button>
               ))}
+            </div>
+          )}
+
+          {success && (
+            <div
+              className="mb-4"
+              style={{
+                padding: '10px 12px',
+                borderRadius: 'var(--radius-control)',
+                backgroundColor: 'var(--color-surface-alt)',
+                border: '1px solid var(--color-primary)',
+                color: 'var(--color-text)',
+                fontFamily: 'var(--font-ui)',
+                fontSize: 13,
+              }}
+            >
+              {success}
             </div>
           )}
 

@@ -90,7 +90,7 @@ function ForgotPasswordContent() {
               Forgot Password
             </h2>
             <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--color-text-muted)', marginTop: 6 }}>
-              We will email you a reset link that works on any browser or phone. Phone-only accounts should use OTP on sign-in instead.
+              We will email you a reset link from Supabase. Open it in the same browser where you requested it. Phone-only accounts should use OTP on sign-in instead.
             </p>
           </div>
 
@@ -124,7 +124,7 @@ function ForgotPasswordContent() {
                 color: 'var(--color-text-muted)',
               }}
             >
-              If an account exists for that email, a reset link is on its way. Check your inbox and spam folder — you can open the link on any device or browser.
+              If an account exists for that email, Supabase will send a reset link. Check your inbox and spam folder — open the link in this same browser.
             </div>
           ) : (
             <>

@@ -3,6 +3,7 @@
 import { getBrowserSupabase } from './supabaseBrowser';
 import { normalizePhoneE164, phoneAuthError } from './twilio/phone';
 import { formatPhoneOtpSendError } from './phoneOtpErrors';
+import { formatPasswordResetError } from './passwordResetErrors';
 
 /**
  * Client auth helpers. Each one works in both modes:
@@ -119,12 +120,12 @@ export async function verifyOtp(
 const PASSWORD_RESET_DEV_MSG =
   'Password reset needs Supabase connected. Add your Supabase URL and anon key in .env.local (see docs/SUPABASE_PASSWORD_RESET.md).';
 
-/** Where Supabase may redirect after verify (PKCE fallback). token_hash emails use /auth/confirm. */
+/** Where Supabase redirects after the user clicks the reset link in email (default template). */
 export function passwordResetCallbackUrl(): string {
-  return `${window.location.origin}/reset-password`;
+  return `${window.location.origin}/auth/callback?next=/reset-password`;
 }
 
-/** Email a reset link (server generates cross-browser link). Always show success if no throw. */
+/** Email a reset link (Supabase Auth). Always show success in UI if no throw — avoids email enumeration. */
 export async function requestPasswordReset(email: string): Promise<void> {
   const trimmed = email.trim();
   if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
@@ -132,16 +133,13 @@ export async function requestPasswordReset(email: string): Promise<void> {
   }
   const sb = getBrowserSupabase();
   if (!sb) throw new Error(PASSWORD_RESET_DEV_MSG);
-  const res = await fetch('/api/auth/password-reset/request', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: trimmed }),
+  const { error } = await sb.auth.resetPasswordForEmail(trimmed, {
+    redirectTo: passwordResetCallbackUrl(),
   });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Could not send reset email');
+  if (error) throw new Error(formatPasswordResetError(error.message));
 }
 
-/** After recovery link opened: set new password, then Dhira session cookie. */
+/** After recovery link opened: save new password in Supabase, then sign out for a fresh sign-in. */
 export async function completePasswordReset(newPassword: string): Promise<void> {
   if (newPassword.length < 8) {
     throw new Error('Please use at least 8 characters for your new password.');
@@ -150,16 +148,7 @@ export async function completePasswordReset(newPassword: string): Promise<void> 
   if (!sb) throw new Error(PASSWORD_RESET_DEV_MSG);
   const { error: updateError } = await sb.auth.updateUser({ password: newPassword });
   if (updateError) throw new Error(updateError.message);
-  const { data: sessionData, error: sessionError } = await sb.auth.getSession();
-  if (sessionError || !sessionData.session?.access_token) {
-    throw new Error('Password updated but session missing. Please sign in with your new password.');
-  }
-  const { data: userData } = await sb.auth.getUser();
-  const email = userData.user?.email ?? undefined;
-  await postJson('/api/auth/session', {
-    accessToken: sessionData.session.access_token,
-    email,
-  });
+  await signOut();
 }
 
 export async function signOut() {
