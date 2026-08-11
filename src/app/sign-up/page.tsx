@@ -8,6 +8,7 @@ import BrandLockup from '@/components/BrandLockup';
 import PasswordRevealInput from '@/components/PasswordRevealInput';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { signUpEmail, requestOtp, verifyOtp, signInWithGoogle } from '@/lib/authClient';
+import { PHONE_OTP_AUTH_ENABLED } from '@/lib/authUi';
 import { resetDhiraClientStateForNewAccount } from '@/lib/dhiraClientCache';
 import { INDIA_STATES } from '@/lib/indiaStates';
 import { phoneAuthError } from '@/lib/twilio/phone';
@@ -66,11 +67,13 @@ function SignUpContent() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const showEmailForm = !PHONE_OTP_AUTH_ENABLED || mode === 'email';
+
   const firstError = () => {
     if (!alias.trim()) return 'Please choose a DHIRA alias.';
     if (!state.trim()) return 'Please select your state.';
     if (!city.trim()) return 'Please enter your city.';
-    if (mode === 'email') {
+    if (showEmailForm) {
       if (!email.trim()) return 'Please enter your email address.';
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return 'That email address does not look quite right.';
       if (password.length < 8) return 'Please create a password with at least 8 characters.';
@@ -147,6 +150,28 @@ function SignUpContent() {
 
   const incomplete = Boolean(firstError());
 
+  const handlePrimarySubmit = () => {
+    if (showEmailForm) {
+      handleSignUp();
+      return;
+    }
+    if (!otpSent) handleRequestOtp();
+    else handleVerifyOtp();
+  };
+
+  const primaryLabel = () => {
+    if (loading) {
+      if (!showEmailForm) {
+        return otpSent ? 'Verifying...' : 'Sending code...';
+      }
+      return 'Creating your account...';
+    }
+    if (!showEmailForm) {
+      return otpSent ? 'Verify & create account' : 'Send verification code';
+    }
+    return 'Create my DHIRA account';
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center px-6 py-10" style={{ backgroundColor: 'var(--color-bg)' }}>
       <div
@@ -172,7 +197,7 @@ function SignUpContent() {
             flexDirection: 'column',
             justifyContent: 'center',
             backgroundColor: 'var(--color-surface)',
-            minHeight: 660,
+            minHeight: PHONE_OTP_AUTH_ENABLED ? 660 : 620,
           }}
         >
           <div className="mb-6">
@@ -221,34 +246,36 @@ function SignUpContent() {
             <div style={{ flex: 1, height: 1, backgroundColor: 'var(--color-border)' }} />
           </div>
 
-          <div className="flex gap-2 mb-5 p-1 rounded-control" style={{ backgroundColor: 'var(--color-surface-alt)' }}>
-            {(['email', 'phone'] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => {
-                  setMode(m);
-                  setError(null);
-                  setOtpSent(false);
-                  setDevCode(null);
-                  setOtp('');
-                }}
-                className="flex-1 py-2 rounded-control transition-all"
-                style={{
-                  fontFamily: 'var(--font-ui)',
-                  fontSize: 14,
-                  fontWeight: 500,
-                  backgroundColor: mode === m ? 'var(--color-surface)' : 'transparent',
-                  color: mode === m ? 'var(--color-primary)' : 'var(--color-text-muted)',
-                  boxShadow: mode === m ? 'var(--shadow-card)' : 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                }}
-              >
-                {m === 'email' ? 'Email + password' : 'Phone + OTP'}
-              </button>
-            ))}
-          </div>
+          {PHONE_OTP_AUTH_ENABLED && (
+            <div className="flex gap-2 mb-5 p-1 rounded-control" style={{ backgroundColor: 'var(--color-surface-alt)' }}>
+              {(['email', 'phone'] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => {
+                    setMode(m);
+                    setError(null);
+                    setOtpSent(false);
+                    setDevCode(null);
+                    setOtp('');
+                  }}
+                  className="flex-1 py-2 rounded-control transition-all"
+                  style={{
+                    fontFamily: 'var(--font-ui)',
+                    fontSize: 14,
+                    fontWeight: 500,
+                    backgroundColor: mode === m ? 'var(--color-surface)' : 'transparent',
+                    color: mode === m ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                    boxShadow: mode === m ? 'var(--shadow-card)' : 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {m === 'email' ? 'Email + password' : 'Phone + OTP'}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="mb-4">
             <label htmlFor="signup-alias" style={labelStyle}>
@@ -298,7 +325,7 @@ function SignUpContent() {
             </div>
           </div>
 
-          {mode === 'email' ? (
+          {showEmailForm ? (
             <>
               <div className="mb-4">
                 <label htmlFor="signup-email" style={labelStyle}>
@@ -420,11 +447,7 @@ function SignUpContent() {
 
           <button
             type="button"
-            onClick={() => {
-              if (mode === 'email') handleSignUp();
-              else if (!otpSent) handleRequestOtp();
-              else handleVerifyOtp();
-            }}
+            onClick={handlePrimarySubmit}
             className="btn-accent w-full justify-center"
             style={{
               fontSize: 16,
@@ -434,17 +457,7 @@ function SignUpContent() {
             }}
             disabled={loading}
           >
-            {loading
-              ? mode === 'phone' && !otpSent
-                ? 'Sending code...'
-                : mode === 'phone'
-                  ? 'Verifying...'
-                  : 'Creating your account...'
-              : mode === 'phone' && !otpSent
-                ? 'Send verification code'
-                : mode === 'phone'
-                  ? 'Verify & create account'
-                  : 'Create my DHIRA account'}
+            {primaryLabel()}
           </button>
 
           <p className="text-center mt-5" style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--color-text-muted)' }}>

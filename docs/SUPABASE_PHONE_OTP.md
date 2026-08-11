@@ -2,6 +2,8 @@
 
 Use this once per Supabase project. Dhira’s code uses the browser Supabase client for live SMS OTP, then **`POST /api/auth/session`** for the unified **`dhira_session`** cookie.
 
+**UI note:** Phone OTP tabs are hidden in sign-in/sign-up while `PHONE_OTP_AUTH_ENABLED` is `false` in [`src/lib/authUi.ts`](../src/lib/authUi.ts). Set it to `true` to show Phone + OTP again.
+
 **Related:** [Google sign-in](./SUPABASE_GOOGLE_AUTH.md) · **WhatsApp chat** uses a **different** Twilio setup on Vercel (`POST /api/twilio/whatsapp`), not this SMS provider.
 
 ## 1. Environment (Vercel + `.env.local`)
