@@ -7,8 +7,8 @@ interface Props {
   onNext: () => void;
 }
 
-/** Landscape card ratio — art is portrait; object-fit contain letterboxes so nothing is cropped. */
-const SPLASH_FRAME_ASPECT = '16 / 9';
+/** Landscape card — 3:2 keeps portrait art wider in-frame (less side gap) while staying uncropped. */
+const SPLASH_FRAME_ASPECT = '3 / 2';
 
 export default function StepSplash({ onNext }: Props) {
   return (

@@ -657,11 +657,11 @@
   .onboarding-splash-scene {
     position: relative;
     width: 100%;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 3 / 2;
     min-height: 220px;
     border-radius: clamp(20px, 3vw, 28px);
     overflow: hidden;
-    background-color: #1a1530;
+    background-color: #121420;
     box-shadow:
       inset 0 0 80px rgba(0, 0, 0, 0.35),
       var(--shadow-soft);
@@ -677,7 +677,7 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
-    object-position: right center;
+    object-position: 50% center;
     pointer-events: none;
     user-select: none;
   }
@@ -685,22 +685,28 @@
   .onboarding-splash-scrim {
     background: linear-gradient(
       to right,
-      rgba(18, 14, 32, 0.94) 0%,
-      rgba(18, 14, 32, 0.9) 32%,
+      rgba(18, 14, 32, 0.98) 0%,
+      rgba(18, 14, 32, 0.95) 24%,
+      rgba(18, 14, 32, 0.82) 36%,
       rgba(18, 14, 32, 0.55) 44%,
-      rgba(18, 14, 32, 0.15) 52%,
-      transparent 62%
+      rgba(18, 14, 32, 0.28) 50%,
+      rgba(18, 14, 32, 0.1) 56%,
+      rgba(18, 14, 32, 0.02) 62%,
+      transparent 70%
     );
   }
 
   [data-theme='day'] .onboarding-splash-scrim {
     background: linear-gradient(
       to right,
-      rgba(252, 250, 255, 0.97) 0%,
-      rgba(252, 250, 255, 0.93) 32%,
-      rgba(252, 250, 255, 0.62) 44%,
-      rgba(252, 250, 255, 0.2) 52%,
-      transparent 62%
+      rgba(252, 250, 255, 0.99) 0%,
+      rgba(252, 250, 255, 0.96) 24%,
+      rgba(252, 250, 255, 0.88) 36%,
+      rgba(252, 250, 255, 0.65) 44%,
+      rgba(252, 250, 255, 0.35) 50%,
+      rgba(252, 250, 255, 0.12) 56%,
+      rgba(252, 250, 255, 0.03) 62%,
+      transparent 70%
     );
   }
 
@@ -708,12 +714,13 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    padding: clamp(20px, 4vw, 40px) clamp(20px, 4vw, 44px);
+    padding: clamp(18px, 3.5vw, 36px) clamp(16px, 3vw, 32px);
     box-sizing: border-box;
   }
 
   .onboarding-splash-copy {
-    width: min(100%, 380px);
+    width: min(48%, 480px);
+    max-width: 100%;
     text-align: left;
   }
 
@@ -745,6 +752,18 @@
       object-position: center center;
     }
 
+    .onboarding-splash-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding-top: clamp(28px, 7vw, 44px);
+    }
+
+    .onboarding-splash-copy {
+      width: 100%;
+      max-width: 34rem;
+    }
+
     .onboarding-splash-scrim {
       background: linear-gradient(
         to bottom,
@@ -763,16 +782,6 @@
         rgba(252, 250, 255, 0.5) 58%,
         transparent 78%
       );
-    }
-
-    .onboarding-splash-inner {
-      align-items: flex-start;
-      padding-top: clamp(32px, 8vw, 48px);
-    }
-
-    .onboarding-splash-copy {
-      width: 100%;
-      max-width: 36rem;
     }
   }
 
