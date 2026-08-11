@@ -7,7 +7,7 @@ interface Props {
   onNext: () => void;
 }
 
-/** Landscape card ratio — art is portrait; object-fit contain letterboxes so nothing is cropped. */
+/** Landscape card; square shield art uses object-fit contain (no crop). */
 const SPLASH_FRAME_ASPECT = '16 / 9';
 
 export default function StepSplash({ onNext }: Props) {
