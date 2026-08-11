@@ -11,8 +11,8 @@
 
 export const ONBOARDING_BUDDY_WIDTH = 78;
 
-/** Step 2 of 2 — contract check-in buddy (+60% vs default greeting buddy). */
-export const ONBOARDING_CONTRACT_BUDDY_WIDTH = Math.round(ONBOARDING_BUDDY_WIDTH * 1.6);
+/** Step 2 of 2 — contract check-in buddy (+100% / 2× default greeting buddy). */
+export const ONBOARDING_CONTRACT_BUDDY_WIDTH = ONBOARDING_BUDDY_WIDTH * 2;
 
 /** Our Promise hero — shield/lotus PNG (1024×1536). */
 export const ONBOARDING_PROMISE_ART = {
