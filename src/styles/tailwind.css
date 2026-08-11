@@ -653,12 +653,12 @@
       0 8px 24px rgba(0, 0, 0, 0.35);
   }
 
-  /* Onboarding splash — landscape card (same ratio as landing CTA); art contained / zoomed out */
+  /* Onboarding splash — landscape frame; portrait art scaled with object-fit: contain (no crop) */
   .onboarding-splash-scene {
     position: relative;
     width: 100%;
-    aspect-ratio: 1200 / 760;
-    min-height: 240px;
+    aspect-ratio: 16 / 9;
+    min-height: 220px;
     border-radius: clamp(20px, 3vw, 28px);
     overflow: hidden;
     background-color: #1a1530;
@@ -671,11 +671,15 @@
     background-color: #e8e4f4;
   }
 
-  .onboarding-splash-bg {
-    background-image: var(--onboarding-splash-bg-url);
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: right center;
+  .onboarding-splash-art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: right center;
+    pointer-events: none;
+    user-select: none;
   }
 
   .onboarding-splash-scrim {
@@ -735,13 +739,10 @@
   @media (max-width: 767px) {
     .onboarding-splash-scene {
       aspect-ratio: 16 / 10;
-      min-height: 200px;
     }
 
-    .onboarding-splash-bg {
-      background-image: var(--onboarding-splash-bg-portrait-url);
-      background-position: center bottom;
-      background-size: contain;
+    .onboarding-splash-art {
+      object-position: center center;
     }
 
     .onboarding-splash-scrim {
