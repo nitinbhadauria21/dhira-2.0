@@ -653,7 +653,7 @@
       0 8px 24px rgba(0, 0, 0, 0.35);
   }
 
-  /* Onboarding splash — landscape frame; square shield art, object-fit contain */
+  /* Onboarding splash — landscape frame; portrait art scaled with object-fit: contain (no crop) */
   .onboarding-splash-scene {
     position: relative;
     width: 100%;
@@ -661,14 +661,14 @@
     min-height: 220px;
     border-radius: clamp(20px, 3vw, 28px);
     overflow: hidden;
-    background-color: #0a0a0f;
+    background-color: #1a1530;
     box-shadow:
       inset 0 0 80px rgba(0, 0, 0, 0.35),
       var(--shadow-soft);
   }
 
   [data-theme='day'] .onboarding-splash-scene {
-    background-color: #0a0a0f;
+    background-color: #e8e4f4;
   }
 
   .onboarding-splash-art {
