@@ -17,6 +17,7 @@
     "configure:google-auth": "tsx scripts/configure-supabase-google-auth.ts",
     "verify:google-auth": "tsx scripts/verify-google-auth.ts",
     "ensure:supabase-auth-urls": "tsx scripts/ensure-supabase-auth-urls.ts",
+    "ensure:supabase-email-rate-limits": "tsx scripts/ensure-supabase-email-rate-limits.ts",
     "verify:password-reset": "tsx scripts/verify-password-reset.ts",
     "configure:password-reset": "tsx scripts/configure-password-reset.ts",
     "restore:default-recovery-template": "tsx scripts/restore-default-recovery-template.ts",

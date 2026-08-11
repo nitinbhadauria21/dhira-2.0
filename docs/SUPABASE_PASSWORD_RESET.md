@@ -46,5 +46,5 @@ This configures **in Supabase only**:
 | Symptom | Fix |
 |---------|-----|
 | “Same browser” / PKCE error | Request a new link and open it in the browser where you clicked Forgot Password |
-| No email received | Supabase built-in email has rate limits — wait a few minutes and try again; check spam |
+| No email received | Supabase free plan limits reset emails (~2/hour). Wait 1 minute and try again; check spam. If you see a rate-limit message on the form, wait and retry. |
 | Phone-only account | Use Phone OTP on sign-in |

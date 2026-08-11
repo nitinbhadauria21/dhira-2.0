@@ -3,6 +3,7 @@
 import { getBrowserSupabase } from './supabaseBrowser';
 import { normalizePhoneE164, phoneAuthError } from './twilio/phone';
 import { formatPhoneOtpSendError } from './phoneOtpErrors';
+import { formatPasswordResetError } from './passwordResetErrors';
 
 /**
  * Client auth helpers. Each one works in both modes:
@@ -135,7 +136,7 @@ export async function requestPasswordReset(email: string): Promise<void> {
   const { error } = await sb.auth.resetPasswordForEmail(trimmed, {
     redirectTo: passwordResetCallbackUrl(),
   });
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(formatPasswordResetError(error.message));
 }
 
 /** After recovery link opened: save new password in Supabase, then sign out for a fresh sign-in. */
