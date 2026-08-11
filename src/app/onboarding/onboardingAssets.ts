@@ -11,6 +11,13 @@
 
 export const ONBOARDING_BUDDY_WIDTH = 78;
 
+/** Our Promise hero — square shield/lotus PNG (1024×1024). */
+export const ONBOARDING_PROMISE_ART = {
+  width: 1024,
+  height: 1024,
+  displayWidth: 172,
+} as const;
+
 export const ONBOARDING_SPLASH_ART = {
   width: 1024,
   height: 1536,
