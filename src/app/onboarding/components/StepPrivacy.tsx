@@ -21,6 +21,7 @@ export default function StepPrivacy({ onNext, onBack }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       <OnboardingGreetingRow
+        buddyVariant="full"
         buddySrc={onboardingAssets.promiseBuddy}
         buddyAlt="DHIRA holding a glowing shield with a lock, promising your safety and privacy"
         eyebrow="Our Promise"
