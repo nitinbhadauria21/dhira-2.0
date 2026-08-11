@@ -60,7 +60,7 @@ function ResetPasswordContent() {
         if (exchangeErr) {
           if (!cancelled) {
             const msg = /pkce|code verifier/i.test(exchangeErr.message)
-              ? 'This reset link uses an older format. Go to Forgot Password and request a new link — the new email works on any browser.'
+              ? 'Open this reset link in the same browser where you requested it, or request a new link from Forgot Password.'
               : exchangeErr.message;
             router.replace(`/forgot-password?error=${encodeURIComponent(msg)}`);
           }

@@ -119,9 +119,9 @@ export async function verifyOtp(
 const PASSWORD_RESET_DEV_MSG =
   'Password reset needs Supabase connected. Add your Supabase URL and anon key in .env.local (see docs/SUPABASE_PASSWORD_RESET.md).';
 
-/** Where Supabase may redirect after verify (PKCE fallback). token_hash emails use /auth/confirm. */
+/** Where Supabase redirects after the user clicks the reset link in email (default template). */
 export function passwordResetCallbackUrl(): string {
-  return `${window.location.origin}/reset-password`;
+  return `${window.location.origin}/auth/callback?next=/reset-password`;
 }
 
 /** Email a reset link (Supabase Auth). Always show success in UI if no throw — avoids email enumeration. */

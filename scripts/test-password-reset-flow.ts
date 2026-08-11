@@ -1,82 +1,72 @@
 /**
- * Smoke-test password reset link flow (no email send).
+ * Smoke-test password reset routes (Supabase default ConfirmationURL flow).
  *   set -a && source .env.local && set +a && npm run test:password-reset-flow
  */
 import { createClient } from '@supabase/supabase-js';
 
-const TEST_EMAIL = process.env.PASSWORD_RESET_TEST_EMAIL?.trim() || 'nitin.bhadauria23@gmail.com';
 const SITE =
   process.env.DHIRA_SITE_URL?.trim() ||
   process.env.APP_URL?.trim() ||
   process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
   'https://dhira-2-0-xi.vercel.app';
 
-function buildRecoveryConfirmUrl(siteUrl: string, hashedToken: string): string {
-  const url = new URL('/auth/confirm', siteUrl);
-  url.searchParams.set('token_hash', hashedToken);
-  url.searchParams.set('type', 'recovery');
-  url.searchParams.set('next', '/reset-password');
-  return url.toString();
-}
+const REDIRECT_TO = `${SITE}/auth/callback?next=/reset-password`;
 
-async function generateRecoveryConfirmLink(email: string, siteUrl: string): Promise<string | null> {
+async function main() {
+  console.log('Site URL:', SITE);
+  console.log('Redirect after reset:', REDIRECT_TO);
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
   if (!supabaseUrl || !serviceKey) {
     console.error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
-    return null;
+    process.exit(1);
   }
 
   const admin = createClient(supabaseUrl, serviceKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
+  const testEmail = process.env.PASSWORD_RESET_TEST_EMAIL?.trim() || 'nitin.bhadauria23@gmail.com';
   const { data, error } = await admin.auth.admin.generateLink({
     type: 'recovery',
-    email,
+    email: testEmail,
+    options: { redirectTo: REDIRECT_TO },
   });
 
-  if (error || !data.properties?.hashed_token) {
-    console.error('generateLink failed:', error?.message || 'no hashed_token');
-    return null;
-  }
-
-  return buildRecoveryConfirmUrl(siteUrl, data.properties.hashed_token);
-}
-
-async function main() {
-  console.log('Site URL:', SITE);
-  console.log('Test email:', TEST_EMAIL);
-
-  const resetLink = await generateRecoveryConfirmLink(TEST_EMAIL, SITE);
-  if (!resetLink) {
-    console.error('FAIL: generateLink returned no link (user missing?)');
+  if (error || !data.properties?.action_link) {
+    console.error('FAIL: generateLink', error?.message || 'no action_link');
     process.exit(1);
   }
-  console.log('OK: generateLink');
-  console.log('  link prefix:', resetLink.slice(0, 80) + '…');
 
-  if (!resetLink.includes('/auth/confirm') || !resetLink.includes('token_hash=')) {
-    console.error('FAIL: link missing auth/confirm or token_hash');
+  const actionLink = data.properties.action_link;
+  console.log('OK: Supabase generateLink (recovery)');
+  console.log('  action_link prefix:', actionLink.slice(0, 72) + '…');
+
+  if (!actionLink.includes('/auth/v1/verify')) {
+    console.error('FAIL: action_link is not a Supabase verify URL');
     process.exit(1);
   }
-  console.log('OK: link format (token_hash → /auth/confirm)');
+  console.log('OK: default-style Supabase verify link');
 
-  const localConfirm = resetLink.replace(SITE, 'http://127.0.0.1:4028');
-  const res = await fetch(localConfirm, { redirect: 'manual' });
-  const loc = res.headers.get('location') || '';
-  console.log('GET /auth/confirm →', res.status, loc.slice(0, 120));
-
-  if (res.status === 307 && loc.includes('/reset-password')) {
-    console.log('OK: auth/confirm verified token and redirects to reset-password');
-    process.exit(0);
-  }
-  if (res.status === 307 && loc.includes('/forgot-password')) {
-    console.error('FAIL: auth/confirm rejected token:', loc);
+  const cbRes = await fetch(`${SITE}/auth/callback`, { redirect: 'manual' });
+  const cbLoc = cbRes.headers.get('location') || '';
+  console.log('GET /auth/callback (no code) →', cbRes.status, cbLoc.slice(0, 80));
+  if (cbRes.status === 307 && cbLoc.includes('sign-in')) {
+    console.log('OK: /auth/callback route deployed');
+  } else {
+    console.error('FAIL: unexpected /auth/callback response');
     process.exit(1);
   }
-  console.warn('WARN: unexpected confirm response — is dev server running on 4028?');
-  process.exit(res.status === 307 ? 0 : 1);
+
+  const resetRes = await fetch(`${SITE}/reset-password`, { redirect: 'manual' });
+  console.log('GET /reset-password →', resetRes.status);
+  if (resetRes.status !== 200 && resetRes.status !== 307) {
+    console.error('FAIL: /reset-password not reachable');
+    process.exit(1);
+  }
+  console.log('OK: /reset-password route deployed');
+  console.log('Done — request a real reset from /forgot-password to test email delivery.');
 }
 
 main().catch((e) => {

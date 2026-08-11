@@ -61,7 +61,7 @@ export async function GET(request: Request) {
       const forgot = new URL('/forgot-password', requestUrl.origin);
       forgot.searchParams.set(
         'error',
-        'This reset link needs the updated email template in Supabase (token_hash). See docs/SUPABASE_PASSWORD_RESET.md — then request a new link.',
+        'Open the reset link in the same browser where you requested it, or request a new link from Forgot Password.',
       );
       return NextResponse.redirect(forgot);
     }

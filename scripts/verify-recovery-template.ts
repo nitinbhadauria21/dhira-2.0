@@ -1,5 +1,5 @@
 /**
- * Confirm Supabase recovery email template uses token_hash (Management API read).
+ * Confirm Supabase recovery email uses the default ConfirmationURL template.
  *
  *   SUPABASE_ACCESS_TOKEN=sbp_... npm run verify:recovery-template
  */
@@ -26,17 +26,19 @@ async function main() {
 
   const data = JSON.parse(text) as { mailer_templates_recovery_content?: string };
   const content = data.mailer_templates_recovery_content ?? '';
-  const ok =
-    content.includes('token_hash') &&
-    content.includes('{{ .TokenHash }}') &&
-    content.includes('/auth/confirm');
+  const usesDefault =
+    content.includes('{{ .ConfirmationURL }}') && !content.includes('token_hash');
 
   console.log('Recovery template length:', content.length);
-  if (ok) {
-    console.log('OK: recovery template uses token_hash → /auth/confirm');
+  if (usesDefault) {
+    console.log('OK: recovery template uses Supabase default ConfirmationURL');
     process.exit(0);
   }
-  console.error('FAIL: recovery template missing token_hash /auth/confirm link.');
+  if (content.includes('token_hash') && content.includes('/auth/confirm')) {
+    console.warn('WARN: custom token_hash template detected — run npm run configure:password-reset to restore default.');
+    process.exit(1);
+  }
+  console.error('FAIL: recovery template does not use {{ .ConfirmationURL }}.');
   console.error('Run: npm run configure:password-reset');
   process.exit(1);
 }
