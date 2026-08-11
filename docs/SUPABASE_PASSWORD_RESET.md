@@ -1,60 +1,54 @@
-# Email password reset (Supabase)
+# Email password reset (Supabase + Resend)
 
 Passwords for **email + password** accounts live in **Supabase Auth**. Dhira does not store your password separately.
 
-## For you (after setup is done)
+**No Emergent** — reset email is sent by **Supabase Auth** (Resend SMTP) or **Resend API** from Dhira.
+
+## For you (after setup)
 
 1. **Sign in** → **Forgot Password** → enter your email → **Send reset link**.
 2. Open the email on **any browser or phone** → tap **Reset password** → choose a new password.
-3. You should land on the **home dashboard**. Sign out and sign in again with the **new** password to confirm.
+3. Sign in again with the **new** password to confirm.
 
-Use an account created with **email + password**, not phone-only OTP.
-
-Production app: **https://dhira-2-0-xi.vercel.app**
-
-**Related:** [Google sign-in](./SUPABASE_GOOGLE_AUTH.md) · [Phone OTP](./SUPABASE_PHONE_OTP.md)
+Production: **https://dhira-2-0-xi.vercel.app**
 
 ---
 
-## How reset email is sent (no same-browser requirement)
+## One-time setup (developer / Cloud Agent)
 
-Dhira’s server calls Supabase Admin **`generateLink`** and builds:
-
-`/auth/confirm?token_hash=…&type=recovery` → **Choose a new password**
-
-That link is emailed via **`EMERGENT_NOTIFY_WEBHOOK_URL`** (Emergent workflow). It works when you open Gmail on a different device than where you requested the reset.
-
-**Production must have** `EMERGENT_NOTIFY_WEBHOOK_URL` and `EMERGENT_WEBHOOK_SECRET` in Vercel (same as check-in emails).
-
-Optional one-time Supabase dashboard automation (recovery template + redirect URLs):
+Needs **Supabase Access Token** + **Resend** (https://resend.com):
 
 ```bash
-npm run configure:password-reset   # needs SUPABASE_ACCESS_TOKEN
+export SUPABASE_ACCESS_TOKEN=sbp_...
+export RESEND_API_KEY=re_...
+export RESEND_FROM_EMAIL="Dhira <hello@yourdomain.com>"
+npm run configure:password-reset
+npm run verify:recovery-template
 ```
 
-Verify:
+This configures:
 
-```bash
-npm run verify:password-reset
-npm run verify:recovery-template   # needs SUPABASE_ACCESS_TOKEN
-```
+1. Site URL + redirect URLs (`/auth/confirm`, `/reset-password`)
+2. **Resend SMTP** on Supabase Auth
+3. **Recovery email template** with `token_hash` link (works on any device)
+
+**Alternative:** set only `RESEND_API_KEY` + `RESEND_FROM_EMAIL` on **Vercel** — Dhira sends the reset email directly (no Supabase template edit).
+
+Optional Send Email Hook: `npm run configure:password-reset-hook` (requires `RESEND_API_KEY` on Vercel).
 
 ### App routes
 
 | Step | Route |
 |------|--------|
-| Forgot Password link | `/forgot-password` |
+| Forgot Password | `/forgot-password` |
 | Email link | `/auth/confirm?token_hash=…&type=recovery` |
-| New password | `/reset-password` → `/home-dashboard` |
-
-Implementation: [`src/lib/authClient.ts`](../src/lib/authClient.ts), [`src/app/auth/confirm/route.ts`](../src/app/auth/confirm/route.ts).
+| New password | `/reset-password` |
 
 ### Troubleshooting
 
 | Symptom | Fix |
 |---------|-----|
-| PKCE code verifier not found | Run `configure:password-reset` again; request a **new** reset email |
-| Link expired | Request a new reset email from Forgot Password |
-| Phone-only account | Use **Phone OTP** on sign-in — no password to reset |
-
-Technical checklist for agents: [AGENTS.md](../AGENTS.md).
+| Same-browser / PKCE error | Run `configure:password-reset` again; request a **new** email |
+| Template locked in dashboard | Use `configure:password-reset` (API) after Resend SMTP is set |
+| No email received | Check Resend domain verification + `RESEND_FROM_EMAIL` |
+| Phone-only account | Use Phone OTP on sign-in |
