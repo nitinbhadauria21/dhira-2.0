@@ -17,3 +17,4 @@ function run(script: string) {
 run('ensure:supabase-auth-urls');
 run('configure:password-reset-template');
 console.log('Password reset Supabase config complete.');
+console.log('Optional: npm run configure:password-reset-hook (Send Email Hook + Emergent/Resend).');

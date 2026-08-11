@@ -1,25 +1,15 @@
 /**
- * Ensure Supabase Auth redirect URLs include Dhira callback (password reset + Google OAuth).
+ * Enable Supabase Send Email Hook → Dhira /api/auth/hooks/send-email
  *
- * Usage:
- *   SUPABASE_ACCESS_TOKEN=sbp_... npm run ensure:supabase-auth-urls
- *
- * Optional: DHIRA_SITE_URL (default https://dhira-2-0-xi.vercel.app)
+ *   SUPABASE_ACCESS_TOKEN=sbp_... npm run configure:password-reset-hook
  */
+
+import { randomBytes } from 'node:crypto';
 
 const PROJECT_REF =
   process.env.SUPABASE_PROJECT_REF?.trim() || 'dfebsdwtktfnmzpmwlqp';
 const SITE_URL =
   process.env.DHIRA_SITE_URL?.trim() || 'https://dhira-2-0-xi.vercel.app';
-
-const REDIRECT_URLS = [
-  `${SITE_URL}/auth/callback`,
-  `${SITE_URL}/auth/confirm`,
-  `${SITE_URL}/reset-password`,
-  'http://localhost:4028/auth/callback',
-  'http://localhost:4028/auth/confirm',
-  'http://localhost:4028/reset-password',
-];
 
 async function main() {
   const token = process.env.SUPABASE_ACCESS_TOKEN?.trim();
@@ -28,12 +18,19 @@ async function main() {
     process.exit(1);
   }
 
+  const hookSecret =
+    process.env.SUPABASE_SEND_EMAIL_HOOK_SECRET?.trim() ||
+    `v1,whsec_${randomBytes(24).toString('base64url')}`;
+
   const body = {
-    site_url: SITE_URL,
-    uri_allow_list: REDIRECT_URLS.join(','),
+    hook_send_email_enabled: true,
+    hook_send_email_uri: `${SITE_URL}/api/auth/hooks/send-email`,
+    hook_send_email_secrets: hookSecret,
   };
 
-  console.log(`Updating Supabase project ${PROJECT_REF} auth URLs…`);
+  console.log(`Enabling send-email hook on project ${PROJECT_REF}…`);
+  console.log('  uri:', body.hook_send_email_uri);
+
   const res = await fetch(
     `https://api.supabase.com/v1/projects/${PROJECT_REF}/config/auth`,
     {
@@ -48,16 +45,18 @@ async function main() {
 
   const text = await res.text();
   if (!res.ok) {
-    console.error(`Supabase API error (${res.status}):`, text.slice(0, 500));
+    console.error(`Supabase API error (${res.status}):`, text.slice(0, 800));
     process.exit(1);
   }
 
-  console.log('Auth redirect URLs updated.');
-  console.log('  site_url:', SITE_URL);
-  console.log('  uri_allow_list:', REDIRECT_URLS.join(', '));
+  console.log('Send Email Hook enabled.');
+  console.log('Add to Vercel (encrypted):');
+  console.log(`  SUPABASE_SEND_EMAIL_HOOK_SECRET=${hookSecret}`);
 }
 
 main().catch((e) => {
   console.error(e);
   process.exit(1);
 });
+
+export {};

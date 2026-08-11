@@ -19,6 +19,7 @@
     "ensure:supabase-auth-urls": "tsx scripts/ensure-supabase-auth-urls.ts",
     "verify:password-reset": "tsx scripts/verify-password-reset.ts",
     "configure:password-reset-template": "tsx scripts/configure-password-reset-template.ts",
+    "configure:password-reset-hook": "tsx scripts/configure-password-reset-hook.ts",
     "configure:password-reset": "tsx scripts/configure-password-reset.ts",
     "verify:recovery-template": "tsx scripts/verify-recovery-template.ts"
   },
@@ -36,6 +37,7 @@
     "react-dom": "19.0.3",
     "recharts": "^2.15.2",
     "sonner": "^1.7.4",
+    "standardwebhooks": "^1.0.0",
     "twilio": "^6.0.2"
   },
   "devDependencies": {

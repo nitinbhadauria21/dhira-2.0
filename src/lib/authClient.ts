@@ -124,7 +124,7 @@ export function passwordResetCallbackUrl(): string {
   return `${window.location.origin}/reset-password`;
 }
 
-/** Email a reset link (Supabase Auth). Always show success in UI if no throw — avoids email enumeration. */
+/** Email a reset link (server generates cross-browser link). Always show success if no throw. */
 export async function requestPasswordReset(email: string): Promise<void> {
   const trimmed = email.trim();
   if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
@@ -132,10 +132,13 @@ export async function requestPasswordReset(email: string): Promise<void> {
   }
   const sb = getBrowserSupabase();
   if (!sb) throw new Error(PASSWORD_RESET_DEV_MSG);
-  const { error } = await sb.auth.resetPasswordForEmail(trimmed, {
-    redirectTo: passwordResetCallbackUrl(),
+  const res = await fetch('/api/auth/password-reset/request', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: trimmed }),
   });
-  if (error) throw new Error(error.message);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Could not send reset email');
 }
 
 /** After recovery link opened: set new password, then Dhira session cookie. */

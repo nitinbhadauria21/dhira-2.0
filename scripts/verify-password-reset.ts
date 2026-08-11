@@ -36,8 +36,9 @@ async function main() {
     console.log('OK: /auth/callback route is deployed.');
   }
 
-  console.log('Reset links use redirectTo:', `${siteUrl}/auth/callback?next=/reset-password`);
-  console.log('Ensure Supabase redirect URLs include:', `${siteUrl}/auth/callback`);
+  console.log('Reset email: POST /api/auth/password-reset/request (token_hash via Emergent)');
+  console.log('Ensure Vercel has EMERGENT_NOTIFY_WEBHOOK_URL + EMERGENT_WEBHOOK_SECRET');
+  console.log('Optional Supabase redirect URLs include:', `${siteUrl}/auth/confirm`);
 
   if (anon) {
     const settingsRes = await fetch(`${supabaseUrl}/auth/v1/settings`, {
