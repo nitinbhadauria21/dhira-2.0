@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Webhook } from 'standardwebhooks';
 import {
   buildRecoveryConfirmUrl,
-  deliverPasswordResetEmail,
   passwordResetSiteUrl,
+  sendPasswordResetViaResend,
 } from '@/lib/passwordReset';
 
 export const runtime = 'nodejs';
@@ -14,7 +14,6 @@ type SendEmailHookPayload = {
   email_data: {
     token_hash?: string;
     email_action_type?: string;
-    redirect_to?: string;
   };
 };
 
@@ -25,9 +24,8 @@ function hookSecretRaw(): string | null {
 }
 
 /**
- * POST /api/auth/hooks/send-email — Supabase Auth Send Email Hook.
- * Sends recovery mail with token_hash → /auth/confirm (any browser/device).
- * Enable via `npm run configure:password-reset` (needs SUPABASE_ACCESS_TOKEN).
+ * POST /api/auth/hooks/send-email — Supabase Send Email Hook (recovery only).
+ * Sends token_hash → /auth/confirm links via Resend (no Emergent).
  */
 export async function POST(req: NextRequest) {
   const secret = hookSecretRaw();
@@ -53,31 +51,30 @@ export async function POST(req: NextRequest) {
   const tokenHash = payload.email_data?.token_hash;
 
   if (!to || action !== 'recovery' || !tokenHash) {
-    // Non-recovery actions are not customized yet — ask Supabase to use built-in (fail hook).
     return NextResponse.json(
-      { error: { http_code: 501, message: 'Unsupported email action for custom hook' } },
+      { error: { http_code: 501, message: 'Only recovery emails are handled by this hook' } },
       { status: 501 },
     );
   }
 
   const siteUrl = passwordResetSiteUrl(new URL(req.url).origin);
   const resetLink = buildRecoveryConfirmUrl(siteUrl, tokenHash);
-  const delivery = await deliverPasswordResetEmail({ to, resetLink });
+  const sent = await sendPasswordResetViaResend({ to, resetLink });
 
-  if (!delivery) {
-    console.error('[auth/hooks/send-email] No email provider (Emergent/Resend) for recovery to', to);
+  if (!sent) {
+    console.error('[auth/hooks/send-email] Resend not configured for', to);
     return NextResponse.json(
       {
         error: {
           http_code: 500,
-          message: 'Password reset email delivery not configured (Emergent or Resend)',
+          message: 'Set RESEND_API_KEY and RESEND_FROM_EMAIL on Vercel for password reset emails',
         },
       },
       { status: 500 },
     );
   }
 
-  console.log('[auth/hooks/send-email] recovery sent via', delivery, 'to', to);
+  console.log('[auth/hooks/send-email] recovery sent via Resend to', to);
   return NextResponse.json({});
 }
 

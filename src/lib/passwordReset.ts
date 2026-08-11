@@ -1,4 +1,3 @@
-import { randomUUID } from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 import { isSupabaseAuthConfigured } from '@/lib/store';
 
@@ -67,37 +66,20 @@ export async function generateRecoveryConfirmLink(
   return { resetLink: buildRecoveryConfirmUrl(siteUrl, hashed) };
 }
 
-/** Deliver reset email via Emergent notify webhook (plain link — any browser/device). */
-export async function sendPasswordResetEmail(params: {
-  to: string;
-  resetLink: string;
-}): Promise<boolean> {
-  const webhook = process.env.EMERGENT_NOTIFY_WEBHOOK_URL?.trim();
-  if (!webhook) return false;
-
-  const res = await fetch(webhook, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-emergent-secret': process.env.EMERGENT_WEBHOOK_SECRET ?? '',
-    },
-    body: JSON.stringify({
-      notificationId: randomUUID(),
-      channel: 'email',
-      to: params.to,
-      type: 'password_reset',
-      templateKey: 'dhira_password_reset_v1',
-      subject: 'Reset your Dhira password',
-      alias: 'Friend',
-      language: 'english',
-      content: passwordResetEmailPlainText(params.resetLink),
-    }),
-  }).catch(() => null);
-
-  return Boolean(res?.ok);
+export function passwordResetEmailPlainText(resetLink: string): string {
+  return [
+    'We received a request to reset your Dhira password.',
+    '',
+    'Tap or click this link to choose a new password (works in any browser or on your phone):',
+    resetLink,
+    '',
+    'If you did not ask for this, you can safely ignore this email.',
+    '',
+    'In crisis? Call Tele-MANAS 14416 — free, 24×7, India-wide.',
+  ].join('\n');
 }
 
-/** Optional Resend.com delivery (RESEND_API_KEY + RESEND_FROM_EMAIL on Vercel). */
+/** Send reset email via Resend HTTP API (Dhira server — optional if Supabase SMTP sends). */
 export async function sendPasswordResetViaResend(params: {
   to: string;
   resetLink: string;
@@ -124,41 +106,27 @@ export async function sendPasswordResetViaResend(params: {
     }),
   }).catch(() => null);
 
+  if (!res?.ok) {
+    const errText = (await res?.text().catch(() => '')) ?? '';
+    console.error('[passwordReset] Resend error', res?.status, errText.slice(0, 200));
+  }
   return Boolean(res?.ok);
 }
 
-export function passwordResetEmailPlainText(resetLink: string): string {
-  return [
-    'We received a request to reset your Dhira password.',
-    '',
-    'Tap or click this link to choose a new password (works in any browser or on your phone):',
-    resetLink,
-    '',
-    'If you did not ask for this, you can safely ignore this email.',
-    '',
-    'In crisis? Call Tele-MANAS 14416 — free, 24×7, India-wide.',
-  ].join('\n');
-}
-
-/** Try Emergent, then Resend. */
-export async function deliverPasswordResetEmail(params: {
-  to: string;
-  resetLink: string;
-}): Promise<'emergent' | 'resend' | false> {
-  if (await sendPasswordResetEmail(params)) return 'emergent';
-  if (await sendPasswordResetViaResend(params)) return 'resend';
-  return false;
-}
-
-/** Legacy Supabase /recover mailer (PKCE link — same-browser only). Last resort. */
-export async function sendLegacySupabaseRecoverEmail(
+/**
+ * Ask Supabase Auth to send the recovery email (uses custom SMTP + recovery template,
+ * or the Send Email Hook if enabled).
+ */
+export async function sendSupabaseRecoveryEmail(
   email: string,
-  redirectTo: string,
+  siteUrl: string,
 ): Promise<boolean> {
   if (!isSupabaseAuthConfigured()) return false;
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !anon) return false;
+
+  const redirectTo = `${siteUrl.replace(/\/$/, '')}/auth/confirm?type=recovery&next=/reset-password`;
 
   const res = await fetch(`${url}/auth/v1/recover`, {
     method: 'POST',
@@ -169,5 +137,30 @@ export async function sendLegacySupabaseRecoverEmail(
     body: JSON.stringify({ email, redirect_to: redirectTo }),
   }).catch(() => null);
 
+  if (!res?.ok) {
+    const errText = (await res?.text().catch(() => '')) ?? '';
+    console.error('[passwordReset] Supabase recover error', res?.status, errText.slice(0, 200));
+  }
   return Boolean(res?.ok);
+}
+
+export type PasswordResetDelivery = 'supabase' | 'resend' | false;
+
+/**
+ * Send cross-browser reset email (no Emergent).
+ * 1. Supabase /recover (SMTP + template, or Send Email Hook)
+ * 2. Resend API with pre-built token_hash link
+ */
+export async function deliverPasswordResetEmail(params: {
+  email: string;
+  siteUrl: string;
+  resetLink: string;
+}): Promise<PasswordResetDelivery> {
+  if (await sendPasswordResetViaResend({ to: params.email, resetLink: params.resetLink })) {
+    return 'resend';
+  }
+  if (await sendSupabaseRecoveryEmail(params.email, params.siteUrl)) {
+    return 'supabase';
+  }
+  return false;
 }

@@ -1,7 +1,9 @@
 #!/usr/bin/env tsx
 /**
- * One-shot Supabase setup for Dhira password reset (Cloud Agent / CI).
- * Requires SUPABASE_ACCESS_TOKEN in the environment.
+ * One-shot Supabase password reset (no Emergent):
+ * 1. Auth redirect URLs
+ * 2. Resend SMTP on Supabase (if RESEND_API_KEY + RESEND_FROM_EMAIL)
+ * 3. Recovery email template (token_hash → /auth/confirm)
  */
 import { spawnSync } from 'node:child_process';
 
@@ -14,7 +16,27 @@ function run(script: string) {
   if (r.status !== 0) process.exit(r.status ?? 1);
 }
 
+function runOptional(script: string) {
+  const r = spawnSync('npm', ['run', script], {
+    stdio: 'inherit',
+    env: process.env,
+    cwd: process.cwd(),
+  });
+  if (r.status !== 0) {
+    console.warn(`Optional step skipped: ${script} (exit ${r.status})`);
+  }
+}
+
 run('ensure:supabase-auth-urls');
-run('configure:password-reset-template');
+
+if (process.env.RESEND_API_KEY?.trim() && process.env.RESEND_FROM_EMAIL?.trim()) {
+  run('configure:resend-smtp');
+  run('configure:password-reset-template');
+} else {
+  console.warn(
+    'Skip SMTP + template: set RESEND_API_KEY and RESEND_FROM_EMAIL, then re-run configure:password-reset.',
+  );
+  console.warn('Or set RESEND_API_KEY on Vercel — Dhira sends reset links directly via Resend API.');
+}
+
 console.log('Password reset Supabase config complete.');
-console.log('Optional: npm run configure:password-reset-hook (Send Email Hook + Emergent/Resend).');

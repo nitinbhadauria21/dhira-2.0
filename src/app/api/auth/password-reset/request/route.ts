@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isSupabaseAuthConfigured } from '@/lib/store';
 import {
+  deliverPasswordResetEmail,
   generateRecoveryConfirmLink,
   isValidResetEmail,
   normalizeResetEmail,
   passwordResetSiteUrl,
-  deliverPasswordResetEmail,
-  sendLegacySupabaseRecoverEmail,
 } from '@/lib/passwordReset';
 
 export const runtime = 'nodejs';
@@ -15,9 +14,9 @@ export const dynamic = 'force-dynamic';
 /**
  * POST /api/auth/password-reset/request  { email }
  *
- * Cross-browser password reset: server generates token_hash link via Supabase
- * Admin API and emails it through Emergent (or legacy Supabase recover fallback).
- * Always returns { ok: true } when the address format is valid — no email enumeration.
+ * Cross-browser password reset via Supabase Auth email (Resend SMTP + recovery
+ * template, or Send Email Hook). Falls back to Resend API from Dhira if needed.
+ * Always returns { ok: true } when the address format is valid — no enumeration.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -36,38 +35,30 @@ export async function POST(req: NextRequest) {
     }
 
     const siteUrl = passwordResetSiteUrl(new URL(req.url).origin);
-    const legacyRedirect = `${siteUrl}/reset-password`;
 
     let generated: { resetLink: string } | null = null;
     try {
       generated = await generateRecoveryConfirmLink(email, siteUrl);
     } catch (err) {
       console.error('[password-reset/request] generateLink', err);
-      // Unknown account or transient error — respond generically below.
     }
 
     if (generated?.resetLink) {
       const delivery = await deliverPasswordResetEmail({
-        to: email,
+        email,
+        siteUrl,
         resetLink: generated.resetLink,
       });
       if (delivery) {
         return NextResponse.json({ ok: true, delivery });
       }
-
-      // Emergent not configured in this environment — try Supabase mailer (legacy PKCE).
-      const legacySent = await sendLegacySupabaseRecoverEmail(email, legacyRedirect);
-      if (legacySent) {
-        console.warn(
-          '[password-reset/request] Emergent webhook missing; sent legacy Supabase recover email (same-browser link). Set EMERGENT_NOTIFY_WEBHOOK_URL on production.',
-        );
-        return NextResponse.json({ ok: true, delivery: 'supabase_legacy' });
-      }
-
-      console.error('[password-reset/request] No email delivery configured for', email);
+      console.error(
+        '[password-reset/request] No delivery for',
+        email,
+        '— configure Resend SMTP on Supabase (npm run configure:password-reset) or set RESEND_API_KEY on Vercel.',
+      );
     }
 
-    // No user / no delivery — still OK (avoid revealing whether the account exists).
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error('[password-reset/request] error', err);
