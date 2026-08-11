@@ -1,26 +1,32 @@
 'use client';
 
 import React from 'react';
-import { onboardingAssets } from '@/app/onboarding/onboardingAssets';
+import { onboardingAssets, ONBOARDING_SPLASH_ART } from '@/app/onboarding/onboardingAssets';
 
 interface Props {
   onNext: () => void;
 }
+
+/** Landscape card ratio — art is portrait; object-fit contain letterboxes so nothing is cropped. */
+const SPLASH_FRAME_ASPECT = '16 / 9';
 
 export default function StepSplash({ onNext }: Props) {
   return (
     <section
       className="onboarding-splash-scene"
       aria-labelledby="onboarding-splash-heading"
-      style={
-        {
-          aspectRatio: '1200 / 760',
-          ['--onboarding-splash-bg-url' as string]: `url('${onboardingAssets.splashBackground}')`,
-          ['--onboarding-splash-bg-portrait-url' as string]: `url('${onboardingAssets.splashBackgroundPortrait}')`,
-        } as React.CSSProperties
-      }
+      style={{ aspectRatio: SPLASH_FRAME_ASPECT }}
     >
-      <div aria-hidden className="onboarding-splash-bg absolute inset-0" />
+      <img
+        src={onboardingAssets.splashBackground}
+        alt=""
+        aria-hidden
+        className="onboarding-splash-art"
+        width={ONBOARDING_SPLASH_ART.width}
+        height={ONBOARDING_SPLASH_ART.height}
+        decoding="async"
+        fetchPriority="high"
+      />
       <div aria-hidden className="onboarding-splash-scrim absolute inset-0" />
       <div className="onboarding-splash-inner absolute inset-0 z-10">
         <div className="onboarding-splash-copy" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
