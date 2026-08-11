@@ -8,6 +8,7 @@ import BrandLockup from '@/components/BrandLockup';
 import PasswordRevealInput from '@/components/PasswordRevealInput';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { signInEmail, requestOtp, verifyOtp, signInWithGoogle } from '@/lib/authClient';
+import { PHONE_OTP_AUTH_ENABLED } from '@/lib/authUi';
 
 function GoogleIcon() {
   return (
@@ -92,9 +93,9 @@ function SignInContent() {
     setError(null);
     setLoading(true);
     try {
-      const { devCode } = await requestOtp(phone.trim());
+      const { devCode: code } = await requestOtp(phone.trim());
       setOtpSent(true);
-      setDevCode(devCode ?? null);
+      setDevCode(code ?? null);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not send code');
     } finally {
@@ -114,6 +115,8 @@ function SignInContent() {
       setLoading(false);
     }
   };
+
+  const showEmailForm = !PHONE_OTP_AUTH_ENABLED || mode === 'email';
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 py-10" style={{ backgroundColor: 'var(--color-bg)' }}>
@@ -187,35 +190,39 @@ function SignInContent() {
 
           <div className="flex items-center gap-3 mb-5">
             <div style={{ flex: 1, height: 1, backgroundColor: 'var(--color-border)' }} />
-            <span style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--color-text-subtle)' }}>or</span>
+            <span style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--color-text-subtle)' }}>
+              {PHONE_OTP_AUTH_ENABLED ? 'or' : 'or sign in with email'}
+            </span>
             <div style={{ flex: 1, height: 1, backgroundColor: 'var(--color-border)' }} />
           </div>
 
-          <div className="flex gap-2 mb-5 p-1 rounded-control" style={{ backgroundColor: 'var(--color-surface-alt)' }} role="tablist">
-            {(['email', 'phone'] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => {
-                  setMode(m);
-                  setError(null);
-                }}
-                className="flex-1 py-2 rounded-control transition-all"
-                style={{
-                  fontFamily: 'var(--font-ui)',
-                  fontSize: 14,
-                  fontWeight: 500,
-                  backgroundColor: mode === m ? 'var(--color-surface)' : 'transparent',
-                  color: mode === m ? 'var(--color-primary)' : 'var(--color-text-muted)',
-                  boxShadow: mode === m ? 'var(--shadow-card)' : 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                }}
-              >
-                {m === 'email' ? 'Email' : 'Phone OTP'}
-              </button>
-            ))}
-          </div>
+          {PHONE_OTP_AUTH_ENABLED && (
+            <div className="flex gap-2 mb-5 p-1 rounded-control" style={{ backgroundColor: 'var(--color-surface-alt)' }} role="tablist">
+              {(['email', 'phone'] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => {
+                    setMode(m);
+                    setError(null);
+                  }}
+                  className="flex-1 py-2 rounded-control transition-all"
+                  style={{
+                    fontFamily: 'var(--font-ui)',
+                    fontSize: 14,
+                    fontWeight: 500,
+                    backgroundColor: mode === m ? 'var(--color-surface)' : 'transparent',
+                    color: mode === m ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                    boxShadow: mode === m ? 'var(--shadow-card)' : 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {m === 'email' ? 'Email' : 'Phone OTP'}
+                </button>
+              ))}
+            </div>
+          )}
 
           {error && (
             <div className="mb-4" style={{ padding: '10px 12px', borderRadius: 'var(--radius-control)', backgroundColor: 'var(--color-crisis-surface)', border: '1px solid var(--color-crisis)', color: 'var(--color-crisis)', fontFamily: 'var(--font-ui)', fontSize: 13 }}>
@@ -223,7 +230,7 @@ function SignInContent() {
             </div>
           )}
 
-          {mode === 'email' ? (
+          {showEmailForm ? (
             <>
               <div className="mb-4">
                 <label htmlFor="signin-email" style={labelStyle}>Email address</label>
