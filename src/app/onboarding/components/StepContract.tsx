@@ -3,7 +3,7 @@
 import React from 'react';
 import type { OnboardingData } from './OnboardingFlow';
 import { FREQUENCY_OPTIONS } from '@/lib/artifactDesign';
-import { onboardingAssets } from '@/app/onboarding/onboardingAssets';
+import { onboardingAssets, ONBOARDING_CONTRACT_BUDDY_WIDTH } from '@/app/onboarding/onboardingAssets';
 import OnboardingGreetingRow from './OnboardingGreetingRow';
 
 interface Props {
@@ -96,6 +96,7 @@ export default function StepContract({ data, onChange, onFinish, onBack }: Props
     <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
       <OnboardingGreetingRow
         buddySrc={onboardingAssets.contractBuddy}
+        buddyWidth={ONBOARDING_CONTRACT_BUDDY_WIDTH}
         buddyAlt="DHIRA helping you choose a gentle check-in rhythm"
         eyebrow="Step 2 of 2"
         title={
