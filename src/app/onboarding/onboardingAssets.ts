@@ -13,12 +13,12 @@ export const ONBOARDING_BUDDY_WIDTH = 78;
 
 export const ONBOARDING_SPLASH_ART = {
   width: 1024,
-  height: 1024,
+  height: 1536,
 } as const;
 
 export const onboardingAssets = {
-  /** Step 0 splash — DHIRA lotus + shield (designer PNG). */
-  splashBackground: '/illustrations/dhira_promise_shield.png',
+  /** Step 0 splash — portrait master (full DHIRA head-to-toe). Never use landscape PNG here (it is pre-cropped). */
+  splashBackground: '/illustrations/spot_onboarding_dhira_path.png',
   /** Step 0 inline hero (legacy banner; unused when splash uses full background). */
   splashHero: '/illustrations/spot_onboarding_dhira_path_landscape.png',
   /** Portrait source kept for archive / re-export only. */
