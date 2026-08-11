@@ -15,6 +15,8 @@ type Props = {
   subtitle: React.ReactNode;
   /** Full designer PNG — no FloatingBuddy halo (Our Promise shield art). */
   buddyVariant?: 'floating' | 'full';
+  /** FloatingBuddy width in px (default ONBOARDING_BUDDY_WIDTH). */
+  buddyWidth?: number;
 };
 
 export default function OnboardingGreetingRow({
@@ -24,6 +26,7 @@ export default function OnboardingGreetingRow({
   title,
   subtitle,
   buddyVariant = 'floating',
+  buddyWidth = ONBOARDING_BUDDY_WIDTH,
 }: Props) {
   return (
     <div className="flex items-center gap-4">
@@ -46,7 +49,7 @@ export default function OnboardingGreetingRow({
         <FloatingBuddy
           src={buddySrc}
           alt={buddyAlt}
-          width={ONBOARDING_BUDDY_WIDTH}
+          width={buddyWidth}
           bobAnimation={ONBOARDING_BUDDY_BOB}
           className="onboarding-greeting-buddy"
         />
