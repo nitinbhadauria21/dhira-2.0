@@ -5,26 +5,15 @@ import Link from 'next/link';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import AppLayout from '@/components/AppLayout';
 import MoodBadge from '@/components/MoodBadge';
-import HorizonMoodTiles, { type HorizonMoodDay } from '@/components/HorizonMoodTiles';
-import { Search, MessageCircle, Bell, BookOpen, BarChart2, Plus } from 'lucide-react';
+import TimelineJourneyHero from '@/app/timeline/components/TimelineJourneyHero';
+import TimelineWeeklySection, {
+  type WeeklyData,
+} from '@/app/timeline/components/TimelineWeeklySection';
+import type { HorizonMoodDay } from '@/components/HorizonMoodTiles';
+import { Search, MessageCircle, Bell, BookOpen, Plus } from 'lucide-react';
 import { MOOD_COLORS, type MoodId } from '@/lib/artifactDesign';
 import type { NotebookEntry } from '@/lib/types';
 
-interface WeekPoint {
-  weekStart: string;
-  label: string;
-  checkins: number;
-  avgValence: number;
-}
-interface WeeklyData {
-  series: WeekPoint[];
-  thisWeek: {
-    checkins: number;
-    avgIntensity: number;
-    moodMix: { mood: string; count: number }[];
-    topTopics: { topic: string; count: number }[];
-  };
-}
 interface HomeWeekData {
   last7: { date: string; mood: string | null }[];
 }
@@ -152,72 +141,10 @@ function TimelineContent() {
   });
 
   return (
-    <div className="max-w-screen-lg mx-auto px-6 lg:px-10 py-8 flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-6">
-        <div>
-          <h1 className="text-h2" style={{ color: 'var(--color-text)' }}>
-            My DHIRA
-          </h1>
-          <p
-            className="text-body"
-            style={{ color: 'var(--color-text-muted)', marginTop: '6px', fontSize: '15px' }}
-          >
-            Your week, notebook, chats, and check-ins — one calm place.
-          </p>
-        </div>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/illustrations/spot_timeline.png"
-          alt="Your journey over time, moment by moment"
-          className="hidden sm:block"
-          style={{
-            width: 220,
-            height: 88,
-            objectFit: 'cover',
-            borderRadius: 14,
-            border: '1px solid var(--color-border)',
-            boxShadow: 'var(--shadow-card)',
-          }}
-        />
-      </div>
+    <div className="max-w-screen-lg mx-auto px-6 lg:px-10 py-8 flex flex-col gap-6 theme-transition">
+      <TimelineJourneyHero />
 
-      {/* Weekly summary */}
-      <SectionCard icon={BarChart2} title="Your week with DHIRA">
-        {weekly && weekly.series.some((s) => s.checkins > 0) ? (
-          <>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
-              <Stat label="Check-ins this week" value={String(weekly.thisWeek.checkins)} />
-              <Stat
-                label="Avg intensity"
-                value={`${Math.round(weekly.thisWeek.avgIntensity * 100)}%`}
-              />
-              <Stat label="Top mood" value={weekly.thisWeek.moodMix[0]?.mood ?? '—'} />
-              <Stat label="Top topic" value={weekly.thisWeek.topTopics[0]?.topic ?? '—'} />
-            </div>
-            <HorizonMoodTiles days={weekDays} />
-            {weekly.thisWeek.moodMix.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-4">
-                {weekly.thisWeek.moodMix.map((m) => (
-                  <span key={m.mood} className="flex items-center gap-1.5">
-                    <MoodBadge mood={m.mood} size="sm" />
-                    <span
-                      style={{
-                        fontFamily: 'var(--font-ui)',
-                        fontSize: '12px',
-                        color: 'var(--color-text-subtle)',
-                      }}
-                    >
-                      ×{m.count}
-                    </span>
-                  </span>
-                ))}
-              </div>
-            )}
-          </>
-        ) : (
-          <HorizonMoodTiles days={weekDays} />
-        )}
-      </SectionCard>
+      <TimelineWeeklySection weekly={weekly} weekDays={weekDays} />
 
       {/* Notebook logs */}
       <SectionCard icon={BookOpen} title="Notebook logs">
@@ -496,34 +423,6 @@ function TimelineContent() {
           </div>
         )}
       </SectionCard>
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="p-3 rounded-control" style={{ backgroundColor: 'var(--color-surface-alt)' }}>
-      <p
-        style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: '22px',
-          fontWeight: 600,
-          color: 'var(--color-text)',
-          textTransform: 'capitalize',
-        }}
-      >
-        {value}
-      </p>
-      <p
-        style={{
-          fontFamily: 'var(--font-ui)',
-          fontSize: '12px',
-          color: 'var(--color-text-subtle)',
-          marginTop: '2px',
-        }}
-      >
-        {label}
-      </p>
     </div>
   );
 }

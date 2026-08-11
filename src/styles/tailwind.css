@@ -29,6 +29,10 @@
   --radius-control: 12px;
   --shadow-soft: 0 8px 24px rgba(30, 35, 64, 0.08);
   --shadow-card: 0 2px 12px rgba(30, 35, 64, 0.06);
+  --timeline-path-stroke: #8b7fd4;
+  --timeline-path-glow: rgba(174, 161, 218, 0.45);
+  --timeline-node-bg: rgba(255, 255, 255, 0.92);
+  --timeline-journey-card-bg: rgba(238, 240, 251, 0.85);
   --font-display: "Fraunces", Georgia, serif;
   --font-ui: "Mukta", "Inter", system-ui, sans-serif;
 }
@@ -55,6 +59,10 @@
   --color-glass: rgba(29, 32, 56, 0.72);
   --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.32);
   --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.24);
+  --timeline-path-stroke: #949fdc;
+  --timeline-path-glow: rgba(148, 159, 220, 0.55);
+  --timeline-node-bg: rgba(38, 42, 70, 0.95);
+  --timeline-journey-card-bg: rgba(38, 42, 70, 0.72);
 }
 
 @layer base {
@@ -808,6 +816,186 @@
     50% {
       opacity: 0.75;
       transform: scale(1.08);
+    }
+  }
+
+  @keyframes timeline-node-glow {
+    0%,
+    100% {
+      box-shadow: 0 0 8px var(--timeline-path-glow);
+    }
+    50% {
+      box-shadow: 0 0 16px var(--timeline-path-glow), 0 0 24px rgba(174, 161, 218, 0.25);
+    }
+  }
+
+  /* Timeline page — hero journey + weekly card */
+  .timeline-hero {
+    padding: 0 0 8px;
+  }
+
+  .timeline-hero-grid {
+    display: grid;
+    gap: 28px;
+    align-items: center;
+  }
+
+  @media (min-width: 1024px) {
+    .timeline-hero-grid {
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.35fr);
+      gap: 32px;
+    }
+  }
+
+  .timeline-hero-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .timeline-journey-card {
+    margin-top: 4px;
+    padding: 16px 18px;
+    border-radius: var(--radius-control);
+    background: var(--timeline-journey-card-bg);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-card);
+    max-width: 340px;
+  }
+
+  .timeline-journey-visual {
+    width: 100%;
+    min-height: 200px;
+  }
+
+  @media (min-width: 768px) {
+    .timeline-journey-visual {
+      min-height: 240px;
+    }
+  }
+
+  .timeline-journey-canvas {
+    position: relative;
+    width: 100%;
+    height: clamp(200px, 32vw, 280px);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+  }
+
+  .timeline-path-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .timeline-milestone {
+    position: absolute;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    pointer-events: none;
+  }
+
+  .timeline-milestone-label {
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--color-text-muted);
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: var(--color-glass);
+    border: 1px solid var(--color-border);
+    white-space: nowrap;
+    backdrop-filter: blur(6px);
+  }
+
+  .timeline-milestone-node {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--milestone-color, var(--color-primary));
+    box-shadow: 0 0 10px var(--timeline-path-glow);
+    animation: timeline-node-glow 4s ease-in-out infinite;
+  }
+
+  .timeline-buddy-wrap {
+    position: absolute;
+    left: 2%;
+    bottom: 4%;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .timeline-buddy-desktop {
+    transform: scale(1.05);
+  }
+
+  .timeline-buddy-mobile {
+    filter: drop-shadow(0 8px 16px rgba(40, 30, 10, 0.25));
+  }
+
+  .timeline-weekly-card {
+    padding: 24px;
+  }
+
+  .timeline-stat-tile {
+    padding: 14px 16px;
+    border-radius: var(--radius-control);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+
+  .timeline-stat-tile:hover {
+    box-shadow: var(--shadow-soft);
+    transform: translateY(-1px);
+  }
+
+  .timeline-stat-value {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--color-text);
+    text-transform: capitalize;
+    margin: 0;
+  }
+
+  .timeline-stat-label {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    color: var(--color-text-subtle);
+    margin: 2px 0 0;
+  }
+
+  .horizon-tiles-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -4px;
+    padding: 0 4px 4px;
+  }
+
+  .horizon-tiles-scroll-inner {
+    min-width: 520px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .timeline-milestone-node {
+      animation: none;
+    }
+
+    .timeline-stat-tile:hover {
+      transform: none;
     }
   }
 }
