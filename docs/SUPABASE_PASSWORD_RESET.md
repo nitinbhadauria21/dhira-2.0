@@ -1,14 +1,14 @@
-# Email password reset (Supabase + Resend)
+# Email password reset (Supabase only)
 
 Passwords for **email + password** accounts live in **Supabase Auth**. Dhira does not store your password separately.
 
-**No Emergent** — reset email is sent by **Supabase Auth** (Resend SMTP) or **Resend API** from Dhira.
+**Supabase sends the reset email** — the browser calls `resetPasswordForEmail`; Dhira only provides the pages.
 
 ## For you (after setup)
 
 1. **Sign in** → **Forgot Password** → enter your email → **Send reset link**.
 2. Open the email on **any browser or phone** → tap **Reset password** → choose a new password.
-3. Sign in again with the **new** password to confirm.
+3. You return to **Sign in** → sign in with your **new** password.
 
 Production: **https://dhira-2-0-xi.vercel.app**
 
@@ -16,7 +16,7 @@ Production: **https://dhira-2-0-xi.vercel.app**
 
 ## One-time setup (developer / Cloud Agent)
 
-Needs **Supabase Access Token** + **Resend** (https://resend.com):
+Needs **Supabase Access Token** + **Resend** (for Supabase SMTP — https://resend.com):
 
 ```bash
 export SUPABASE_ACCESS_TOKEN=sbp_...
@@ -29,12 +29,8 @@ npm run verify:recovery-template
 This configures:
 
 1. Site URL + redirect URLs (`/auth/confirm`, `/reset-password`)
-2. **Resend SMTP** on Supabase Auth
+2. **Resend SMTP** on Supabase Auth (Supabase sends mail)
 3. **Recovery email template** with `token_hash` link (works on any device)
-
-**Alternative:** set only `RESEND_API_KEY` + `RESEND_FROM_EMAIL` on **Vercel** — Dhira sends the reset email directly (no Supabase template edit).
-
-Optional Send Email Hook: `npm run configure:password-reset-hook` (requires `RESEND_API_KEY` on Vercel).
 
 ### App routes
 
@@ -43,6 +39,7 @@ Optional Send Email Hook: `npm run configure:password-reset-hook` (requires `RES
 | Forgot Password | `/forgot-password` |
 | Email link | `/auth/confirm?token_hash=…&type=recovery` |
 | New password | `/reset-password` |
+| Sign in again | `/sign-in?passwordUpdated=1` |
 
 ### Troubleshooting
 

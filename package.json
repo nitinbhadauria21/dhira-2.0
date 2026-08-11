@@ -20,7 +20,6 @@
     "verify:password-reset": "tsx scripts/verify-password-reset.ts",
     "configure:resend-smtp": "tsx scripts/configure-resend-smtp.ts",
     "configure:password-reset-template": "tsx scripts/configure-password-reset-template.ts",
-    "configure:password-reset-hook": "tsx scripts/configure-password-reset-hook.ts",
     "configure:password-reset": "tsx scripts/configure-password-reset.ts",
     "verify:recovery-template": "tsx scripts/verify-recovery-template.ts",
     "test:password-reset-flow": "tsx scripts/test-password-reset-flow.ts"

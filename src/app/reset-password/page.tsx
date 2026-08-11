@@ -100,7 +100,7 @@ function ResetPasswordContent() {
     setLoading(true);
     try {
       await completePasswordReset(password);
-      router.push('/home-dashboard');
+      router.push('/sign-in?passwordUpdated=1');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not update password');
     } finally {
@@ -150,7 +150,7 @@ function ResetPasswordContent() {
               Choose a new password
             </h2>
             <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--color-text-muted)', marginTop: 6 }}>
-              At least 8 characters. You will go straight to your dashboard when done.
+              At least 8 characters. You will return to sign in when done.
             </p>
           </div>
 

@@ -36,9 +36,9 @@ async function main() {
     console.log('OK: /auth/callback route is deployed.');
   }
 
-  console.log('Reset email: POST /api/auth/password-reset/request (Supabase Resend SMTP or RESEND_API_KEY on Vercel)');
+  console.log('Reset email: Supabase Auth resetPasswordForEmail (browser → Supabase)');
   console.log('Configure once: RESEND_API_KEY + RESEND_FROM_EMAIL + npm run configure:password-reset');
-  console.log('Optional Supabase redirect URLs include:', `${siteUrl}/auth/confirm`);
+  console.log('Supabase redirect URLs should include:', `${siteUrl}/auth/confirm`);
 
   if (anon) {
     const settingsRes = await fetch(`${supabaseUrl}/auth/v1/settings`, {
