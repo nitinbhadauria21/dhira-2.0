@@ -17,8 +17,6 @@ type Props = {
   buddyVariant?: 'floating' | 'full';
   /** FloatingBuddy width in px (default ONBOARDING_BUDDY_WIDTH). */
   buddyWidth?: number;
-  /** Center buddy inside scaled halo (contract step). */
-  buddyCenterInHalo?: boolean;
 };
 
 export default function OnboardingGreetingRow({
@@ -29,7 +27,6 @@ export default function OnboardingGreetingRow({
   subtitle,
   buddyVariant = 'floating',
   buddyWidth = ONBOARDING_BUDDY_WIDTH,
-  buddyCenterInHalo = false,
 }: Props) {
   return (
     <div className="flex items-center gap-4">
@@ -53,7 +50,6 @@ export default function OnboardingGreetingRow({
           src={buddySrc}
           alt={buddyAlt}
           width={buddyWidth}
-          centerInHalo={buddyCenterInHalo}
           bobAnimation={ONBOARDING_BUDDY_BOB}
           className="onboarding-greeting-buddy"
         />

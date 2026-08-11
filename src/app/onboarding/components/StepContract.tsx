@@ -97,7 +97,6 @@ export default function StepContract({ data, onChange, onFinish, onBack }: Props
       <OnboardingGreetingRow
         buddySrc={onboardingAssets.contractBuddy}
         buddyWidth={ONBOARDING_CONTRACT_BUDDY_WIDTH}
-        buddyCenterInHalo
         buddyAlt="DHIRA helping you choose a gentle check-in rhythm"
         eyebrow="Step 2 of 2"
         title={
