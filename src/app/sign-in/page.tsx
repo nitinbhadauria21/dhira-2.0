@@ -2,7 +2,7 @@
 
 import React, { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import AuthScenePanel from '@/components/AuthScenePanel';
 import BrandLockup from '@/components/BrandLockup';
 import PasswordRevealInput from '@/components/PasswordRevealInput';
@@ -54,7 +54,6 @@ function resolveResumePath(queryNext: string | null): string {
 }
 
 function SignInContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const [mode, setMode] = useState<'email' | 'phone'>('email');
@@ -77,7 +76,7 @@ function SignInContent() {
   }, [searchParams]);
 
   const goAfterSignIn = () => {
-    router.push(resolveResumePath(searchParams.get('next')));
+    window.location.assign(resolveResumePath(searchParams.get('next')));
   };
 
   const handleEmailSignIn = async () => {
@@ -86,9 +85,9 @@ function SignInContent() {
     try {
       await signInEmail(email.trim(), password);
       goAfterSignIn();
+      return;
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not sign in');
-    } finally {
       setLoading(false);
     }
   };
@@ -113,9 +112,9 @@ function SignInContent() {
     try {
       await verifyOtp(phone.trim(), otp.trim());
       goAfterSignIn();
+      return;
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not verify code');
-    } finally {
       setLoading(false);
     }
   };
