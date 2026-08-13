@@ -46,9 +46,11 @@ function alpha(hex: string, opacity: number) {
 export default function HorizonMoodTiles({
   days,
   className = '',
+  enableMobileScroll = false,
 }: {
   days: HorizonMoodDay[];
   className?: string;
+  enableMobileScroll?: boolean;
 }) {
   const initialSelected = Math.max(
     0,
@@ -75,9 +77,8 @@ export default function HorizonMoodTiles({
       ? (moodLabels[selected.mood] ?? selected.mood)
       : 'No check-in yet';
 
-  return (
-    <div className={className}>
-      <div className="relative grid grid-cols-7 items-end" style={{ gap: 18 }}>
+  const tilesGrid = (
+    <div className="relative grid grid-cols-7 items-end" style={{ gap: 18 }}>
         <span
           aria-hidden="true"
           className="absolute left-0 right-0"
@@ -126,7 +127,7 @@ export default function HorizonMoodTiles({
                   border: ghostToday
                     ? '1.5px dashed var(--color-text-subtle)'
                     : selectedDay
-                      ? '2px solid rgba(255,255,255,0.9)'
+                      ? '2px solid var(--color-primary)'
                       : day.logged
                         ? '1px solid rgba(255,255,255,0.35)'
                         : '1px dashed var(--color-border)',
@@ -181,6 +182,17 @@ export default function HorizonMoodTiles({
           );
         })}
       </div>
+  );
+
+  return (
+    <div className={className}>
+      {enableMobileScroll ? (
+        <div className="horizon-tiles-scroll md:overflow-visible">
+          <div className="horizon-tiles-scroll-inner md:min-w-0">{tilesGrid}</div>
+        </div>
+      ) : (
+        tilesGrid
+      )}
 
       <div
         className="mt-4 flex items-center gap-2 rounded-[14px] px-3.5 py-2.5"
