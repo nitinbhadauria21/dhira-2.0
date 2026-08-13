@@ -1,11 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStore } from '@/lib/store';
-import { verifySupabaseToken, setSession } from '@/lib/auth';
+import { verifySupabaseToken, attachSessionCookie } from '@/lib/auth';
 import type { Profile } from '@/lib/types';
 import { normalizePhoneE164 } from '@/lib/twilio/phone';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+type SessionProfileFields = {
+  email?: unknown;
+  phone?: unknown;
+  alias?: unknown;
+  state?: unknown;
+  city?: unknown;
+};
+
+async function syncSessionProfile(uid: string, fields: SessionProfileFields): Promise<void> {
+  const { email, phone, alias, state, city } = fields;
+  const store = getStore();
+  await store.getOrCreateProfile(uid);
+  const patch: Partial<Profile> = {};
+  if (typeof email === 'string') patch.email = email;
+  if (typeof phone === 'string' && phone.trim()) {
+    patch.phoneE164 = normalizePhoneE164(phone).slice(0, 20);
+  }
+  if (typeof alias === 'string' && alias.trim()) patch.alias = alias.trim().slice(0, 60);
+  if (typeof state === 'string' && state.trim()) patch.state = state.trim().slice(0, 80);
+  if (typeof city === 'string' && city.trim()) patch.city = city.trim().slice(0, 80);
+  if (Object.keys(patch).length) await store.updateProfile(uid, patch);
+}
 
 /**
  * POST /api/auth/session  { accessToken, email?, phone?, alias?, state?, city? }
@@ -22,20 +45,14 @@ export async function POST(req: NextRequest) {
     const uid = await verifySupabaseToken(accessToken ?? '');
     if (!uid) return NextResponse.json({ error: 'invalid token' }, { status: 401 });
 
-    const store = getStore();
-    await store.getOrCreateProfile(uid);
-    const patch: Partial<Profile> = {};
-    if (typeof email === 'string') patch.email = email;
-    if (typeof phone === 'string' && phone.trim()) {
-      patch.phoneE164 = normalizePhoneE164(phone).slice(0, 20);
-    }
-    if (typeof alias === 'string' && alias.trim()) patch.alias = alias.trim().slice(0, 60);
-    if (typeof state === 'string' && state.trim()) patch.state = state.trim().slice(0, 80);
-    if (typeof city === 'string' && city.trim()) patch.city = city.trim().slice(0, 80);
-    if (Object.keys(patch).length) await store.updateProfile(uid, patch);
+    const res = NextResponse.json({ userId: uid });
+    attachSessionCookie(res, uid);
 
-    await setSession(uid);
-    return NextResponse.json({ userId: uid });
+    void syncSessionProfile(uid, { email, phone, alias, state, city }).catch((err) =>
+      console.error('[api/auth/session] profile sync', err)
+    );
+
+    return res;
   } catch (err) {
     console.error('[api/auth/session] error', err);
     return NextResponse.json({ error: 'Could not establish session' }, { status: 500 });

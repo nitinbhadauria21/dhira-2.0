@@ -110,7 +110,7 @@ export default function LandingFooter() {
               color: 'var(--color-text-subtle)',
             }}
           >
-            © 2026 DHIRA · Made with care in India · Cursor local
+            © 2026 DHIRA · Made with care in India
           </p>
           <p
             style={{

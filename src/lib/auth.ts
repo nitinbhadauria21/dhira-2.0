@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers';
+import type { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { randomBytes, scryptSync, timingSafeEqual, randomUUID } from 'crypto';
@@ -20,6 +21,19 @@ import { isSupabaseAuthConfigured } from '@/lib/store';
 const SESSION_COOKIE = 'dhira_session';
 const ONE_YEAR = 60 * 60 * 24 * 365;
 
+const SESSION_COOKIE_OPTIONS = {
+  httpOnly: true,
+  sameSite: 'lax' as const,
+  secure: process.env.NODE_ENV === 'production',
+  path: '/',
+  maxAge: ONE_YEAR,
+};
+
+/** Attach session cookie directly on a Route Handler response (reliable Set-Cookie). */
+export function attachSessionCookie(res: NextResponse, uid: string): void {
+  res.cookies.set(SESSION_COOKIE, uid, SESSION_COOKIE_OPTIONS);
+}
+
 // ── session cookie ────────────────────────────────────────────────────────
 export async function getUserId(): Promise<string | null> {
   const jar = await cookies();
@@ -28,13 +42,7 @@ export async function getUserId(): Promise<string | null> {
 
 export async function setSession(uid: string): Promise<void> {
   const jar = await cookies();
-  jar.set(SESSION_COOKIE, uid, {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
-    maxAge: ONE_YEAR,
-  });
+  jar.set(SESSION_COOKIE, uid, SESSION_COOKIE_OPTIONS);
 }
 
 export async function clearSession(): Promise<void> {

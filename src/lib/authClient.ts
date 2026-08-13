@@ -20,6 +20,7 @@ export type SignUpLocation = {
 async function postJson(url: string, body: unknown) {
   const res = await fetch(url, {
     method: 'POST',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
