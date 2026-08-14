@@ -140,29 +140,35 @@ export default function OnboardingFlow() {
       style={{ backgroundColor: 'var(--color-bg)' }}
     >
       {/* Top wordmark */}
-      <header className={`flex items-center justify-between px-6 pt-6 pb-2 mx-auto w-full ${contentMaxClass}`}>
-        <BrandLockup href="/" size={22} />
+      <header className="relative w-full pt-6 pb-2">
+        <div className="flex w-full justify-center px-6">
+          <BrandLockup href="/" size={22} />
+        </div>
 
         {/* Step dots */}
         {step > 0 && (
-          <div className="flex items-center gap-2">
-            {Array.from({ length: TOTAL_STEPS - 1 }).map((_, i) => (
-              <div
-                key={`dot-${i}`}
-                style={{
-                  width: i < step - 1 ? 8 : i === step - 1 ? 10 : 6,
-                  height: i < step - 1 ? 8 : i === step - 1 ? 10 : 6,
-                  borderRadius: '50%',
-                  backgroundColor:
-                    i < step - 1
-                      ? 'var(--color-primary)'
-                      : i === step - 1
-                      ? 'var(--color-accent)'
-                      : 'var(--color-border)',
-                  transition: 'all 0.3s ease',
-                }}
-              />
-            ))}
+          <div
+            className={`absolute top-6 right-0 left-0 flex justify-end px-6 mx-auto w-full ${contentMaxClass}`}
+          >
+            <div className="flex items-center gap-2">
+              {Array.from({ length: TOTAL_STEPS - 1 }).map((_, i) => (
+                <div
+                  key={`dot-${i}`}
+                  style={{
+                    width: i < step - 1 ? 8 : i === step - 1 ? 10 : 6,
+                    height: i < step - 1 ? 8 : i === step - 1 ? 10 : 6,
+                    borderRadius: '50%',
+                    backgroundColor:
+                      i < step - 1
+                        ? 'var(--color-primary)'
+                        : i === step - 1
+                        ? 'var(--color-accent)'
+                        : 'var(--color-border)',
+                    transition: 'all 0.3s ease',
+                  }}
+                />
+              ))}
+            </div>
           </div>
         )}
       </header>
