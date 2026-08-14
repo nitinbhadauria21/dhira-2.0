@@ -107,7 +107,7 @@ export const STEPS = [
     number: '04',
     glyph: 'pulse',
     title: 'Watch your mood move',
-    body: "A quiet 14-day mood timeline shows you how you've been — no judgement, just colour and continuity.",
+    body: "A quiet 7-day mood timeline shows you how you've been — no judgement, just colour and continuity.",
   },
 ] as const;
 
