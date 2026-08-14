@@ -5,6 +5,12 @@ import { getStore } from '@/lib/store';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+function summaryWithAlias(summary: string, alias: string | undefined): string {
+  const name = alias?.trim();
+  if (!name) return summary;
+  return summary.replace(/^User\b/, name);
+}
+
 /** GET /api/memory → the latest "Dhira remembers" note for this user (or null). */
 export async function GET() {
   try {
@@ -14,7 +20,10 @@ export async function GET() {
     const profile = await store.getOrCreateProfile(uid);
     if (!profile.consentMemory) return NextResponse.json({ memory: null });
     const memory = await store.getLatestMemory(uid);
-    return NextResponse.json({ memory });
+    if (!memory) return NextResponse.json({ memory: null });
+    return NextResponse.json({
+      memory: { ...memory, summary: summaryWithAlias(memory.summary, profile.alias) },
+    });
   } catch (err) {
     console.error('[api/memory] error', err);
     return NextResponse.json({ memory: null });
