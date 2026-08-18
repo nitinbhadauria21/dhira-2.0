@@ -26,9 +26,11 @@ If context_unavailable is true, do not require deep thread references — keep r
 
 export const ESCALATION_LIVE_SYSTEM = ESCALATION_SYSTEM_V3;
 
-export const MOOD_LIVE_SYSTEM = `You classify the emotional tone of the user's latest message using the FULL recent conversation (at least the last several turns merged across app and WhatsApp). You NEVER talk to the user. Return only JSON. These are soft labels for the mood timeline — never a diagnosis.
+export const MOOD_LIVE_SYSTEM = `You classify the emotional tone of the user's latest message using recent conversation as context only. You NEVER talk to the user. Return only JSON. These are soft labels for the mood timeline — never a diagnosis.
 
-Use trajectory: a heavier message after lighter ones should not be tagged neutral if the arc is sinking (withdrawal, isolation, hopelessness). A mild comment about a sad movie is not the same intensity as locking oneself in a room avoiding people.
+IMPORTANT: Score the user's LATEST message itself — not the overall conversation arc. Prior heavy turns are context only; do NOT tag a plain greeting ("hi", "hey", "hello", "hi dhira") as sad/anxious unless the greeting itself expresses that emotion. Pure greetings → mood "neutral", emotional_intensity ≤ 0.25.
+
+Use trajectory only when the latest message continues or deepens an emotion (not for standalone hellos).
 
 Return exactly:
 {

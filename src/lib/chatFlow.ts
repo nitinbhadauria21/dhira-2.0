@@ -33,7 +33,9 @@ import {
   debugRiskLog,
   isTrivialLowRiskMessage,
   contextHasElevatedRisk,
+  shouldTagMoodForChat,
 } from '@/lib/riskSanity';
+import { sanitizeDhiraReplyForDisplay } from '@/lib/dhiraReplySanitize';
 import type { ChatChannel, Language, RiskLevel } from '@/lib/types';
 import type { EscalationResult } from '@/lib/types';
 import { languageForTurn } from '@/lib/inferLanguage';
@@ -300,7 +302,7 @@ export async function runChatTurn(params: {
       });
     }
 
-    const finalReply = reviewed.approved_or_rewritten_response;
+    const finalReply = sanitizeDhiraReplyForDisplay(reviewed.approved_or_rewritten_response);
 
     await store.addMessage({
       id: randomUUID(),
@@ -314,7 +316,9 @@ export async function runChatTurn(params: {
     let taggedMood: string | undefined;
     let taggedTopic: string | undefined;
     let moodTagSource: 'live' | 'offline' | undefined;
-    const mayTagMood = mayUseOfflineDemoTemplates() || (liveConfigured && !liveFailedDuringTurn(fallbackCountAtTurnStart));
+    const mayTagMood =
+      shouldTagMoodForChat(userMessage) &&
+      (mayUseOfflineDemoTemplates() || (liveConfigured && !liveFailedDuringTurn(fallbackCountAtTurnStart)));
     if (mayTagMood) {
       try {
         const mood = await tagMood({

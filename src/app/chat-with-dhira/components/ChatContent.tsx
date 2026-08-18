@@ -120,12 +120,11 @@ export default function ChatContent() {
         role: 'dhira',
         content: data?.reply || "I'm here with you. Tell me a little more?",
         timestamp: formatTime(),
-        mood: typeof data?.mood === 'string' ? data.mood : undefined,
       };
       setMessages((prev) => {
         const next = [...prev];
-        // Attach mood to the latest user turn when the server tagged one.
-        if (data?.mood) {
+        // Mood chip applies to the user's turn only (not Dhira's reply).
+        if (data?.mood && data.mood !== 'neutral') {
           for (let i = next.length - 1; i >= 0; i -= 1) {
             if (next[i].role === 'user') {
               next[i] = { ...next[i], mood: data.mood };

@@ -1,6 +1,7 @@
 import React from 'react';
 import DhiraAvatar from '@/components/DhiraAvatar';
 import MoodBadge from '@/components/MoodBadge';
+import { sanitizeDhiraReplyForDisplay } from '@/lib/dhiraReplySanitize';
 import type { ChatMessage } from './ChatContent';
 
 interface ChatThreadProps {
@@ -65,7 +66,7 @@ export default function ChatThread({ messages, isTyping }: ChatThreadProps) {
                   margin: 0,
                 }}
               >
-                {msg.content}
+                {msg.role === 'dhira' ? sanitizeDhiraReplyForDisplay(msg.content) : msg.content}
               </p>
             </div>
             <div
@@ -84,7 +85,9 @@ export default function ChatThread({ messages, isTyping }: ChatThreadProps) {
               >
                 {msg.timestamp}
               </span>
-              {msg.mood ? <MoodBadge mood={msg.mood} size="sm" /> : null}
+              {msg.role === 'user' && msg.mood && msg.mood !== 'neutral' ? (
+                <MoodBadge mood={msg.mood} size="sm" />
+              ) : null}
             </div>
           </div>
         </div>

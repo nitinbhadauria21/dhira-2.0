@@ -6,9 +6,32 @@ const RISK_VOCAB =
   /(?:die|kill|suicide|harm|khatam|marna|end it|bojh|disappear|wake up|14416|Tele-MANAS|better off without|mar ja)/i;
 
 const GREETING =
-  /^(?:hey|hi|hello|hii|yo|sup|kya haal|kaise ho|namaste|good morning|good evening)[!.?\s]*$/i;
+  /^(?:hey|hi|hello|hii|yo|sup|kya haal|kaise ho|namaste|good morning|good evening)(?:\s+dhira)?[!.?\s]*$/i;
+
+/** True when the message is only a short hello with no emotional content (incl. "Hi Dhira"). */
+export function isGreetingOnlyMessage(userMessage: string): boolean {
+  const t = userMessage.trim();
+  if (!t) return false;
+  return GREETING.test(t);
+}
+
+/** Whether to run mood tagging + show a mood chip for this chat turn. */
+export function shouldTagMoodForChat(userMessage: string): boolean {
+  if (isGreetingOnlyMessage(userMessage)) return false;
+  const t = userMessage.trim();
+  if (
+    t.length <= 16 &&
+    !/\b(sad|happy|anxious|angry|lonely|stressed|overwhelmed|worried|scared|tired|exhausted|hopeful|calm|low|down|udaas|dukh|tension|gussa|akela|thak|heavy|rough|bad|better|okay|theek|acha)\b/i.test(
+      t,
+    )
+  ) {
+    return false;
+  }
+  return true;
+}
 
 export { GREETING };
+
 export function isTrivialLowRiskMessage(userMessage: string): boolean {
   const t = userMessage.trim();
   if (t.length > 20) return false;

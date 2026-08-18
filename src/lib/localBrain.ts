@@ -170,7 +170,12 @@ export function localMonitor(params: {
   };
 }
 
+import { isGreetingOnlyMessage } from '@/lib/riskSanity';
+
 export function localMoodTag(text: string): MoodTagResult {
+  if (isGreetingOnlyMessage(text)) {
+    return { mood: 'neutral', valence: 0, emotional_intensity: 0.2, topic_tag: 'other' };
+  }
   const lower = text.toLowerCase();
   const has = (re: RegExp) => re.test(lower);
   if (has(/\b(anxious|nervous|worried|ghabra|tension)\b/))
