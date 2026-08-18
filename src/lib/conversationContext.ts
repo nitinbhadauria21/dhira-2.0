@@ -1,8 +1,6 @@
 import { getStore } from '@/lib/store';
-import { isLiveBrainEnabled } from '@/lib/anthropic';
 import type { ClaudeTurn } from '@/lib/anthropic';
 import type { ChatMessageRecord, Language, RiskEventRecord } from '@/lib/types';
-import { summarizeMemory } from '@/agents/memory';
 import { CRISIS_MESSAGE } from '@/lib/safetyCopy';
 
 export const ESCALATE_CRISIS_TOKEN = 'ESCALATE_CRISIS';
@@ -126,29 +124,13 @@ export async function trimWithRollingSummary(
   }
 
   const kept = turns.slice(-TURNS_AFTER_TRIM);
-  const dropped = turns.slice(0, turns.length - TURNS_AFTER_TRIM);
-  const droppedText = formatTurnsTranscript(dropped);
+  const droppedCount = turns.length - TURNS_AFTER_TRIM;
 
-  if (!isLiveBrainEnabled()) {
-    return {
-      summary: `Earlier in this chat (${dropped.length} turns): emotional sharing and back-and-forth; details omitted for length.`,
-      turns: kept,
-    };
-  }
-
-  try {
-    const mem = await summarizeMemory({ conversation: droppedText, language });
-    const arc = mem.summary;
-    return {
-      summary: arc || `Earlier conversation (${dropped.length} turns) included ongoing distress and personal topics.`,
-      turns: kept,
-    };
-  } catch {
-    return {
-      summary: `Earlier in this chat (${dropped.length} turns): ongoing emotional conversation.`,
-      turns: kept,
-    };
-  }
+  // Fast path: avoid an extra LLM call while building context (saves 1–3s on long threads).
+  return {
+    summary: `Earlier in this chat (${droppedCount} turns): emotional sharing and back-and-forth; details omitted for length.`,
+    turns: kept,
+  };
 }
 
 export interface ConversationContext {

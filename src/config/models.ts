@@ -91,6 +91,7 @@ export function getTemperatureFor(agent: AgentName): number {
 /** Returns the model id that a given agent should use. */
 export function getModelFor(agent: AgentName): string {
   switch (agent) {
+    case 'escalationAgent':
     case 'moodTagging':
     case 'memoryAgent':
       return backgroundModel();
