@@ -4,17 +4,15 @@ import { getStore } from '@/lib/store';
 import { checkRisk } from '@/agents/escalation';
 import { draftReply } from '@/agents/primary';
 import { reviewReply } from '@/agents/monitor';
-import { tagMood } from '@/agents/moodTagging';
-import { summarizeMemory } from '@/agents/memory';
 import { CRISIS_MESSAGE } from '@/lib/safetyCopy';
 import {
   buildConversationContext,
+  formatContextForMonitor,
   formatRecentRiskSummary,
   formatRiskHistory72h,
   isEscalateCrisisDraft,
   turnsForMoodTagging,
 } from '@/lib/conversationContext';
-import { mergePatternProfile } from '@/lib/localBrain';
 import {
   setBrainCallContext,
   recordBrainUsed,
@@ -34,9 +32,15 @@ import {
   isTrivialLowRiskMessage,
   contextHasElevatedRisk,
 } from '@/lib/riskSanity';
-import type { ChatChannel, Language, RiskLevel } from '@/lib/types';
+import type { ChatChannel, RiskLevel } from '@/lib/types';
 import type { EscalationResult } from '@/lib/types';
 import { languageForTurn } from '@/lib/inferLanguage';
+import type { ChatTurnPostReplyWork } from '@/lib/chatTurnPostReply';
+
+export interface ChatTurnOutcome {
+  result: ChatTurnResult;
+  postReply?: ChatTurnPostReplyWork;
+}
 
 export interface ChatTurnResult {
   reply: string;
@@ -53,38 +57,65 @@ function hoursAgoIso(hours: number): string {
   return new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
 }
 
-function liveFailedDuringTurn(fallbackCountAtTurnStart: number): boolean {
-  return getLiveBrainTelemetry().fallbackCount > fallbackCountAtTurnStart;
+function liveCriticalFailedDuringTurn(criticalFailuresAtTurnStart: number): boolean {
+  return getLiveBrainTelemetry().criticalFailureCount > criticalFailuresAtTurnStart;
+}
+
+function logChatTiming(label: string, startMs: number): void {
+  if (process.env.DHIRA_LOG_CHAT_TIMING === '1') {
+    console.info(`CHAT_TIMING ${label}: ${Date.now() - startMs}ms`);
+  }
+}
+
+function wrap(result: ChatTurnResult, postReply?: ChatTurnPostReplyWork): ChatTurnOutcome {
+  return postReply ? { result, postReply } : { result };
 }
 
 export async function runChatTurn(params: {
   uid: string;
   userMessage: string;
   channel?: ChatChannel;
-}): Promise<ChatTurnResult> {
+}): Promise<ChatTurnOutcome> {
+  const turnStarted = Date.now();
   const { uid, userMessage, channel = 'app' } = params;
   setBrainCallContext({ channel });
   const liveConfigured = isLiveBrainEnabled();
-  const fallbackCountAtTurnStart = getLiveBrainTelemetry().fallbackCount;
+  const criticalFailuresAtTurnStart = getLiveBrainTelemetry().criticalFailureCount;
   const store = getStore();
+
   const profile = await store.getOrCreateProfile(uid);
   const turnLanguage = languageForTurn({
     channel,
     userMessage,
     profileLanguage: profile.language,
   });
-  const now = () => new Date().toISOString();
 
-  const risk72hEvents = await store.getRiskEventsForProfileSince(uid, hoursAgoIso(72));
+  const [risk72hEvents, convo] = await Promise.all([
+    store.getRiskEventsForProfileSince(uid, hoursAgoIso(72)),
+    buildConversationContext(uid, turnLanguage, {
+      userPatternProfile: profile.userPatternProfile,
+      channel,
+    }),
+  ]);
   const riskHistory72h = formatRiskHistory72h(risk72hEvents);
   const recentRiskSummary = formatRecentRiskSummary(risk72hEvents);
+  if (recentRiskSummary || riskHistory72h) {
+    convo.recentRiskSummary = recentRiskSummary;
+    convo.riskHistory72h = riskHistory72h;
+    convo.contextString = formatContextForMonitor(convo.conversationSummary, convo.historyTurns, {
+      userPatternProfile: profile.userPatternProfile,
+      recentRiskSummary,
+      recentSentReplies: convo.recentSentReplies,
+      contextUnavailable: convo.contextUnavailable,
+      channel,
+    });
+    if (riskHistory72h) {
+      convo.contextString = `${riskHistory72h}\n\n${convo.contextString}`;
+    }
+  }
+  logChatTiming('context_ready', turnStarted);
 
-  const convo = await buildConversationContext(uid, turnLanguage, {
-    userPatternProfile: profile.userPatternProfile,
-    recentRiskSummary,
-    riskHistory72h,
-    channel,
-  });
+  const now = () => new Date().toISOString();
 
   await store.addMessage({
     id: randomUUID(),
@@ -100,20 +131,11 @@ export async function runChatTurn(params: {
     { role: 'user', content: userMessage },
   ]);
 
-  const risk = await checkRisk({
-    userMessage,
-    context: convo.contextString,
-    userPatternProfile: profile.userPatternProfile,
-    recentRiskSummary,
-    riskHistory72h: riskHistory72h ?? undefined,
-    contextUnavailable: convo.contextUnavailable,
-  });
-
   const finish = (
     partial: Omit<ChatTurnResult, 'brainUsed'>,
     brainUsedOverride?: BrainUsed,
   ): ChatTurnResult => {
-    const fellBackDuringTurn = liveFailedDuringTurn(fallbackCountAtTurnStart);
+    const fellBackDuringTurn = liveCriticalFailedDuringTurn(criticalFailuresAtTurnStart);
     let brainUsed: BrainUsed =
       brainUsedOverride ??
       (liveConfigured && !fellBackDuringTurn ? 'live' : mayUseOfflineDemoTemplates() ? 'offline' : 'holding');
@@ -128,13 +150,14 @@ export async function runChatTurn(params: {
       moodTagSource: partial.moodTagSource,
       promptVersion: LIVE_PROMPT_VERSION,
     });
+    logChatTiming('turn_total', turnStarted);
     return { ...partial, brainUsed };
   };
 
   const completeHoldingTurn = async (
     riskLevel: RiskLevel,
     escalation: EscalationResult,
-  ): Promise<ChatTurnResult> => {
+  ): Promise<ChatTurnOutcome> => {
     const reply = holdingReply(turnLanguage);
     await store.addMessage({
       id: randomUUID(),
@@ -160,16 +183,43 @@ export async function runChatTurn(params: {
         createdAt: now(),
       });
     }
-    return finish(
-      {
-        reply,
-        crisis: false,
-        showReferralCard,
-        riskLevel,
-      },
-      'holding',
+    return wrap(
+      finish(
+        {
+          reply,
+          crisis: false,
+          showReferralCard,
+          riskLevel,
+        },
+        'holding',
+      ),
     );
   };
+
+  const brainStarted = Date.now();
+  const draftPromise = (async () => {
+    const memory = profile.consentMemory ? await store.getLatestMemory(uid) : null;
+    return draftReply({
+      history: convo.historyTurns,
+      conversationSummary: convo.conversationSummary,
+      userMessage,
+      memorySummary: memory?.summary ?? null,
+      userPatternProfile: profile.userPatternProfile,
+      language: turnLanguage,
+      contextUnavailable: convo.contextUnavailable,
+      channel,
+    });
+  })();
+
+  const risk = await checkRisk({
+    userMessage,
+    context: convo.contextString,
+    userPatternProfile: profile.userPatternProfile,
+    recentRiskSummary,
+    riskHistory72h: riskHistory72h ?? undefined,
+    contextUnavailable: convo.contextUnavailable,
+  });
+  logChatTiming('escalation_done', brainStarted);
 
   if (shouldUseEarlyCrisisHandoff(risk)) {
     debugRiskLog({ path: 'early_crisis', risk, userMessage: userMessage.slice(0, 80) });
@@ -190,12 +240,14 @@ export async function runChatTurn(params: {
       channel,
       createdAt: now(),
     });
-    return finish({
-      reply: CRISIS_MESSAGE,
-      crisis: true,
-      showReferralCard: false,
-      riskLevel: 'CRISIS',
-    });
+    return wrap(
+      finish({
+        reply: CRISIS_MESSAGE,
+        crisis: true,
+        showReferralCard: false,
+        riskLevel: 'CRISIS',
+      }),
+    );
   }
 
   if (!liveConfigured && !mayUseOfflineDemoTemplates()) {
@@ -203,19 +255,10 @@ export async function runChatTurn(params: {
   }
 
   try {
-    const memory = profile.consentMemory ? await store.getLatestMemory(uid) : null;
-    const draft = await draftReply({
-      history: convo.historyTurns,
-      conversationSummary: convo.conversationSummary,
-      userMessage,
-      memorySummary: memory?.summary ?? null,
-      userPatternProfile: profile.userPatternProfile,
-      language: turnLanguage,
-      contextUnavailable: convo.contextUnavailable,
-      channel,
-    });
+    const draft = await draftPromise;
+    logChatTiming('primary_done', brainStarted);
 
-    if (liveFailedDuringTurn(fallbackCountAtTurnStart) && !mayUseOfflineDemoTemplates()) {
+    if (liveCriticalFailedDuringTurn(criticalFailuresAtTurnStart) && !mayUseOfflineDemoTemplates()) {
       return completeHoldingTurn(risk.risk_level, risk);
     }
 
@@ -242,12 +285,14 @@ export async function runChatTurn(params: {
         channel,
         createdAt: now(),
       });
-      return finish({
-        reply: CRISIS_MESSAGE,
-        crisis: true,
-        showReferralCard: false,
-        riskLevel: 'CRISIS',
-      });
+      return wrap(
+        finish({
+          reply: CRISIS_MESSAGE,
+          crisis: true,
+          showReferralCard: false,
+          riskLevel: 'CRISIS',
+        }),
+      );
     }
 
     let reviewed = await reviewReply({
@@ -260,8 +305,9 @@ export async function runChatTurn(params: {
       contextUnavailable: convo.contextUnavailable,
     });
     reviewed = sanityCheckMonitor(userMessage, convo.contextString, reviewed);
+    logChatTiming('monitor_done', brainStarted);
 
-    if (liveFailedDuringTurn(fallbackCountAtTurnStart) && !mayUseOfflineDemoTemplates()) {
+    if (liveCriticalFailedDuringTurn(criticalFailuresAtTurnStart) && !mayUseOfflineDemoTemplates()) {
       return completeHoldingTurn(reviewed.risk_level, risk);
     }
 
@@ -292,12 +338,14 @@ export async function runChatTurn(params: {
         channel,
         createdAt: now(),
       });
-      return finish({
-        reply: reviewed.approved_or_rewritten_response,
-        crisis: true,
-        showReferralCard: false,
-        riskLevel: 'CRISIS',
-      });
+      return wrap(
+        finish({
+          reply: reviewed.approved_or_rewritten_response,
+          crisis: true,
+          showReferralCard: false,
+          riskLevel: 'CRISIS',
+        }),
+      );
     }
 
     const finalReply = reviewed.approved_or_rewritten_response;
@@ -311,92 +359,35 @@ export async function runChatTurn(params: {
       createdAt: now(),
     });
 
-    let taggedMood: string | undefined;
-    let taggedTopic: string | undefined;
-    let moodTagSource: 'live' | 'offline' | undefined;
-    const mayTagMood = mayUseOfflineDemoTemplates() || (liveConfigured && !liveFailedDuringTurn(fallbackCountAtTurnStart));
-    if (mayTagMood) {
-      try {
-        const mood = await tagMood({
-          text: userMessage,
-          recentTurns: moodContextTurns,
-          channel,
-        });
-        taggedMood = mood.mood;
-        taggedTopic = mood.topic_tag;
-        moodTagSource = mood.moodTagSource;
-        await store.addMood({
-          id: randomUUID(),
-          profileId: uid,
-          mood: mood.mood,
-          valence: mood.valence,
-          emotionalIntensity: mood.emotional_intensity,
-          topicTag: mood.topic_tag,
-          source: 'chat',
-          moodTagSource: mood.moodTagSource,
-          createdAt: now(),
-        });
-      } catch (err) {
-        if (err instanceof LiveBrainUnavailableError && !mayUseOfflineDemoTemplates()) {
-          /* holding path: no keyword mood */
-        }
-      }
-    }
-
-    if (profile.consentMemory) {
-      try {
-        const prior = await store.getRecentMessages(uid, 8);
-        const convoText = prior.map((m) => `${m.role}: ${m.content}`).join('\n');
-        const mem = await summarizeMemory({
-          conversation: convoText,
-          language: turnLanguage,
-          channel,
-        });
-        await store.addMemory({
-          id: randomUUID(),
-          profileId: uid,
-          summary: mem.summary,
-          mood: mem.mood,
-          topicTag: mem.topic_tag,
-          carryForward: mem.carry_forward,
-          createdAt: now(),
-        });
-        const mergedProfile = mergePatternProfile(profile.userPatternProfile, mem.pattern_profile_update);
-        if (mergedProfile !== profile.userPatternProfile) {
-          await store.updateProfile(uid, { userPatternProfile: mergedProfile });
-        }
-      } catch {
-        /* best-effort */
-      }
-    }
-
     const showReferralCard =
       reviewed.risk_level === 'MEDIUM' ||
       reviewed.risk_level === 'HIGH' ||
       risk.risk_level === 'MEDIUM' ||
       risk.risk_level === 'HIGH';
 
-    if (showReferralCard) {
-      await store.addRiskEvent({
-        id: randomUUID(),
-        profileId: uid,
-        riskLevel: reviewed.risk_level === 'HIGH' || risk.risk_level === 'HIGH' ? 'HIGH' : 'MEDIUM',
-        signal: risk.signal || reviewed.issues_found.join('; ') || 'distress',
-        riskClassification: risk.classification ?? null,
-        handled: true,
-        createdAt: now(),
-      });
-    }
-
-    return finish({
-      reply: finalReply,
-      crisis: false,
+    const postReply: ChatTurnPostReplyWork = {
+      uid,
+      userMessage,
+      channel,
+      turnLanguage,
+      moodContextTurns,
+      consentMemory: profile.consentMemory,
+      userPatternProfile: profile.userPatternProfile,
       showReferralCard,
-      riskLevel: reviewed.risk_level,
-      mood: taggedMood,
-      topicTag: taggedTopic,
-      moodTagSource,
-    });
+      risk,
+      reviewedRiskLevel: reviewed.risk_level,
+      reviewedIssues: reviewed.issues_found,
+    };
+
+    return wrap(
+      finish({
+        reply: finalReply,
+        crisis: false,
+        showReferralCard,
+        riskLevel: reviewed.risk_level,
+      }),
+      postReply,
+    );
   } catch (err) {
     if (err instanceof LiveBrainUnavailableError || (!mayUseOfflineDemoTemplates() && liveConfigured)) {
       return completeHoldingTurn(risk.risk_level, risk);

@@ -12,6 +12,8 @@ let callContext: BrainCallContext = {};
 
 const state = {
   fallbackCount: 0,
+  /** Increments only when the Primary Agent fails — used for fail-closed holding replies. */
+  criticalFailureCount: 0,
   lastBrainError: null as string | null,
   lastFallbackAt: null as string | null,
   lastBrainUsed: null as BrainUsed | null,
@@ -40,8 +42,13 @@ export function recordLiveBrainFallback(params: {
   agent: AgentName;
   channel?: ChatChannel;
   detail?: string;
+  /** When true, a recovered reply is still blocked (Primary Agent only). Default false. */
+  critical?: boolean;
 }): void {
   state.fallbackCount += 1;
+  if (params.critical) {
+    state.criticalFailureCount += 1;
+  }
   state.lastFallbackAt = new Date().toISOString();
   state.lastBrainError = [params.reason, params.detail, params.status].filter(Boolean).join(' | ');
   console.error('LIVE_BRAIN_FALLBACK', {
@@ -70,6 +77,7 @@ export function recordBrainUsed(params: {
 export function getLiveBrainTelemetry() {
   return {
     fallbackCount: state.fallbackCount,
+    criticalFailureCount: state.criticalFailureCount,
     lastBrainError: state.lastBrainError,
     lastFallbackAt: state.lastFallbackAt,
     lastBrainUsed: state.lastBrainUsed,
@@ -79,6 +87,7 @@ export function getLiveBrainTelemetry() {
 
 export function resetLiveBrainTelemetryForTests(): void {
   state.fallbackCount = 0;
+  state.criticalFailureCount = 0;
   state.lastBrainError = null;
   state.lastFallbackAt = null;
   state.lastBrainUsed = null;

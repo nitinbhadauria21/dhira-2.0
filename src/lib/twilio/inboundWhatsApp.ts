@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { after } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import twilio from 'twilio';
 import { getStore, isSupabaseConfigured } from '@/lib/store';
 import { runChatTurn } from '@/lib/chatFlow';
+import { runChatTurnPostReplyEnrichment } from '@/lib/chatTurnPostReply';
 import { newUserId } from '@/lib/auth';
 import { normalizePhoneE164, phoneE164LookupVariants } from '@/lib/twilio/phone';
 import { CRISIS_MESSAGE } from '@/lib/safetyCopy';
@@ -237,7 +239,10 @@ export async function handleInboundWhatsApp(params: Record<string, string>): Pro
 
   try {
     const uid = await findOrCreateProfileByPhone(phoneE164);
-    const turn = await runChatTurn({ uid, userMessage: body, channel: 'whatsapp' });
+    const { result: turn, postReply } = await runChatTurn({ uid, userMessage: body, channel: 'whatsapp' });
+    if (postReply) {
+      after(() => runChatTurnPostReplyEnrichment(postReply));
+    }
     const outbound =
       turn.crisis && !turn.reply.includes('14416') ? CRISIS_MESSAGE : turn.reply;
     console.info('[twilio/inbound] turn complete', {
