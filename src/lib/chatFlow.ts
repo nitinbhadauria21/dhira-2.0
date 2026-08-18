@@ -32,6 +32,7 @@ import {
   isTrivialLowRiskMessage,
   contextHasElevatedRisk,
 } from '@/lib/riskSanity';
+import { sanitizeDhiraReplyForDisplay } from '@/lib/dhiraReplySanitize';
 import type { ChatChannel, RiskLevel } from '@/lib/types';
 import type { EscalationResult } from '@/lib/types';
 import { languageForTurn } from '@/lib/inferLanguage';
@@ -348,7 +349,7 @@ export async function runChatTurn(params: {
       );
     }
 
-    const finalReply = reviewed.approved_or_rewritten_response;
+    const finalReply = sanitizeDhiraReplyForDisplay(reviewed.approved_or_rewritten_response);
 
     await store.addMessage({
       id: randomUUID(),

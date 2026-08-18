@@ -4,10 +4,21 @@ import { formatTurnsTranscript } from '@/lib/conversationContext';
 import { localMoodTag } from '@/lib/localBrain';
 import { LiveBrainUnavailableError, mayUseOfflineDemoTemplates } from '@/lib/brainPolicy';
 import { recordLiveBrainFallback, getBrainCallContext } from '@/lib/liveBrainTelemetry';
+import { isGreetingOnlyMessage } from '@/lib/riskSanity';
 import type { MoodTagResult, ChatChannel } from '@/lib/types';
 import type { ClaudeTurn } from '@/lib/anthropic';
 
 export type MoodTagOutcome = MoodTagResult & { moodTagSource: 'live' | 'offline' };
+
+function neutralMoodTag(source: 'live' | 'offline'): MoodTagOutcome {
+  return {
+    mood: 'neutral',
+    valence: 0,
+    emotional_intensity: 0.2,
+    topic_tag: 'other',
+    moodTagSource: source,
+  };
+}
 
 export async function tagMood(params: {
   text: string;
@@ -15,6 +26,10 @@ export async function tagMood(params: {
   channel?: ChatChannel;
 }): Promise<MoodTagOutcome> {
   const { text, recentTurns = [], channel = 'app' } = params;
+
+  if (isGreetingOnlyMessage(text)) {
+    return neutralMoodTag(isLiveBrainEnabled() ? 'live' : 'offline');
+  }
 
   if (!isLiveBrainEnabled()) {
     if (!mayUseOfflineDemoTemplates()) {

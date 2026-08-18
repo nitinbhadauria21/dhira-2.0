@@ -16,7 +16,12 @@ import { containsAdviceOrDiagnosis } from '../src/lib/guardrails';
 import { formatTurnsTranscript } from '../src/lib/conversationContext';
 import type { ClaudeTurn } from '../src/lib/anthropic';
 import { BOUNDARY_LINE, CRISIS_MESSAGE, NEUTRAL_FAILSAFE } from '../src/lib/safetyCopy';
-import { shouldUseEarlyCrisisHandoff } from '../src/lib/riskSanity';
+import {
+  isGreetingOnlyMessage,
+  shouldTagMoodForChat,
+  shouldUseEarlyCrisisHandoff,
+} from '../src/lib/riskSanity';
+import { sanitizeDhiraReplyForDisplay } from '../src/lib/dhiraReplySanitize';
 import { parseJsonLoose, repairTruncatedJson } from '../src/lib/anthropic';
 import { LiveBrainUnavailableError, holdingReply } from '../src/lib/brainPolicy';
 import { localMoodTag } from '../src/lib/localBrain';
@@ -464,6 +469,35 @@ async function main() {
   {
     const m = localMoodTag('Nothing feels good anymore, honestly.');
     check('not hopeful on negated good', m.mood !== 'hopeful' && m.valence <= 0);
+  }
+
+  console.log('\n--- Chat mood chip + reply sanitize ---');
+
+  console.log('\nG1. Greeting detection');
+  {
+    check('Hi Dhira is greeting-only', isGreetingOnlyMessage('Hi Dhira'));
+    check('hey dhira is greeting-only', isGreetingOnlyMessage('hey dhira!'));
+    check('sad vent is not greeting', !isGreetingOnlyMessage('I feel really sad today'));
+  }
+
+  console.log('\nG2. Skip mood chip for low-signal turns');
+  {
+    check('Hi Dhira skips mood tag', !shouldTagMoodForChat('Hi Dhira'));
+    check('short ok skips mood tag', !shouldTagMoodForChat('ok'));
+    check('emotional line gets mood tag', shouldTagMoodForChat('I feel really sad today'));
+  }
+
+  console.log('\nG3. Greeting mood stays neutral offline');
+  {
+    const m = localMoodTag('Hi Dhira');
+    check('greeting mood neutral', m.mood === 'neutral');
+  }
+
+  console.log('\nG4. Strip decorative moon from Dhira replies');
+  {
+    const cleaned = sanitizeDhiraReplyForDisplay('Hey. 🌙 Kaisa chal raha hai aaj?');
+    check('moon removed from reply', !cleaned.includes('🌙'));
+    check('text preserved', cleaned.includes('Kaisa chal raha hai'));
   }
 
   console.log('\n--- Monitor JSON resilience (mid-chat holding fix) ---');

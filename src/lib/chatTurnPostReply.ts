@@ -5,6 +5,7 @@ import { getStore } from '@/lib/store';
 import { mergePatternProfile } from '@/lib/localBrain';
 import { LiveBrainUnavailableError, mayUseOfflineDemoTemplates } from '@/lib/brainPolicy';
 import { isLiveBrainEnabled } from '@/lib/anthropic';
+import { shouldTagMoodForChat } from '@/lib/riskSanity';
 import type { ClaudeTurn } from '@/lib/anthropic';
 import type { ChatChannel, EscalationResult, Language, RiskLevel } from '@/lib/types';
 
@@ -27,7 +28,9 @@ export async function runChatTurnPostReplyEnrichment(work: ChatTurnPostReplyWork
   const store = getStore();
   const now = () => new Date().toISOString();
   const liveConfigured = isLiveBrainEnabled();
-  const mayTagMood = mayUseOfflineDemoTemplates() || liveConfigured;
+  const mayTagMood =
+    shouldTagMoodForChat(work.userMessage) &&
+    (mayUseOfflineDemoTemplates() || liveConfigured);
 
   if (mayTagMood) {
     try {
