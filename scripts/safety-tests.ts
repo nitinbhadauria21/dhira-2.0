@@ -17,6 +17,7 @@ import { formatTurnsTranscript } from '../src/lib/conversationContext';
 import type { ClaudeTurn } from '../src/lib/anthropic';
 import { BOUNDARY_LINE, CRISIS_MESSAGE, NEUTRAL_FAILSAFE } from '../src/lib/safetyCopy';
 import { shouldUseEarlyCrisisHandoff } from '../src/lib/riskSanity';
+import { parseJsonLoose, repairTruncatedJson } from '../src/lib/anthropic';
 import { LiveBrainUnavailableError, holdingReply } from '../src/lib/brainPolicy';
 import { localMoodTag } from '../src/lib/localBrain';
 
@@ -463,6 +464,18 @@ async function main() {
   {
     const m = localMoodTag('Nothing feels good anymore, honestly.');
     check('not hopeful on negated good', m.mood !== 'hopeful' && m.valence <= 0);
+  }
+
+  console.log('\n--- Monitor JSON resilience (mid-chat holding fix) ---');
+
+  console.log('\nH1. Truncated monitor JSON repair');
+  {
+    const truncated =
+      '{"decision":"APPROVED","risk_level":"LOW","issues_found":[],"approved_or_rewritten_response":"That sounds really heavy — I hear how much this friendship is weighing on you right now and how invisible you feel when she pulls away. What part of that hurts the most today?';
+    const repaired = repairTruncatedJson(truncated);
+    const parsed = parseJsonLoose<{ approved_or_rewritten_response: string }>(truncated);
+    check('repair closes JSON', repaired.endsWith('}'));
+    check('parsed reply present', Boolean(parsed.approved_or_rewritten_response?.includes('friendship')));
   }
 
   console.log(`\n${passed} passed, ${failed} failed.`);

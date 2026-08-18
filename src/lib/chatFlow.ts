@@ -53,8 +53,8 @@ function hoursAgoIso(hours: number): string {
   return new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
 }
 
-function liveFailedDuringTurn(fallbackCountAtTurnStart: number): boolean {
-  return getLiveBrainTelemetry().fallbackCount > fallbackCountAtTurnStart;
+function liveCriticalFailedDuringTurn(criticalFailuresAtTurnStart: number): boolean {
+  return getLiveBrainTelemetry().criticalFailureCount > criticalFailuresAtTurnStart;
 }
 
 export async function runChatTurn(params: {
@@ -65,7 +65,7 @@ export async function runChatTurn(params: {
   const { uid, userMessage, channel = 'app' } = params;
   setBrainCallContext({ channel });
   const liveConfigured = isLiveBrainEnabled();
-  const fallbackCountAtTurnStart = getLiveBrainTelemetry().fallbackCount;
+  const criticalFailuresAtTurnStart = getLiveBrainTelemetry().criticalFailureCount;
   const store = getStore();
   const profile = await store.getOrCreateProfile(uid);
   const turnLanguage = languageForTurn({
@@ -113,7 +113,7 @@ export async function runChatTurn(params: {
     partial: Omit<ChatTurnResult, 'brainUsed'>,
     brainUsedOverride?: BrainUsed,
   ): ChatTurnResult => {
-    const fellBackDuringTurn = liveFailedDuringTurn(fallbackCountAtTurnStart);
+    const fellBackDuringTurn = liveCriticalFailedDuringTurn(criticalFailuresAtTurnStart);
     let brainUsed: BrainUsed =
       brainUsedOverride ??
       (liveConfigured && !fellBackDuringTurn ? 'live' : mayUseOfflineDemoTemplates() ? 'offline' : 'holding');
@@ -215,7 +215,7 @@ export async function runChatTurn(params: {
       channel,
     });
 
-    if (liveFailedDuringTurn(fallbackCountAtTurnStart) && !mayUseOfflineDemoTemplates()) {
+    if (liveCriticalFailedDuringTurn(criticalFailuresAtTurnStart) && !mayUseOfflineDemoTemplates()) {
       return completeHoldingTurn(risk.risk_level, risk);
     }
 
@@ -261,7 +261,7 @@ export async function runChatTurn(params: {
     });
     reviewed = sanityCheckMonitor(userMessage, convo.contextString, reviewed);
 
-    if (liveFailedDuringTurn(fallbackCountAtTurnStart) && !mayUseOfflineDemoTemplates()) {
+    if (liveCriticalFailedDuringTurn(criticalFailuresAtTurnStart) && !mayUseOfflineDemoTemplates()) {
       return completeHoldingTurn(reviewed.risk_level, risk);
     }
 
@@ -314,7 +314,9 @@ export async function runChatTurn(params: {
     let taggedMood: string | undefined;
     let taggedTopic: string | undefined;
     let moodTagSource: 'live' | 'offline' | undefined;
-    const mayTagMood = mayUseOfflineDemoTemplates() || (liveConfigured && !liveFailedDuringTurn(fallbackCountAtTurnStart));
+    const mayTagMood =
+      mayUseOfflineDemoTemplates() ||
+      (liveConfigured && !liveCriticalFailedDuringTurn(criticalFailuresAtTurnStart));
     if (mayTagMood) {
       try {
         const mood = await tagMood({
