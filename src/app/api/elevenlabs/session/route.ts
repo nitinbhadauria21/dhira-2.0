@@ -52,6 +52,8 @@ export async function GET() {
           agentId,
           connectionType: 'websocket' as const,
           signedUrl: body.signed_url,
+          uid,
+          customLlmEnabled: process.env.DHIRA_VOICE_CUSTOM_LLM === 'true',
         });
       }
     }
@@ -71,6 +73,8 @@ export async function GET() {
           agentId,
           connectionType: 'webrtc' as const,
           conversationToken: body.token,
+          uid,
+          customLlmEnabled: process.env.DHIRA_VOICE_CUSTOM_LLM === 'true',
         });
       }
     }
@@ -86,5 +90,7 @@ export async function GET() {
   return NextResponse.json({
     agentId,
     connectionType: 'webrtc' as const,
+    uid,
+    customLlmEnabled: process.env.DHIRA_VOICE_CUSTOM_LLM === 'true',
   });
 }

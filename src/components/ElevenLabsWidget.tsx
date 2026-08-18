@@ -13,9 +13,9 @@ type LogTurn = {
 };
 
 type VoiceSessionPayload =
-  | { connectionType: 'websocket'; signedUrl: string; agentId?: string }
-  | { connectionType: 'webrtc'; conversationToken: string; agentId?: string }
-  | { connectionType: 'webrtc'; agentId: string };
+  | { connectionType: 'websocket'; signedUrl: string; agentId?: string; uid?: string; customLlmEnabled?: boolean }
+  | { connectionType: 'webrtc'; conversationToken: string; agentId?: string; uid?: string; customLlmEnabled?: boolean }
+  | { connectionType: 'webrtc'; agentId: string; uid?: string; customLlmEnabled?: boolean };
 
 function formatClock() {
   return new Date().toLocaleTimeString('en-IN', {
@@ -80,11 +80,13 @@ function ElevenLabsWidgetInner() {
         return;
       }
       setSavedMood(typeof data.mood === 'string' ? data.mood : null);
-      setClosingReply(typeof data.reply === 'string' ? data.reply : null);
+      setClosingReply(null);
       setStatusNote(
         data.crisis
           ? 'Saved. DHIRA also surfaced crisis support.'
-          : `Saved to your chat log${data.mood ? ` · mood: ${data.mood}` : ''}.`,
+          : data.customLlm
+            ? `Saved to your chat log${data.mood ? ` · mood: ${data.mood}` : ''}. Voice used the same brain as Chat.`
+            : `Saved to your chat log${data.mood ? ` · mood: ${data.mood}` : ''}.`,
       );
     } catch {
       setStatusNote('Could not save the voice chat. Please try again.');
@@ -192,6 +194,15 @@ function ElevenLabsWidgetInner() {
         return;
       }
 
+      const sessionUid = typeof sessionJson.uid === 'string' ? sessionJson.uid : '';
+      const voiceSessionExtras = sessionUid
+        ? {
+            userId: sessionUid,
+            customLlmExtraBody: { dhira_uid: sessionUid },
+            dynamicVariables: { dhira_uid: sessionUid },
+          }
+        : {};
+
       try {
         micStreamRef.current = await navigator.mediaDevices.getUserMedia({
           audio: {
@@ -223,18 +234,21 @@ function ElevenLabsWidgetInner() {
           signedUrl: sessionJson.signedUrl,
           connectionType: 'websocket',
           useWakeLock: true,
+          ...voiceSessionExtras,
         });
       } else if ('conversationToken' in sessionJson && sessionJson.conversationToken) {
         await conversation.startSession({
           conversationToken: sessionJson.conversationToken,
           connectionType: 'webrtc',
           useWakeLock: true,
+          ...voiceSessionExtras,
         });
       } else if ('agentId' in sessionJson && sessionJson.agentId) {
         await conversation.startSession({
           agentId: sessionJson.agentId,
           connectionType: 'webrtc',
           useWakeLock: true,
+          ...voiceSessionExtras,
         });
       } else {
         setStatusNote('Voice setup is incomplete on the server. Please try text chat.');

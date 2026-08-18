@@ -1,21 +1,81 @@
-# ElevenLabs live voice — agent prompt (copy into Console)
+# ElevenLabs live voice — Custom LLM (Chat-With-Dhira parity)
 
-**Plain English:** Text chat and WhatsApp use the Primary Agent in [`src/agents/primary.ts`](../../src/agents/primary.ts). **Live** “Talk to Dhira” uses the ElevenLabs Conversational AI agent configured in your ElevenLabs dashboard (`ELEVENLABS_AGENT_ID`). Paste the block below into that agent’s **system prompt** so voice matches text persona.
+**Plain English:** Dashboard **Chat-With-Dhira** (`/chat-with-dhira`) sends each message to `POST /api/chat` → `runChatTurn()` (Escalation → Primary → Monitor). **Talk to Dhira** should use that **same brain** on every spoken turn — not a separate prompt pasted in the ElevenLabs dashboard.
 
-After each call, the app still runs **Primary → Monitor** on the saved transcript via [`/api/elevenlabs/finalize`](../../src/app/api/elevenlabs/finalize/route.ts).
+When Custom LLM is enabled, each user utterance hits your server at `/api/elevenlabs/v1/chat/completions`, which calls `runChatTurn({ channel: 'app' })` — identical to text chat.
 
 ---
 
-## Voice-shortened Dhira prompt (paste into ElevenLabs)
+## Environment variables (Vercel + local)
+
+| Variable | Where | Purpose |
+|----------|--------|---------|
+| `DHIRA_VOICE_CUSTOM_LLM` | Server | Set to `true` after dashboard is configured |
+| `ELEVENLABS_CUSTOM_LLM_SECRET` | Server | Bearer token ElevenLabs sends on Custom LLM requests |
+| `ELEVENLABS_API_KEY` | Server | Signed session URL / WebRTC token for the widget |
+| `OPENROUTER_API_KEY` | Server | Live brain (same as Chat-With-Dhira) |
+
+Example (local `.env`):
+
+```bash
+DHIRA_VOICE_CUSTOM_LLM=true
+ELEVENLABS_CUSTOM_LLM_SECRET=choose-a-long-random-string
+ELEVENLABS_API_KEY=sk_...
+OPENROUTER_API_KEY=sk-or-...
+```
+
+---
+
+## ElevenLabs dashboard setup (manual)
+
+1. Open your ConvAI agent (`ELEVENLABS_AGENT_ID`).
+2. **LLM** → select **Custom LLM**.
+3. **Server URL (production):**  
+   `https://dhira-2-0-xi.vercel.app/api/elevenlabs/v1/chat/completions`
+4. **Authorization header:**  
+   `Bearer <same value as ELEVENLABS_CUSTOM_LLM_SECRET>`
+5. **Security → Overrides:** enable **Custom LLM extra body** (required so `dhira_uid` reaches the server).
+6. **Agent system prompt (minimal):** Dhira’s replies come from your server. Example:
 
 ```
-You are Dhira — a warm, calm companion who listens like a caring older sibling. DEFAULT IS LOW: greetings and ordinary venting are never crisis. ESCALATE to Tele-MANAS 14416 only when you can name a specific danger signal.
-
-Before you speak: notice the STORY and emotional ARC across the whole call, not just the last sentence. Reference what they already shared — never generic “that sounds hard, what’s on your mind?” if you have context.
-
-SAFETY: Treat indirect distress (better off without me, sab khatam, goodbye energy, sudden calm after despair, withdrawal after pain) as serious. If you are genuinely worried, say you need to pause normal chat and direct them to Tele-MANAS 14416 in India (free, 24×7). Do not ask about methods or plans. If unsure but the arc feels heavy, ask once: “Are you feeling safe right now?”
-
-Never give advice, diagnoses, or promises. Never claim to be human. Keep replies short for voice.
+You speak exactly the text returned by the connected language model. Do not add advice, diagnoses, or extra commentary. Keep a warm, calm delivery suitable for voice.
 ```
 
-When you update [`primary.ts`](../../src/agents/primary.ts), refresh this file and re-paste into ElevenLabs.
+7. Disable or tighten **LLM cascade / backup models** so a fallback does not revert to a different persona.
+8. **Publish** the agent.
+
+---
+
+## How identity is passed
+
+The widget (`ElevenLabsWidget.tsx`) calls `GET /api/elevenlabs/session` and passes:
+
+- `customLlmExtraBody: { dhira_uid: "<signed-in user id>" }`
+- `dynamicVariables: { dhira_uid: "<same>" }`
+- `userId: "<same>"`
+
+ElevenLabs forwards extra body as `elevenlabs_extra_body` on each Custom LLM request.
+
+---
+
+## After the call
+
+`POST /api/elevenlabs/finalize` dedupes any transcript lines already saved by `runChatTurn` during the call. It no longer runs a separate Primary/Monitor “reflection” — that path was different from Chat-With-Dhira.
+
+---
+
+## Verify parity (manual QA)
+
+1. Sign in as one user.
+2. On **Chat-With-Dhira**, send prompt X — note tone, safety, language.
+3. Start **Talk to Dhira**, say the same prompt X — reply should match (may be slightly shorter for speech).
+4. End call — open **Chat-With-Dhira** — voice turns appear without duplicates.
+5. Crisis phrase — Tele-MANAS **14416** in spoken reply and chat history.
+
+Automated smoke: `npm run test:voice-custom-llm`
+
+---
+
+## Legacy mode (Custom LLM off)
+
+If `DHIRA_VOICE_CUSTOM_LLM` is not `true`, voice still uses the ElevenLabs dashboard agent prompt and finalize saves the full transcript with legacy mood tagging. Enable Custom LLM for Chat-With-Dhira parity.

@@ -2,14 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
 import { getUserId } from '@/lib/auth';
 import { getStore } from '@/lib/store';
-import { draftReply } from '@/agents/primary';
-import { reviewReply } from '@/agents/monitor';
 import { tagMood } from '@/agents/moodTagging';
-import { summarizeMemory } from '@/agents/memory';
 import { checkRisk } from '@/agents/escalation';
 import { CRISIS_MESSAGE } from '@/lib/safetyCopy';
-import { buildConversationContext, isEscalateCrisisDraft } from '@/lib/conversationContext';
+import { buildConversationContext } from '@/lib/conversationContext';
 import { normalizeMood, normalizeTopic, valenceForMood } from '@/lib/moodNormalize';
+import { isVoiceCustomLlmEnabled } from '@/lib/elevenlabs/customLlmAuth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -19,12 +17,24 @@ type VoiceTurn = {
   content: string;
 };
 
+function turnKey(turn: VoiceTurn): string {
+  return `${turn.role}:${turn.content.trim()}`;
+}
+
+async function filterUnsavedTurns(uid: string, turns: VoiceTurn[]): Promise<VoiceTurn[]> {
+  if (turns.length === 0) return [];
+  const store = getStore();
+  const recent = await store.getRecentMessages(uid, Math.max(turns.length * 2 + 20, 40));
+  const existing = new Set(recent.map((m) => `${m.role}:${m.content.trim()}`));
+  return turns.filter((t) => !existing.has(turnKey(t)));
+}
+
 /**
  * POST /api/elevenlabs/finalize
  *
- * Called by the Talk to Dhira widget when a voice call ends.
- * Saves the transcript into chat_messages, tags mood, stores memory,
- * and returns one in-character Dhira reflection (through the Safety Monitor).
+ * Called when a Talk to Dhira voice call ends. With Custom LLM enabled, turns are
+ * already saved per utterance via runChatTurn — this route dedupes any stragglers
+ * and records session-level mood when needed.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -55,9 +65,11 @@ export async function POST(req: NextRequest) {
     const store = getStore();
     const profile = await store.getOrCreateProfile(uid);
     const now = () => new Date().toISOString();
+    const customLlmActive = isVoiceCustomLlmEnabled();
 
-    // Persist every spoken turn into the same chat history used by /chat-with-dhira.
-    for (const turn of turns) {
+    const unsavedTurns = customLlmActive ? await filterUnsavedTurns(uid, turns) : turns;
+
+    for (const turn of unsavedTurns) {
       await store.addMessage({
         id: randomUUID(),
         profileId: uid,
@@ -76,31 +88,42 @@ export async function POST(req: NextRequest) {
       [...turns].reverse().find((t) => t.role === 'user')?.content ||
       'I just finished talking out loud with you.';
 
-    // Mood from the voice conversation.
     let mood = normalizeMood(typeof body.mood === 'string' ? body.mood : 'neutral');
     let topicTag = normalizeTopic(typeof body.topicTag === 'string' ? body.topicTag : 'self');
     let valence = valenceForMood(mood);
     let intensity = 0.55;
-    try {
-      const tagged = await tagMood({ text: userText || lastUser });
-      mood = tagged.mood;
-      topicTag = tagged.topic_tag;
-      valence = tagged.valence;
-      intensity = tagged.emotional_intensity;
-    } catch {
-      /* keep normalized fallbacks */
-    }
 
-    await store.addMood({
-      id: randomUUID(),
-      profileId: uid,
-      mood,
-      valence,
-      emotionalIntensity: intensity,
-      topicTag,
-      source: 'elevenlabs',
-      createdAt: now(),
-    });
+    // Per-turn Custom LLM already runs mood enrichment; only tag here when legacy voice path.
+    if (!customLlmActive) {
+      try {
+        const tagged = await tagMood({ text: userText || lastUser });
+        mood = tagged.mood;
+        topicTag = tagged.topic_tag;
+        valence = tagged.valence;
+        intensity = tagged.emotional_intensity;
+      } catch {
+        /* keep normalized fallbacks */
+      }
+
+      await store.addMood({
+        id: randomUUID(),
+        profileId: uid,
+        mood,
+        valence,
+        emotionalIntensity: intensity,
+        topicTag,
+        source: 'elevenlabs',
+        createdAt: now(),
+      });
+    } else {
+      const latestMood = await store.getLatestMood(uid);
+      if (latestMood) {
+        mood = latestMood.mood;
+        topicTag = latestMood.topicTag;
+        valence = latestMood.valence;
+        intensity = latestMood.emotionalIntensity;
+      }
+    }
 
     const voiceContext = turns
       .map((t) => `${t.role === 'dhira' ? 'Dhira' : 'User'}: ${t.content}`)
@@ -112,6 +135,10 @@ export async function POST(req: NextRequest) {
 
     const risk = await checkRisk({ userMessage: lastUser, context: contextString });
     if (risk.risk_level === 'CRISIS' || risk.escalate) {
+      const crisisAlreadySaved = customLlmActive
+        ? (await filterUnsavedTurns(uid, [{ role: 'dhira', content: CRISIS_MESSAGE }])).length === 0
+        : false;
+
       await store.addRiskEvent({
         id: randomUUID(),
         profileId: uid,
@@ -120,117 +147,34 @@ export async function POST(req: NextRequest) {
         handled: true,
         createdAt: now(),
       });
-      await store.addMessage({
-        id: randomUUID(),
-        profileId: uid,
-        role: 'dhira',
-        content: CRISIS_MESSAGE,
-        createdAt: now(),
-      });
-      return NextResponse.json({
-        success: true,
-        crisis: true,
-        mood,
-        topicTag,
-        reply: CRISIS_MESSAGE,
-        savedTurns: turns.length + 1,
-      });
-    }
 
-    const reflectionPrompt =
-      `I just finished a voice conversation with you. Here is what we covered:\n` +
-      `${turns.map((t) => `${t.role === 'user' ? 'Me' : 'You'}: ${t.content}`).join('\n')}\n\n` +
-      `Please respond once as Dhira — listen, reflect, no advice.`;
-
-    const memory = profile.consentMemory ? await store.getLatestMemory(uid) : null;
-    const draft = await draftReply({
-      history: convo.historyTurns,
-      conversationSummary: convo.conversationSummary,
-      userMessage: reflectionPrompt,
-      memorySummary: memory?.summary ?? null,
-      language: profile.language,
-    });
-
-    if (isEscalateCrisisDraft(draft)) {
-      await store.addRiskEvent({
-        id: randomUUID(),
-        profileId: uid,
-        riskLevel: 'CRISIS',
-        signal: 'primary ESCALATE_CRISIS after voice',
-        handled: true,
-        createdAt: now(),
-      });
-      await store.addMessage({
-        id: randomUUID(),
-        profileId: uid,
-        role: 'dhira',
-        content: CRISIS_MESSAGE,
-        createdAt: now(),
-      });
-      return NextResponse.json({
-        success: true,
-        crisis: true,
-        mood,
-        topicTag,
-        reply: CRISIS_MESSAGE,
-        savedTurns: turns.length + 1,
-      });
-    }
-
-    const reviewed = await reviewReply({
-      userMessage: lastUser,
-      context: contextString,
-      draftReply: draft,
-    });
-
-    let reply = reviewed.approved_or_rewritten_response;
-    let crisis = false;
-    if (reviewed.decision === 'BLOCK_AND_REPLACE' && reviewed.risk_level === 'CRISIS') {
-      reply = CRISIS_MESSAGE;
-      crisis = true;
-      await store.addRiskEvent({
-        id: randomUUID(),
-        profileId: uid,
-        riskLevel: 'CRISIS',
-        signal: reviewed.issues_found.join('; ') || 'monitor crisis after voice',
-        handled: true,
-        createdAt: now(),
-      });
-    }
-
-    await store.addMessage({
-      id: randomUUID(),
-      profileId: uid,
-      role: 'dhira',
-      content: reply,
-      createdAt: now(),
-    });
-
-    if (profile.consentMemory) {
-      try {
-        const convo = turns.map((t) => `${t.role}: ${t.content}`).join('\n') + `\ndhira: ${reply}`;
-        const mem = await summarizeMemory({ conversation: convo, language: profile.language });
-        await store.addMemory({
+      if (!crisisAlreadySaved) {
+        await store.addMessage({
           id: randomUUID(),
           profileId: uid,
-          summary: mem.summary,
-          mood: mem.mood,
-          topicTag: mem.topic_tag,
-          carryForward: mem.carry_forward,
+          role: 'dhira',
+          content: CRISIS_MESSAGE,
           createdAt: now(),
         });
-      } catch {
-        /* best-effort */
       }
+
+      return NextResponse.json({
+        success: true,
+        crisis: true,
+        mood,
+        topicTag,
+        savedTurns: unsavedTurns.length + (crisisAlreadySaved ? 0 : 1),
+        customLlm: customLlmActive,
+      });
     }
 
     return NextResponse.json({
       success: true,
-      crisis,
+      crisis: false,
       mood,
       topicTag,
-      reply,
-      savedTurns: turns.length + 1,
+      savedTurns: unsavedTurns.length,
+      customLlm: customLlmActive,
     });
   } catch (err) {
     console.error('[api/elevenlabs/finalize] error', err);
