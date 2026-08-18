@@ -5,7 +5,7 @@
  *
  * Does not replace manual chat UI checks (movie transcript, Monitor sent-replies).
  */
-import { isLiveBrainEnabled, getModelFor, getBrainApiKey, getBrainBaseURL } from '../src/config/models';
+import { isLiveBrainEnabled, getModelFor, getBrainApiKey, getBrainBaseURL, getOpenRouterProviderPrefs } from '../src/config/models';
 import { checkRisk } from '../src/agents/escalation';
 import { draftReply } from '../src/agents/primary';
 import { tagMood } from '../src/agents/moodTagging';
@@ -17,6 +17,7 @@ async function pingOpenRouter(): Promise<{ ok: boolean; status: number; snippet:
   const base = getBrainBaseURL() || 'https://openrouter.ai/api';
   const url = `${base.replace(/\/$/, '')}/v1/messages`;
   const model = getModelFor('primaryAgent');
+  const provider = getOpenRouterProviderPrefs();
   const res = await fetch(url, {
     method: 'POST',
     headers: {
@@ -29,6 +30,7 @@ async function pingOpenRouter(): Promise<{ ok: boolean; status: number; snippet:
       model,
       max_tokens: 16,
       messages: [{ role: 'user', content: 'Reply with exactly: pong' }],
+      ...(provider ? { provider } : {}),
     }),
   });
   const text = await res.text();

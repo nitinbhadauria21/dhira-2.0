@@ -3,6 +3,7 @@ import {
   getBrainApiKey,
   getBrainBaseURL,
   getModelFor,
+  getOpenRouterProviderPrefs,
   getTemperatureFor,
   isLiveBrainEnabled,
   isOpenRouterConfigured,
@@ -59,6 +60,17 @@ function apiErrorMeta(err: unknown): { status?: number; message: string } {
   return { status: undefined, message: err instanceof Error ? err.message : String(err) };
 }
 
+function isOpenRouterPolicyBlock(err: unknown): boolean {
+  const meta = apiErrorMeta(err);
+  if (meta.status === 404) return true;
+  return /guardrail|data policy|not_found_error|no endpoints available/i.test(meta.message);
+}
+
+function openRouterExtras(): Record<string, unknown> {
+  const provider = getOpenRouterProviderPrefs();
+  return provider ? { provider } : {};
+}
+
 /** Ask the live brain for a plain-text reply. */
 export async function anthropicText(params: {
   agent: AgentName;
@@ -68,14 +80,19 @@ export async function anthropicText(params: {
 }): Promise<string> {
   const model = getModelFor(params.agent);
   const ctx = getBrainCallContext();
+  const baseBody = {
+    model,
+    max_tokens: params.maxTokens ?? 400,
+    temperature: getTemperatureFor(params.agent),
+    system: params.system,
+    messages: params.messages,
+    ...openRouterExtras(),
+  };
+
   try {
-    const res = await client().messages.create({
-      model,
-      max_tokens: params.maxTokens ?? 400,
-      temperature: getTemperatureFor(params.agent),
-      system: params.system,
-      messages: params.messages,
-    });
+    const res = await client().messages.create(
+      baseBody as Anthropic.MessageCreateParamsNonStreaming,
+    );
     return res.content
       .filter((b): b is Anthropic.TextBlock => b.type === 'text')
       .map((b) => b.text)
@@ -91,6 +108,33 @@ export async function anthropicText(params: {
       detail: meta.message,
       channel: ctx.channel,
     });
+
+    // Retry with ZDR routing when OpenRouter blocks on privacy/guardrail policy.
+    if (isOpenRouterConfigured() && isOpenRouterPolicyBlock(err) && !openRouterExtras().provider) {
+      try {
+        const res = await client().messages.create({
+          ...baseBody,
+          provider: { zdr: true, allow_fallbacks: true, data_collection: 'allow' },
+        } as Anthropic.MessageCreateParamsNonStreaming);
+        return res.content
+          .filter((b): b is Anthropic.TextBlock => b.type === 'text')
+          .map((b) => b.text)
+          .join('')
+          .trim();
+      } catch (retryErr) {
+        const retryMeta = apiErrorMeta(retryErr);
+        recordLiveBrainFallback({
+          agent: params.agent,
+          model,
+          reason: 'anthropicText ZDR retry failed',
+          status: retryMeta.status,
+          detail: retryMeta.message,
+          channel: ctx.channel,
+        });
+        throw retryErr;
+      }
+    }
+
     throw err;
   }
 }

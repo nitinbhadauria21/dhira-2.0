@@ -22,10 +22,12 @@ Save changes. Wait 1–2 minutes.
 
 ```bash
 DHIRA_MODEL_SONNET=openrouter/auto
-DHIRA_MODEL_HAIKU=openrouter/auto
+DHIRA_MODEL_HAIKU=anthropic/claude-haiku-4.5
 ```
 
-Then redeploy. Dhira already reads these in `src/config/models.ts`.
+**Code fix (deployed in app):** Dhira now sends `provider: { zdr: true, allow_fallbacks: true }` on every OpenRouter `/v1/messages` call unless `DHIRA_OPENROUTER_ZDR=0`. This unblocks accounts that enforce Zero Data Retention at the guardrail/privacy level.
+
+Then redeploy. Dhira already reads model overrides in `src/config/models.ts`.
 
 ## 3. Credits
 
