@@ -31,6 +31,7 @@ export async function GET() {
     lastBrainError: telemetry.lastBrainError,
     lastFallbackAt: telemetry.lastFallbackAt,
     fallbackCount: telemetry.fallbackCount,
+    criticalFailureCount: telemetry.criticalFailureCount,
     lastBrainUsed: telemetry.lastBrainUsed,
     offlinePolicy: offlinePolicyLabel(),
     promptVersion: LIVE_PROMPT_VERSION,

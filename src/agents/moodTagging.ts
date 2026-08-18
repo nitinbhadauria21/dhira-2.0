@@ -59,6 +59,7 @@ export async function tagMood(params: {
       reason: 'tagMood failed',
       detail: err instanceof Error ? err.message : String(err),
       channel: channel ?? getBrainCallContext().channel,
+      critical: false,
     });
     if (!mayUseOfflineDemoTemplates()) {
       throw new LiveBrainUnavailableError('mood tagging live call failed');

@@ -22,6 +22,7 @@ import {
   shouldUseEarlyCrisisHandoff,
 } from '../src/lib/riskSanity';
 import { sanitizeDhiraReplyForDisplay } from '../src/lib/dhiraReplySanitize';
+import { parseJsonLoose, repairTruncatedJson } from '../src/lib/anthropic';
 import { LiveBrainUnavailableError, holdingReply } from '../src/lib/brainPolicy';
 import { localMoodTag } from '../src/lib/localBrain';
 
@@ -497,6 +498,18 @@ async function main() {
     const cleaned = sanitizeDhiraReplyForDisplay('Hey. 🌙 Kaisa chal raha hai aaj?');
     check('moon removed from reply', !cleaned.includes('🌙'));
     check('text preserved', cleaned.includes('Kaisa chal raha hai'));
+  }
+
+  console.log('\n--- Monitor JSON resilience (mid-chat holding fix) ---');
+
+  console.log('\nH1. Truncated monitor JSON repair');
+  {
+    const truncated =
+      '{"decision":"APPROVED","risk_level":"LOW","issues_found":[],"approved_or_rewritten_response":"That sounds really heavy — I hear how much this friendship is weighing on you right now and how invisible you feel when she pulls away. What part of that hurts the most today?';
+    const repaired = repairTruncatedJson(truncated);
+    const parsed = parseJsonLoose<{ approved_or_rewritten_response: string }>(truncated);
+    check('repair closes JSON', repaired.endsWith('}'));
+    check('parsed reply present', Boolean(parsed.approved_or_rewritten_response?.includes('friendship')));
   }
 
   console.log(`\n${passed} passed, ${failed} failed.`);

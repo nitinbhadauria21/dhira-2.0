@@ -100,14 +100,6 @@ export async function anthropicText(params: {
       .trim();
   } catch (err) {
     const meta = apiErrorMeta(err);
-    recordLiveBrainFallback({
-      agent: params.agent,
-      model,
-      reason: 'anthropicText failed',
-      status: meta.status,
-      detail: meta.message,
-      channel: ctx.channel,
-    });
 
     // Retry with ZDR routing when OpenRouter blocks on privacy/guardrail policy.
     if (isOpenRouterConfigured() && isOpenRouterPolicyBlock(err) && !openRouterExtras().provider) {
@@ -130,11 +122,21 @@ export async function anthropicText(params: {
           status: retryMeta.status,
           detail: retryMeta.message,
           channel: ctx.channel,
+          critical: params.agent === 'primaryAgent',
         });
         throw retryErr;
       }
     }
 
+    recordLiveBrainFallback({
+      agent: params.agent,
+      model,
+      reason: 'anthropicText failed',
+      status: meta.status,
+      detail: meta.message,
+      channel: ctx.channel,
+      critical: params.agent === 'primaryAgent',
+    });
     throw err;
   }
 }
@@ -161,9 +163,51 @@ export async function anthropicJSON<T>(params: {
       reason: 'JSON parse failed',
       detail: err instanceof Error ? err.message : String(err),
       channel: getBrainCallContext().channel,
+      critical: false,
     });
     throw err;
   }
+}
+
+/** Attempt to close truncated JSON (common when max_tokens cuts off a long string field). */
+export function repairTruncatedJson(raw: string): string {
+  let s = raw.trim();
+  if (!s) return '{}';
+
+  const quoteCount = (s.match(/(?<!\\)"/g) ?? []).length;
+  if (quoteCount % 2 === 1) {
+    s += '"';
+  }
+
+  const stack: string[] = [];
+  let inString = false;
+  let escaped = false;
+  for (const ch of s) {
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+        continue;
+      }
+      if (ch === '\\') {
+        escaped = true;
+        continue;
+      }
+      if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') {
+      inString = true;
+      continue;
+    }
+    if (ch === '{') stack.push('}');
+    else if (ch === '[') stack.push(']');
+    else if (ch === '}' || ch === ']') stack.pop();
+  }
+
+  while (stack.length > 0) {
+    s += stack.pop();
+  }
+  return s;
 }
 
 /** Pulls the first {...} JSON object out of a model response, tolerating fences. */
@@ -172,5 +216,13 @@ export function parseJsonLoose<T>(raw: string): T {
   const start = cleaned.indexOf('{');
   const end = cleaned.lastIndexOf('}');
   const slice = start !== -1 && end !== -1 ? cleaned.slice(start, end + 1) : cleaned;
-  return JSON.parse(slice) as T;
+  try {
+    return JSON.parse(slice) as T;
+  } catch (firstErr) {
+    try {
+      return JSON.parse(repairTruncatedJson(slice)) as T;
+    } catch {
+      throw firstErr;
+    }
+  }
 }

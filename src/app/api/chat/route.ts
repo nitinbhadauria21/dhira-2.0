@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { after } from 'next/server';
 import { getUserId } from '@/lib/auth';
 import { runChatTurn } from '@/lib/chatFlow';
+import { runChatTurnPostReplyEnrichment } from '@/lib/chatTurnPostReply';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -16,7 +18,12 @@ export async function POST(req: NextRequest) {
 
     const uid = await getUserId();
     if (!uid) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
-    const result = await runChatTurn({ uid, userMessage: message });
+
+    const { result, postReply } = await runChatTurn({ uid, userMessage: message });
+    if (postReply) {
+      after(() => runChatTurnPostReplyEnrichment(postReply));
+    }
+
     const isDev = process.env.NODE_ENV === 'development';
     if (!isDev) {
       const { brainUsed: _b, moodTagSource: _m, ...rest } = result;

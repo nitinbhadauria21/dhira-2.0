@@ -138,7 +138,7 @@ export async function reviewReply(input: MonitorInput): Promise<MonitorResult> {
       agent: 'safetyMonitor',
       system: MONITOR_LIVE_SYSTEM,
       userContent: parts.join('\n\n'),
-      maxTokens: 450,
+      maxTokens: 900,
     });
     if (!result.approved_or_rewritten_response) {
       result.approved_or_rewritten_response = input.draftReply;
