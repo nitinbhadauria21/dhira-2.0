@@ -21,7 +21,11 @@ export type AgentName =
   | 'memoryAgent';
 
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api';
-/** OpenRouter: SDK appends /v1/messages — do NOT set base to .../api/v1 (double /v1). */
+/** OpenRouter: SDK appends `/v1/messages` — do NOT set base to .../api/v1 (double /v1). */
+
+/** Default models when OpenRouter account enforces ZDR (see docs/openrouter-guardrails-checklist.md). */
+const OPENROUTER_VOICE_MODEL = 'openrouter/auto';
+const OPENROUTER_BACKGROUND_MODEL = 'anthropic/claude-haiku-4.5';
 
 function looksLikePlaceholder(value: string): boolean {
   const v = value.toLowerCase();
@@ -60,14 +64,14 @@ export function getBrainBaseURL(): string | undefined {
 function voiceAndSafetyModel(): string {
   return (
     process.env.DHIRA_MODEL_SONNET?.trim() ||
-    (isOpenRouterConfigured() ? 'anthropic/claude-sonnet-4.5' : 'claude-sonnet-4-5')
+    (isOpenRouterConfigured() ? OPENROUTER_VOICE_MODEL : 'claude-sonnet-4-5')
   );
 }
 
 function backgroundModel(): string {
   return (
     process.env.DHIRA_MODEL_HAIKU?.trim() ||
-    (isOpenRouterConfigured() ? 'anthropic/claude-haiku-4.5' : 'claude-haiku-4-5')
+    (isOpenRouterConfigured() ? OPENROUTER_BACKGROUND_MODEL : 'claude-haiku-4-5')
   );
 }
 
@@ -101,4 +105,13 @@ export function getModelFor(agent: AgentName): string {
  */
 export function isLiveBrainEnabled(): boolean {
   return getBrainApiKey() !== null;
+}
+
+/** OpenRouter routing prefs — required when account/guardrail enforces Zero Data Retention. */
+export function getOpenRouterProviderPrefs():
+  | { zdr: boolean; allow_fallbacks: boolean; data_collection: 'allow' }
+  | undefined {
+  if (!isOpenRouterConfigured()) return undefined;
+  if (process.env.DHIRA_OPENROUTER_ZDR === '0') return undefined;
+  return { zdr: true, allow_fallbacks: true, data_collection: 'allow' };
 }
