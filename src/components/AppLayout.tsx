@@ -22,6 +22,7 @@ const TRACKED_PREFIXES = [
 
 export default function AppLayout({ children, showNav = true }: AppLayoutProps) {
   const pathname = usePathname();
+  const isHome = pathname === '/home-dashboard';
 
   // Remember where the signed-in user last spent time, so sign-in can resume there.
   useEffect(() => {
@@ -43,7 +44,7 @@ export default function AppLayout({ children, showNav = true }: AppLayoutProps) 
         style={{
           backgroundColor: 'var(--color-bg)',
           paddingTop: showNav ? '72px' : '0',
-          paddingBottom: showNav ? '72px' : '0',
+          paddingBottom: showNav ? (isHome ? '24px' : '72px') : '0',
         }}
       >
         {children}
@@ -61,7 +62,9 @@ export default function AppLayout({ children, showNav = true }: AppLayoutProps) 
           },
         }}
       />
-      {showNav && <ElevenLabsWidget />}
+      {showNav && (
+        <ElevenLabsWidget showFloatingTrigger={!isHome} showVoiceLog={!isHome} />
+      )}
     </ThemeProvider>
   );
 }
