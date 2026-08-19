@@ -4,6 +4,12 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useConversation, ConversationProvider } from '@elevenlabs/react';
 import VoiceBuddyOverlay from '@/components/VoiceBuddyOverlay';
+import { registerVoiceSession } from '@/lib/voiceSessionBridge';
+
+type ElevenLabsWidgetProps = {
+  showFloatingTrigger?: boolean;
+  showVoiceLog?: boolean;
+};
 
 type LogTurn = {
   id: string;
@@ -25,7 +31,10 @@ function formatClock() {
   });
 }
 
-function ElevenLabsWidgetInner() {
+function ElevenLabsWidgetInner({
+  showFloatingTrigger = true,
+  showVoiceLog = true,
+}: ElevenLabsWidgetProps) {
   const [panelOpen, setPanelOpen] = useState(false);
   const [turns, setTurns] = useState<LogTurn[]>([]);
   const [statusNote, setStatusNote] = useState<string | null>(null);
@@ -96,12 +105,16 @@ function ElevenLabsWidgetInner() {
     }
   }, []);
 
+  const openVoiceLog = useCallback(() => {
+    if (showVoiceLog) setPanelOpen(true);
+  }, [showVoiceLog]);
+
   const conversation = useConversation({
     onConnect: () => {
       setBuddyFadingOut(false);
       setBuddyOverlayVisible(true);
       setStatusNote('Connected — speak whenever you are ready. Tap End Call when you are done.');
-      setPanelOpen(true);
+      openVoiceLog();
     },
     onDisconnect: () => {
       setBuddyFadingOut(true);
@@ -132,7 +145,7 @@ function ElevenLabsWidgetInner() {
             ? error.message
             : 'Voice connection hit a snag.';
       setStatusNote(`${message} You can try again or use text chat.`);
-      setPanelOpen(true);
+      openVoiceLog();
     },
     onMessage: (payload) => {
       const role: 'user' | 'dhira' =
@@ -148,11 +161,12 @@ function ElevenLabsWidgetInner() {
           at: formatClock(),
         },
       ]);
-      setPanelOpen(true);
+      openVoiceLog();
     },
   });
 
-  const isActive = conversation.status === 'connected' || conversation.status === 'connecting';
+  const isConnecting = conversation.status === 'connecting';
+  const isActive = conversation.status === 'connected' || isConnecting;
 
   useEffect(() => {
     return () => {
@@ -182,7 +196,7 @@ function ElevenLabsWidgetInner() {
       setTurns([]);
       turnsRef.current = [];
       finalizedRef.current = false;
-      setPanelOpen(true);
+      openVoiceLog();
 
       const sessionRes = await fetch('/api/elevenlabs/session', { credentials: 'include' });
       const sessionJson = (await sessionRes.json().catch(() => ({}))) as VoiceSessionPayload & {
@@ -260,12 +274,22 @@ function ElevenLabsWidgetInner() {
       void releaseWakeLock();
       setStatusNote('Could not connect to voice. Check your network and try again.');
       setBuddyOverlayVisible(false);
-      setPanelOpen(true);
+      openVoiceLog();
     } finally {
       startingRef.current = false;
       setIsStarting(false);
     }
-  }, [conversation, isActive, releaseMic, releaseWakeLock]);
+  }, [conversation, isActive, openVoiceLog, releaseMic, releaseWakeLock]);
+
+  useEffect(() => {
+    registerVoiceSession({
+      toggleCall,
+      isActive,
+      isStarting,
+      isConnecting,
+    });
+    return () => registerVoiceSession(null);
+  }, [toggleCall, isActive, isStarting, isConnecting]);
 
   return (
     <>
@@ -278,7 +302,7 @@ function ElevenLabsWidgetInner() {
         }
       `}</style>
 
-      {panelOpen ? (
+      {showVoiceLog && panelOpen ? (
         <div
           role="dialog"
           aria-label="Talk to Dhira voice log"
@@ -461,61 +485,59 @@ function ElevenLabsWidgetInner() {
         </div>
       ) : null}
 
-      <button
-        onClick={toggleCall}
-        disabled={conversation.status === 'connecting' || isStarting}
-        aria-label={isActive ? 'End call with Dhira' : 'Talk to Dhira'}
-        style={{
-          position: 'fixed',
-          bottom: '24px',
-          right: '24px',
-          zIndex: 10000,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          padding: '12px 20px',
-          borderRadius: '50px',
-          border: 'none',
-          cursor: conversation.status === 'connecting' ? 'wait' : 'pointer',
-          opacity: conversation.status === 'connecting' ? 0.85 : 1,
-          backgroundColor: isActive ? '#f87171' : '#ffffff',
-          color: isActive ? '#ffffff' : 'var(--color-primary, #5a67b8)',
-          fontFamily: 'var(--font-ui, Inter, sans-serif)',
-          fontSize: '15px',
-          fontWeight: 600,
-          letterSpacing: '-0.01em',
-          boxShadow: '0 4px 24px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.05)',
-          transition:
-            'transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease, color 0.2s ease',
-        }}
-        onMouseEnter={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)';
-          (e.currentTarget as HTMLButtonElement).style.boxShadow =
-            '0 8px 32px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.08)';
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
-          (e.currentTarget as HTMLButtonElement).style.boxShadow =
-            '0 4px 24px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.05)';
-        }}
-      >
-        <div
+      {showFloatingTrigger ? (
+        <button
+          onClick={toggleCall}
+          disabled={isConnecting || isStarting}
+          aria-label={isActive ? 'End call with Dhira' : 'Talk to Dhira'}
           style={{
-            width: '18px',
-            height: '18px',
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, #c084fc 0%, #facc15 100%)',
-            animation: 'dhira-breathe 3s ease-in-out infinite',
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            zIndex: 10000,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '12px 20px',
+            borderRadius: '50px',
+            border: 'none',
+            cursor: isConnecting ? 'wait' : 'pointer',
+            opacity: isConnecting ? 0.85 : 1,
+            backgroundColor: isActive ? '#f87171' : '#ffffff',
+            color: isActive ? '#ffffff' : 'var(--color-primary, #5a67b8)',
+            fontFamily: 'var(--font-ui, Inter, sans-serif)',
+            fontSize: '15px',
+            fontWeight: 600,
+            letterSpacing: '-0.01em',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.05)',
+            transition:
+              'transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease, color 0.2s ease',
           }}
-        />
-        {conversation.status === 'connecting'
-          ? 'Connecting...'
-          : isActive
-            ? 'End Call'
-            : 'Talk to Dhira'}
-      </button>
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)';
+            (e.currentTarget as HTMLButtonElement).style.boxShadow =
+              '0 8px 32px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.08)';
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
+            (e.currentTarget as HTMLButtonElement).style.boxShadow =
+              '0 4px 24px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.05)';
+          }}
+        >
+          <div
+            style={{
+              width: '18px',
+              height: '18px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #c084fc 0%, #facc15 100%)',
+              animation: 'dhira-breathe 3s ease-in-out infinite',
+            }}
+          />
+          {isConnecting ? 'Connecting...' : isActive ? 'End Call' : 'Talk to Dhira'}
+        </button>
+      ) : null}
 
-      {!panelOpen && !isActive && turns.length > 0 ? (
+      {showVoiceLog && !panelOpen && !isActive && turns.length > 0 ? (
         <button
           type="button"
           onClick={() => setPanelOpen(true)}
@@ -542,10 +564,10 @@ function ElevenLabsWidgetInner() {
   );
 }
 
-export default function ElevenLabsWidget() {
+export default function ElevenLabsWidget(props: ElevenLabsWidgetProps) {
   return (
     <ConversationProvider>
-      <ElevenLabsWidgetInner />
+      <ElevenLabsWidgetInner {...props} />
     </ConversationProvider>
   );
 }

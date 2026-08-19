@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import HomeGreeting from './HomeGreeting';
+import HomeTalkToDhiraCta from './HomeTalkToDhiraCta';
 import HomeMoodCard from './HomeMoodCard';
 import HomeStreakCard from './HomeStreakCard';
 import HomeMiniTimeline from './HomeMiniTimeline';
-import HomeProactiveCard from './HomeProactiveCard';
 import HomeJournalRecent from './HomeJournalRecent';
 import MoodCheckInModal from './MoodCheckInModal';
 import type { ShiftPreference } from '@/lib/timeOfDay';
@@ -267,48 +267,38 @@ export default function HomeDashboardContent() {
           memoryLine={data?.memory?.summary ?? null}
         />
 
-        {/* Bento grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mt-6">
-          {/* Mood card — hero, spans 2 cols on xl */}
-          <div className="xl:col-span-2">
-            <HomeMoodCard
-              onLogMood={() => setMoodModalOpen(true)}
-              latestMood={
-                data?.latestMood
-                  ? {
-                      ...data.latestMood,
-                      loggedAt: new Date().toLocaleTimeString('en-IN', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true,
-                      }),
-                    }
-                  : null
-              }
-            />
-          </div>
+        <HomeTalkToDhiraCta />
 
-          {/* Streak card — real zeros for new accounts */}
-          <div className="xl:col-span-1">
-            <HomeStreakCard
-              streak={data?.streak ?? 0}
-              totalSessions={data?.totalSessions ?? 0}
-              longest={data?.streak ?? 0}
-            />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+          <HomeMoodCard
+            onLogMood={() => setMoodModalOpen(true)}
+            latestMood={
+              data?.latestMood
+                ? {
+                    ...data.latestMood,
+                    loggedAt: new Date().toLocaleTimeString('en-IN', {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true,
+                    }),
+                  }
+                : null
+            }
+          />
 
-          {/* Proactive check-in card */}
-          <div className="xl:col-span-1">
-            <HomeProactiveCard />
-          </div>
+          <HomeStreakCard
+            streak={data?.streak ?? 0}
+            totalSessions={data?.totalSessions ?? 0}
+            longest={data?.streak ?? 0}
+          />
+        </div>
 
-          {/* Mini timeline — spans 3 cols on xl */}
-          <div className="xl:col-span-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5">
+          <div className="md:col-span-2">
             <HomeMiniTimeline last7={data?.last7 ?? []} />
           </div>
 
-          {/* Recent journal */}
-          <div className="xl:col-span-1">
+          <div className="md:col-span-1">
             <HomeJournalRecent entries={data?.recentJournal ?? []} />
           </div>
         </div>
