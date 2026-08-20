@@ -60,18 +60,6 @@ export default function HomeTalkToDhiraCta() {
             <span className="home-talk-to-dhira-cta__subtitle">Setting up your microphone…</span>
           )}
         </span>
-
-        <span className="home-talk-to-dhira-cta__visual">
-          <span className="home-talk-to-dhira-cta__wave">
-            {[0.45, 0.75, 1, 0.65, 0.9, 0.55, 0.8].map((scale, i) => (
-              <span
-                key={i}
-                className="home-talk-to-dhira-cta__wave-bar"
-                style={{ transform: `scaleY(${scale})` }}
-              />
-            ))}
-          </span>
-        </span>
       </button>
     </div>
   );
