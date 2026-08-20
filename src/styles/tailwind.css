@@ -337,14 +337,25 @@
     padding: 12px 16px;
   }
 
+  .home-talk-to-dhira-cta-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 4px;
+    width: 100%;
+  }
+
   .home-talk-to-dhira-cta {
     display: flex;
     align-items: center;
     gap: 16px;
-    width: 100%;
-    margin-top: 20px;
-    margin-bottom: 4px;
-    padding: 16px 18px;
+    width: 50%;
+    min-width: 280px;
+    max-width: 100%;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 16px 18px 16px 8px;
+    overflow: visible;
     border: 1px solid color-mix(in srgb, var(--color-lavender) 45%, var(--color-border));
     border-radius: 999px;
     cursor: pointer;
@@ -464,6 +475,9 @@
   .home-talk-to-dhira-cta__buddy {
     width: 52px !important;
     min-height: 0 !important;
+    flex-shrink: 0;
+    margin-top: -10px;
+    margin-bottom: -10px;
   }
 
   [data-theme='night'] .home-talk-to-dhira-cta {
@@ -485,7 +499,9 @@
 
   @media (max-width: 640px) {
     .home-talk-to-dhira-cta {
-      padding: 14px 16px;
+      width: 100%;
+      min-width: 0;
+      padding: 14px 16px 14px 6px;
       gap: 12px;
     }
 
