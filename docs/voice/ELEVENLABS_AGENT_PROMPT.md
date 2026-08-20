@@ -41,6 +41,9 @@ OPENROUTER_API_KEY=sk-or-...
 You speak exactly the text returned by the connected language model. Do not add advice, diagnoses, or extra commentary. Keep a warm, calm delivery suitable for voice.
 ```
 
+   **Copy-paste file (Option 1 + full chat Primary prompt for standalone):**  
+   [`ELEVENLABS_SYSTEM_PROMPT_COPYPASTE.txt`](./ELEVENLABS_SYSTEM_PROMPT_COPYPASTE.txt)
+
 7. Disable or tighten **LLM cascade / backup models** so a fallback does not revert to a different persona.
 8. **Publish** the agent.
 
