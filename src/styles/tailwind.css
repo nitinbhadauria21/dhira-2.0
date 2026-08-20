@@ -349,7 +349,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
+    gap: 10px;
     width: auto;
     max-width: 100%;
     margin-top: 0;
@@ -397,7 +397,7 @@
     height: 168px;
     border-radius: 50%;
     flex-shrink: 0;
-    overflow: visible;
+    overflow: hidden;
     background: radial-gradient(
       circle at 32% 28%,
       color-mix(in srgb, var(--color-lavender) 55%, white) 0%,
@@ -450,16 +450,13 @@
   }
 
   .home-talk-to-dhira-cta__mic {
-    position: absolute;
-    right: 6px;
-    bottom: 10px;
-    z-index: 2;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 40px;
     height: 40px;
     border-radius: 50%;
+    flex-shrink: 0;
     background: var(--color-surface);
     color: var(--color-primary);
     box-shadow:
@@ -513,11 +510,17 @@
     opacity: 0.85;
   }
 
-  .home-talk-to-dhira-cta__buddy {
-    width: 72px !important;
-    min-height: 0 !important;
+  .home-talk-to-dhira-cta__avatar {
+    width: 141px;
+    max-width: 84%;
+    max-height: 90%;
+    height: auto;
+    object-fit: contain;
+    object-position: center bottom;
+    display: block;
     flex-shrink: 0;
-    margin: 0;
+    transform-origin: 50% 92%;
+    filter: drop-shadow(0 4px 10px rgba(30, 35, 64, 0.18));
   }
 
   [data-theme='night'] .home-talk-to-dhira-cta__orb {
@@ -553,8 +556,10 @@
       height: 152px;
     }
 
-    .home-talk-to-dhira-cta__buddy {
-      width: 64px !important;
+    .home-talk-to-dhira-cta__avatar {
+      width: 128px;
+      max-width: 86%;
+      max-height: 90%;
     }
   }
 
