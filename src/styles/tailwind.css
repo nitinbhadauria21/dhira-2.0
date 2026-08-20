@@ -486,30 +486,6 @@
     line-height: 1.35;
   }
 
-  .home-talk-to-dhira-cta__visual {
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .home-talk-to-dhira-cta__wave {
-    display: inline-flex;
-    align-items: flex-end;
-    gap: 3px;
-    height: 28px;
-  }
-
-  .home-talk-to-dhira-cta__wave-bar {
-    display: block;
-    width: 3px;
-    height: 100%;
-    border-radius: 999px;
-    background: linear-gradient(180deg, var(--color-lavender), var(--color-primary));
-    transform-origin: bottom center;
-    opacity: 0.85;
-  }
-
   .home-talk-to-dhira-cta__avatar {
     width: 141px;
     max-width: 84%;
