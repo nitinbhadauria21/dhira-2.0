@@ -7,6 +7,7 @@ import { Home, MessageCircle, BarChart2, Moon, Sun, Menu, X, User, LogOut, BookO
 import { useTheme } from './ThemeProvider';
 import { signOut } from '@/lib/authClient';
 import BrandLockup from './BrandLockup';
+import NavTalkToDhiraButton, { isNavTalkToDhiraPath } from './NavTalkToDhiraButton';
 
 
 const navItems = [
@@ -23,6 +24,8 @@ export default function AppNav() {
   const { theme, toggleTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+
+  const showNavTalk = isNavTalkToDhiraPath(pathname);
 
   const isActive = (href: string) => {
     const base = href.split('#')[0];
@@ -54,9 +57,12 @@ export default function AppNav() {
           boxShadow: 'var(--shadow-card)',
         }}
       >
-        <BrandLockup href="/" size={24} />
+        <div className="flex items-center gap-3 shrink-0">
+          <BrandLockup href="/" size={24} />
+          {showNavTalk ? <NavTalkToDhiraButton /> : null}
+        </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 flex-1 justify-center min-w-0">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
@@ -123,8 +129,11 @@ export default function AppNav() {
           borderBottom: '1px solid var(--color-border)',
         }}
       >
-        <BrandLockup href="/" size={21} />
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <BrandLockup href="/" size={21} />
+          {showNavTalk ? <NavTalkToDhiraButton compact /> : null}
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={toggleTheme}
             className="flex items-center justify-center w-8 h-8 rounded-control"
@@ -154,6 +163,14 @@ export default function AppNav() {
             boxShadow: 'var(--shadow-soft)',
           }}
         >
+          {showNavTalk ? (
+            <div
+              className="px-6 py-3"
+              style={{ borderBottom: '1px solid var(--color-border)' }}
+            >
+              <NavTalkToDhiraButton />
+            </div>
+          ) : null}
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
