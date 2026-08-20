@@ -30,15 +30,16 @@ export default function HomeTalkToDhiraCta() {
       >
         <span className="home-talk-to-dhira-cta__orb" aria-hidden="true">
           <FloatingBuddy
-            src="/illustrations/dhira_listening_avatar.png"
+            src="/illustrations/Dhira_New_Listening_Avatar.png"
             alt=""
             width={88}
             bobAnimation={busy || endCallMode ? 'none' : 'dhira-bob 5.5s ease-in-out infinite'}
             className="home-talk-to-dhira-cta__buddy"
           />
-          <span className="home-talk-to-dhira-cta__mic">
-            <Mic size={18} strokeWidth={2.25} />
-          </span>
+        </span>
+
+        <span className="home-talk-to-dhira-cta__mic" aria-hidden="true">
+          <Mic size={18} strokeWidth={2.25} />
         </span>
 
         <span className="home-talk-to-dhira-cta__copy">

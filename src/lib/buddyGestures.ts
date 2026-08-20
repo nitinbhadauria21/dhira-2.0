@@ -22,12 +22,12 @@ export const BUDDY_GESTURE_POSES: BuddyPose[] = [
     alt: 'DHIRA, waving hello',
   },
   {
-    src: '/illustrations/dhira_listening_avatar.png',
+    src: '/illustrations/Dhira_New_Listening_Avatar.png',
     alt: 'DHIRA, listening',
   },
 ];
 
 export const VOICE_BUDDY_POSE: BuddyPose = {
-  src: '/illustrations/dhira_listening_avatar.png',
+  src: '/illustrations/Dhira_New_Listening_Avatar.png',
   alt: 'DHIRA, listening during your voice call',
 };
