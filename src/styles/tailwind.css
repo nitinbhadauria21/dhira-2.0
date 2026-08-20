@@ -337,6 +337,205 @@
     padding: 12px 16px;
   }
 
+  /* Top nav — illuminated Talk to Dhira (Chat, Notebook, Timeline, Profile) */
+  .nav-talk-to-dhira {
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    font-family: var(--font-ui);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    border-radius: var(--radius-control);
+    cursor: pointer;
+    transition:
+      transform 0.18s ease,
+      box-shadow 0.22s ease,
+      background 0.22s ease;
+    color: #ffffff;
+    background: linear-gradient(
+      135deg,
+      var(--color-primary) 0%,
+      color-mix(in srgb, var(--color-primary) 68%, var(--color-lavender)) 100%
+    );
+    border: 1px solid color-mix(in srgb, var(--color-lavender) 70%, var(--color-primary));
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-primary) 28%, transparent),
+      0 4px 16px color-mix(in srgb, var(--color-primary) 50%, transparent),
+      0 0 30px color-mix(in srgb, var(--color-lavender) 45%, transparent);
+    animation: nav-talk-glow-day 3.6s ease-in-out infinite;
+  }
+
+  .nav-talk-to-dhira::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    z-index: -1;
+    border-radius: calc(var(--radius-control) + 3px);
+    background: radial-gradient(
+      ellipse at 50% 50%,
+      color-mix(in srgb, var(--color-lavender) 55%, var(--color-primary)) 0%,
+      transparent 72%
+    );
+    opacity: 0.55;
+    filter: blur(6px);
+    pointer-events: none;
+    animation: nav-talk-halo 3.6s ease-in-out infinite;
+  }
+
+  .nav-talk-to-dhira--compact {
+    padding: 6px 10px;
+    font-size: 13px;
+    gap: 6px;
+  }
+
+  .nav-talk-to-dhira:not(.nav-talk-to-dhira--compact) {
+    padding: 8px 14px;
+    font-size: 15px;
+  }
+
+  .nav-talk-to-dhira:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-primary) 30%, transparent),
+      0 6px 22px color-mix(in srgb, var(--color-primary) 55%, transparent),
+      0 0 36px color-mix(in srgb, var(--color-lavender) 52%, transparent);
+  }
+
+  .nav-talk-to-dhira:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+  }
+
+  .nav-talk-to-dhira:focus-visible {
+    outline: 2px solid var(--color-lavender);
+    outline-offset: 2px;
+  }
+
+  .nav-talk-to-dhira:disabled {
+    cursor: wait;
+    opacity: 0.88;
+  }
+
+  .nav-talk-to-dhira--end-call {
+    color: #ffffff;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border-color: color-mix(in srgb, #fecaca 70%, #ef4444);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, #ef4444 25%, transparent),
+      0 4px 16px rgba(248, 113, 113, 0.45),
+      0 0 24px rgba(239, 68, 68, 0.35);
+    animation: nav-talk-glow-end 2.8s ease-in-out infinite;
+  }
+
+  .nav-talk-to-dhira--end-call:hover:not(:disabled) {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, #ef4444 35%, transparent),
+      0 6px 22px rgba(248, 113, 113, 0.55),
+      0 0 32px rgba(239, 68, 68, 0.42);
+  }
+
+  .nav-talk-to-dhira--end-call::before {
+    display: none;
+  }
+
+  [data-theme='night'] .nav-talk-to-dhira:not(.nav-talk-to-dhira--end-call)::before {
+    opacity: 0.65;
+    background: radial-gradient(
+      ellipse at 50% 50%,
+      color-mix(in srgb, var(--color-lavender) 70%, var(--color-primary)) 0%,
+      transparent 70%
+    );
+  }
+
+  [data-theme='night'] .nav-talk-to-dhira:not(.nav-talk-to-dhira--end-call) {
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-primary) 92%, white) 0%,
+      color-mix(in srgb, var(--color-lavender) 88%, var(--color-primary)) 100%
+    );
+    border-color: color-mix(in srgb, var(--color-lavender) 75%, var(--color-primary));
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-primary) 35%, transparent),
+      0 4px 18px rgba(148, 159, 220, 0.45),
+      0 0 32px rgba(174, 161, 218, 0.38),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    animation-name: nav-talk-glow-night;
+  }
+
+  [data-theme='night'] .nav-talk-to-dhira:not(.nav-talk-to-dhira--end-call):hover:not(:disabled) {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-primary) 45%, transparent),
+      0 6px 24px rgba(148, 159, 220, 0.55),
+      0 0 42px rgba(174, 161, 218, 0.48),
+      inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  }
+
+  @keyframes nav-talk-glow-day {
+    0%,
+    100% {
+      box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--color-primary) 30%, transparent),
+        0 4px 16px color-mix(in srgb, var(--color-primary) 46%, transparent),
+        0 0 28px color-mix(in srgb, var(--color-lavender) 42%, transparent),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    }
+    50% {
+      box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--color-primary) 42%, transparent),
+        0 6px 22px color-mix(in srgb, var(--color-primary) 62%, transparent),
+        0 0 42px color-mix(in srgb, var(--color-lavender) 58%, transparent),
+        inset 0 1px 0 rgba(255, 255, 255, 0.28);
+    }
+  }
+
+  @keyframes nav-talk-glow-night {
+    0%,
+    100% {
+      box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--color-primary) 38%, transparent),
+        0 4px 18px rgba(148, 159, 220, 0.42),
+        0 0 32px rgba(174, 161, 218, 0.36),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+    50% {
+      box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--color-primary) 52%, transparent),
+        0 6px 24px rgba(148, 159, 220, 0.62),
+        0 0 48px rgba(174, 161, 218, 0.52),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    }
+  }
+
+  @keyframes nav-talk-halo {
+    0%,
+    100% {
+      opacity: 0.45;
+      transform: scale(0.98);
+    }
+    50% {
+      opacity: 0.72;
+      transform: scale(1.04);
+    }
+  }
+
+  @keyframes nav-talk-glow-end {
+    0%,
+    100% {
+      box-shadow:
+        0 0 0 1px color-mix(in srgb, #ef4444 25%, transparent),
+        0 4px 16px rgba(248, 113, 113, 0.4),
+        0 0 22px rgba(239, 68, 68, 0.3);
+    }
+    50% {
+      box-shadow:
+        0 0 0 1px color-mix(in srgb, #ef4444 35%, transparent),
+        0 6px 20px rgba(248, 113, 113, 0.52),
+        0 0 32px rgba(239, 68, 68, 0.4);
+    }
+  }
+
   .home-talk-to-dhira-cta-wrap {
     display: flex;
     justify-content: center;

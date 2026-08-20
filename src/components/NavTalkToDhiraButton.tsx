@@ -32,26 +32,20 @@ export default function NavTalkToDhiraButton({ compact = false }: NavTalkToDhira
   if (busy) ariaLabel = 'Connecting to Dhira';
   else if (endCallMode) ariaLabel = 'End call with Dhira';
 
+  const className = [
+    'nav-talk-to-dhira',
+    compact ? 'nav-talk-to-dhira--compact' : '',
+    endCallMode ? 'nav-talk-to-dhira--end-call' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
     <button
       type="button"
       onClick={toggleCall}
       disabled={busy}
-      className="nav-talk-to-dhira flex items-center gap-2 font-medium transition-all duration-200 rounded-control shrink-0"
-      style={{
-        padding: compact ? '6px 10px' : '8px 14px',
-        color: endCallMode ? '#ef4444' : 'var(--color-primary)',
-        backgroundColor: endCallMode
-          ? 'color-mix(in srgb, #ef4444 12%, var(--color-surface-alt))'
-          : 'var(--color-primary-soft)',
-        border: endCallMode
-          ? '1px solid color-mix(in srgb, #ef4444 35%, var(--color-border))'
-          : '1px solid color-mix(in srgb, var(--color-primary) 25%, var(--color-border))',
-        fontFamily: 'var(--font-ui)',
-        fontSize: compact ? '13px' : '15px',
-        cursor: busy ? 'wait' : 'pointer',
-        opacity: busy ? 0.85 : 1,
-      }}
+      className={className}
       aria-label={ariaLabel}
     >
       <Mic size={compact ? 15 : 16} strokeWidth={2.25} />
