@@ -32,7 +32,7 @@ export default function HomeTalkToDhiraCta() {
           <FloatingBuddy
             src="/illustrations/dhira_listening_avatar.png"
             alt=""
-            width={72}
+            width={88}
             bobAnimation={busy || endCallMode ? 'none' : 'dhira-bob 5.5s ease-in-out infinite'}
             className="home-talk-to-dhira-cta__buddy"
           />

@@ -451,8 +451,9 @@
 
   .home-talk-to-dhira-cta__mic {
     position: absolute;
-    right: 6px;
-    bottom: 10px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
     z-index: 2;
     display: inline-flex;
     align-items: center;
@@ -514,10 +515,11 @@
   }
 
   .home-talk-to-dhira-cta__buddy {
-    width: 72px !important;
+    width: 88px !important;
     min-height: 0 !important;
     flex-shrink: 0;
     margin: 0;
+    z-index: 1;
   }
 
   [data-theme='night'] .home-talk-to-dhira-cta__orb {
@@ -554,7 +556,7 @@
     }
 
     .home-talk-to-dhira-cta__buddy {
-      width: 64px !important;
+      width: 80px !important;
     }
   }
 
