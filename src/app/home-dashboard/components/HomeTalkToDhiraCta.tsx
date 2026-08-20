@@ -2,8 +2,10 @@
 
 import React from 'react';
 import { Mic } from 'lucide-react';
-import FloatingBuddy from '@/components/FloatingBuddy';
 import { useVoiceSession } from '@/hooks/useVoiceSession';
+
+/** Home orb buddy width (px); 60% larger than the prior 88px cut-out. */
+const HOME_TALK_BUDDY_WIDTH = Math.round(88 * 1.6);
 
 export default function HomeTalkToDhiraCta() {
   const { toggleCall, isActive, isStarting, isConnecting } = useVoiceSession();
@@ -29,12 +31,16 @@ export default function HomeTalkToDhiraCta() {
         aria-label={ariaLabel}
       >
         <span className="home-talk-to-dhira-cta__orb" aria-hidden="true">
-          <FloatingBuddy
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src="/illustrations/Dhira_New_Listening_Avatar.png"
             alt=""
-            width={88}
-            bobAnimation={busy || endCallMode ? 'none' : 'dhira-bob 5.5s ease-in-out infinite'}
-            className="home-talk-to-dhira-cta__buddy"
+            width={HOME_TALK_BUDDY_WIDTH}
+            className="home-talk-to-dhira-cta__avatar"
+            style={{
+              animation:
+                busy || endCallMode ? 'none' : 'dhira-bob 5.5s ease-in-out infinite',
+            }}
           />
         </span>
 
