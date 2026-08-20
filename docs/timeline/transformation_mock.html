@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="day">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dhira — Mood / Transformation Timeline (Mock)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Mukta:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root,
+    [data-theme="day"] {
+      --color-bg: #FAF6EF;
+      --color-surface: #FFFFFF;
+      --color-surface-alt: #F3EEE4;
+      --color-border: #E7DFD1;
+      --color-text: #26263A;
+      --color-text-muted: #5E5C6E;
+      --color-text-subtle: #918EA0;
+      --color-primary: #5A67B8;
+      --color-primary-soft: #EEF0FB;
+      --color-accent: #EFA94A;
+      --color-lavender: #AEA1DA;
+      --color-sage: #63A183;
+      --color-crisis: #C56B5C;
+      --radius-card: 16px;
+      --radius-control: 12px;
+      --shadow-card: 0 2px 12px rgba(30, 35, 64, 0.06);
+      --shadow-soft: 0 8px 24px rgba(30, 35, 64, 0.08);
+      --timeline-path-stroke: #8b7fd4;
+      --timeline-path-glow: rgba(174, 161, 218, 0.45);
+      --font-display: "Fraunces", Georgia, serif;
+      --font-ui: "Mukta", system-ui, sans-serif;
+      --mood-anxious: #8794DA;
+      --mood-overwhelmed: #9C6B8E;
+      --mood-stressed: #E0A94F;
+      --mood-calm: #8FBCA4;
+      --mood-hopeful: #79C2C4;
+    }
+
+    [data-theme="night"] {
+      --color-bg: #14162A;
+      --color-surface: #1D2038;
+      --color-surface-alt: #262A46;
+      --color-border: #333857;
+      --color-text: #ECEBF4;
+      --color-text-muted: #ABA9C1;
+      --color-text-subtle: #7E7C95;
+      --color-primary: #949FDC;
+      --color-primary-soft: #262A46;
+      --color-accent: #F6C06B;
+      --color-lavender: #AEA1DA;
+      --color-sage: #8FBCA4;
+      --color-crisis: #D2796A;
+      --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.24);
+      --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.32);
+      --timeline-path-stroke: #949fdc;
+      --timeline-path-glow: rgba(148, 159, 220, 0.55);
+    }
+
+    * { box-sizing: border-box; margin: 0; }
+    body {
+      font-family: var(--font-ui);
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.65;
+      transition: background 0.3s, color 0.3s;
+      min-height: 100vh;
+    }
+
+    .mock-banner {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 20px;
+      background: var(--color-primary-soft);
+      border-bottom: 1px solid var(--color-border);
+      font-size: 13px;
+      color: var(--color-text-muted);
+    }
+
+    .mock-banner strong { color: var(--color-primary); }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
+      color: var(--color-text);
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+    }
+    .theme-toggle:hover { box-shadow: var(--shadow-soft); }
+
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px 64px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .text-h2 {
+      font-family: var(--font-display);
+      font-size: clamp(24px, 3.5vw, 32px);
+      font-weight: 600;
+      letter-spacing: -0.025em;
+    }
+
+    .dhira-card {
+      background: var(--color-surface);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-card);
+      border: 1px solid var(--color-border);
+      padding: 24px;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .section-head svg { color: var(--color-primary); flex-shrink: 0; }
+    .section-head h2 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 500;
+    }
+
+    /* ── Transformation card (NEW) ── */
+    .transform-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .transform-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--color-primary-soft) 0%, transparent 55%);
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .transform-inner { position: relative; z-index: 1; }
+
+    .transform-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .transform-date {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text-subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .mood-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--color-border);
+      background: var(--color-surface-alt);
+    }
+    .mood-pill .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    .mood-pill.from .dot { background: var(--mood-overwhelmed); }
+    .mood-pill.to .dot { background: var(--mood-calm); }
+
+    .transform-arrow {
+      color: var(--color-text-subtle);
+      font-size: 14px;
+    }
+
+    .transform-headline {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+      color: var(--color-text);
+    }
+
+    .transform-body {
+      font-size: 15px;
+      color: var(--color-text-muted);
+      max-width: 640px;
+      margin-bottom: 20px;
+    }
+
+    .transform-body strong {
+      color: var(--color-text);
+      font-weight: 600;
+    }
+
+    .transform-insight {
+      padding: 14px 16px;
+      border-radius: var(--radius-control);
+      background: var(--color-surface-alt);
+      border-left: 3px solid var(--color-lavender);
+      margin-bottom: 20px;
+    }
+    .transform-insight-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-text-subtle);
+      margin-bottom: 6px;
+    }
+    .transform-insight p {
+      font-size: 14px;
+      color: var(--color-text);
+      line-height: 1.55;
+    }
+
+    /* Valence arc within session */
+    .valence-arc-wrap {
+      padding: 16px;
+      border-radius: var(--radius-control);
+      background: var(--color-surface-alt);
+      border: 1px solid var(--color-border);
+    }
+    .valence-arc-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 12px;
+      color: var(--color-text-subtle);
+    }
+    .valence-arc-label span:last-child {
+      color: var(--color-sage);
+      font-weight: 600;
+    }
+
+    .valence-svg {
+      width: 100%;
+      height: 72px;
+      display: block;
+    }
+
+    .valence-nodes {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 10px;
+      color: var(--color-text-subtle);
+    }
+
+    .privacy-note {
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--color-text-subtle);
+      font-style: italic;
+    }
+
+    /* Placeholder weekly section (context) */
+    .weekly-placeholder {
+      opacity: 0.55;
+      pointer-events: none;
+    }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 640px) {
+      .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .stat-tile {
+      padding: 12px 14px;
+      border-radius: var(--radius-control);
+      background: var(--color-surface-alt);
+      border: 1px solid var(--color-border);
+    }
+    .stat-value {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 600;
+    }
+    .stat-label { font-size: 11px; color: var(--color-text-subtle); margin-top: 2px; }
+
+    .annotation {
+      padding: 12px 16px;
+      border-radius: var(--radius-control);
+      border: 1px dashed var(--color-primary);
+      background: var(--color-primary-soft);
+      font-size: 13px;
+      color: var(--color-text-muted);
+    }
+    .annotation code {
+      font-size: 12px;
+      background: var(--color-surface);
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="mock-banner">
+    <span><strong>Visual preview</strong> — Mood / Transformation Timeline (not wired to production)</span>
+    <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false">
+      <span id="themeIcon">🌙</span>
+      <span id="themeLabel">Night mode</span>
+    </button>
+  </div>
+
+  <main class="page">
+    <header>
+      <h1 class="text-h2">My DHIRA</h1>
+      <p style="color: var(--color-text-muted); margin-top: 6px; font-size: 15px;">
+        Your week, notebook, chats, and check-ins — one calm place.
+      </p>
+    </header>
+
+    <!-- Existing weekly section (dimmed for context) -->
+    <section class="dhira-card weekly-placeholder" aria-hidden="true">
+      <div class="section-head">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+        <h2>Your week with DHIRA</h2>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-tile"><div class="stat-value">5</div><div class="stat-label">Check-ins</div></div>
+        <div class="stat-tile"><div class="stat-value">58%</div><div class="stat-label">Avg intensity</div></div>
+        <div class="stat-tile"><div class="stat-value">anxious</div><div class="stat-label">Top mood</div></div>
+        <div class="stat-tile"><div class="stat-value">work</div><div class="stat-label">Top topic</div></div>
+      </div>
+    </section>
+
+    <!-- ═══ NEW: Mood / Transformation Timeline ═══ -->
+    <section class="dhira-card transform-card" aria-labelledby="transform-title">
+      <div class="transform-inner">
+        <div class="section-head">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+          <h2 id="transform-title">How you shifted</h2>
+        </div>
+
+        <article class="transform-entry">
+          <div class="transform-meta">
+            <span class="transform-date">Wed, 18 Aug · 10:42 PM chat</span>
+            <span class="mood-pill from"><span class="dot"></span> overwhelmed</span>
+            <span class="transform-arrow" aria-hidden="true">→</span>
+            <span class="mood-pill to"><span class="dot"></span> calm</span>
+            <span class="mood-pill" style="margin-left: auto;"><span class="dot" style="background: var(--color-accent);"></span> work</span>
+          </div>
+
+          <h3 class="transform-headline">From “can’t switch off” to a quieter chest</h3>
+
+          <p class="transform-body">
+            You opened about <strong>tomorrow’s client demo</strong> and how your manager kept moving the deadline.
+            Dhira heard the unfairness in that — not as advice, just back to you. When you named the
+            <strong>3 a.m. loop</strong> in your head, you paused long enough to notice your shoulders had unclenched.
+            You ended saying you could <strong>take one small step tonight</strong> instead of solving the whole week.
+          </p>
+
+          <div class="transform-insight">
+            <p class="transform-insight-label">What helped in this chat</p>
+            <p>
+              Putting words to the deadline pressure, then separating “what’s urgent tomorrow” from “what can wait” —
+              that’s when your tone shifted from tight to steadier.
+            </p>
+          </div>
+
+          <div class="valence-arc-wrap">
+            <div class="valence-arc-label">
+              <span>Mood during this conversation</span>
+              <span>↑ lighter by end</span>
+            </div>
+            <svg class="valence-svg" viewBox="0 0 400 72" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#9C6B8E"/>
+                  <stop offset="45%" stop-color="#8794DA"/>
+                  <stop offset="100%" stop-color="#8FBCA4"/>
+                </linearGradient>
+                <linearGradient id="arcFill" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#8FBCA4" stop-opacity="0.25"/>
+                  <stop offset="100%" stop-color="#8FBCA4" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <!-- baseline -->
+              <line x1="0" y1="36" x2="400" y2="36" stroke="var(--color-border)" stroke-width="1" stroke-dasharray="4 4"/>
+              <!-- filled area under curve -->
+              <path d="M 0 58 C 60 52, 100 48, 140 44 S 220 38, 280 32 S 340 24, 400 20 L 400 72 L 0 72 Z" fill="url(#arcFill)"/>
+              <!-- curve: heavy → calm (y decreases = lighter) -->
+              <path d="M 0 58 C 60 52, 100 48, 140 44 S 220 38, 280 32 S 340 24, 400 20" fill="none" stroke="url(#arcGrad)" stroke-width="2.5" stroke-linecap="round"/>
+              <!-- nodes -->
+              <circle cx="0" cy="58" r="5" fill="#9C6B8E"/>
+              <circle cx="140" cy="44" r="4" fill="#8794DA"/>
+              <circle cx="280" cy="32" r="4" fill="#79C2C4"/>
+              <circle cx="400" cy="20" r="5" fill="#8FBCA4"/>
+            </svg>
+            <div class="valence-nodes">
+              <span>Started heavy</span>
+              <span>Named pressure</span>
+              <span>Pause</span>
+              <span>Calmer</span>
+            </div>
+          </div>
+
+          <p class="privacy-note">
+            A private summary — not your full chat. Only you see this.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Second example: Hinglish register -->
+    <section class="dhira-card transform-card" style="margin-top: -8px;">
+      <div class="transform-inner">
+        <article class="transform-entry">
+          <div class="transform-meta">
+            <span class="transform-date">Mon, 11 Aug · WhatsApp</span>
+            <span class="mood-pill from"><span class="dot" style="background: var(--mood-anxious);"></span> anxious</span>
+            <span class="transform-arrow">→</span>
+            <span class="mood-pill to"><span class="dot"></span> hopeful</span>
+            <span class="mood-pill" style="margin-left: auto;"><span class="dot" style="background: var(--mood-stressed);"></span> family</span>
+          </div>
+
+          <h3 class="transform-headline">Ghar wali baat thodi halki hui</h3>
+
+          <p class="transform-body">
+            Tumne <strong>mummy ke call</strong> ke baare mein likha — kaise har baar “shaadi kab?” aa jata hai.
+            Dhira ne sirf wapas suna, judge nahi kiya. Jab tumne bola ki
+            <strong>“main unhe hurt nahi karna chahta, bas space chahiye”</strong>, tumhara message thoda lamba aur
+            dheema ho gaya. Ant mein tumne khud likha — <strong>aaj raat ek honest message bhej sakta hoon</strong>.
+          </p>
+
+          <div class="transform-insight">
+            <p class="transform-insight-label">Is chat mein kya shift hua</p>
+            <p>
+              Pressure ko “unhe hurt nahi karna” aur “mujhe space chahiye” alag karke dekhna — tab anxious se hopeful feel aaya.
+            </p>
+          </div>
+
+          <p class="privacy-note">Yeh summary hai — poori chat nahi.</p>
+        </article>
+      </div>
+    </section>
+
+    <div class="annotation">
+      <strong>Placement:</strong> New card sits directly under “Your week with DHIRA”, above Notebook logs.
+      Component target: <code>TimelineTransformationSection.tsx</code> · API: <code>GET /api/timeline/transformations</code>
+    </div>
+  </main>
+
+  <script>
+    const html = document.documentElement;
+    const btn = document.getElementById('themeToggle');
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+
+    btn.addEventListener('click', () => {
+      const isDay = html.getAttribute('data-theme') !== 'night';
+      if (isDay) {
+        html.setAttribute('data-theme', 'night');
+        icon.textContent = '☀️';
+        label.textContent = 'Day mode';
+        btn.setAttribute('aria-pressed', 'true');
+      } else {
+        html.setAttribute('data-theme', 'day');
+        icon.textContent = '🌙';
+        label.textContent = 'Night mode';
+        btn.setAttribute('aria-pressed', 'false');
+      }
+    });
+  </script>
+</body>
+</html>
