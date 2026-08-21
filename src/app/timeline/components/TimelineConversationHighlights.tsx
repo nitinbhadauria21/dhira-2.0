@@ -3,9 +3,24 @@
 import React from 'react';
 import Link from 'next/link';
 import { ChevronRight, MessageSquareQuote } from 'lucide-react';
-import type { TimelineChatDay } from '@/lib/timelineChat';
 
-export default function TimelineConversationHighlights({ day }: { day: TimelineChatDay | null }) {
+type Highlight = { quote: string; time: string };
+
+type Props = {
+  day: { date: string; highlights: Highlight[] } | null;
+  title: string;
+  emptyCopy: string;
+  viewHref?: string;
+  viewLabel?: string;
+};
+
+export default function TimelineConversationHighlights({
+  day,
+  title,
+  emptyCopy,
+  viewHref,
+  viewLabel = 'View conversation',
+}: Props) {
   const hasHighlights = day != null && day.highlights.length > 0;
 
   return (
@@ -16,13 +31,13 @@ export default function TimelineConversationHighlights({ day }: { day: TimelineC
       <div className="flex items-center gap-2 mb-5">
         <MessageSquareQuote size={18} style={{ color: 'var(--color-primary)' }} aria-hidden />
         <h2 id="timeline-highlights-title" className="timeline-section-title" style={{ margin: 0 }}>
-          Conversation highlights
+          {title}
         </h2>
       </div>
 
       {!hasHighlights ? (
         <div className="timeline-movement-empty">
-          <p>Short snippets from your chats will appear here — never the full conversation.</p>
+          <p>{emptyCopy}</p>
         </div>
       ) : (
         <>
@@ -35,13 +50,12 @@ export default function TimelineConversationHighlights({ day }: { day: TimelineC
             ))}
           </div>
 
-          <Link
-            href={`/chat-with-dhira?from=timeline&date=${day!.date}`}
-            className="timeline-view-conversation-btn"
-          >
-            View conversation
-            <ChevronRight size={18} aria-hidden />
-          </Link>
+          {viewHref ? (
+            <Link href={viewHref} className="timeline-view-conversation-btn">
+              {viewLabel}
+              <ChevronRight size={18} aria-hidden />
+            </Link>
+          ) : null}
         </>
       )}
     </section>

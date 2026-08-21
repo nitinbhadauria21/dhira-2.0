@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUserId } from '@/lib/auth';
+import { summaryWithAlias } from '@/lib/memoryDisplay';
 import { getStore } from '@/lib/store';
 import type { MoodLabel } from '@/lib/types';
 
@@ -62,13 +63,16 @@ export async function GET() {
           }
         : null,
       memory: memories[0]
-        ? { summary: memories[0].summary, carryForward: memories[0].carryForward }
+        ? {
+            summary: summaryWithAlias(memories[0].summary, profile.alias),
+            carryForward: memories[0].carryForward,
+          }
         : null,
       streak,
       totalSessions: sessionDays.size,
       last7,
       recentJournal: memories.map((m) => ({
-        summary: m.summary,
+        summary: summaryWithAlias(m.summary, profile.alias),
         topic: m.topicTag,
         createdAt: m.createdAt,
       })),

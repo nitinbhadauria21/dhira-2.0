@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserId } from '@/lib/auth';
+import { summaryWithAlias } from '@/lib/memoryDisplay';
 import { getStore } from '@/lib/store';
 
 export const runtime = 'nodejs';
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       entries: filtered.map((m) => ({
         id: m.id,
-        summary: m.summary,
+        summary: summaryWithAlias(m.summary, profile.alias),
         mood: m.mood,
         topic: m.topicTag,
         carryForward: m.carryForward,

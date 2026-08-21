@@ -1,15 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getUserId } from '@/lib/auth';
+import { summaryWithAlias } from '@/lib/memoryDisplay';
 import { getStore } from '@/lib/store';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-
-function summaryWithAlias(summary: string, alias: string | undefined): string {
-  const name = alias?.trim();
-  if (!name) return summary;
-  return summary.replace(/^User\b/, name);
-}
 
 /** GET /api/memory → the latest "Dhira remembers" note for this user (or null). */
 export async function GET() {

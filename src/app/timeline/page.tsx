@@ -12,10 +12,15 @@ import TimelineWeeklySection, {
 import TimelineChatWeekSection, {
   type TimelineTab,
 } from '@/app/timeline/components/TimelineChatWeekSection';
-import TimelineConversationMovement from '@/app/timeline/components/TimelineConversationMovement';
+import TimelineConversationMovement, {
+  chatDayToMovementDay,
+  notebookDayToMovementDay,
+} from '@/app/timeline/components/TimelineConversationMovement';
 import TimelineConversationHighlights from '@/app/timeline/components/TimelineConversationHighlights';
 import type { HorizonMoodDay } from '@/components/HorizonMoodTiles';
 import type { TimelineChatWeek } from '@/lib/timelineChat';
+import type { TimelineNotebookWeek } from '@/lib/timelineNotebook';
+import { notebookDayArcChip } from '@/lib/timelineNotebook';
 import { Search, Bell, BookOpen, Plus } from 'lucide-react';
 import { MOOD_COLORS, type MoodId } from '@/lib/artifactDesign';
 import type { NotebookEntry } from '@/lib/types';
@@ -93,6 +98,7 @@ function TimelineContent() {
   const [weekly, setWeekly] = useState<WeeklyData | null>(null);
   const [homeWeek, setHomeWeek] = useState<HomeWeekData | null>(null);
   const [chatWeek, setChatWeek] = useState<TimelineChatWeek | null>(null);
+  const [notebookWeek, setNotebookWeek] = useState<TimelineNotebookWeek | null>(null);
   const [notebook, setNotebook] = useState<NotebookEntry[]>([]);
   const [notebookLoading, setNotebookLoading] = useState(true);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -126,16 +132,18 @@ function TimelineContent() {
   useEffect(() => {
     (async () => {
       try {
-        const [w, n, h, chats] = await Promise.all([
+        const [w, n, h, chats, nbWeek] = await Promise.all([
           fetch('/api/weekly').then((r) => r.json()),
           fetch('/api/notifications').then((r) => r.json()),
           fetch('/api/home').then((r) => r.json()),
           fetch('/api/timeline/chats').then((r) => r.json()),
+          fetch('/api/timeline/notebook').then((r) => r.json()),
         ]);
         if (!w.error) setWeekly(w);
         setNotifications(n.notifications ?? []);
         if (!h.error) setHomeWeek({ last7: h.last7 ?? [] });
         if (!chats.error) setChatWeek(chats);
+        if (!nbWeek.error && nbWeek.week) setNotebookWeek(nbWeek.week);
       } catch {
         /* ignore */
       }
@@ -178,7 +186,15 @@ function TimelineContent() {
     return withChats ?? chatWeek.days[chatWeek.days.length - 1];
   }, [chatWeek, selectedDate]);
 
+  const selectedNotebookDay = useMemo(() => {
+    if (!notebookWeek?.days.length) return null;
+    if (selectedDate) return notebookWeek.days.find((d) => d.date === selectedDate) ?? null;
+    const withEntries = [...notebookWeek.days].reverse().find((d) => d.entryCount > 0);
+    return withEntries ?? notebookWeek.days[notebookWeek.days.length - 1];
+  }, [notebookWeek, selectedDate]);
+
   const showChatDetail = activeTab === 'chats' || activeTab === 'all';
+  const showNotebookDetail = activeTab === 'notebook';
   const showCheckins = activeTab === 'checkins' || activeTab === 'all';
   const showNotebook = activeTab === 'notebook' || activeTab === 'all';
 
@@ -188,6 +204,7 @@ function TimelineContent() {
 
       <TimelineChatWeekSection
         data={chatWeek}
+        notebookWeek={notebookWeek}
         activeTab={activeTab}
         onTabChange={setActiveTab}
         selectedDate={selectedDate}
@@ -196,8 +213,41 @@ function TimelineContent() {
 
       {showChatDetail && (
         <div className="timeline-detail-grid">
-          <TimelineConversationMovement day={selectedChatDay} />
-          <TimelineConversationHighlights day={selectedChatDay} />
+          <TimelineConversationMovement
+            day={chatDayToMovementDay(selectedChatDay)}
+            title="How your conversations moved"
+            emptyCopy="When you chat with Dhira, you'll see how your mood shifted here — privately, without the full transcript."
+          />
+          <TimelineConversationHighlights
+            day={selectedChatDay}
+            title="Conversation highlights"
+            emptyCopy="Short snippets from your chats will appear here — never the full conversation."
+            viewHref={
+              selectedChatDay?.sessionCount
+                ? `/chat-with-dhira?from=timeline&date=${selectedChatDay.date}`
+                : undefined
+            }
+            viewLabel="View conversation"
+          />
+        </div>
+      )}
+
+      {showNotebookDetail && (
+        <div className="timeline-detail-grid">
+          <TimelineConversationMovement
+            day={notebookDayToMovementDay(selectedNotebookDay)}
+            title="How your notebook moods moved"
+            emptyCopy="When you write or speak in your Notebook, you'll see how your moods shifted across each day — without showing the full entry."
+            cameInLabel="Started feeling"
+            leftLabel="Ended feeling"
+          />
+          <TimelineConversationHighlights
+            day={selectedNotebookDay}
+            title="Notebook highlights"
+            emptyCopy="Short excerpts from your notebook will appear here — never the full entry."
+            viewHref="/notebook"
+            viewLabel="Open notebook"
+          />
         </div>
       )}
 
@@ -293,14 +343,19 @@ function TimelineContent() {
             />
           ) : (
             <div className="flex flex-col gap-3">
-              {filteredNotebook.map((e) => (
+              {filteredNotebook.map((e) => {
+                const dayArc =
+                  notebookWeek != null
+                    ? notebookDayArcChip(notebookWeek.arcByDate, e.createdAt)
+                    : null;
+                return (
                 <div
                   key={e.id}
                   className="p-4 rounded-control"
                   style={{ backgroundColor: 'var(--color-surface-alt)' }}
                 >
                   <div className="flex items-center justify-between mb-1.5">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span
                         style={{
                           fontFamily: 'var(--font-ui)',
@@ -320,6 +375,21 @@ function TimelineContent() {
                       >
                         {e.mode === 'speak' ? '🎙 voice' : '✍ written'}
                       </span>
+                      {dayArc && (
+                        <span
+                          className="inline-flex items-center px-2 py-0.5 rounded-full"
+                          style={{
+                            fontFamily: 'var(--font-ui)',
+                            fontSize: '11px',
+                            fontWeight: 500,
+                            color: 'var(--color-primary)',
+                            backgroundColor: 'var(--color-primary-soft)',
+                            border: '1px solid var(--color-primary)',
+                          }}
+                        >
+                          {dayArc}
+                        </span>
+                      )}
                     </div>
                     <div className="flex items-center gap-2">
                       <MoodBadge mood={e.mood} size="sm" />
@@ -350,7 +420,8 @@ function TimelineContent() {
                     </p>
                   )}
                 </div>
-              ))}
+              );
+              })}
             </div>
           )}
         </SectionCard>
