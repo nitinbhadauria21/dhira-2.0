@@ -1,3 +1,4 @@
+import { languagePromptInstruction } from '@/lib/languages';
 import type { Language, MoodLabel, TopicTag } from '@/lib/types';
 
 export interface ProactiveContextHints {
@@ -13,7 +14,7 @@ export function buildProactiveContextLines(
   hints: ProactiveContextHints,
   language: Language,
 ): string[] {
-  const lines: string[] = [`(User's language: ${language}. Match it.)`];
+  const lines: string[] = [languagePromptInstruction(language)];
   if (hints.recentMood) {
     lines.push(`(Recent mood tone: ${hints.recentMood} — reference gently, do not diagnose.)`);
   }

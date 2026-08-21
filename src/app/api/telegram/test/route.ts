@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUserId } from '@/lib/auth';
 import { getStore } from '@/lib/store';
 import { isTelegramEnabled, sendTelegramMessage, verifyTelegramBot } from '@/lib/telegram/bot';
+import { telegramConnectionTestMessage } from '@/lib/languages';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -34,10 +35,7 @@ export async function POST() {
       );
     }
 
-    const text =
-      profile.language === 'hinglish'
-        ? `Hey ${profile.alias} — yeh ek chhota test message hai. Telegram connect ho gaya. Main yahin hoon jab bhi baat karni ho.`
-        : `Hey ${profile.alias} — this is a quick test from Dhira. Telegram is connected. I'm here whenever you feel like talking.`;
+    const text = telegramConnectionTestMessage(profile.alias, profile.language);
 
     const result = await sendTelegramMessage(profile.telegramChatId, text);
     if (!result.ok) {

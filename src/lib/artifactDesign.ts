@@ -5,6 +5,8 @@
  * references/Dhira-User-App-claude-artifact.html.
  */
 
+import { PREFERRED_LANGUAGE_OPTIONS } from '@/lib/languages';
+
 export const MOOD_COLORS = {
   happy: { bg: '#F0C46B', text: '#241F16', label: 'Happy' },
   calm: { bg: '#8FBCA4', text: '#241F16', label: 'Calm' },
@@ -172,34 +174,26 @@ export const FREQUENCY_OPTIONS = [
   { value: 'weekly' as const, label: 'Weekly', sub: 'Just once a week' },
 ];
 
-export const LANGUAGE_OPTIONS = [
-  {
-    value: 'hinglish' as const,
-    label: 'Hinglish',
-    sub: 'Hindi + English — the way we actually talk',
-  },
-  {
-    value: 'english' as const,
-    label: 'English',
-    sub: 'Full English responses from DHIRA',
-  },
-];
+/** @deprecated Use PREFERRED_LANGUAGE_OPTIONS from @/lib/languages */
+export const LANGUAGE_OPTIONS = PREFERRED_LANGUAGE_OPTIONS.map((opt) => ({
+  value: opt.value,
+  label: opt.label,
+  sub:
+    opt.value === 'english'
+      ? 'Full English responses from DHIRA'
+      : `DHIRA speaks with you in ${opt.label}`,
+}));
 
-/** Profile language cards use warmer example lines (still from the artifact UI). */
-export const PROFILE_LANGUAGE_OPTIONS = [
-  {
-    value: 'hinglish' as const,
-    label: 'Hinglish',
-    sub: 'A warm mix of Hindi and English — "Aaj kaisa feel ho raha hai?"',
-    emoji: '🇮🇳',
-  },
-  {
-    value: 'english' as const,
-    label: 'English',
-    sub: 'Clear, gentle English — "How are you feeling today?"',
-    emoji: '🌐',
-  },
-];
+/** Profile language picker — dropdown uses PREFERRED_LANGUAGE_OPTIONS directly. */
+export const PROFILE_LANGUAGE_OPTIONS = PREFERRED_LANGUAGE_OPTIONS.map((opt) => ({
+  value: opt.value,
+  label: opt.label,
+  sub:
+    opt.value === 'english'
+      ? 'Clear, gentle English — "How are you feeling today?"'
+      : `Warm, conversational ${opt.label}`,
+  emoji: opt.value === 'english' ? '🌐' : '🇮🇳',
+}));
 
 /** Profile → Manage Voice cards (preference only; TTS not wired yet). */
 export const PROFILE_VOICE_OPTIONS = [

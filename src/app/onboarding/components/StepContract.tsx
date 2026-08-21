@@ -3,6 +3,7 @@
 import React from 'react';
 import type { OnboardingData } from './OnboardingFlow';
 import { FREQUENCY_OPTIONS } from '@/lib/artifactDesign';
+import { languageDisplayName } from '@/lib/languages';
 import { onboardingAssets, ONBOARDING_CONTRACT_BUDDY_WIDTH } from '@/app/onboarding/onboardingAssets';
 import OnboardingGreetingRow from './OnboardingGreetingRow';
 
@@ -225,7 +226,7 @@ export default function StepContract({ data, onChange, onFinish, onBack }: Props
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '4px' }}>
           {[
             { label: data.alias || 'Anonymous', icon: '👤' },
-            { label: data.language === 'hinglish' ? 'Hinglish' : 'English', icon: '💬' },
+            { label: languageDisplayName(data.language), icon: '💬' },
             {
               label:
                 data.checkinFrequency === 'daily' ?'Daily check-ins'

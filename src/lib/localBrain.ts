@@ -11,6 +11,7 @@ import {
   containsAdviceOrDiagnosis,
   isNotSafeAfterCheckIn,
 } from '@/lib/guardrails';
+import { usesHindiMix } from '@/lib/languages';
 import { BOUNDARY_LINE, CRISIS_MESSAGE } from '@/lib/safetyCopy';
 
 const ADVICE_REQUEST = /\b(should i|what should i|kya karu|kya karoon|advise me|tell me what to do)\b/i;
@@ -18,7 +19,7 @@ const DIAGNOSIS_REQUEST = /\b(am i depressed|do i have|diagnos|is it depression|
 
 function reflect(userMessage: string, language: Language): string {
   const lower = userMessage.toLowerCase();
-  const hinglish = language === 'hinglish';
+  const hinglish = usesHindiMix(language);
 
   if (/^(?:hey|hi|hello|hii|kya haal)/i.test(userMessage.trim())) {
     return hinglish
@@ -230,7 +231,7 @@ export function localProactive(params: {
   carryForward?: string;
   language: Language;
 }): string {
-  const hinglish = params.language === 'hinglish';
+  const hinglish = usesHindiMix(params.language);
   if (params.carryForward) {
     return hinglish
       ? `Hey, kal kuch heavy lag raha tha. Bas check kar raha tha — aaj kaisa mehsoos ho raha hai?`

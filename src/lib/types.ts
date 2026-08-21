@@ -3,7 +3,9 @@
  * Anonymous-first: we never store real names or raw personal identifiers.
  */
 
-export type Language = 'english' | 'hinglish';
+import type { Language } from './languages';
+
+export type { Language, PreferredLanguage, LegacyLanguage } from './languages';
 
 /** User-chosen work shift (never inferred). Matches CalmLink .dc.html. */
 export type ShiftPreference = 'day' | 'afternoon' | 'night' | 'rotating';

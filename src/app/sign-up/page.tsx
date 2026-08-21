@@ -12,6 +12,8 @@ import { PHONE_OTP_AUTH_ENABLED } from '@/lib/authUi';
 import { resetDhiraClientStateForNewAccount } from '@/lib/dhiraClientCache';
 import { INDIA_STATES } from '@/lib/indiaStates';
 import { phoneAuthError } from '@/lib/twilio/phone';
+import LanguageSelect from '@/components/LanguageSelect';
+import type { Language } from '@/lib/languages';
 
 function GoogleIcon() {
   return (
@@ -57,6 +59,7 @@ function SignUpContent() {
   const [alias, setAlias] = useState('');
   const [state, setState] = useState('');
   const [city, setCity] = useState('');
+  const [language, setLanguage] = useState<Language>('english');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('+91');
@@ -100,10 +103,12 @@ function SignUpContent() {
       await signUpEmail(email.trim(), password, alias.trim(), {
         state: state.trim(),
         city: city.trim(),
+        language,
       });
       resetDhiraClientStateForNewAccount();
       if (typeof window !== 'undefined') {
         localStorage.setItem('dhira-alias', alias.trim());
+        localStorage.setItem('dhira-language', language);
       }
       router.push('/onboarding');
     } catch (e) {
@@ -135,10 +140,12 @@ function SignUpContent() {
       await verifyOtp(phone.trim(), otp.trim(), alias.trim(), {
         state: state.trim(),
         city: city.trim(),
+        language,
       });
       resetDhiraClientStateForNewAccount();
       if (typeof window !== 'undefined') {
         localStorage.setItem('dhira-alias', alias.trim());
+        localStorage.setItem('dhira-language', language);
       }
       router.push('/onboarding');
     } catch (e) {
@@ -323,6 +330,17 @@ function SignUpContent() {
                 style={fieldStyle}
               />
             </div>
+          </div>
+
+          <div className="mb-4">
+            <LanguageSelect
+              id="signup-language"
+              value={language}
+              onChange={setLanguage}
+              label="Preferred language"
+              hint="DHIRA will speak and send check-ins in this language (including Telegram)."
+              required
+            />
           </div>
 
           {showEmailForm ? (

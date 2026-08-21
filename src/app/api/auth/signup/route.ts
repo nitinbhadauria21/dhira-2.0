@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getStore, isSupabaseAuthConfigured } from '@/lib/store';
 import { hashPassword, setSession, newUserId, verifySupabaseToken } from '@/lib/auth';
 import { createClient } from '@supabase/supabase-js';
+import { isLanguage, normalizeLanguage } from '@/lib/languages';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -16,7 +17,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  */
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, alias, state, city } = await req.json().catch(() => ({}));
+    const { email, password, alias, state, city, language } = await req.json().catch(() => ({}));
     if (!EMAIL_RE.test(email ?? '')) return NextResponse.json({ error: 'A valid email is required' }, { status: 400 });
     if (typeof password !== 'string' || password.length < 6) {
       return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 });
@@ -50,6 +51,7 @@ export async function POST(req: NextRequest) {
         alias: alias || 'Friend',
         state: state.trim().slice(0, 80),
         city: city.trim().slice(0, 80),
+        ...(isLanguage(language) ? { language } : typeof language === 'string' ? { language: normalizeLanguage(language) } : {}),
       });
       await setSession(uid);
       return NextResponse.json({ userId: uid });
@@ -74,6 +76,7 @@ export async function POST(req: NextRequest) {
       alias: alias || 'Friend',
       state: state.trim().slice(0, 80),
       city: city.trim().slice(0, 80),
+      ...(isLanguage(language) ? { language } : typeof language === 'string' ? { language: normalizeLanguage(language) } : {}),
     });
     await setSession(id);
     return NextResponse.json({ userId: id });

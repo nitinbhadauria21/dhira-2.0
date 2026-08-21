@@ -7,6 +7,7 @@ import {
   notebookThemeHint,
   type ProactiveContextHints,
 } from '@/lib/proactiveContext';
+import { languagePromptInstruction, usesHindiMix } from '@/lib/languages';
 import type { NotifyChannel, TopicTag } from '@/lib/types';
 
 /**
@@ -110,11 +111,21 @@ export async function runWeeklySummary(uid: string): Promise<ProactiveResult> {
   const checkins = moods.length;
   const avgValence = checkins ? moods.reduce((s, m) => s + m.valence, 0) / checkins : 0;
   const tone = avgValence > 0.15 ? 'a little lighter' : avgValence < -0.15 ? 'on the heavier side' : 'a real mix';
-  const hinglish = profile.language === 'hinglish';
+  const indic = usesHindiMix(profile.language);
 
-  const draft = hinglish
+  const draft = indic
     ? `Is hafte tumne ${checkins} baar check-in kiya — overall mood ${tone} raha. Main yahin hoon jab bhi baat karni ho.`
-    : `This week you checked in ${checkins} time${checkins === 1 ? '' : 's'} — your mood felt ${tone}. I'm here whenever you want to talk.`;
+    : profile.language === 'english'
+      ? `This week you checked in ${checkins} time${checkins === 1 ? '' : 's'} — your mood felt ${tone}. I'm here whenever you want to talk.`
+      : await draftCheckin({
+          carryForward: null,
+          memorySummary: null,
+          language: profile.language,
+          extraContextLines: [
+            languagePromptInstruction(profile.language),
+            `(Weekly summary only: user checked in ${checkins} time(s) this week; mood felt ${tone}. One short warm recap, no advice.)`,
+          ],
+        });
 
   const reviewed = await reviewReply({
     userMessage: '(weekly summary trigger — no user message)',
