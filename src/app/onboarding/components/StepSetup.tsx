@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import type { OnboardingData, Language } from './OnboardingFlow';
-import { LANGUAGE_OPTIONS } from '@/lib/artifactDesign';
+import type { OnboardingData } from './OnboardingFlow';
+import LanguageSelect from '@/components/LanguageSelect';
 import { SHIFT_OPTIONS, writeStoredShift } from '@/lib/timeOfDay';
 import { onboardingAssets } from '@/app/onboarding/onboardingAssets';
 import OnboardingGreetingRow from './OnboardingGreetingRow';
@@ -13,8 +13,6 @@ interface Props {
   onNext: () => void;
   onBack: () => void;
 }
-
-const languageOptions: { value: Language; label: string; sub: string }[] = LANGUAGE_OPTIONS;
 
 export default function StepSetup({ data, onChange, onNext, onBack }: Props) {
   const canContinue = data.alias.trim().length >= 1;
@@ -89,89 +87,13 @@ export default function StepSetup({ data, onChange, onNext, onBack }: Props) {
 
       {/* Language preference */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <label
-          style={{
-            fontFamily: 'var(--font-ui)',
-            fontSize: '14px',
-            fontWeight: 500,
-            color: 'var(--color-text-muted)',
-          }}
-        >
-          How should DHIRA talk to you?
-        </label>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {languageOptions.map((opt) => {
-            const selected = data.language === opt.value;
-            return (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => onChange({ language: opt.value })}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '14px',
-                  padding: '16px 18px',
-                  borderRadius: 'var(--radius-control)',
-                  border: `1.5px solid ${selected ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                  backgroundColor: selected ? 'var(--color-primary-soft)' : 'var(--color-surface)',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  transition: 'all 0.2s ease',
-                }}
-              >
-                {/* Radio indicator */}
-                <div
-                  style={{
-                    width: 20,
-                    height: 20,
-                    borderRadius: '50%',
-                    border: `2px solid ${selected ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                    backgroundColor: selected ? 'var(--color-primary)' : 'transparent',
-                    flexShrink: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'all 0.2s ease',
-                  }}
-                >
-                  {selected && (
-                    <div
-                      style={{
-                        width: 8,
-                        height: 8,
-                        borderRadius: '50%',
-                        backgroundColor: '#fff',
-                      }}
-                    />
-                  )}
-                </div>
-                <div>
-                  <p
-                    style={{
-                      fontFamily: 'var(--font-ui)',
-                      fontSize: '16px',
-                      fontWeight: 500,
-                      color: selected ? 'var(--color-primary)' : 'var(--color-text)',
-                      marginBottom: '2px',
-                    }}
-                  >
-                    {opt.label}
-                  </p>
-                  <p
-                    style={{
-                      fontFamily: 'var(--font-ui)',
-                      fontSize: '13px',
-                      color: 'var(--color-text-subtle)',
-                    }}
-                  >
-                    {opt.sub}
-                  </p>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+        <LanguageSelect
+          id="onboarding-language"
+          value={data.language}
+          onChange={(language) => onChange({ language })}
+          label="How should DHIRA talk to you?"
+          hint="Used for chat, check-ins, and Telegram messages."
+        />
       </div>
 
       {/* Work shift — user-chosen, never inferred */}

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUserId } from '@/lib/auth';
 import { getStore } from '@/lib/store';
 import type { Profile } from '@/lib/types';
+import { isLanguage, normalizeLanguage } from '@/lib/languages';
 import { isShiftPreference } from '@/lib/timeOfDay';
 import { normalizePhoneE164 } from '@/lib/twilio/phone';
 
@@ -38,7 +39,8 @@ export async function PUT(req: NextRequest) {
     const patch: Partial<Profile> = {};
     if (typeof body.alias === 'string') patch.alias = body.alias.slice(0, 60);
     if (typeof body.avatar === 'string') patch.avatar = body.avatar;
-    if (body.language === 'english' || body.language === 'hinglish') patch.language = body.language;
+    if (isLanguage(body.language)) patch.language = body.language;
+    else if (typeof body.language === 'string') patch.language = normalizeLanguage(body.language);
     if (typeof body.email === 'string') patch.email = body.email.slice(0, 200);
     if (typeof body.phoneE164 === 'string') {
       const raw = body.phoneE164.trim();

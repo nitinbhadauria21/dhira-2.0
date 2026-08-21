@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStore } from '@/lib/store';
 import { verifySupabaseToken, attachSessionCookie } from '@/lib/auth';
+import { isLanguage, normalizeLanguage } from '@/lib/languages';
 import type { Profile } from '@/lib/types';
 import { normalizePhoneE164 } from '@/lib/twilio/phone';
 
@@ -13,10 +14,11 @@ type SessionProfileFields = {
   alias?: unknown;
   state?: unknown;
   city?: unknown;
+  language?: unknown;
 };
 
 async function syncSessionProfile(uid: string, fields: SessionProfileFields): Promise<void> {
-  const { email, phone, alias, state, city } = fields;
+  const { email, phone, alias, state, city, language } = fields;
   const store = getStore();
   await store.getOrCreateProfile(uid);
   const patch: Partial<Profile> = {};
@@ -27,6 +29,8 @@ async function syncSessionProfile(uid: string, fields: SessionProfileFields): Pr
   if (typeof alias === 'string' && alias.trim()) patch.alias = alias.trim().slice(0, 60);
   if (typeof state === 'string' && state.trim()) patch.state = state.trim().slice(0, 80);
   if (typeof city === 'string' && city.trim()) patch.city = city.trim().slice(0, 80);
+  if (isLanguage(language)) patch.language = language;
+  else if (typeof language === 'string' && language.trim()) patch.language = normalizeLanguage(language);
   if (Object.keys(patch).length) await store.updateProfile(uid, patch);
 }
 
@@ -41,14 +45,14 @@ async function syncSessionProfile(uid: string, fields: SessionProfileFields): Pr
  */
 export async function POST(req: NextRequest) {
   try {
-    const { accessToken, email, phone, alias, state, city } = await req.json().catch(() => ({}));
+    const { accessToken, email, phone, alias, state, city, language } = await req.json().catch(() => ({}));
     const uid = await verifySupabaseToken(accessToken ?? '');
     if (!uid) return NextResponse.json({ error: 'invalid token' }, { status: 401 });
 
     const res = NextResponse.json({ userId: uid });
     attachSessionCookie(res, uid);
 
-    void syncSessionProfile(uid, { email, phone, alias, state, city }).catch((err) =>
+    void syncSessionProfile(uid, { email, phone, alias, state, city, language }).catch((err) =>
       console.error('[api/auth/session] profile sync', err)
     );
 

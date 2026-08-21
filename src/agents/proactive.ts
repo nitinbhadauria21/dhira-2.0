@@ -1,5 +1,6 @@
 import { anthropicText, isLiveBrainEnabled } from '@/lib/anthropic';
 import { localProactive } from '@/lib/localBrain';
+import { languagePromptInstruction } from '@/lib/languages';
 import type { Language } from '@/lib/types';
 
 /** Proactive Check-in Agent (Agent Prompts spec §6.4). Output goes to the Monitor. */
@@ -9,7 +10,7 @@ RULES
 - Warm, brief (1-2 sentences), no pressure, easy to ignore.
 - If a memory note is provided, reference it gently.
 - No advice, no diagnosis, no guilt about missed days.
-- Match the user's language (English / Hindi / Hinglish).
+- Write in the user's preferred language exactly as specified in the user message (English, Hindi, Hinglish, Telugu, Tamil, Marathi, Malayalam, Odia, Bengali, Gujarati, Assamese, Kannada, Punjabi, etc.).
 
 Return just the message text (no JSON).`;
 
@@ -24,7 +25,7 @@ export async function draftCheckin(params: {
   }
 
   const context: string[] = params.extraContextLines ?? [
-    `(User's language: ${params.language}. Match it.)`,
+    languagePromptInstruction(params.language),
   ];
   if (!params.extraContextLines) {
     if (params.memorySummary) context.push(`(Last time: "${params.memorySummary}")`);

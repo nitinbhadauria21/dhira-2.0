@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStore, isSupabaseAuthConfigured } from '@/lib/store';
 import { verifyDevOtp, setSession, newUserId } from '@/lib/auth';
+import { isLanguage, normalizeLanguage } from '@/lib/languages';
 import { normalizePhoneE164 } from '@/lib/twilio/phone';
 
 export const runtime = 'nodejs';
@@ -16,7 +17,7 @@ export async function POST(req: NextRequest) {
     if (isSupabaseAuthConfigured()) {
       return NextResponse.json({ error: 'Use Supabase phone OTP in live mode' }, { status: 400 });
     }
-    const { phone, code, alias, state, city } = await req.json().catch(() => ({}));
+    const { phone, code, alias, state, city, language } = await req.json().catch(() => ({}));
     const normalized = normalizePhoneE164(String(phone ?? ''));
     if (!verifyDevOtp(normalized, String(code ?? ''))) {
       return NextResponse.json({ error: 'That code is wrong or expired' }, { status: 401 });
@@ -42,6 +43,7 @@ export async function POST(req: NextRequest) {
         whatsappOptIn: true,
         state: state.trim().slice(0, 80),
         city: city.trim().slice(0, 80),
+        ...(isLanguage(language) ? { language } : typeof language === 'string' ? { language: normalizeLanguage(language) } : {}),
       });
     } else if (
       (typeof state === 'string' && state.trim()) ||

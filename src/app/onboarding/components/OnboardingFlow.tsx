@@ -9,7 +9,10 @@ import StepSetup from './StepSetup';
 import StepContract from './StepContract';
 import { readStoredShift, writeStoredShift, type ShiftPreference } from '@/lib/timeOfDay';
 
-export type Language = 'english' | 'hinglish';
+import type { Language } from '@/lib/languages';
+import { isLanguage, normalizeLanguage } from '@/lib/languages';
+
+export type { Language };
 
 export interface OnboardingData {
   alias: string;
@@ -34,7 +37,7 @@ export default function OnboardingFlow() {
   const [step, setStep] = useState(0);
   const [data, setData] = useState<OnboardingData>({
     alias: '',
-    language: 'hinglish',
+    language: 'english' as Language,
     consentCheckin: true,
     consentMemory: true,
     checkinFrequency: 'daily',
@@ -70,9 +73,9 @@ export default function OnboardingFlow() {
         setData((prev) => ({
           ...prev,
           ...(alias ? { alias } : {}),
-          ...(profile?.language === 'english' || profile?.language === 'hinglish'
+          ...(isLanguage(profile?.language)
             ? { language: profile.language }
-            : cachedLang === 'english' || cachedLang === 'hinglish'
+            : isLanguage(cachedLang)
               ? { language: cachedLang }
               : {}),
           ...(profile?.shift ? { shift: profile.shift } : {}),

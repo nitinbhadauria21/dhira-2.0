@@ -15,6 +15,7 @@ import { formatPasswordResetError } from './passwordResetErrors';
 export type SignUpLocation = {
   state: string;
   city: string;
+  language?: string;
 };
 
 async function postJson(url: string, body: unknown) {
@@ -37,6 +38,7 @@ export async function signUpEmail(
 ) {
   const state = location?.state?.trim() || undefined;
   const city = location?.city?.trim() || undefined;
+  const language = location?.language?.trim() || undefined;
   const sb = getBrowserSupabase();
   if (sb) {
     const { data, error } = await sb.auth.signUp({
@@ -47,6 +49,7 @@ export async function signUpEmail(
           alias: alias || 'Friend',
           ...(state ? { state } : {}),
           ...(city ? { city } : {}),
+          ...(language ? { language } : {}),
         },
       },
     });
@@ -59,9 +62,9 @@ export async function signUpEmail(
         'Account created. In Supabase → Authentication → Providers → Email, turn OFF “Confirm email” for Demo Day, then sign in. Or confirm via the email link first.',
       );
     }
-    return postJson('/api/auth/session', { accessToken: token, email, state, city, alias: alias || 'Friend' });
+    return postJson('/api/auth/session', { accessToken: token, email, state, city, alias: alias || 'Friend', language });
   }
-  return postJson('/api/auth/signup', { email, password, alias, state, city });
+  return postJson('/api/auth/signup', { email, password, alias, state, city, language });
 }
 
 export async function signInEmail(email: string, password: string) {
@@ -99,6 +102,7 @@ export async function verifyOtp(
   const normalized = normalizePhoneE164(phone);
   const state = location?.state?.trim() || undefined;
   const city = location?.city?.trim() || undefined;
+  const language = location?.language?.trim() || undefined;
   const sb = getBrowserSupabase();
   if (sb) {
     const { data, error } = await sb.auth.verifyOtp({
@@ -113,9 +117,10 @@ export async function verifyOtp(
       state,
       city,
       alias: alias || 'Friend',
+      language,
     });
   }
-  return postJson('/api/auth/otp/verify', { phone: normalized, code, alias, state, city });
+  return postJson('/api/auth/otp/verify', { phone: normalized, code, alias, state, city, language });
 }
 
 const PASSWORD_RESET_DEV_MSG =

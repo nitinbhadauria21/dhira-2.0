@@ -9,7 +9,10 @@ import BrandLockup from '@/components/BrandLockup';
 import FloatingBuddy from '@/components/FloatingBuddy';
 import { User, Globe, Bell, Shield, ChevronRight, Check } from 'lucide-react';
 import { signOut } from '@/lib/authClient';
-import { FREQUENCY_OPTIONS, PROFILE_LANGUAGE_OPTIONS } from '@/lib/artifactDesign';
+import { FREQUENCY_OPTIONS } from '@/lib/artifactDesign';
+import LanguageSelect from '@/components/LanguageSelect';
+import type { Language } from '@/lib/languages';
+import { normalizeLanguage } from '@/lib/languages';
 import {
   readStoredShift,
   SHIFT_OPTIONS,
@@ -17,7 +20,6 @@ import {
   type ShiftPreference,
 } from '@/lib/timeOfDay';
 
-type Language = 'english' | 'hinglish';
 type CheckinFrequency = 'daily' | 'every-other-day' | 'weekly';
 type NotifyChannel = 'email' | 'whatsapp' | 'telegram';
 
@@ -41,7 +43,7 @@ function ProfileContent() {
   const router = useRouter();
   const [profile, setProfile] = useState<ProfileData>({
     alias: 'Friend',
-    language: 'hinglish',
+    language: 'english',
     checkinFrequency: 'daily',
     proactiveCheckins: true,
     memoryEnabled: true,
@@ -94,7 +96,7 @@ function ProfileContent() {
         if (!cancelled && p) {
           setProfile({
             alias: p.alias,
-            language: p.language,
+            language: normalizeLanguage(p.language),
             checkinFrequency: p.checkinFrequency,
             proactiveCheckins: p.consentCheckin,
             memoryEnabled: p.consentMemory,
@@ -689,61 +691,14 @@ function ProfileContent() {
                   Choose how DHIRA speaks with you.
                 </p>
 
-                <div className="flex flex-col gap-3 mb-6">
-                  {(
-                    PROFILE_LANGUAGE_OPTIONS as {
-                      value: Language;
-                      label: string;
-                      sub: string;
-                      emoji: string;
-                    }[]
-                  ).map((opt) => (
-                    <button
-                      key={opt.value}
-                      onClick={() => setProfile((p) => ({ ...p, language: opt.value }))}
-                      className="flex items-center gap-4 p-4 rounded-card text-left transition-all duration-200"
-                      style={{
-                        border: `2px solid ${profile.language === opt.value ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                        backgroundColor:
-                          profile.language === opt.value
-                            ? 'var(--color-primary-soft)'
-                            : 'var(--color-surface-alt)',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      <span style={{ fontSize: '24px' }}>{opt.emoji}</span>
-                      <div className="flex-1">
-                        <p
-                          style={{
-                            fontFamily: 'var(--font-ui)',
-                            fontSize: '15px',
-                            fontWeight: 500,
-                            color: 'var(--color-text)',
-                          }}
-                        >
-                          {opt.label}
-                        </p>
-                        <p
-                          style={{
-                            fontFamily: 'var(--font-ui)',
-                            fontSize: '13px',
-                            color: 'var(--color-text-muted)',
-                            marginTop: '2px',
-                          }}
-                        >
-                          {opt.sub}
-                        </p>
-                      </div>
-                      {profile.language === opt.value && (
-                        <div
-                          className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
-                          style={{ backgroundColor: 'var(--color-primary)' }}
-                        >
-                          <Check size={14} color="white" />
-                        </div>
-                      )}
-                    </button>
-                  ))}
+                <div className="mb-6">
+                  <LanguageSelect
+                    id="profile-language"
+                    value={profile.language}
+                    onChange={(language) => setProfile((p) => ({ ...p, language }))}
+                    label="Preferred language"
+                    hint="DHIRA uses this for chat, voice, and proactive check-ins (including Telegram)."
+                  />
                 </div>
 
                 <button
