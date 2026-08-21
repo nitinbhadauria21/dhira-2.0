@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUserId } from '@/lib/auth';
 import { getStore } from '@/lib/store';
 import type { Profile } from '@/lib/types';
-import { buildTelegramDeepLink, isTelegramEnabled } from '@/lib/telegram/bot';
+import { buildTelegramDeepLink, buildTelegramAppDeepLink, isTelegramEnabled, verifyTelegramBot, ensureTelegramWebhook } from '@/lib/telegram/bot';
 import { createTelegramLinkToken } from '@/lib/telegram/linkToken';
 
 export const runtime = 'nodejs';
@@ -37,8 +37,19 @@ export async function POST() {
       });
     }
 
+    const botCheck = await verifyTelegramBot();
+    if (!botCheck.ok) {
+      return NextResponse.json({ error: botCheck.reason, tokenRevoked: botCheck.revoked ?? false }, { status: 503 });
+    }
+
+    const webhook = await ensureTelegramWebhook();
+    if (!webhook.ok) {
+      console.warn('[api/telegram/link] setWebhook', webhook.description);
+    }
+
     const { token, expiresAt } = await createTelegramLinkToken(uid);
     const botUrl = buildTelegramDeepLink(token);
+    const appUrl = buildTelegramAppDeepLink(token);
     if (!botUrl) {
       return NextResponse.json(
         { error: 'Telegram bot username is not configured (TELEGRAM_BOT_USERNAME).' },
@@ -49,6 +60,8 @@ export async function POST() {
     return NextResponse.json({
       connected: false,
       botUrl,
+      appUrl,
+      botUsername: botCheck.username,
       expiresAt,
       telegramConnected: false,
     });
