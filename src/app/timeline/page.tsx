@@ -332,7 +332,7 @@ function TimelineContent() {
       {(activeTab === 'all' || activeTab === 'checkins') && (
         <SectionCard icon={Bell} title="Check-ins DHIRA sent you">
           {notifications.length === 0 ? (
-            <EmptyNote text="When DHIRA reaches out (email or WhatsApp), those check-ins appear here." />
+            <EmptyNote text="When DHIRA reaches out (email, WhatsApp, or Telegram), those check-ins appear here." />
           ) : (
             <div className="flex flex-col gap-3">
               {notifications.map((n) => (
