@@ -15,6 +15,7 @@
     "test:definitive-transcript": "tsx scripts/definitive-transcript-tests.ts",
     "test:live-brain-smoke": "tsx scripts/live-brain-smoke.ts",
     "test:voice-custom-llm": "tsx scripts/test-voice-custom-llm.ts",
+    "test:language-detection": "tsx scripts/test-language-detection.ts",
     "configure:google-auth": "tsx scripts/configure-supabase-google-auth.ts",
     "verify:google-auth": "tsx scripts/verify-google-auth.ts",
     "ensure:supabase-auth-urls": "tsx scripts/ensure-supabase-auth-urls.ts",
