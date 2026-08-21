@@ -16,6 +16,8 @@
     "test:live-brain-smoke": "tsx scripts/live-brain-smoke.ts",
     "test:voice-custom-llm": "tsx scripts/test-voice-custom-llm.ts",
     "test:language-detection": "tsx scripts/test-language-detection.ts",
+    "test:memory-display": "tsx scripts/test-memory-display.ts",
+    "test:timeline-notebook": "tsx scripts/test-timeline-notebook.ts",
     "configure:google-auth": "tsx scripts/configure-supabase-google-auth.ts",
     "verify:google-auth": "tsx scripts/verify-google-auth.ts",
     "ensure:supabase-auth-urls": "tsx scripts/ensure-supabase-auth-urls.ts",

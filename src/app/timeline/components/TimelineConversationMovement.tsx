@@ -2,24 +2,40 @@
 
 import React from 'react';
 import MoodBadge from '@/components/MoodBadge';
-import type { TimelineChatDay } from '@/lib/timelineChat';
+import type { TimelineMovementBlock } from '@/lib/timelineMoodMovement';
 import { ArrowRight } from 'lucide-react';
 
-export default function TimelineConversationMovement({ day }: { day: TimelineChatDay | null }) {
-  if (!day || day.sessionCount === 0) {
+export type TimelineMovementDay = {
+  activityCount: number;
+  movement: TimelineMovementBlock;
+};
+
+type Props = {
+  day: TimelineMovementDay | null;
+  title: string;
+  emptyCopy: string;
+  cameInLabel?: string;
+  leftLabel?: string;
+};
+
+export default function TimelineConversationMovement({
+  day,
+  title,
+  emptyCopy,
+  cameInLabel = 'Came in feeling',
+  leftLabel = 'Left feeling',
+}: Props) {
+  if (!day || day.activityCount === 0) {
     return (
       <section
         className="timeline-movement-card dhira-card theme-transition"
         aria-labelledby="timeline-movement-title"
       >
         <h2 id="timeline-movement-title" className="timeline-section-title">
-          How your conversations moved
+          {title}
         </h2>
         <div className="timeline-movement-empty">
-          <p>
-            When you chat with Dhira, you&apos;ll see how your mood shifted here — privately,
-            without the full transcript.
-          </p>
+          <p>{emptyCopy}</p>
         </div>
       </section>
     );
@@ -33,12 +49,12 @@ export default function TimelineConversationMovement({ day }: { day: TimelineCha
       aria-labelledby="timeline-movement-title"
     >
       <h2 id="timeline-movement-title" className="timeline-section-title">
-        How your conversations moved
+        {title}
       </h2>
 
       <div className="timeline-movement-compact">
         <div className="timeline-mood-endcap timeline-mood-endcap-compact">
-          <p className="timeline-mood-endcap-label">Came in feeling</p>
+          <p className="timeline-mood-endcap-label">{cameInLabel}</p>
           <div className="timeline-mood-endcap-body">
             <span className="timeline-mood-emoji timeline-mood-emoji-sm" aria-hidden>
               {movement.cameIn.emoji}
@@ -56,7 +72,7 @@ export default function TimelineConversationMovement({ day }: { day: TimelineCha
         </div>
 
         <div className="timeline-mood-endcap timeline-mood-endcap-compact">
-          <p className="timeline-mood-endcap-label">Left feeling</p>
+          <p className="timeline-mood-endcap-label">{leftLabel}</p>
           <div className="timeline-mood-endcap-body">
             <span className="timeline-mood-emoji timeline-mood-emoji-sm" aria-hidden>
               {movement.left.emoji}
@@ -76,4 +92,20 @@ export default function TimelineConversationMovement({ day }: { day: TimelineCha
       </div>
     </section>
   );
+}
+
+/** Map chat timeline day to movement card props. */
+export function chatDayToMovementDay(
+  day: { sessionCount: number; movement: TimelineMovementBlock } | null,
+): TimelineMovementDay | null {
+  if (!day) return null;
+  return { activityCount: day.sessionCount, movement: day.movement };
+}
+
+/** Map notebook timeline day to movement card props. */
+export function notebookDayToMovementDay(
+  day: { entryCount: number; movement: TimelineMovementBlock } | null,
+): TimelineMovementDay | null {
+  if (!day) return null;
+  return { activityCount: day.entryCount, movement: day.movement };
 }

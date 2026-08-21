@@ -4,6 +4,8 @@ import React, { useMemo } from 'react';
 import { MessageCircle } from 'lucide-react';
 import type { TimelineChatDay, TimelineChatWeek } from '@/lib/timelineChat';
 import { formatDaySummary } from '@/lib/timelineChat';
+import type { TimelineNotebookDay, TimelineNotebookWeek } from '@/lib/timelineNotebook';
+import { formatNotebookDaySummary } from '@/lib/timelineNotebook';
 
 export type TimelineTab = 'all' | 'checkins' | 'chats' | 'notebook';
 
@@ -13,6 +15,15 @@ const TABS: { id: TimelineTab; label: string }[] = [
   { id: 'chats', label: 'Chats' },
   { id: 'notebook', label: 'Notebook' },
 ];
+
+type WeekDayStrip = {
+  date: string;
+  weekdayShort: string;
+  dayNum: number;
+  bubbles: { color: string; time: string }[];
+  activityCount: number;
+  activityLabel: string;
+};
 
 function StatTile({ value, label }: { value: string; label: string }) {
   return (
@@ -29,22 +40,18 @@ function ChatBubble({ color }: { color: string }) {
   );
 }
 
-function DaySummaryBar({ day }: { day: TimelineChatDay }) {
-  if (!day.sessionCount) {
-    return <span>No conversations on this day yet.</span>;
-  }
-
-  const text = formatDaySummary(day);
-  const arcMatch = text.match(/You moved (.+) across the day\./);
+function ArcSummaryText({ text, arcPattern }: { text: string; arcPattern: RegExp }) {
+  const arcMatch = text.match(arcPattern);
   if (!arcMatch) return <span>{text}</span>;
 
-  const before = text.slice(0, text.indexOf('You moved '));
+  const marker = arcMatch[0].includes('Your moods') ? 'Your moods moved ' : 'You moved ';
+  const before = text.slice(0, text.indexOf(marker));
   const arc = arcMatch[1];
   return (
     <>
       {before}
-      You moved{' '}
-      {arc.split(' → ').map((part, i, arr) => (
+      {marker}
+      {arc.split(' → ').map((part, i) => (
         <React.Fragment key={i}>
           {i > 0 && ' → '}
           <strong>{part}</strong>
@@ -55,27 +62,113 @@ function DaySummaryBar({ day }: { day: TimelineChatDay }) {
   );
 }
 
+function ChatDaySummaryBar({ day }: { day: TimelineChatDay }) {
+  if (!day.sessionCount) return <span>No conversations on this day yet.</span>;
+  const text = formatDaySummary(day);
+  return <ArcSummaryText text={text} arcPattern={/You moved (.+) across the day\./} />;
+}
+
+function NotebookDaySummaryBar({ day }: { day: TimelineNotebookDay }) {
+  if (!day.entryCount) return <span>No notebook entries on this day yet.</span>;
+  const text = formatNotebookDaySummary(day);
+  return <ArcSummaryText text={text} arcPattern={/Your moods moved (.+) across the day\./} />;
+}
+
+function WeekStripPanel({
+  days,
+  legend,
+  selectedDate,
+  onSelectDate,
+  selectedDayDate,
+  summary,
+}: {
+  days: WeekDayStrip[];
+  legend: { mood: string; label: string; color: string }[];
+  selectedDate: string | null;
+  onSelectDate: (date: string) => void;
+  selectedDayDate: string | undefined;
+  summary: React.ReactNode;
+}) {
+  return (
+    <>
+      <div className="timeline-chat-week-strip-wrap">
+        <div className="timeline-chat-week-strip">
+          {days.map((day) => (
+            <DayColumn
+              key={day.date}
+              day={day}
+              selected={selectedDayDate === day.date}
+              onSelect={() => onSelectDate(day.date)}
+            />
+          ))}
+        </div>
+
+        <div className="timeline-chat-legend" aria-label="Mood colors">
+          {legend.map((item) => (
+            <span key={`${item.mood}-${item.label}`} className="timeline-chat-legend-item">
+              <span className="timeline-chat-legend-dot" style={{ backgroundColor: item.color }} />
+              <span>{item.label}</span>
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {summary ? <div className="timeline-day-summary-bar theme-transition">{summary}</div> : null}
+    </>
+  );
+}
+
 export default function TimelineChatWeekSection({
   data,
+  notebookWeek,
   activeTab,
   onTabChange,
   selectedDate,
   onSelectDate,
 }: {
   data: TimelineChatWeek | null;
+  notebookWeek?: TimelineNotebookWeek | null;
   activeTab: TimelineTab;
   onTabChange: (tab: TimelineTab) => void;
   selectedDate: string | null;
   onSelectDate: (date: string) => void;
 }) {
-  const selectedDay = useMemo(() => {
+  const selectedChatDay = useMemo(() => {
     if (!data?.days.length) return null;
     if (selectedDate) return data.days.find((d) => d.date === selectedDate) ?? null;
     const withChats = [...data.days].reverse().find((d) => d.sessionCount > 0);
     return withChats ?? data.days[data.days.length - 1];
   }, [data, selectedDate]);
 
+  const selectedNotebookDay = useMemo(() => {
+    if (!notebookWeek?.days.length) return null;
+    if (selectedDate) return notebookWeek.days.find((d) => d.date === selectedDate) ?? null;
+    const withEntries = [...notebookWeek.days].reverse().find((d) => d.entryCount > 0);
+    return withEntries ?? notebookWeek.days[notebookWeek.days.length - 1];
+  }, [notebookWeek, selectedDate]);
+
   const showChatPanel = activeTab === 'chats' || activeTab === 'all';
+  const showNotebookPanel = activeTab === 'notebook';
+
+  const chatStripDays: WeekDayStrip[] =
+    data?.days.map((d) => ({
+      date: d.date,
+      weekdayShort: d.weekdayShort,
+      dayNum: d.dayNum,
+      bubbles: d.bubbles,
+      activityCount: d.sessionCount,
+      activityLabel: d.sessionCount === 1 ? 'conversation' : 'conversations',
+    })) ?? [];
+
+  const notebookStripDays: WeekDayStrip[] =
+    notebookWeek?.days.map((d) => ({
+      date: d.date,
+      weekdayShort: d.weekdayShort,
+      dayNum: d.dayNum,
+      bubbles: d.bubbles,
+      activityCount: d.entryCount,
+      activityLabel: d.entryCount === 1 ? 'entry' : 'entries',
+    })) ?? [];
 
   return (
     <section
@@ -126,49 +219,69 @@ export default function TimelineChatWeekSection({
             <StatTile value={data.stats.exitMood} label="exit mood" />
           </div>
 
-          <div className="timeline-chat-week-strip-wrap">
-            <div className="timeline-chat-week-strip">
-              {data.days.map((day) => (
-                <DayColumn
-                  key={day.date}
-                  day={day}
-                  selected={selectedDay?.date === day.date}
-                  onSelect={() => onSelectDate(day.date)}
-                />
-              ))}
-            </div>
-
-            <div className="timeline-chat-legend" aria-label="Mood colors">
-              {data.legend.map((item) => (
-                <span key={`${item.mood}-${item.label}`} className="timeline-chat-legend-item">
-                  <span
-                    className="timeline-chat-legend-dot"
-                    style={{ backgroundColor: item.color }}
-                  />
-                  <span>{item.label}</span>
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {selectedDay && (
-            <div className="timeline-day-summary-bar theme-transition">
-              <DaySummaryBar day={selectedDay} />
-            </div>
-          )}
+          <WeekStripPanel
+            days={chatStripDays}
+            legend={data.legend}
+            selectedDate={selectedDate}
+            onSelectDate={onSelectDate}
+            selectedDayDate={selectedChatDay?.date}
+            summary={selectedChatDay ? <ChatDaySummaryBar day={selectedChatDay} /> : null}
+          />
         </>
       )}
 
-      {!showChatPanel && (
+      {showNotebookPanel && notebookWeek && (
+        <>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5 mt-5">
+            <StatTile
+              value={String(notebookWeek.stats.entries)}
+              label={notebookWeek.stats.entries === 1 ? 'entry' : 'entries'}
+            />
+            <StatTile value={notebookWeek.stats.commonShift} label="most common shift" />
+            <StatTile
+              value={String(notebookWeek.stats.avgEntriesPerActiveDay)}
+              label="avg entries / active day"
+            />
+            <StatTile value={notebookWeek.stats.exitMood} label="exit mood" />
+          </div>
+
+          <WeekStripPanel
+            days={notebookStripDays}
+            legend={notebookWeek.legend}
+            selectedDate={selectedDate}
+            onSelectDate={onSelectDate}
+            selectedDayDate={selectedNotebookDay?.date}
+            summary={
+              selectedNotebookDay ? <NotebookDaySummaryBar day={selectedNotebookDay} /> : null
+            }
+          />
+        </>
+      )}
+
+      {showNotebookPanel && !notebookWeek && (
         <p
           className="mt-4"
           style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--color-text-muted)' }}
         >
-          {activeTab === 'checkins'
-            ? 'Check-in stats are below.'
-            : activeTab === 'notebook'
-              ? 'Your notebook entries are below.'
-              : 'Your full activity is shown below.'}
+          Loading your notebook week…
+        </p>
+      )}
+
+      {activeTab === 'checkins' && (
+        <p
+          className="mt-4"
+          style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--color-text-muted)' }}
+        >
+          Check-in stats are below.
+        </p>
+      )}
+
+      {activeTab === 'all' && !showChatPanel && (
+        <p
+          className="mt-4"
+          style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--color-text-muted)' }}
+        >
+          Your full activity is shown below.
         </p>
       )}
 
@@ -189,7 +302,7 @@ function DayColumn({
   selected,
   onSelect,
 }: {
-  day: TimelineChatDay;
+  day: WeekDayStrip;
   selected: boolean;
   onSelect: () => void;
 }) {
@@ -199,7 +312,7 @@ function DayColumn({
       className={`timeline-chat-day-col${selected ? ' timeline-chat-day-col-selected' : ''}`}
       onClick={onSelect}
       aria-pressed={selected}
-      aria-label={`${day.weekdayShort} ${day.dayNum}, ${day.sessionCount} conversations`}
+      aria-label={`${day.weekdayShort} ${day.dayNum}, ${day.activityCount} ${day.activityLabel}`}
     >
       <span className="timeline-chat-day-label">{day.weekdayShort}</span>
       <span className="timeline-chat-day-num">{day.dayNum}</span>
