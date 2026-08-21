@@ -6,6 +6,10 @@ import { offlinePolicyLabel, allowOfflineDemo } from '@/lib/brainPolicy';
 import { LIVE_PROMPT_VERSION } from '@/agents/prompts/agentPromptsLive';
 import { isTelegramEnabled } from '@/lib/telegram/bot';
 import { isEmailEnabled, resolveEmailProviderMode } from '@/lib/email/resend';
+import {
+  isVoiceCustomLlmEnabled,
+  voiceCustomLlmSecret,
+} from '@/lib/elevenlabs/customLlmAuth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -50,6 +54,16 @@ export async function GET() {
       inboundChat: true,
       fromConfigured: Boolean(process.env.EMAIL_FROM?.trim()),
       webhookSecretConfigured: Boolean(process.env.RESEND_WEBHOOK_SECRET?.trim()),
+    },
+    voice: {
+      /** When true, Talk to Dhira uses POST /api/elevenlabs/v1/chat/completions → runChatTurn (same bilingual brain as chat). */
+      customLlmEnabled: isVoiceCustomLlmEnabled(),
+      customLlmSecretConfigured: Boolean(voiceCustomLlmSecret()),
+      elevenLabsApiKeyConfigured: Boolean(
+        process.env.ELEVENLABS_API_KEY?.trim() &&
+          !process.env.ELEVENLABS_API_KEY.includes('your-'),
+      ),
+      profileLanguagesApply: isVoiceCustomLlmEnabled() && Boolean(voiceCustomLlmSecret()),
     },
   });
 }

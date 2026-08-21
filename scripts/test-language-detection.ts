@@ -68,6 +68,20 @@ if (enFromTeluguMain !== 'english') {
   console.log('OK  English when Telugu is main');
 }
 
+console.log('\n=== Voice (ElevenLabs Custom LLM uses channel app — same detection) ===');
+const voiceTelugu = languageForTurn({
+  channel: 'app',
+  userMessage: NATIVE_SAMPLES.telugu!,
+  profileLanguage: 'english',
+  profileLanguage2: 'telugu',
+});
+if (voiceTelugu !== 'telugu') {
+  console.error('FAIL voice path telugu detection', voiceTelugu);
+  failed++;
+} else {
+  console.log('OK  Voice turn would use Telugu for Telugu transcript');
+}
+
 if (failed > 0) {
   console.error(`\n${failed} check(s) failed`);
   process.exit(1);
