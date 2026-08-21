@@ -123,6 +123,12 @@ create table if not exists telegram_link_tokens (
 );
 create index if not exists telegram_link_tokens_profile_idx on telegram_link_tokens(profile_id);
 
+create table if not exists telegram_processed_updates (
+  update_id     bigint primary key,
+  processed_at  timestamptz not null default now()
+);
+create index if not exists telegram_processed_updates_at_idx on telegram_processed_updates(processed_at);
+
 -- ── Row-Level Security ──────────────────────────────────────────────────────
 alter table profiles      enable row level security;
 alter table chat_messages enable row level security;

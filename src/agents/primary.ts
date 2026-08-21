@@ -4,7 +4,7 @@ import { localPrimaryReply } from '@/lib/localBrain';
 import { buildPrimaryMessageBundle } from '@/lib/conversationContext';
 import { LiveBrainUnavailableError, mayUseOfflineDemoTemplates } from '@/lib/brainPolicy';
 import { NEUTRAL_FAILSAFE } from '@/lib/safetyCopy';
-import type { Language } from '@/lib/types';
+import type { ChatChannel, Language } from '@/lib/types';
 import type { ClaudeTurn } from '@/lib/anthropic';
 
 export interface PrimaryInput {
@@ -15,7 +15,7 @@ export interface PrimaryInput {
   userPatternProfile?: string | null;
   language: Language;
   contextUnavailable?: boolean;
-  channel?: 'app' | 'whatsapp';
+  channel?: ChatChannel;
 }
 
 /** Produce Dhira's warm listener draft reply. */

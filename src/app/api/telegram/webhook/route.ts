@@ -2,11 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getStore } from '@/lib/store';
 import { sendTelegramMessage } from '@/lib/telegram/bot';
 import { consumeTelegramLinkToken } from '@/lib/telegram/linkToken';
+import { handleInboundTelegramMessage } from '@/lib/telegram/inboundTelegram';
+import { claimTelegramUpdate } from '@/lib/telegram/updateIdempotency';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 type TelegramUpdate = {
+  update_id?: number;
   message?: {
     message_id: number;
     chat: { id: number; type: string };
@@ -25,7 +28,48 @@ function verifyWebhookSecret(req: NextRequest): boolean {
   return req.headers.get('x-telegram-bot-api-secret-token') === expected;
 }
 
-/** POST /api/telegram/webhook — bot updates (link via /start TOKEN). */
+async function handleStartLink(msg: NonNullable<TelegramUpdate['message']>): Promise<void> {
+  const chatId = String(msg.chat.id);
+  const parts = msg.text!.trim().split(/\s+/);
+  const linkToken = parts[1] ?? '';
+
+  if (!linkToken) {
+    await sendTelegramMessage(
+      chatId,
+      'Hi — open Connect Telegram from your Dhira Profile to link this chat safely.',
+    );
+    return;
+  }
+
+  const profileId = await consumeTelegramLinkToken(linkToken);
+  if (!profileId) {
+    await sendTelegramMessage(
+      chatId,
+      'That link expired or was already used. Go back to Dhira Profile and tap Connect Telegram again.',
+    );
+    return;
+  }
+
+  const store = getStore();
+  const taken = await store.getProfileByTelegramChatId(chatId);
+  if (taken && taken.id !== profileId) {
+    await sendTelegramMessage(chatId, 'This Telegram account is already linked to another Dhira profile.');
+    return;
+  }
+
+  const profile = await store.updateProfile(profileId, {
+    telegramChatId: chatId,
+    telegramOptIn: true,
+    telegramConnectedAt: new Date().toISOString(),
+  });
+
+  await sendTelegramMessage(
+    chatId,
+    `You're connected, ${profile.alias}. I'll send gentle check-ins here when you're due — same schedule as your Dhira settings. You can disconnect anytime from Profile.`,
+  );
+}
+
+/** POST /api/telegram/webhook — bot updates (link via /start TOKEN + inbound chat). */
 export async function POST(req: NextRequest) {
   if (!verifyWebhookSecret(req)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
@@ -36,6 +80,13 @@ export async function POST(req: NextRequest) {
     update = (await req.json()) as TelegramUpdate;
   } catch {
     return NextResponse.json({ ok: true });
+  }
+
+  if (update.update_id != null) {
+    const claimed = await claimTelegramUpdate(update.update_id);
+    if (!claimed) {
+      return NextResponse.json({ ok: true });
+    }
   }
 
   const store = getStore();
@@ -55,47 +106,21 @@ export async function POST(req: NextRequest) {
   }
 
   const msg = update.message;
-  if (!msg?.text?.startsWith('/start') || !msg.chat?.id) {
+  if (!msg?.chat?.id) {
     return NextResponse.json({ ok: true });
   }
 
   const chatId = String(msg.chat.id);
-  const parts = msg.text.trim().split(/\s+/);
-  const linkToken = parts[1] ?? '';
+  const text = msg.text?.trim() ?? '';
 
-  if (!linkToken) {
-    await sendTelegramMessage(
-      chatId,
-      'Hi — open Connect Telegram from your Dhira Profile to link this chat safely.',
-    );
+  if (text.startsWith('/start')) {
+    await handleStartLink(msg);
     return NextResponse.json({ ok: true });
   }
 
-  const profileId = await consumeTelegramLinkToken(linkToken);
-  if (!profileId) {
-    await sendTelegramMessage(
-      chatId,
-      'That link expired or was already used. Go back to Dhira Profile and tap Connect Telegram again.',
-    );
-    return NextResponse.json({ ok: true });
+  if (text) {
+    await handleInboundTelegramMessage({ chatId, text });
   }
-
-  const taken = await store.getProfileByTelegramChatId(chatId);
-  if (taken && taken.id !== profileId) {
-    await sendTelegramMessage(chatId, 'This Telegram account is already linked to another Dhira profile.');
-    return NextResponse.json({ ok: true });
-  }
-
-  const profile = await store.updateProfile(profileId, {
-    telegramChatId: chatId,
-    telegramOptIn: true,
-    telegramConnectedAt: new Date().toISOString(),
-  });
-
-  await sendTelegramMessage(
-    chatId,
-    `You're connected, ${profile.alias}. I'll send gentle check-ins here when you're due — same schedule as your Dhira settings. You can disconnect anytime from Profile.`,
-  );
 
   return NextResponse.json({ ok: true });
 }

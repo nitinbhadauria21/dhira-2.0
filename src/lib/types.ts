@@ -31,7 +31,7 @@ export type RiskClassification =
   | 'media_or_hypothetical'
   | 'neutral';
 
-export type ChatChannel = 'app' | 'whatsapp';
+export type ChatChannel = 'app' | 'whatsapp' | 'telegram';
 
 export type MoodLabel =
   | 'happy'

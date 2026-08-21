@@ -1,6 +1,6 @@
 import { getStore } from '@/lib/store';
 import type { ClaudeTurn } from '@/lib/anthropic';
-import type { ChatMessageRecord, Language, RiskEventRecord } from '@/lib/types';
+import type { ChatChannel, ChatMessageRecord, Language, RiskEventRecord } from '@/lib/types';
 import { CRISIS_MESSAGE } from '@/lib/safetyCopy';
 
 export const ESCALATE_CRISIS_TOKEN = 'ESCALATE_CRISIS';
@@ -44,13 +44,17 @@ export function formatContextForMonitor(
     recentRiskSummary?: string | null;
     recentSentReplies?: string | null;
     contextUnavailable?: boolean;
-    channel?: 'app' | 'whatsapp';
+    channel?: ChatChannel;
   },
 ): string {
   const parts: string[] = [];
   if (extras?.channel === 'whatsapp') {
     parts.push(
       'CURRENT CHANNEL: WhatsApp (merge with app chat for this user when phone is linked on their profile).',
+    );
+  } else if (extras?.channel === 'telegram') {
+    parts.push(
+      'CURRENT CHANNEL: Telegram (merge with app chat for this user when Telegram is connected on their profile).',
     );
   }
   if (extras?.contextUnavailable) {
@@ -157,7 +161,7 @@ export async function buildConversationContext(
     userPatternProfile?: string | null;
     recentRiskSummary?: string | null;
     riskHistory72h?: string | null;
-    channel?: 'app' | 'whatsapp';
+    channel?: ChatChannel;
   },
 ): Promise<ConversationContext> {
   const store = getStore();
@@ -209,7 +213,7 @@ export function buildPrimaryMessageBundle(params: {
   language: Language;
   userMessage: string;
   contextUnavailable?: boolean;
-  channel?: 'app' | 'whatsapp';
+  channel?: ChatChannel;
 }): PrimaryMessageBundle {
   const systemParts: string[] = [];
   if (params.contextUnavailable) {
@@ -229,6 +233,10 @@ export function buildPrimaryMessageBundle(params: {
   if (params.channel === 'whatsapp') {
     systemParts.push(
       'CURRENT CHANNEL: WhatsApp — same person and thread as in-app chat when their profile phone is linked. Match the language of their latest message.',
+    );
+  } else if (params.channel === 'telegram') {
+    systemParts.push(
+      'CURRENT CHANNEL: Telegram — same person and thread as in-app chat when their profile is linked via Connect Telegram. Match the language of their latest message.',
     );
   }
   systemParts.push(`(The user is writing in ${params.language}. Match their language.)`);

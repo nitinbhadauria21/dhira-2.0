@@ -1,4 +1,4 @@
-import type { Language } from '@/lib/types';
+import type { ChatChannel, Language } from '@/lib/types';
 
 /** Devanagari and common Hinglish roman cues. */
 const HINGlish_RE =
@@ -12,13 +12,13 @@ export function inferLanguageFromMessage(text: string, fallback: Language = 'hin
   return fallback;
 }
 
-/** Language for this turn — WhatsApp follows the message; app uses profile default. */
+/** Language for this turn — WhatsApp/Telegram follow the message; app uses profile default. */
 export function languageForTurn(params: {
-  channel: 'app' | 'whatsapp';
+  channel: ChatChannel;
   userMessage: string;
   profileLanguage: Language;
 }): Language {
-  if (params.channel === 'whatsapp') {
+  if (params.channel === 'whatsapp' || params.channel === 'telegram') {
     return inferLanguageFromMessage(params.userMessage, params.profileLanguage);
   }
   return params.profileLanguage;

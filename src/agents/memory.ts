@@ -15,7 +15,7 @@ Return exactly:
   "mood": "overall mood label",
   "topic_tag": "work | family | relationships | health | finances | self | other",
   "carry_forward": "one gentle follow-up for next time",
-  "channel": "app | whatsapp",
+  "channel": "app | whatsapp | telegram",
   "pattern_profile_update": "1-3 sentences merged with existing profile"
 }`;
 

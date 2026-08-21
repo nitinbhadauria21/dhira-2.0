@@ -14,7 +14,9 @@ Plain English: Telegram is an **optional third delivery channel** for the same p
 | `TELEGRAM_ENABLED=true` | Feature flag — must be `true` to connect or send |
 | `TELEGRAM_WEBHOOK_SECRET` | Optional — verify webhook requests |
 
-3. Apply migration `supabase/migrations/20260821_telegram_proactive.sql` on live Supabase (adds `profiles.telegram_*` columns and `telegram_link_tokens`).
+3. Apply migrations on live Supabase:
+   - `supabase/migrations/20260821_telegram_proactive.sql` — `profiles.telegram_*` + `telegram_link_tokens`
+   - `supabase/migrations/20260822_telegram_inbound_idempotency.sql` — webhook `update_id` dedupe (recommended for production)
 
 ## Webhook
 
@@ -57,3 +59,16 @@ See `docs/emergent/EMERGENT_DEMO_DAY_WORKFLOW.md` for Emergent/n8n wiring.
 
 - Profile → **Disconnect** clears chat id and opt-in.
 - If the user blocks the bot, the webhook unlinks automatically; failed sends also clear the binding.
+
+## Two-way chat (inbound replies)
+
+When a user replies to a check-in or test message in Telegram, the same webhook handles it:
+
+1. Telegram POST → `/api/telegram/webhook` (secret header if configured)
+2. Map `telegram_chat_id` → Dhira profile (must be connected via Profile)
+3. `runChatTurn({ channel: 'telegram' })` — **same engine as** `/chat-with-dhira` and WhatsApp
+4. Reply sent back via Bot API (`sendMessage`)
+
+Unlinked chats get: “Please connect Telegram from your Dhira Profile first.”
+
+Proactive check-ins do not require `/chat` — any natural reply continues the conversation.

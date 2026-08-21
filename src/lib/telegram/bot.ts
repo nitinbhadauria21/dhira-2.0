@@ -81,6 +81,24 @@ export type TelegramSendResult =
   | { ok: true; messageId: number }
   | { ok: false; blocked: boolean; description?: string };
 
+/** Show "typing…" while Dhira generates a reply. Best-effort; never throws. */
+export async function sendTelegramChatAction(
+  chatId: string,
+  action: 'typing' | 'upload_photo' = 'typing',
+): Promise<void> {
+  const token = process.env.TELEGRAM_BOT_TOKEN?.trim();
+  if (!token) return;
+  try {
+    await fetch(`https://api.telegram.org/bot${token}/sendChatAction`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, action }),
+    });
+  } catch {
+    // Non-critical UX polish.
+  }
+}
+
 /** Send a text message via Telegram Bot API. No retries. */
 export async function sendTelegramMessage(
   chatId: string,
