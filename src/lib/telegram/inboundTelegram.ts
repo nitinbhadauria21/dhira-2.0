@@ -3,7 +3,7 @@ import { getStore } from '@/lib/store';
 import { runChatTurn } from '@/lib/chatFlow';
 import { runChatTurnPostReplyEnrichment } from '@/lib/chatTurnPostReply';
 import { CRISIS_MESSAGE } from '@/lib/safetyCopy';
-import { sendTelegramChatAction, sendTelegramMessage } from '@/lib/telegram/bot';
+import { isTelegramEnabled, sendTelegramChatAction, sendTelegramMessage } from '@/lib/telegram/bot';
 
 /** Telegram text message limit (chars). */
 const TELEGRAM_REPLY_MAX = 4096;
@@ -33,7 +33,12 @@ export async function handleInboundTelegramMessage(params: {
   const store = getStore();
   const profile = await store.getProfileByTelegramChatId(chatId);
 
-  if (!profile?.telegramOptIn) {
+  if (!profile?.telegramOptIn || !profile.telegramChatId) {
+    console.info('[telegram/inbound] unlinked chat', { chatId: '[redacted]' });
+    if (!isTelegramEnabled()) {
+      console.warn('[telegram/inbound] TELEGRAM_ENABLED or bot token missing — cannot reply');
+      return;
+    }
     await sendTelegramMessage(chatId, UNLINKED_MESSAGE);
     return;
   }

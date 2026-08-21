@@ -4,6 +4,7 @@ import { isSupabaseAuthConfigured, isSupabaseConfigured } from '@/lib/store';
 import { getLiveBrainTelemetry } from '@/lib/liveBrainTelemetry';
 import { offlinePolicyLabel, allowOfflineDemo } from '@/lib/brainPolicy';
 import { LIVE_PROMPT_VERSION } from '@/agents/prompts/agentPromptsLive';
+import { isTelegramEnabled } from '@/lib/telegram/bot';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -37,5 +38,10 @@ export async function GET() {
     promptVersion: LIVE_PROMPT_VERSION,
     gitCommit,
     showOfflineBanner: isDev && allowOfflineDemo() && !isLiveBrainEnabled(),
+    telegram: {
+      enabled: isTelegramEnabled(),
+      inboundChat: true,
+      webhookSecretConfigured: Boolean(process.env.TELEGRAM_WEBHOOK_SECRET?.trim()),
+    },
   });
 }

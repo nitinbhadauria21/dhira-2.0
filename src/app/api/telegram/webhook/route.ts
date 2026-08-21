@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { after } from 'next/server';
 import { getStore } from '@/lib/store';
 import { sendTelegramMessage } from '@/lib/telegram/bot';
 import { consumeTelegramLinkToken } from '@/lib/telegram/linkToken';
 import { handleInboundTelegramMessage } from '@/lib/telegram/inboundTelegram';
-import { claimTelegramUpdate } from '@/lib/telegram/updateIdempotency';
+import { claimTelegramUpdate, releaseTelegramUpdate } from '@/lib/telegram/updateIdempotency';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+/** Live brain + Monitor can exceed default 10s on Vercel — keep webhook alive for inbound chat. */
+export const maxDuration = 60;
 
 type TelegramUpdate = {
   update_id?: number;
@@ -72,6 +75,7 @@ async function handleStartLink(msg: NonNullable<TelegramUpdate['message']>): Pro
 /** POST /api/telegram/webhook — bot updates (link via /start TOKEN + inbound chat). */
 export async function POST(req: NextRequest) {
   if (!verifyWebhookSecret(req)) {
+    console.warn('[telegram/webhook] rejected — secret token mismatch');
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 
@@ -80,13 +84,6 @@ export async function POST(req: NextRequest) {
     update = (await req.json()) as TelegramUpdate;
   } catch {
     return NextResponse.json({ ok: true });
-  }
-
-  if (update.update_id != null) {
-    const claimed = await claimTelegramUpdate(update.update_id);
-    if (!claimed) {
-      return NextResponse.json({ ok: true });
-    }
   }
 
   const store = getStore();
@@ -112,6 +109,7 @@ export async function POST(req: NextRequest) {
 
   const chatId = String(msg.chat.id);
   const text = msg.text?.trim() ?? '';
+  const updateId = update.update_id;
 
   if (text.startsWith('/start')) {
     await handleStartLink(msg);
@@ -119,7 +117,31 @@ export async function POST(req: NextRequest) {
   }
 
   if (text) {
-    await handleInboundTelegramMessage({ chatId, text });
+    console.info('[telegram/webhook] inbound text', {
+      chatId: '[redacted]',
+      textLen: text.length,
+      updateId: updateId ?? null,
+    });
+
+    after(async () => {
+      if (updateId != null) {
+        const claimed = await claimTelegramUpdate(updateId);
+        if (!claimed) {
+          console.info('[telegram/webhook] duplicate update_id skipped', { updateId });
+          return;
+        }
+      }
+      try {
+        await handleInboundTelegramMessage({ chatId, text });
+      } catch (err) {
+        console.error('[telegram/webhook] inbound failed', err);
+        if (updateId != null) await releaseTelegramUpdate(updateId);
+        await sendTelegramMessage(
+          chatId,
+          "I'm having a little trouble responding right now. Give me a moment and try again.",
+        ).catch(() => undefined);
+      }
+    });
   }
 
   return NextResponse.json({ ok: true });
