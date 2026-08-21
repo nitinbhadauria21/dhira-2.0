@@ -19,7 +19,7 @@ import {
 
 type Language = 'english' | 'hinglish';
 type CheckinFrequency = 'daily' | 'every-other-day' | 'weekly';
-type NotifyChannel = 'email' | 'whatsapp';
+type NotifyChannel = 'email' | 'whatsapp' | 'telegram';
 
 interface ProfileData {
   alias: string;
@@ -32,6 +32,8 @@ interface ProfileData {
   preferredChannel: NotifyChannel;
   emailOptIn: boolean;
   whatsappOptIn: boolean;
+  telegramOptIn: boolean;
+  telegramConnected: boolean;
   shift: ShiftPreference;
 }
 
@@ -48,18 +50,47 @@ function ProfileContent() {
     preferredChannel: 'email',
     emailOptIn: true,
     whatsappOptIn: false,
+    telegramOptIn: false,
+    telegramConnected: false,
     shift: 'day',
   });
   const [saved, setSaved] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('profile');
+  const [telegramEnabled, setTelegramEnabled] = useState(false);
+  const [telegramLinkPending, setTelegramLinkPending] = useState(false);
+  const [telegramActionMessage, setTelegramActionMessage] = useState<string | null>(null);
+  const [telegramBusy, setTelegramBusy] = useState(false);
+
+  const refreshTelegramStatus = async () => {
+    try {
+      const res = await fetch('/api/telegram/link');
+      if (!res.ok) return;
+      const data = await res.json();
+      setTelegramEnabled(!!data.telegramEnabled);
+      if (typeof data.telegramConnected === 'boolean') {
+        setProfile((p) => ({
+          ...p,
+          telegramConnected: data.telegramConnected,
+          telegramOptIn: data.profile?.telegramOptIn ?? p.telegramOptIn,
+        }));
+      }
+      if (data.telegramConnected) setTelegramLinkPending(false);
+    } catch {
+      /* best-effort */
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       const localShift = readStoredShift();
       try {
-        const res = await fetch('/api/profile');
-        const { profile: p } = await res.json();
+        const [profileRes, telegramRes] = await Promise.all([
+          fetch('/api/profile'),
+          fetch('/api/telegram/link'),
+        ]);
+        const { profile: p } = await profileRes.json();
+        const tg = telegramRes.ok ? await telegramRes.json() : null;
         if (!cancelled && p) {
           setProfile({
             alias: p.alias,
@@ -72,8 +103,11 @@ function ProfileContent() {
             preferredChannel: p.preferredChannel ?? 'email',
             emailOptIn: p.emailOptIn ?? true,
             whatsappOptIn: p.whatsappOptIn ?? false,
+            telegramOptIn: p.telegramOptIn ?? false,
+            telegramConnected: p.telegramConnected ?? false,
             shift: p.shift ?? localShift,
           });
+          setTelegramEnabled(!!tg?.telegramEnabled);
         } else if (!cancelled) {
           setProfile((current) => ({ ...current, shift: localShift }));
         }
@@ -85,6 +119,87 @@ function ProfileContent() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!telegramLinkPending) return;
+    const id = window.setInterval(() => {
+      void refreshTelegramStatus();
+    }, 4000);
+    return () => window.clearInterval(id);
+  }, [telegramLinkPending]);
+
+  const handleConnectTelegram = async () => {
+    setTelegramBusy(true);
+    setTelegramActionMessage(null);
+    try {
+      const res = await fetch('/api/telegram/link', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) {
+        setTelegramActionMessage(data.error ?? 'Could not start Telegram connection.');
+        return;
+      }
+      if (data.connected) {
+        setProfile((p) => ({ ...p, telegramConnected: true, telegramOptIn: true }));
+        setTelegramActionMessage('Telegram is already connected.');
+        return;
+      }
+      if (data.botUrl) {
+        window.open(data.botUrl, '_blank', 'noopener,noreferrer');
+        setTelegramLinkPending(true);
+        setTelegramActionMessage('Open Telegram, tap Start, then come back here — we will detect the link.');
+      }
+    } catch {
+      setTelegramActionMessage('Could not start Telegram connection.');
+    } finally {
+      setTelegramBusy(false);
+    }
+  };
+
+  const handleDisconnectTelegram = async () => {
+    setTelegramBusy(true);
+    setTelegramActionMessage(null);
+    try {
+      const res = await fetch('/api/telegram/disconnect', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) {
+        setTelegramActionMessage(data.error ?? 'Could not disconnect Telegram.');
+        return;
+      }
+      setProfile((p) => ({
+        ...p,
+        telegramConnected: false,
+        telegramOptIn: false,
+        preferredChannel: p.preferredChannel === 'telegram' ? 'email' : p.preferredChannel,
+      }));
+      setTelegramLinkPending(false);
+      setTelegramActionMessage('Telegram disconnected.');
+    } catch {
+      setTelegramActionMessage('Could not disconnect Telegram.');
+    } finally {
+      setTelegramBusy(false);
+    }
+  };
+
+  const handleTestTelegram = async () => {
+    setTelegramBusy(true);
+    setTelegramActionMessage(null);
+    try {
+      const res = await fetch('/api/telegram/test', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) {
+        setTelegramActionMessage(data.error ?? 'Test message failed.');
+        if (res.status === 400 || res.status === 502) {
+          await refreshTelegramStatus();
+        }
+        return;
+      }
+      setTelegramActionMessage('Test message sent — check Telegram.');
+    } catch {
+      setTelegramActionMessage('Test message failed.');
+    } finally {
+      setTelegramBusy(false);
+    }
+  };
 
   const handleSave = async () => {
     // Keep alias/language in localStorage too (used for a fast greeting fallback).
@@ -108,6 +223,7 @@ function ProfileContent() {
           preferredChannel: profile.preferredChannel,
           emailOptIn: profile.emailOptIn,
           whatsappOptIn: profile.whatsappOptIn,
+          telegramOptIn: profile.telegramOptIn,
           shift: profile.shift,
         }),
       });
@@ -804,11 +920,14 @@ function ProfileContent() {
                     How should DHIRA reach you?
                   </p>
                   {/* Channel selector */}
-                  <div className="flex gap-3">
+                  <div className="flex flex-wrap gap-3">
                     {(
                       [
                         { value: 'email', label: 'Email' },
                         { value: 'whatsapp', label: 'WhatsApp' },
+                        ...(telegramEnabled
+                          ? [{ value: 'telegram' as const, label: 'Telegram' }]
+                          : []),
                       ] as { value: NotifyChannel; label: string }[]
                     ).map((opt) => (
                       <button
@@ -901,6 +1020,119 @@ function ProfileContent() {
                       }}
                     />
                   </div>
+                  {telegramEnabled && (
+                    <div
+                      className="p-4 rounded-card"
+                      style={{
+                        border: '1px solid var(--color-border)',
+                        backgroundColor: 'var(--color-surface-alt)',
+                      }}
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
+                        <div>
+                          <p
+                            style={{
+                              fontFamily: 'var(--font-ui)',
+                              fontSize: '14px',
+                              fontWeight: 600,
+                              color: 'var(--color-text)',
+                            }}
+                          >
+                            Telegram
+                          </p>
+                          <p
+                            style={{
+                              fontFamily: 'var(--font-ui)',
+                              fontSize: '13px',
+                              color: 'var(--color-text-muted)',
+                              marginTop: '2px',
+                            }}
+                          >
+                            {profile.telegramConnected
+                              ? 'Connected — proactive check-ins can reach you here.'
+                              : 'Connect your Telegram chat for gentle check-ins.'}
+                          </p>
+                        </div>
+                        {profile.telegramConnected && (
+                          <span
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+                            style={{
+                              fontFamily: 'var(--font-ui)',
+                              fontSize: '12px',
+                              fontWeight: 500,
+                              color: 'var(--color-primary)',
+                              backgroundColor: 'var(--color-primary-soft)',
+                            }}
+                          >
+                            <Check size={12} aria-hidden />
+                            Connected
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {!profile.telegramConnected ? (
+                          <button
+                            type="button"
+                            onClick={() => void handleConnectTelegram()}
+                            disabled={telegramBusy}
+                            className="btn-primary"
+                            style={{ fontSize: '14px', padding: '9px 18px' }}
+                          >
+                            {telegramBusy ? 'Opening…' : 'Connect Telegram'}
+                          </button>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => void handleTestTelegram()}
+                              disabled={telegramBusy}
+                              className="btn-ghost"
+                              style={{ fontSize: '14px', padding: '9px 18px' }}
+                            >
+                              Send test message
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => void handleDisconnectTelegram()}
+                              disabled={telegramBusy}
+                              className="btn-ghost"
+                              style={{
+                                fontSize: '14px',
+                                padding: '9px 18px',
+                                borderColor: 'var(--color-border)',
+                              }}
+                            >
+                              Disconnect
+                            </button>
+                          </>
+                        )}
+                      </div>
+                      {telegramLinkPending && !profile.telegramConnected && (
+                        <p
+                          style={{
+                            fontFamily: 'var(--font-ui)',
+                            fontSize: '12px',
+                            color: 'var(--color-text-subtle)',
+                            marginTop: '10px',
+                          }}
+                        >
+                          Waiting for you to tap Start in Telegram…
+                        </p>
+                      )}
+                      {telegramActionMessage && (
+                        <p
+                          style={{
+                            fontFamily: 'var(--font-ui)',
+                            fontSize: '12px',
+                            color: 'var(--color-text-muted)',
+                            marginTop: '10px',
+                          }}
+                        >
+                          {telegramActionMessage}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Toggles */}
@@ -929,6 +1161,15 @@ function ProfileContent() {
                       label: 'WhatsApp notifications',
                       sub: 'Allow DHIRA to reach you over WhatsApp',
                     },
+                    ...(profile.telegramConnected
+                      ? [
+                          {
+                            key: 'telegramOptIn' as const,
+                            label: 'Telegram notifications',
+                            sub: 'Allow DHIRA to reach you over Telegram',
+                          },
+                        ]
+                      : []),
                   ].map((toggle) => (
                     <div key={toggle.key} className="flex items-center justify-between gap-4">
                       <div>
