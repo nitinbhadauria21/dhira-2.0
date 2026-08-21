@@ -2,7 +2,12 @@ import { getStore } from '@/lib/store';
 import { draftCheckin } from '@/agents/proactive';
 import { reviewReply } from '@/agents/monitor';
 import { enqueueAndSend, resolveChannel } from '@/lib/notify';
-import type { NotifyChannel } from '@/lib/types';
+import {
+  buildProactiveContextLines,
+  notebookThemeHint,
+  type ProactiveContextHints,
+} from '@/lib/proactiveContext';
+import type { NotifyChannel, TopicTag } from '@/lib/types';
 
 /**
  * The proactive-check-in flow (Agent Prompts spec §4g):
@@ -31,15 +36,41 @@ export async function runProactiveCheckin(uid: string): Promise<ProactiveResult>
 
   const channel = resolveChannel(profile);
   if (!channel) {
-    return { sent: false, reason: 'no email/WhatsApp channel available for this user' };
+    return { sent: false, reason: 'no delivery channel available for this user' };
   }
 
   const memory = profile.consentMemory ? await store.getLatestMemory(uid) : null;
+
+  const hints: ProactiveContextHints = {
+    recentMood: null,
+    recentTopic: null,
+    notebookTheme: null,
+  };
+
+  const latestMood = await store.getLatestMood(uid);
+  if (latestMood) {
+    hints.recentMood = latestMood.mood;
+    hints.recentTopic = latestMood.topicTag;
+  }
+
+  if (profile.consentMemory) {
+    const entries = await store.getNotebookEntries(uid, 5);
+    const shared = entries.find((e) => e.shareWithDhira);
+    if (shared) {
+      hints.notebookTheme = notebookThemeHint(shared.body);
+      if (!hints.recentTopic && shared.topics[0]) {
+        hints.recentTopic = shared.topics[0] as TopicTag;
+      }
+    }
+  }
+
+  const extraContextLines = buildProactiveContextLines(hints, profile.language);
 
   const draft = await draftCheckin({
     carryForward: memory?.carryForward ?? null,
     memorySummary: memory?.summary ?? null,
     language: profile.language,
+    extraContextLines,
   });
 
   const reviewed = await reviewReply({
@@ -73,7 +104,7 @@ export async function runWeeklySummary(uid: string): Promise<ProactiveResult> {
   if (!profile.consentCheckin) return { sent: false, reason: 'user has not consented to check-ins' };
 
   const channel = resolveChannel(profile);
-  if (!channel) return { sent: false, reason: 'no email/WhatsApp channel available for this user' };
+  if (!channel) return { sent: false, reason: 'no delivery channel available for this user' };
 
   const moods = await store.getMoods(uid, 7);
   const checkins = moods.length;

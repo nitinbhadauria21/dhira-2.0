@@ -18,34 +18,41 @@ import type { NotifyChannel, NotificationType, Profile, NotificationRecord } fro
  */
 
 const WHATSAPP_ENABLED = process.env.WHATSAPP_ENABLED === 'true';
+const TELEGRAM_ENABLED = process.env.TELEGRAM_ENABLED === 'true';
 
 /** Pick the channel to use for this user, honoring consent + availability. */
 export function resolveChannel(profile: Profile): NotifyChannel | null {
   const canEmail = profile.emailOptIn && !!profile.email;
   const canWhatsapp = WHATSAPP_ENABLED && profile.whatsappOptIn && !!profile.phoneE164;
+  const canTelegram =
+    TELEGRAM_ENABLED && profile.telegramOptIn && !!profile.telegramChatId;
 
+  if (profile.preferredChannel === 'telegram' && canTelegram) return 'telegram';
   if (profile.preferredChannel === 'whatsapp' && canWhatsapp) return 'whatsapp';
   if (profile.preferredChannel === 'email' && canEmail) return 'email';
   if (canEmail) return 'email';
   if (canWhatsapp) return 'whatsapp';
+  if (canTelegram) return 'telegram';
   return null;
 }
 
 export function templateFor(type: NotificationType, channel: NotifyChannel): { templateKey: string; subject: string | null } {
+  const isWa = channel === 'whatsapp';
+  const isTg = channel === 'telegram';
   if (type === 'weekly_summary') {
     return {
-      templateKey: channel === 'whatsapp' ? 'dhira_weekly_v1' : 'dhira_weekly_email_v1',
+      templateKey: isWa ? 'dhira_weekly_v1' : isTg ? 'dhira_weekly_telegram_v1' : 'dhira_weekly_email_v1',
       subject: channel === 'email' ? 'Your week with Dhira' : null,
     };
   }
   if (type === 'crisis_followup') {
     return {
-      templateKey: channel === 'whatsapp' ? 'dhira_crisis_v1' : 'dhira_crisis_email_v1',
+      templateKey: isWa ? 'dhira_crisis_v1' : isTg ? 'dhira_crisis_telegram_v1' : 'dhira_crisis_email_v1',
       subject: channel === 'email' ? 'Dhira is here — please reach out for support' : null,
     };
   }
   return {
-    templateKey: channel === 'whatsapp' ? 'dhira_checkin_v1' : 'dhira_checkin_email_v1',
+    templateKey: isWa ? 'dhira_checkin_v1' : isTg ? 'dhira_checkin_telegram_v1' : 'dhira_checkin_email_v1',
     subject: channel === 'email' ? 'Just checking in — no pressure' : null,
   };
 }
@@ -81,6 +88,31 @@ export async function enqueueAndSend(params: EnqueueParams): Promise<Notificatio
     subject,
   };
   await store.addNotification(record);
+
+  if (channel === 'telegram') {
+    const { sendTelegramMessage, isTelegramEnabled } = await import('@/lib/telegram/bot');
+    const chatId = params.profile.telegramChatId;
+    if (!isTelegramEnabled() || !chatId) {
+      await store.updateNotificationStatus(record.id, 'failed');
+      return { ...record, status: 'failed' };
+    }
+
+    const result = await sendTelegramMessage(chatId, params.content);
+    if (result.ok) {
+      await store.updateNotificationStatus(record.id, 'sent', String(result.messageId));
+      return { ...record, status: 'sent', providerMessageId: String(result.messageId) };
+    }
+
+    if (result.blocked) {
+      await store.updateProfile(params.profile.id, {
+        telegramChatId: null,
+        telegramOptIn: false,
+        telegramConnectedAt: null,
+      });
+    }
+    await store.updateNotificationStatus(record.id, 'failed');
+    return { ...record, status: 'failed' };
+  }
 
   if (channel === 'whatsapp') {
     const accountSid = process.env.TWILIO_ACCOUNT_SID;

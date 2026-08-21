@@ -15,7 +15,13 @@ export async function GET() {
     if (!uid) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
     const store = getStore();
     const profile = await store.getOrCreateProfile(uid);
-    return NextResponse.json({ profile });
+    const { telegramChatId: _omit, ...safe } = profile;
+    return NextResponse.json({
+      profile: {
+        ...safe,
+        telegramConnected: !!profile.telegramChatId && profile.telegramOptIn,
+      },
+    });
   } catch (err) {
     console.error('[api/profile] GET error', err);
     return NextResponse.json({ error: 'could not load profile' }, { status: 500 });
@@ -38,9 +44,10 @@ export async function PUT(req: NextRequest) {
       const raw = body.phoneE164.trim();
       patch.phoneE164 = raw ? normalizePhoneE164(raw).slice(0, 20) : null;
     }
-    if (body.preferredChannel === 'email' || body.preferredChannel === 'whatsapp') patch.preferredChannel = body.preferredChannel;
+    if (body.preferredChannel === 'email' || body.preferredChannel === 'whatsapp' || body.preferredChannel === 'telegram') patch.preferredChannel = body.preferredChannel;
     if (typeof body.emailOptIn === 'boolean') patch.emailOptIn = body.emailOptIn;
     if (typeof body.whatsappOptIn === 'boolean') patch.whatsappOptIn = body.whatsappOptIn;
+    if (typeof body.telegramOptIn === 'boolean') patch.telegramOptIn = body.telegramOptIn;
     if (typeof body.timezone === 'string') patch.timezone = body.timezone;
     if (typeof body.state === 'string') patch.state = body.state.slice(0, 80) || null;
     if (typeof body.city === 'string') patch.city = body.city.slice(0, 80) || null;
