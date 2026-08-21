@@ -63,7 +63,7 @@ export default function AppLayout({ children, showNav = true }: AppLayoutProps) 
         }}
       />
       {showNav && (
-        <ElevenLabsWidget showFloatingTrigger={false} showVoiceLog={!isHome} />
+        <ElevenLabsWidget showFloatingTrigger={false} showVoiceLog={false} />
       )}
     </ThemeProvider>
   );
