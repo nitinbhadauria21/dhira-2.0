@@ -34,6 +34,12 @@ Users message your Twilio WhatsApp number → Twilio POSTs to **`/api/twilio/wha
 4. Local dev: tunnel (ngrok) to `http://localhost:4028/api/twilio/whatsapp`, or set `TWILIO_VALIDATE_WEBHOOK=false` and test with `curl`.
 5. Legacy alias: `/api/twilio/webhook` uses the same handler. **Rotate** Auth Token if it was ever pasted in chat or committed.
 
+### Telegram proactive check-ins (optional third channel)
+
+Same check-in contract as email/WhatsApp — Profile → Check-ins → connect Telegram, pick **Telegram** as preferred channel. Scheduling stays **`GET /api/notifications/due`** + **`POST /api/checkin`** (Emergent/n8n or pg_cron); do not use `/api/cron/checkin` for AI check-ins.
+
+Setup: **[docs/telegram/TELEGRAM_SETUP.md](./docs/telegram/TELEGRAM_SETUP.md)** · env vars in `.env.example` (`TELEGRAM_*`).
+
 ---
 
 ## Quick start (any teammate)
