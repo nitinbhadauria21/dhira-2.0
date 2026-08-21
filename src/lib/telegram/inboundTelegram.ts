@@ -4,6 +4,7 @@ import { runChatTurn } from '@/lib/chatFlow';
 import { runChatTurnPostReplyEnrichment } from '@/lib/chatTurnPostReply';
 import { CRISIS_MESSAGE } from '@/lib/safetyCopy';
 import { isTelegramEnabled, sendTelegramChatAction, sendTelegramMessage } from '@/lib/telegram/bot';
+import { recordTelegramOutbound } from '@/lib/telegram/recordNotification';
 
 /** Telegram text message limit (chars). */
 const TELEGRAM_REPLY_MAX = 4096;
@@ -59,6 +60,17 @@ export async function handleInboundTelegramMessage(params: {
       turn.crisis && !turn.reply.includes('14416') ? CRISIS_MESSAGE : turn.reply;
 
     const sendResult = await sendTelegramMessage(chatId, truncateForTelegram(outbound));
+    if (sendResult.ok) {
+      try {
+        await recordTelegramOutbound({
+          profileId: profile.id,
+          content: outbound,
+          providerMessageId: sendResult.messageId,
+        });
+      } catch (recordErr) {
+        console.error('[telegram/inbound] notification record failed', recordErr);
+      }
+    }
     if (sendResult.ok === false && sendResult.blocked) {
       await store.updateProfile(profile.id, {
         telegramChatId: null,

@@ -3,6 +3,7 @@ import { getUserId } from '@/lib/auth';
 import { getStore } from '@/lib/store';
 import { isTelegramEnabled, sendTelegramMessage, verifyTelegramBot } from '@/lib/telegram/bot';
 import { telegramConnectionTestMessage } from '@/lib/languages';
+import { recordTelegramOutbound } from '@/lib/telegram/recordNotification';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -50,6 +51,16 @@ export async function POST() {
         { error: result.description ?? 'Telegram could not deliver the test message.' },
         { status: 502 },
       );
+    }
+
+    try {
+      await recordTelegramOutbound({
+        profileId: uid,
+        content: text,
+        providerMessageId: result.messageId,
+      });
+    } catch (recordErr) {
+      console.error('[api/telegram/test] notification record failed', recordErr);
     }
 
     return NextResponse.json({ ok: true, messageId: result.messageId });

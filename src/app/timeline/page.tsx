@@ -49,6 +49,17 @@ function fmtTime(iso: string) {
   });
 }
 
+function formatChannelLabel(channel: string) {
+  if (channel === 'telegram') return 'Telegram';
+  if (channel === 'whatsapp') return 'WhatsApp';
+  if (channel === 'email') return 'Email';
+  return channel;
+}
+
+function formatNotificationType(type: string) {
+  return type.replace(/_/g, ' ');
+}
+
 function SectionCard({
   icon: Icon,
   title,
@@ -102,6 +113,16 @@ function TimelineContent() {
     }
   }, []);
 
+  const loadNotifications = useCallback(async () => {
+    try {
+      const res = await fetch('/api/notifications');
+      const data = await res.json();
+      setNotifications(data.notifications ?? []);
+    } catch {
+      setNotifications([]);
+    }
+  }, []);
+
   useEffect(() => {
     (async () => {
       try {
@@ -121,6 +142,12 @@ function TimelineContent() {
     })();
     loadNotebook();
   }, [loadNotebook]);
+
+  useEffect(() => {
+    if (activeTab === 'checkins' || activeTab === 'all') {
+      void loadNotifications();
+    }
+  }, [activeTab, loadNotifications]);
 
   const filteredNotebook = notebook.filter((entry) => {
     const q = query.trim().toLowerCase();
@@ -355,7 +382,7 @@ function TimelineContent() {
                         letterSpacing: '0.05em',
                       }}
                     >
-                      {n.type.replace(/_/g, ' ')} · {n.channel}
+                      {formatNotificationType(n.type)} · {formatChannelLabel(n.channel)}
                     </span>
                     <span
                       style={{

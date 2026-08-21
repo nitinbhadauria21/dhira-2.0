@@ -429,6 +429,12 @@ export class SupabaseStore implements DhiraStore {
     if (error && /template_key|subject/i.test(error.message ?? '')) {
       ({ error } = await sb.from('notifications').insert(base));
     }
+    if (error && /notifications_channel_check|channel.*check|telegram/i.test(error.message ?? '')) {
+      console.error(
+        '[supabaseStore] notifications insert failed — apply supabase/migrations/20260821_telegram_proactive.sql for Telegram channel support',
+        error.message,
+      );
+    }
     if (error) throw error;
   }
 
