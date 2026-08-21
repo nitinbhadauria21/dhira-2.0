@@ -64,6 +64,8 @@ export interface Profile {
   alias: string;
   avatar: string; // e.g. 'moon' | 'sun' — a UI asset only, non-human
   language: Language;
+  /** Optional second language for multilingual users (Profile → Language). */
+  language2: Language | null;
   email: string | null;
   phoneE164: string | null; // used for WhatsApp
   preferredChannel: NotifyChannel;

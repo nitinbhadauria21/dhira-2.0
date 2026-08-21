@@ -26,6 +26,7 @@ type NotifyChannel = 'email' | 'whatsapp' | 'telegram';
 interface ProfileData {
   alias: string;
   language: Language;
+  language2: Language | null;
   checkinFrequency: CheckinFrequency;
   proactiveCheckins: boolean;
   memoryEnabled: boolean;
@@ -44,6 +45,7 @@ function ProfileContent() {
   const [profile, setProfile] = useState<ProfileData>({
     alias: 'Friend',
     language: 'english',
+    language2: null,
     checkinFrequency: 'daily',
     proactiveCheckins: true,
     memoryEnabled: true,
@@ -102,6 +104,7 @@ function ProfileContent() {
           setProfile({
             alias: p.alias,
             language: normalizeLanguage(p.language),
+            language2: p.language2 ? normalizeLanguage(p.language2) : null,
             checkinFrequency: p.checkinFrequency,
             proactiveCheckins: p.consentCheckin,
             memoryEnabled: p.consentMemory,
@@ -251,6 +254,7 @@ function ProfileContent() {
         body: JSON.stringify({
           alias: profile.alias,
           language: profile.language,
+          language2: profile.language2,
           checkinFrequency: profile.checkinFrequency,
           consentCheckin: profile.proactiveCheckins,
           consentMemory: profile.memoryEnabled,
@@ -713,16 +717,32 @@ function ProfileContent() {
                     color: 'var(--color-text-muted)',
                   }}
                 >
-                  Choose how DHIRA speaks with you.
+                  Choose how DHIRA speaks with you. Pick a second language if you switch between two.
                 </p>
 
-                <div className="mb-6">
+                <div className="flex flex-col gap-5 mb-6">
                   <LanguageSelect
                     id="profile-language"
                     value={profile.language}
-                    onChange={(language) => setProfile((p) => ({ ...p, language }))}
-                    label="Preferred language"
-                    hint="DHIRA uses this for chat, voice, and proactive check-ins (including Telegram)."
+                    onChange={(language) =>
+                      setProfile((p) => ({
+                        ...p,
+                        language,
+                        language2: p.language2 === language ? null : p.language2,
+                      }))
+                    }
+                    label="Preferred language 1 - main language"
+                    hint="DHIRA uses this as your primary language for chat, voice, and proactive check-ins (including Telegram)."
+                  />
+                  <LanguageSelect
+                    id="profile-language-2"
+                    allowNone
+                    noneLabel="None — I use one language only"
+                    value={profile.language2}
+                    excludeValue={profile.language}
+                    onChange={(language2) => setProfile((p) => ({ ...p, language2 }))}
+                    label="Preferred language 2 - second language"
+                    hint="Optional. When set, DHIRA can reply in either language — whichever feels natural for you."
                   />
                 </div>
 

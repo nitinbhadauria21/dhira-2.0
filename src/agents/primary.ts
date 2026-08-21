@@ -14,6 +14,7 @@ export interface PrimaryInput {
   conversationSummary?: string | null;
   userPatternProfile?: string | null;
   language: Language;
+  language2?: Language | null;
   contextUnavailable?: boolean;
   channel?: ChatChannel;
 }
@@ -33,6 +34,7 @@ export async function draftReply(input: PrimaryInput): Promise<string> {
     memorySummary: input.memorySummary,
     userPatternProfile: input.userPatternProfile,
     language: input.language,
+    language2: input.language2,
     userMessage: input.userMessage,
     contextUnavailable: input.contextUnavailable,
     channel: input.channel,

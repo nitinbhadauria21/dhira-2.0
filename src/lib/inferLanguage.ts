@@ -17,9 +17,15 @@ export function languageForTurn(params: {
   channel: ChatChannel;
   userMessage: string;
   profileLanguage: Language;
+  profileLanguage2?: Language | null;
 }): Language {
   if (params.channel === 'whatsapp' || params.channel === 'telegram' || params.channel === 'email') {
-    return inferLanguageFromMessage(params.userMessage, params.profileLanguage);
+    const primary = inferLanguageFromMessage(params.userMessage, params.profileLanguage);
+    if (params.profileLanguage2 && params.profileLanguage2 !== params.profileLanguage) {
+      const secondary = inferLanguageFromMessage(params.userMessage, params.profileLanguage2);
+      if (secondary === params.profileLanguage2) return secondary;
+    }
+    return primary;
   }
   return params.profileLanguage;
 }

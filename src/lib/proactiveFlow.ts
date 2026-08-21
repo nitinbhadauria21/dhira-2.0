@@ -7,7 +7,7 @@ import {
   notebookThemeHint,
   type ProactiveContextHints,
 } from '@/lib/proactiveContext';
-import { languagePromptInstruction, usesHindiMix } from '@/lib/languages';
+import { languagePromptInstruction, languagePreferencesInstruction, usesHindiMix } from '@/lib/languages';
 import type { NotifyChannel, TopicTag } from '@/lib/types';
 
 /**
@@ -65,7 +65,7 @@ export async function runProactiveCheckin(uid: string): Promise<ProactiveResult>
     }
   }
 
-  const extraContextLines = buildProactiveContextLines(hints, profile.language);
+  const extraContextLines = buildProactiveContextLines(hints, profile.language, profile.language2);
 
   const draft = await draftCheckin({
     carryForward: memory?.carryForward ?? null,
@@ -122,7 +122,7 @@ export async function runWeeklySummary(uid: string): Promise<ProactiveResult> {
           memorySummary: null,
           language: profile.language,
           extraContextLines: [
-            languagePromptInstruction(profile.language),
+            languagePreferencesInstruction(profile.language, profile.language2),
             `(Weekly summary only: user checked in ${checkins} time(s) this week; mood felt ${tone}. One short warm recap, no advice.)`,
           ],
         });

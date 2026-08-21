@@ -1,6 +1,7 @@
 import { getStore } from '@/lib/store';
 import type { ClaudeTurn } from '@/lib/anthropic';
 import type { ChatChannel, ChatMessageRecord, Language, RiskEventRecord } from '@/lib/types';
+import { languagePreferencesInstruction } from '@/lib/languages';
 import { CRISIS_MESSAGE } from '@/lib/safetyCopy';
 
 export const ESCALATE_CRISIS_TOKEN = 'ESCALATE_CRISIS';
@@ -215,6 +216,7 @@ export function buildPrimaryMessageBundle(params: {
   memorySummary?: string | null;
   userPatternProfile?: string | null;
   language: Language;
+  language2?: Language | null;
   userMessage: string;
   contextUnavailable?: boolean;
   channel?: ChatChannel;
@@ -247,7 +249,7 @@ export function buildPrimaryMessageBundle(params: {
       'CURRENT CHANNEL: Email — same person and thread as in-app chat when their profile check-in email matches. Match the language of their latest message.',
     );
   }
-  systemParts.push(`(The user is writing in ${params.language}. Match their language.)`);
+  systemParts.push(languagePreferencesInstruction(params.language, params.language2));
 
   return {
     systemAppendix: systemParts.join('\n\n'),

@@ -16,6 +16,7 @@ create table if not exists profiles (
   alias             text not null default 'Friend',
   avatar            text not null default 'moon',
   language          text not null default 'hinglish',
+  language_2        text,
   email             text,
   phone_e164        text,
   preferred_channel text not null default 'email',   -- 'email' | 'whatsapp' | 'telegram'

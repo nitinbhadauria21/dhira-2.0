@@ -89,6 +89,7 @@ export async function runChatTurn(params: {
     channel,
     userMessage,
     profileLanguage: profile.language,
+    profileLanguage2: profile.language2,
   });
 
   const [risk72hEvents, convo] = await Promise.all([
@@ -207,6 +208,7 @@ export async function runChatTurn(params: {
       memorySummary: memory?.summary ?? null,
       userPatternProfile: profile.userPatternProfile,
       language: turnLanguage,
+      language2: profile.language2,
       contextUnavailable: convo.contextUnavailable,
       channel,
     });

@@ -58,6 +58,18 @@ export function languagePromptInstruction(lang: Language): string {
   return `(Write entirely in ${languageDisplayName(lang)}, using its native script where natural. Do not default to English.)`;
 }
 
+/**
+ * Bilingual Profile: main + optional second language for chat, voice, and check-ins.
+ */
+export function languagePreferencesInstruction(
+  primary: Language,
+  secondary: Language | null | undefined,
+): string {
+  const main = languagePromptInstruction(primary);
+  if (!secondary || secondary === primary) return main;
+  return `${main}\n(The user is multilingual. Main language: ${languageDisplayName(primary)}. Second language: ${languageDisplayName(secondary)}. Reply in whichever they use — gentle code-switching is fine when it feels natural.)`;
+}
+
 export function usesHindiMix(lang: Language): boolean {
   return lang === 'hinglish' || lang === 'hindi';
 }

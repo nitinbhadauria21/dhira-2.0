@@ -12,6 +12,7 @@ import type {
 } from '@/lib/types';
 import type { DhiraStore, AdminStats } from './types';
 import { phoneE164LookupVariants } from '@/lib/twilio/phone';
+import { isLanguage } from '@/lib/languages';
 
 /**
  * Supabase-backed store (used when the Supabase keys are set).
@@ -38,6 +39,7 @@ const toProfile = (r: any): Profile => ({
   alias: r.alias,
   avatar: r.avatar,
   language: r.language,
+  language2: r.language_2 && isLanguage(r.language_2) ? r.language_2 : null,
   email: r.email ?? null,
   phoneE164: r.phone_e164 ?? null,
   preferredChannel: r.preferred_channel ?? 'email',
@@ -190,6 +192,7 @@ export class SupabaseStore implements DhiraStore {
     if (patch.alias !== undefined) row.alias = patch.alias;
     if (patch.avatar !== undefined) row.avatar = patch.avatar;
     if (patch.language !== undefined) row.language = patch.language;
+    if (patch.language2 !== undefined) row.language_2 = patch.language2;
     if (patch.email !== undefined) row.email = patch.email;
     if (patch.phoneE164 !== undefined) row.phone_e164 = patch.phoneE164;
     if (patch.preferredChannel !== undefined) row.preferred_channel = patch.preferredChannel;
@@ -212,7 +215,7 @@ export class SupabaseStore implements DhiraStore {
     if (patch.userPatternProfile !== undefined) row.user_pattern_profile = patch.userPatternProfile;
     let { data, error } = await sb.from('profiles').update(row).eq('id', id).select('*').single();
     // Older projects before migration — drop new columns and retry.
-    if (error && /last_proactive_at|last_weekly_at|state|city|shift|voice_preference|user_pattern_profile|telegram_|schema cache/i.test(error.message ?? '')) {
+    if (error && /last_proactive_at|last_weekly_at|state|city|shift|voice_preference|user_pattern_profile|telegram_|language_2|schema cache/i.test(error.message ?? '')) {
       delete row.last_proactive_at;
       delete row.last_weekly_at;
       delete row.state;
@@ -220,6 +223,7 @@ export class SupabaseStore implements DhiraStore {
       delete row.shift;
       delete row.voice_preference;
       delete row.user_pattern_profile;
+      delete row.language_2;
       delete row.telegram_chat_id;
       delete row.telegram_opt_in;
       delete row.telegram_connected_at;

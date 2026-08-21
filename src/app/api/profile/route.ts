@@ -42,6 +42,15 @@ export async function PUT(req: NextRequest) {
     if (typeof body.avatar === 'string') patch.avatar = body.avatar;
     if (isLanguage(body.language)) patch.language = body.language;
     else if (typeof body.language === 'string') patch.language = normalizeLanguage(body.language);
+    if (body.language2 === null) {
+      patch.language2 = null;
+    } else if (typeof body.language2 === 'string' && body.language2.trim() === '') {
+      patch.language2 = null;
+    } else if (isLanguage(body.language2)) {
+      patch.language2 = body.language2;
+    } else if (typeof body.language2 === 'string') {
+      patch.language2 = normalizeLanguage(body.language2);
+    }
     if (typeof body.email === 'string') {
       const trimmed = body.email.trim();
       if (!trimmed) {
@@ -86,6 +95,18 @@ export async function PUT(req: NextRequest) {
     if (typeof body.checkinWindow === 'string') patch.checkinWindow = body.checkinWindow;
 
     const store = getStore();
+    const existing = await store.getOrCreateProfile(uid);
+    const mergedLanguage = patch.language ?? existing.language;
+    const mergedLanguage2 =
+      patch.language2 !== undefined ? patch.language2 : existing.language2;
+    if (mergedLanguage2 === mergedLanguage) {
+      patch.language2 = null;
+    } else if (patch.language2 !== undefined) {
+      patch.language2 = mergedLanguage2;
+    } else if (patch.language !== undefined && existing.language2 === mergedLanguage) {
+      patch.language2 = null;
+    }
+
     const profile = await store.updateProfile(uid, patch);
     return NextResponse.json({ profile });
   } catch (err) {

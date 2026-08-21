@@ -80,6 +80,7 @@ export class LocalStore implements DhiraStore {
         alias: 'Friend',
         avatar: 'moon',
         language: 'hinglish',
+        language2: null,
         email: null,
         phoneE164: null,
         preferredChannel: 'email',
@@ -117,6 +118,7 @@ export class LocalStore implements DhiraStore {
     if (profile.telegramChatId === undefined) (profile as Profile).telegramChatId = null;
     if (profile.telegramOptIn === undefined) (profile as Profile).telegramOptIn = false;
     if (profile.telegramConnectedAt === undefined) (profile as Profile).telegramConnectedAt = null;
+    if (profile.language2 === undefined) (profile as Profile).language2 = null;
     return profile;
   }
 
