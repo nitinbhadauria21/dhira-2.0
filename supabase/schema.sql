@@ -18,9 +18,12 @@ create table if not exists profiles (
   language          text not null default 'hinglish',
   email             text,
   phone_e164        text,
-  preferred_channel text not null default 'email',   -- 'email' | 'whatsapp'
+  preferred_channel text not null default 'email',   -- 'email' | 'whatsapp' | 'telegram'
   email_opt_in      boolean not null default true,
   whatsapp_opt_in   boolean not null default false,
+  telegram_chat_id  text,
+  telegram_opt_in   boolean not null default false,
+  telegram_connected_at timestamptz,
   timezone          text not null default 'Asia/Kolkata',
   state             text,   -- Indian state (required at sign-up)
   city              text,   -- City (required at sign-up)
@@ -95,7 +98,7 @@ create index if not exists risk_events_created_idx on risk_events(created_at);
 create table if not exists notifications (
   id                  uuid primary key,
   profile_id          uuid not null references profiles(id) on delete cascade,
-  channel             text not null check (channel in ('email', 'whatsapp')),
+  channel             text not null check (channel in ('email', 'whatsapp', 'telegram')),
   type                text not null check (type in ('proactive_checkin', 'weekly_summary', 'crisis_followup')),
   content             text not null,
   status              text not null default 'queued' check (status in ('queued', 'sent', 'delivered', 'failed')),
@@ -107,7 +110,18 @@ create table if not exists notifications (
   subject             text
 );
 create index if not exists notifications_profile_idx on notifications(profile_id, created_at);
+create unique index if not exists profiles_telegram_chat_id_uidx
+  on profiles (telegram_chat_id) where telegram_chat_id is not null;
 create index if not exists profiles_checkin_due_idx on profiles(consent_checkin, last_proactive_at);
+
+create table if not exists telegram_link_tokens (
+  token       text primary key,
+  profile_id  uuid not null references profiles(id) on delete cascade,
+  expires_at  timestamptz not null,
+  used_at     timestamptz,
+  created_at  timestamptz not null default now()
+);
+create index if not exists telegram_link_tokens_profile_idx on telegram_link_tokens(profile_id);
 
 -- ── Row-Level Security ──────────────────────────────────────────────────────
 alter table profiles      enable row level security;

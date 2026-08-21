@@ -43,6 +43,9 @@ const toProfile = (r: any): Profile => ({
   preferredChannel: r.preferred_channel ?? 'email',
   emailOptIn: r.email_opt_in ?? true,
   whatsappOptIn: r.whatsapp_opt_in ?? false,
+  telegramChatId: r.telegram_chat_id ?? null,
+  telegramOptIn: r.telegram_opt_in ?? false,
+  telegramConnectedAt: r.telegram_connected_at ?? null,
   timezone: r.timezone ?? 'Asia/Kolkata',
   state: r.state ?? null,
   city: r.city ?? null,
@@ -143,6 +146,9 @@ export class SupabaseStore implements DhiraStore {
       preferred_channel: 'email',
       email_opt_in: true,
       whatsapp_opt_in: false,
+      telegram_chat_id: null,
+      telegram_opt_in: false,
+      telegram_connected_at: null,
       timezone: 'Asia/Kolkata',
       shift: 'day',
       consent_checkin: true,
@@ -189,6 +195,9 @@ export class SupabaseStore implements DhiraStore {
     if (patch.preferredChannel !== undefined) row.preferred_channel = patch.preferredChannel;
     if (patch.emailOptIn !== undefined) row.email_opt_in = patch.emailOptIn;
     if (patch.whatsappOptIn !== undefined) row.whatsapp_opt_in = patch.whatsappOptIn;
+    if (patch.telegramChatId !== undefined) row.telegram_chat_id = patch.telegramChatId;
+    if (patch.telegramOptIn !== undefined) row.telegram_opt_in = patch.telegramOptIn;
+    if (patch.telegramConnectedAt !== undefined) row.telegram_connected_at = patch.telegramConnectedAt;
     if (patch.timezone !== undefined) row.timezone = patch.timezone;
     if (patch.state !== undefined) row.state = patch.state;
     if (patch.city !== undefined) row.city = patch.city;
@@ -203,7 +212,7 @@ export class SupabaseStore implements DhiraStore {
     if (patch.userPatternProfile !== undefined) row.user_pattern_profile = patch.userPatternProfile;
     let { data, error } = await sb.from('profiles').update(row).eq('id', id).select('*').single();
     // Older projects before migration — drop new columns and retry.
-    if (error && /last_proactive_at|last_weekly_at|state|city|shift|voice_preference|user_pattern_profile|schema cache/i.test(error.message ?? '')) {
+    if (error && /last_proactive_at|last_weekly_at|state|city|shift|voice_preference|user_pattern_profile|telegram_|schema cache/i.test(error.message ?? '')) {
       delete row.last_proactive_at;
       delete row.last_weekly_at;
       delete row.state;
@@ -211,6 +220,9 @@ export class SupabaseStore implements DhiraStore {
       delete row.shift;
       delete row.voice_preference;
       delete row.user_pattern_profile;
+      delete row.telegram_chat_id;
+      delete row.telegram_opt_in;
+      delete row.telegram_connected_at;
       ({ data, error } = await sb.from('profiles').update(row).eq('id', id).select('*').single());
     }
     if (error) throw error;
@@ -459,6 +471,16 @@ export class SupabaseStore implements DhiraStore {
       if (data) return toProfile(data);
     }
     return null;
+  }
+
+  async getProfileByTelegramChatId(chatId: string): Promise<Profile | null> {
+    const sb = client();
+    const { data } = await sb
+      .from('profiles')
+      .select('*')
+      .eq('telegram_chat_id', chatId)
+      .maybeSingle();
+    return data ? toProfile(data) : null;
   }
 
   async allProfiles(): Promise<Profile[]> {
