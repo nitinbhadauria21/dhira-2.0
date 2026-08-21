@@ -67,7 +67,7 @@ export function languagePreferencesInstruction(
 ): string {
   const main = languagePromptInstruction(primary);
   if (!secondary || secondary === primary) return main;
-  return `${main}\n(The user is multilingual. Main language: ${languageDisplayName(primary)}. Second language: ${languageDisplayName(secondary)}. Reply in whichever they use — gentle code-switching is fine when it feels natural.)`;
+  return `${main}\n(The user is multilingual. Main language: ${languageDisplayName(primary)}. Second language: ${languageDisplayName(secondary)}. Match the language of their current message. When they write or speak in ${languageDisplayName(secondary)}, reply fully in ${languageDisplayName(secondary)} using its natural script — never say you cannot understand or speak their chosen languages.)`;
 }
 
 export function usesHindiMix(lang: Language): boolean {
