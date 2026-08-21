@@ -10,7 +10,71 @@ export function isTelegramEnabled(): boolean {
 
 export function getTelegramBotUsername(): string | null {
   const u = process.env.TELEGRAM_BOT_USERNAME?.trim();
-  return u ? u.replace(/^@/, '') : null;
+  // Telegram usernames are lowercase; normalise so t.me / tg:// links always resolve.
+  return u ? u.replace(/^@/, '').toLowerCase() : null;
+}
+
+export type TelegramBotVerifyResult =
+  | { ok: true; username: string }
+  | { ok: false; reason: string; revoked?: boolean };
+
+/** Confirm the server token is valid before opening Connect links or sending. */
+export async function verifyTelegramBot(): Promise<TelegramBotVerifyResult> {
+  const token = process.env.TELEGRAM_BOT_TOKEN?.trim();
+  if (!token) {
+    return { ok: false, reason: 'TELEGRAM_BOT_TOKEN is not configured on the server.' };
+  }
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${token}/getMe`);
+    const body = (await res.json().catch(() => ({}))) as {
+      ok?: boolean;
+      description?: string;
+      error_code?: number;
+      result?: { username?: string };
+    };
+    if (body.ok && body.result?.username) {
+      return { ok: true, username: body.result.username };
+    }
+    if (body.error_code === 401) {
+      return {
+        ok: false,
+        revoked: true,
+        reason:
+          'The Telegram bot token is invalid or was revoked. In @BotFather send /token, pick your bot, copy the new token, and update Vercel (TELEGRAM_BOT_TOKEN).',
+      };
+    }
+    return { ok: false, reason: body.description ?? 'Telegram bot check failed.' };
+  } catch {
+    return { ok: false, reason: 'Could not reach Telegram to verify the bot.' };
+  }
+}
+
+/** Register webhook so /start link tokens reach Dhira (idempotent). */
+export async function ensureTelegramWebhook(): Promise<{ ok: boolean; description?: string }> {
+  const token = process.env.TELEGRAM_BOT_TOKEN?.trim();
+  const appUrl = (process.env.APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? '').trim();
+  if (!token || !appUrl) {
+    return { ok: false, description: 'missing TELEGRAM_BOT_TOKEN or APP_URL' };
+  }
+  const webhookUrl = `${appUrl.replace(/\/$/, '')}/api/telegram/webhook`;
+  const secret = process.env.TELEGRAM_WEBHOOK_SECRET?.trim();
+  const payload: Record<string, unknown> = {
+    url: webhookUrl,
+    allowed_updates: ['message', 'my_chat_member'],
+  };
+  if (secret) payload.secret_token = secret;
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${token}/setWebhook`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const body = (await res.json().catch(() => ({}))) as { ok?: boolean; description?: string };
+    if (body.ok) return { ok: true };
+    return { ok: false, description: body.description ?? 'setWebhook failed' };
+  } catch {
+    return { ok: false, description: 'setWebhook network error' };
+  }
 }
 
 export type TelegramSendResult =
@@ -62,4 +126,11 @@ export function buildTelegramDeepLink(token: string): string | null {
   const username = getTelegramBotUsername();
   if (!username) return null;
   return `https://t.me/${username}?start=${encodeURIComponent(token)}`;
+}
+
+/** Opens the bot directly in the Telegram phone app when supported. */
+export function buildTelegramAppDeepLink(token: string): string | null {
+  const username = getTelegramBotUsername();
+  if (!username) return null;
+  return `tg://resolve?domain=${username}&start=${encodeURIComponent(token)}`;
 }

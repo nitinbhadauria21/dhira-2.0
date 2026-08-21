@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUserId } from '@/lib/auth';
 import { getStore } from '@/lib/store';
-import { isTelegramEnabled, sendTelegramMessage } from '@/lib/telegram/bot';
+import { isTelegramEnabled, sendTelegramMessage, verifyTelegramBot } from '@/lib/telegram/bot';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -14,6 +14,14 @@ export async function POST() {
 
     if (!isTelegramEnabled()) {
       return NextResponse.json({ error: 'Telegram is not enabled on this server.' }, { status: 503 });
+    }
+
+    const botCheck = await verifyTelegramBot();
+    if (!botCheck.ok) {
+      return NextResponse.json(
+        { error: botCheck.reason, tokenRevoked: botCheck.revoked ?? false },
+        { status: 503 },
+      );
     }
 
     const store = getStore();

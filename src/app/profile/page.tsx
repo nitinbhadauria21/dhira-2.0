@@ -144,9 +144,18 @@ function ProfileContent() {
         return;
       }
       if (data.botUrl) {
-        window.open(data.botUrl, '_blank', 'noopener,noreferrer');
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile && data.appUrl) {
+          window.location.href = data.appUrl;
+        } else {
+          window.open(data.botUrl, '_blank', 'noopener,noreferrer');
+        }
         setTelegramLinkPending(true);
-        setTelegramActionMessage('Open Telegram, tap Start, then come back here — we will detect the link.');
+        setTelegramActionMessage(
+          isMobile
+            ? 'In the Telegram app, tap Start on the Dhira bot, then return here.'
+            : 'If a Telegram login screen opened: scan the QR with your phone (Telegram → Settings → Devices → Link Desktop Device), then tap START on the Dhira bot. Or open Connect on your phone instead.',
+        );
       }
     } catch {
       setTelegramActionMessage('Could not start Telegram connection.');
@@ -1091,6 +1100,17 @@ function ProfileContent() {
                             >
                               Send test message
                             </button>
+                            <p
+                              style={{
+                                flexBasis: '100%',
+                                fontFamily: 'var(--font-ui)',
+                                fontSize: '12px',
+                                color: 'var(--color-text-subtle)',
+                                margin: 0,
+                              }}
+                            >
+                              Sends from Dhira to your Telegram chat — it does not open Telegram. Check the Dhira bot chat on your phone.
+                            </p>
                             <button
                               type="button"
                               onClick={() => void handleDisconnectTelegram()}
