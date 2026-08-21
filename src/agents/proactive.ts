@@ -17,14 +17,22 @@ export async function draftCheckin(params: {
   carryForward?: string | null;
   memorySummary?: string | null;
   language: Language;
+  extraContextLines?: string[];
 }): Promise<string> {
   if (!isLiveBrainEnabled()) {
     return localProactive({ carryForward: params.carryForward ?? undefined, language: params.language });
   }
 
-  const context: string[] = [`(User's language: ${params.language}. Match it.)`];
-  if (params.memorySummary) context.push(`(Last time: "${params.memorySummary}")`);
-  if (params.carryForward) context.push(`(Gentle thread to follow up on: "${params.carryForward}")`);
+  const context: string[] = params.extraContextLines ?? [
+    `(User's language: ${params.language}. Match it.)`,
+  ];
+  if (!params.extraContextLines) {
+    if (params.memorySummary) context.push(`(Last time: "${params.memorySummary}")`);
+    if (params.carryForward) context.push(`(Gentle thread to follow up on: "${params.carryForward}")`);
+  } else {
+    if (params.memorySummary) context.push(`(Last time: "${params.memorySummary}")`);
+    if (params.carryForward) context.push(`(Gentle thread to follow up on: "${params.carryForward}")`);
+  }
 
   try {
     return await anthropicText({

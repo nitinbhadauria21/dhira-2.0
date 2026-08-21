@@ -62,6 +62,7 @@ export interface DhiraStore {
   getAuthUserByEmail(email: string): Promise<AuthUser | null>;
   getAuthUserByPhone(phoneE164: string): Promise<AuthUser | null>;
   getProfileByPhoneE164(phoneE164: string): Promise<Profile | null>;
+  getProfileByTelegramChatId(chatId: string): Promise<Profile | null>;
 
   adminStats(): Promise<AdminStats>;
   allProfiles(): Promise<Profile[]>;

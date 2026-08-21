@@ -54,7 +54,7 @@ export type TopicTag =
 
 export type CheckinFrequency = 'daily' | 'every-other-day' | 'weekly';
 
-export type NotifyChannel = 'email' | 'whatsapp';
+export type NotifyChannel = 'email' | 'whatsapp' | 'telegram';
 
 /** The identified person + their preferences (the "check-in contract" + contact). */
 export interface Profile {
@@ -67,6 +67,10 @@ export interface Profile {
   preferredChannel: NotifyChannel;
   emailOptIn: boolean;
   whatsappOptIn: boolean;
+  /** Set only server-side via Telegram webhook — never from browser PUT. */
+  telegramChatId: string | null;
+  telegramOptIn: boolean;
+  telegramConnectedAt: string | null;
   timezone: string; // IANA tz, e.g. 'Asia/Kolkata'
   /** Indian state (required at sign-up). */
   state: string | null;

@@ -85,6 +85,9 @@ export class LocalStore implements DhiraStore {
         preferredChannel: 'email',
         emailOptIn: true,
         whatsappOptIn: false,
+        telegramChatId: null,
+        telegramOptIn: false,
+        telegramConnectedAt: null,
         timezone: 'Asia/Kolkata',
         state: null,
         city: null,
@@ -111,6 +114,9 @@ export class LocalStore implements DhiraStore {
     if (profile.shift === undefined) (profile as Profile).shift = 'day';
     if (profile.voicePreference === undefined) (profile as Profile).voicePreference = null;
     if (profile.userPatternProfile === undefined) (profile as Profile).userPatternProfile = null;
+    if (profile.telegramChatId === undefined) (profile as Profile).telegramChatId = null;
+    if (profile.telegramOptIn === undefined) (profile as Profile).telegramOptIn = false;
+    if (profile.telegramConnectedAt === undefined) (profile as Profile).telegramConnectedAt = null;
     return profile;
   }
 
@@ -274,6 +280,11 @@ export class LocalStore implements DhiraStore {
     const db = readDb();
     const variants = new Set(phoneE164LookupVariants(phoneE164));
     return db.profiles.find((p) => p.phoneE164 && variants.has(p.phoneE164)) ?? null;
+  }
+
+  async getProfileByTelegramChatId(chatId: string): Promise<Profile | null> {
+    const db = readDb();
+    return db.profiles.find((p) => p.telegramChatId === chatId) ?? null;
   }
 
   async allProfiles(): Promise<Profile[]> {

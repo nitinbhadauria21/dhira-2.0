@@ -75,7 +75,12 @@ export interface DueUser {
 export function toDueUser(profile: Profile): DueUser | null {
   const channel = resolveChannel(profile);
   if (!channel) return null;
-  const to = channel === 'email' ? profile.email : profile.phoneE164;
+  const to =
+    channel === 'email'
+      ? profile.email
+      : channel === 'whatsapp'
+        ? profile.phoneE164
+        : profile.telegramChatId;
   if (!to) return null;
   return {
     userId: profile.id,
