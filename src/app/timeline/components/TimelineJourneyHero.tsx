@@ -113,14 +113,14 @@ export default function TimelineJourneyHero() {
               <FloatingBuddy
                 src="/illustrations/dhira_sitting_hi.png"
                 alt=""
-                width={112}
+                width={90}
                 className="hidden sm:block timeline-buddy-desktop"
               />
               <FloatingBuddy
                 src="/illustrations/dhira_sitting_hi.png"
                 alt=""
-                width={88}
-                className="sm:hidden"
+                width={70}
+                className="sm:hidden timeline-buddy-mobile"
               />
             </div>
           </div>

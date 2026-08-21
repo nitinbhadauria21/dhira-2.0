@@ -17,19 +17,6 @@ const MOOD_SHORT: Partial<Record<MoodLabel, string>> = {
   neutral: 'Neutral',
 };
 
-const MOOD_STEP_BLURB: Partial<Record<MoodLabel, string>> = {
-  overwhelmed: 'Overwhelmed, stuck, unsure',
-  sad: 'Heavy, low, withdrawn',
-  stressed: 'Pressure, tight, on edge',
-  angry: 'Frustrated, heated, tense',
-  lonely: 'Apart, unseen, quiet',
-  anxious: 'Worry, tension, overthinking',
-  calm: 'More clarity, relief, in control',
-  hopeful: 'Lighter, forward-looking, steadier',
-  happy: 'Brighter, eased, more open',
-  neutral: 'Even, steady, in-between',
-};
-
 const MOOD_CAME_IN: Partial<Record<MoodLabel, string>> = {
   overwhelmed: 'Heavy emotions at the start',
   sad: 'Sadness sitting with you early on',
@@ -68,14 +55,6 @@ export interface ChatSession {
   topic: TopicTag | null;
 }
 
-export interface DayMovementStep {
-  order: number;
-  mood: MoodLabel;
-  label: string;
-  description: string;
-  color: string;
-}
-
 export interface TimelineChatDay {
   date: string;
   weekdayShort: string;
@@ -89,8 +68,8 @@ export interface TimelineChatDay {
   movement: {
     cameIn: { mood: MoodLabel; label: string; emoji: string; subtext: string };
     left: { mood: MoodLabel; label: string; emoji: string; subtext: string };
-    steps: DayMovementStep[];
-    insight: string;
+    shiftLabel: string;
+    narrative: [string, string, string];
   };
   highlights: { quote: string; time: string }[];
 }
@@ -220,26 +199,62 @@ function attachMoodsToSessions(sessions: ChatSession[], moods: MoodLogRecord[]):
   });
 }
 
-function buildInsight(steps: MoodLabel[], topics: (TopicTag | null)[]): string {
-  if (steps.length === 0) {
-    return 'When you talk with Dhira, your mood shifts will show up here — privately, without the full chat.';
-  }
-  if (steps.length === 1) {
-    return `You checked in feeling ${shortLabel(steps[0]).toLowerCase()}. Showing up to name it is already a step.`;
-  }
+const TOPIC_PHRASE: Record<TopicTag, string> = {
+  work: 'work pressure',
+  family: 'family',
+  relationships: 'relationships',
+  health: 'health',
+  finances: 'money worries',
+  self: 'your inner world',
+  other: 'what was on your mind',
+};
 
-  const start = steps[0];
-  const end = steps[steps.length - 1];
-  const topic = topics.find(Boolean);
-  const topicPhrase = topic ? ` around ${topic}` : '';
+function truncateSnippet(text: string, max = 48): string {
+  const t = text.trim();
+  if (t.length <= max) return t;
+  return `${t.slice(0, max - 1)}…`;
+}
+
+function buildNarrative(
+  start: MoodLabel,
+  end: MoodLabel,
+  topic: TopicTag | null,
+  userSnippet: string | null
+): [string, string, string] {
+  const topicPhrase = topic ? TOPIC_PHRASE[topic] : TOPIC_PHRASE.other;
+  const startL = shortLabel(start).toLowerCase();
+  const endL = shortLabel(end).toLowerCase();
+
+  const line1 = userSnippet
+    ? `You came in ${startL} — “${truncateSnippet(userSnippet)}” was part of what you shared.`
+    : `You came in feeling ${startL}, with ${topicPhrase} sitting close.`;
 
   if (isLighter(end, start)) {
-    return `Dhira heard you move from ${shortLabel(start).toLowerCase()} toward ${shortLabel(end).toLowerCase()}${topicPhrase}. You named what felt heavy, and something eased a little by the end — not fixed, just easier to carry.`;
+    return [
+      line1,
+      `Naming what felt urgent helped the ${startL} edge soften a little — not solved, just clearer.`,
+      `Dhira listened without advising, reflected your words back, and you left feeling a bit more ${endL}.`,
+    ];
   }
+
   if (start === end) {
-    return `Your mood stayed ${shortLabel(start).toLowerCase()} across today's chats${topicPhrase}. Dhira stayed with you there — no pressure to feel different.`;
+    return [
+      line1,
+      `The ${startL} feeling stayed — Dhira did not push you to feel different.`,
+      `You still had a quiet space to be heard, one gentle question at a time.`,
+    ];
   }
-  return `You came in ${shortLabel(start).toLowerCase()}${topicPhrase}. Some of that weight stayed — and you still showed up. That matters.`;
+
+  return [
+    line1,
+    `Today moved from ${startL} toward ${endL} in fits and starts — that is still movement.`,
+    `Dhira stayed with each turn, mirroring what you said without trying to fix it.`,
+  ];
+}
+
+function pickKeyMoods(arc: MoodLabel[]): { start: MoodLabel; end: MoodLabel } {
+  if (!arc.length) return { start: 'neutral', end: 'neutral' };
+  return { start: arc[0], end: arc[arc.length - 1] };
 }
 
 function pickHighlights(messages: ChatMessageRecord[], limit = 2): { quote: string; time: string }[] {
@@ -265,38 +280,33 @@ function pickHighlights(messages: ChatMessageRecord[], limit = 2): { quote: stri
   }));
 }
 
-function buildDayMovement(sessions: ChatSession[]): TimelineChatDay['movement'] {
+function buildDayMovement(
+  sessions: ChatSession[],
+  userSnippet: string | null
+): TimelineChatDay['movement'] {
   const arc = dedupeConsecutive(sessions.flatMap((s) => s.moods));
-  const fallbackStart: MoodLabel = arc[0] ?? 'neutral';
-  const fallbackEnd: MoodLabel = arc[arc.length - 1] ?? fallbackStart;
-  const steps: DayMovementStep[] = (arc.length ? arc : [fallbackStart, fallbackEnd]).map(
-    (mood, i) => ({
-      order: i + 1,
-      mood,
-      label: shortLabel(mood),
-      description: MOOD_STEP_BLURB[mood] ?? MOOD_COLORS[mood as MoodId]?.label ?? mood,
-      color: MOOD_COLORS[mood as MoodId]?.bg ?? '#B9B2A4',
-    })
-  );
+  const { start, end } = pickKeyMoods(arc);
+  const topic = sessions.map((s) => s.topic).find(Boolean) ?? null;
+  const shiftLabel =
+    arc.length > 1
+      ? `${shortLabel(start)} → ${shortLabel(end)}`
+      : shortLabel(start);
 
   return {
     cameIn: {
-      mood: fallbackStart,
-      label: shortLabel(fallbackStart),
-      emoji: MOOD_EMOJI[fallbackStart as MoodId] ?? '😶',
-      subtext: MOOD_CAME_IN[fallbackStart] ?? 'How you started the day',
+      mood: start,
+      label: shortLabel(start),
+      emoji: MOOD_EMOJI[start as MoodId] ?? '😶',
+      subtext: MOOD_CAME_IN[start] ?? 'How you started',
     },
     left: {
-      mood: fallbackEnd,
-      label: shortLabel(fallbackEnd),
-      emoji: MOOD_EMOJI[fallbackEnd as MoodId] ?? '😶',
-      subtext: MOOD_LEFT[fallbackEnd] ?? 'How you ended the day',
+      mood: end,
+      label: shortLabel(end),
+      emoji: MOOD_EMOJI[end as MoodId] ?? '😶',
+      subtext: MOOD_LEFT[end] ?? 'How you ended',
     },
-    steps,
-    insight: buildInsight(
-      arc.length ? arc : [fallbackStart, fallbackEnd],
-      sessions.map((s) => s.topic)
-    ),
+    shiftLabel,
+    narrative: buildNarrative(start, end, topic, userSnippet),
   };
 }
 
@@ -359,6 +369,7 @@ export function buildTimelineChatWeek(
           : '';
 
     const dayMessages = daySessions.flatMap((s) => s.messages);
+    const highlights = pickHighlights(dayMessages);
 
     days.push({
       date,
@@ -370,8 +381,8 @@ export function buildTimelineChatWeek(
       bubbles,
       moodArc,
       moodArcDisplay,
-      movement: buildDayMovement(daySessions),
-      highlights: pickHighlights(dayMessages),
+      movement: buildDayMovement(daySessions, highlights[0]?.quote ?? null),
+      highlights,
     });
   }
 
