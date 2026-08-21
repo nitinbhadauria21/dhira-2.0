@@ -18,7 +18,7 @@ export function languageForTurn(params: {
   userMessage: string;
   profileLanguage: Language;
 }): Language {
-  if (params.channel === 'whatsapp' || params.channel === 'telegram') {
+  if (params.channel === 'whatsapp' || params.channel === 'telegram' || params.channel === 'email') {
     return inferLanguageFromMessage(params.userMessage, params.profileLanguage);
   }
   return params.profileLanguage;

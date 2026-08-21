@@ -1,4 +1,5 @@
 import type { CheckinFrequency, Profile } from '@/lib/types';
+import { resolveNotificationEmail } from '@/lib/email/address';
 import { resolveChannel } from '@/lib/notify';
 
 /** Local clock parts in a user's timezone. */
@@ -77,7 +78,7 @@ export function toDueUser(profile: Profile): DueUser | null {
   if (!channel) return null;
   const to =
     channel === 'email'
-      ? profile.email
+      ? resolveNotificationEmail(profile)
       : channel === 'whatsapp'
         ? profile.phoneE164
         : profile.telegramChatId;

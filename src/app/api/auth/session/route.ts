@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStore } from '@/lib/store';
 import { verifySupabaseToken, attachSessionCookie } from '@/lib/auth';
+import { normalizeEmail } from '@/lib/email/address';
 import { isLanguage, normalizeLanguage } from '@/lib/languages';
 import type { Profile } from '@/lib/types';
 import { normalizePhoneE164 } from '@/lib/twilio/phone';
@@ -20,9 +21,14 @@ type SessionProfileFields = {
 async function syncSessionProfile(uid: string, fields: SessionProfileFields): Promise<void> {
   const { email, phone, alias, state, city, language } = fields;
   const store = getStore();
-  await store.getOrCreateProfile(uid);
+  const existing = await store.getOrCreateProfile(uid);
   const patch: Partial<Profile> = {};
-  if (typeof email === 'string') patch.email = email;
+  if (typeof email === 'string') {
+    const normalized = normalizeEmail(email);
+    if (normalized && !existing.email?.trim()) {
+      patch.email = normalized;
+    }
+  }
   if (typeof phone === 'string' && phone.trim()) {
     patch.phoneE164 = normalizePhoneE164(phone).slice(0, 20);
   }

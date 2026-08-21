@@ -129,6 +129,12 @@ create table if not exists telegram_processed_updates (
 );
 create index if not exists telegram_processed_updates_at_idx on telegram_processed_updates(processed_at);
 
+create table if not exists email_processed_messages (
+  message_id    text primary key,
+  processed_at  timestamptz not null default now()
+);
+create index if not exists email_processed_messages_at_idx on email_processed_messages(processed_at);
+
 -- ── Row-Level Security ──────────────────────────────────────────────────────
 alter table profiles      enable row level security;
 alter table chat_messages enable row level security;

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserId } from '@/lib/auth';
+import { normalizeEmail } from '@/lib/email/address';
 import { getStore } from '@/lib/store';
 import type { Profile } from '@/lib/types';
 import { isLanguage, normalizeLanguage } from '@/lib/languages';
@@ -41,7 +42,18 @@ export async function PUT(req: NextRequest) {
     if (typeof body.avatar === 'string') patch.avatar = body.avatar;
     if (isLanguage(body.language)) patch.language = body.language;
     else if (typeof body.language === 'string') patch.language = normalizeLanguage(body.language);
-    if (typeof body.email === 'string') patch.email = body.email.slice(0, 200);
+    if (typeof body.email === 'string') {
+      const trimmed = body.email.trim();
+      if (!trimmed) {
+        patch.email = null;
+      } else {
+        const normalized = normalizeEmail(trimmed);
+        if (!normalized) {
+          return NextResponse.json({ error: 'That email address does not look quite right.' }, { status: 400 });
+        }
+        patch.email = normalized;
+      }
+    }
     if (typeof body.phoneE164 === 'string') {
       const raw = body.phoneE164.trim();
       patch.phoneE164 = raw ? normalizePhoneE164(raw).slice(0, 20) : null;

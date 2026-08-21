@@ -99,9 +99,9 @@ export async function GET(request: Request) {
 
   try {
     const store = getStore();
-    await store.getOrCreateProfile(uid);
+    const existing = await store.getOrCreateProfile(uid);
     const patch: Partial<Profile> = {};
-    if (email) patch.email = email;
+    if (email && !existing.email?.trim()) patch.email = email;
     if (alias) patch.alias = alias.slice(0, 60);
     if (Object.keys(patch).length) await store.updateProfile(uid, patch);
     await setSession(uid);

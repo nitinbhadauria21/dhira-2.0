@@ -5,6 +5,7 @@ import { getLiveBrainTelemetry } from '@/lib/liveBrainTelemetry';
 import { offlinePolicyLabel, allowOfflineDemo } from '@/lib/brainPolicy';
 import { LIVE_PROMPT_VERSION } from '@/agents/prompts/agentPromptsLive';
 import { isTelegramEnabled } from '@/lib/telegram/bot';
+import { isEmailEnabled, resolveEmailProviderMode } from '@/lib/email/resend';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -42,6 +43,13 @@ export async function GET() {
       enabled: isTelegramEnabled(),
       inboundChat: true,
       webhookSecretConfigured: Boolean(process.env.TELEGRAM_WEBHOOK_SECRET?.trim()),
+    },
+    email: {
+      enabled: isEmailEnabled(),
+      provider: resolveEmailProviderMode(),
+      inboundChat: true,
+      fromConfigured: Boolean(process.env.EMAIL_FROM?.trim()),
+      webhookSecretConfigured: Boolean(process.env.RESEND_WEBHOOK_SECRET?.trim()),
     },
   });
 }

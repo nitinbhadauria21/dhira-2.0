@@ -483,6 +483,14 @@ export class SupabaseStore implements DhiraStore {
     return data ? toProfile(data) : null;
   }
 
+  async getProfileByEmail(email: string): Promise<Profile | null> {
+    const normalized = email.trim().toLowerCase();
+    if (!normalized) return null;
+    const sb = client();
+    const { data } = await sb.from('profiles').select('*').eq('email', normalized).maybeSingle();
+    return data ? toProfile(data) : null;
+  }
+
   async allProfiles(): Promise<Profile[]> {
     const sb = client();
     const { data } = await sb.from('profiles').select('*');

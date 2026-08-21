@@ -72,3 +72,14 @@ export function telegramConnectionTestMessage(alias: string, lang: Language): st
   }
   return `Hey ${alias} — Dhira this side. Telegram is connected. I'm here whenever you feel like talking. (${languageDisplayName(lang)} preferred.)`;
 }
+
+/** Warm test line for email delivery check. */
+export function emailConnectionTestMessage(alias: string, lang: Language): string {
+  if (lang === 'english') {
+    return `Hey ${alias} — this is a quick test from Dhira. Email check-ins are set up. I'm here whenever you feel like talking.`;
+  }
+  if (usesHindiMix(lang)) {
+    return `Hey ${alias} — yeh ek chhota test email hai. Check-ins ke liye email ready hai. Main yahin hoon jab bhi baat karni ho.`;
+  }
+  return `Hey ${alias} — Dhira this side. Your email for check-ins is connected. I'm here whenever you feel like talking. (${languageDisplayName(lang)} preferred.)`;
+}

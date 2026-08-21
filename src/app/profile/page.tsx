@@ -62,6 +62,9 @@ function ProfileContent() {
   const [telegramLinkPending, setTelegramLinkPending] = useState(false);
   const [telegramActionMessage, setTelegramActionMessage] = useState<string | null>(null);
   const [telegramBusy, setTelegramBusy] = useState(false);
+  const [emailEnabled, setEmailEnabled] = useState(false);
+  const [emailActionMessage, setEmailActionMessage] = useState<string | null>(null);
+  const [emailBusy, setEmailBusy] = useState(false);
 
   const refreshTelegramStatus = async () => {
     try {
@@ -87,12 +90,14 @@ function ProfileContent() {
     (async () => {
       const localShift = readStoredShift();
       try {
-        const [profileRes, telegramRes] = await Promise.all([
+        const [profileRes, telegramRes, statusRes] = await Promise.all([
           fetch('/api/profile'),
           fetch('/api/telegram/link'),
+          fetch('/api/status'),
         ]);
         const { profile: p } = await profileRes.json();
         const tg = telegramRes.ok ? await telegramRes.json() : null;
+        const status = statusRes.ok ? await statusRes.json() : null;
         if (!cancelled && p) {
           setProfile({
             alias: p.alias,
@@ -110,6 +115,7 @@ function ProfileContent() {
             shift: p.shift ?? localShift,
           });
           setTelegramEnabled(!!tg?.telegramEnabled);
+          setEmailEnabled(!!status?.email?.enabled);
         } else if (!cancelled) {
           setProfile((current) => ({ ...current, shift: localShift }));
         }
@@ -188,6 +194,25 @@ function ProfileContent() {
       setTelegramActionMessage('Could not disconnect Telegram.');
     } finally {
       setTelegramBusy(false);
+    }
+  };
+
+  const handleTestEmail = async () => {
+    setEmailBusy(true);
+    setEmailActionMessage(null);
+    try {
+      await handleSave();
+      const res = await fetch('/api/email/test', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) {
+        setEmailActionMessage(data.error ?? 'Test email failed.');
+        return;
+      }
+      setEmailActionMessage('Test email sent — check your inbox.');
+    } catch {
+      setEmailActionMessage('Test email failed.');
+    } finally {
+      setEmailBusy(false);
     }
   };
 
@@ -950,6 +975,36 @@ function ProfileContent() {
                         outline: 'none',
                       }}
                     />
+                    {emailEnabled && (
+                      <div style={{ marginTop: '10px' }}>
+                        <button
+                          type="button"
+                          onClick={() => void handleTestEmail()}
+                          disabled={emailBusy}
+                          className="text-sm font-medium px-4 py-2 rounded-control transition-colors"
+                          style={{
+                            border: '1.5px solid var(--color-border)',
+                            backgroundColor: 'var(--color-surface-alt)',
+                            color: 'var(--color-text)',
+                            cursor: emailBusy ? 'wait' : 'pointer',
+                          }}
+                        >
+                          {emailBusy ? 'Sending…' : 'Send test email'}
+                        </button>
+                        {emailActionMessage && (
+                          <p
+                            style={{
+                              marginTop: '8px',
+                              fontSize: '13px',
+                              color: 'var(--color-text-muted)',
+                              fontFamily: 'var(--font-ui)',
+                            }}
+                          >
+                            {emailActionMessage}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
                   {/* Phone */}
                   <div>

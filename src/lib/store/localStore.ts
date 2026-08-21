@@ -287,6 +287,13 @@ export class LocalStore implements DhiraStore {
     return db.profiles.find((p) => p.telegramChatId === chatId) ?? null;
   }
 
+  async getProfileByEmail(email: string): Promise<Profile | null> {
+    const normalized = email.trim().toLowerCase();
+    if (!normalized) return null;
+    const db = readDb();
+    return db.profiles.find((p) => p.email?.trim().toLowerCase() === normalized) ?? null;
+  }
+
   async allProfiles(): Promise<Profile[]> {
     return readDb().profiles;
   }

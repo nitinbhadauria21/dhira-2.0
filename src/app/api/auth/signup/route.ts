@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStore, isSupabaseAuthConfigured } from '@/lib/store';
 import { hashPassword, setSession, newUserId, verifySupabaseToken } from '@/lib/auth';
+import { normalizeEmail } from '@/lib/email/address';
 import { createClient } from '@supabase/supabase-js';
 import { isLanguage, normalizeLanguage } from '@/lib/languages';
 
@@ -19,6 +20,8 @@ export async function POST(req: NextRequest) {
   try {
     const { email, password, alias, state, city, language } = await req.json().catch(() => ({}));
     if (!EMAIL_RE.test(email ?? '')) return NextResponse.json({ error: 'A valid email is required' }, { status: 400 });
+    const normalizedEmail = normalizeEmail(email ?? '');
+    if (!normalizedEmail) return NextResponse.json({ error: 'A valid email is required' }, { status: 400 });
     if (typeof password !== 'string' || password.length < 6) {
       return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 });
     }
@@ -37,7 +40,7 @@ export async function POST(req: NextRequest) {
         { auth: { persistSession: false } }
       );
       const { data, error } = await sb.auth.admin.createUser({
-        email,
+        email: normalizedEmail,
         password,
         email_confirm: true,
         user_metadata: { alias: alias || 'Friend' },
@@ -47,7 +50,7 @@ export async function POST(req: NextRequest) {
       const store = getStore();
       await store.getOrCreateProfile(uid);
       await store.updateProfile(uid, { 
-        email, 
+        email: normalizedEmail, 
         alias: alias || 'Friend',
         state: state.trim().slice(0, 80),
         city: city.trim().slice(0, 80),
@@ -59,20 +62,20 @@ export async function POST(req: NextRequest) {
 
     // Dev mode — local JSON store
     const store = getStore();
-    const existing = await store.getAuthUserByEmail(email);
+    const existing = await store.getAuthUserByEmail(normalizedEmail);
     if (existing) return NextResponse.json({ error: 'An account with this email already exists' }, { status: 409 });
 
     const id = newUserId();
     await store.createAuthUser({
       id,
-      email,
+      email: normalizedEmail,
       phoneE164: null,
       passwordHash: hashPassword(password),
       createdAt: new Date().toISOString(),
     });
     await store.getOrCreateProfile(id);
     await store.updateProfile(id, {
-      email,
+      email: normalizedEmail,
       alias: alias || 'Friend',
       state: state.trim().slice(0, 80),
       city: city.trim().slice(0, 80),

@@ -56,6 +56,10 @@ export function formatContextForMonitor(
     parts.push(
       'CURRENT CHANNEL: Telegram (merge with app chat for this user when Telegram is connected on their profile).',
     );
+  } else if (extras?.channel === 'email') {
+    parts.push(
+      'CURRENT CHANNEL: Email (merge with app chat for this user when their profile check-in email is set).',
+    );
   }
   if (extras?.contextUnavailable) {
     parts.push('context_unavailable: true');
@@ -237,6 +241,10 @@ export function buildPrimaryMessageBundle(params: {
   } else if (params.channel === 'telegram') {
     systemParts.push(
       'CURRENT CHANNEL: Telegram — same person and thread as in-app chat when their profile is linked via Connect Telegram. Match the language of their latest message.',
+    );
+  } else if (params.channel === 'email') {
+    systemParts.push(
+      'CURRENT CHANNEL: Email — same person and thread as in-app chat when their profile check-in email matches. Match the language of their latest message.',
     );
   }
   systemParts.push(`(The user is writing in ${params.language}. Match their language.)`);

@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import twilio from 'twilio';
 import { normalizeTwilioWhatsAppAddress } from '@/lib/twilio/phone';
+import { resolveNotificationEmail } from '@/lib/email/address';
 import { getStore } from '@/lib/store';
 import type { NotifyChannel, NotificationType, Profile, NotificationRecord } from '@/lib/types';
 
@@ -22,7 +23,7 @@ const TELEGRAM_ENABLED = process.env.TELEGRAM_ENABLED === 'true';
 
 /** Pick the channel to use for this user, honoring consent + availability. */
 export function resolveChannel(profile: Profile): NotifyChannel | null {
-  const canEmail = profile.emailOptIn && !!profile.email;
+  const canEmail = !!resolveNotificationEmail(profile);
   const canWhatsapp = WHATSAPP_ENABLED && profile.whatsappOptIn && !!profile.phoneE164;
   const canTelegram =
     TELEGRAM_ENABLED && profile.telegramOptIn && !!profile.telegramChatId;
@@ -144,46 +145,84 @@ export async function enqueueAndSend(params: EnqueueParams): Promise<Notificatio
     }
   }
 
-  // Fallback for Email channel -> Emergent
-  const webhook = process.env.EMERGENT_NOTIFY_WEBHOOK_URL?.trim();
-  if (!webhook) {
-    await store.updateNotificationStatus(record.id, 'sent', 'dev-simulated');
-    return { ...record, status: 'sent', providerMessageId: 'dev-simulated' };
-  }
-
-  try {
-    const res = await fetch(webhook, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-emergent-secret': process.env.EMERGENT_WEBHOOK_SECRET ?? '',
-      },
-      body: JSON.stringify({
-        notificationId: record.id,
-        channel,
-        to: params.profile.email,
-        type: params.type,
-        templateKey,
-        subject,
-        alias: params.profile.alias,
-        language: params.profile.language,
-        content: params.content,
-        callbackUrl: process.env.APP_URL ? `${process.env.APP_URL}/api/notifications/callback` : undefined,
-      }),
-    });
-
-    let providerMessageId: string | null = null;
-    try {
-      const body = (await res.json()) as { providerMessageId?: string; id?: string };
-      providerMessageId = body.providerMessageId ?? body.id ?? null;
-    } catch {
-      /* Emergent may return empty body */
+  if (channel === 'email') {
+    const to = resolveNotificationEmail(params.profile);
+    if (!to) {
+      await store.updateNotificationStatus(record.id, 'failed');
+      return { ...record, status: 'failed' };
     }
 
-    await store.updateNotificationStatus(record.id, res.ok ? 'sent' : 'failed', providerMessageId);
-    return { ...record, status: res.ok ? 'sent' : 'failed', providerMessageId };
-  } catch {
-    await store.updateNotificationStatus(record.id, 'failed');
-    return { ...record, status: 'failed' };
+    const emailSubject = subject ?? 'Message from Dhira';
+    const { isEmailEnabled, sendEmail, buildCheckinEmailHtml, checkinEmailPlainText } =
+      await import('@/lib/email/resend');
+
+    if (isEmailEnabled()) {
+      const weeklyFooter =
+        'Your full week view is in My Dhira → Timeline.\n\nTele-MANAS 14416 is always there if you need a human tonight.';
+      const footerExtra = params.type === 'weekly_summary' ? weeklyFooter : undefined;
+      const text = checkinEmailPlainText(params.profile.alias, params.content, footerExtra);
+      const html = buildCheckinEmailHtml(params.profile.alias, params.content, footerExtra);
+      const replyTo = process.env.EMAIL_REPLY_TO?.trim() || undefined;
+
+      const result = await sendEmail({
+        to,
+        subject: emailSubject,
+        text,
+        html,
+        replyTo,
+      });
+
+      if (result.ok) {
+        await store.updateNotificationStatus(record.id, 'sent', result.messageId);
+        return { ...record, status: 'sent', providerMessageId: result.messageId };
+      }
+      await store.updateNotificationStatus(record.id, 'failed');
+      return { ...record, status: 'failed' };
+    }
+
+    const webhook = process.env.EMERGENT_NOTIFY_WEBHOOK_URL?.trim();
+    if (!webhook) {
+      await store.updateNotificationStatus(record.id, 'sent', 'dev-simulated');
+      return { ...record, status: 'sent', providerMessageId: 'dev-simulated' };
+    }
+
+    try {
+      const res = await fetch(webhook, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-emergent-secret': process.env.EMERGENT_WEBHOOK_SECRET ?? '',
+        },
+        body: JSON.stringify({
+          notificationId: record.id,
+          channel,
+          to,
+          type: params.type,
+          templateKey,
+          subject,
+          alias: params.profile.alias,
+          language: params.profile.language,
+          content: params.content,
+          callbackUrl: process.env.APP_URL ? `${process.env.APP_URL}/api/notifications/callback` : undefined,
+        }),
+      });
+
+      let providerMessageId: string | null = null;
+      try {
+        const body = (await res.json()) as { providerMessageId?: string; id?: string };
+        providerMessageId = body.providerMessageId ?? body.id ?? null;
+      } catch {
+        /* Emergent may return empty body */
+      }
+
+      await store.updateNotificationStatus(record.id, res.ok ? 'sent' : 'failed', providerMessageId);
+      return { ...record, status: res.ok ? 'sent' : 'failed', providerMessageId };
+    } catch {
+      await store.updateNotificationStatus(record.id, 'failed');
+      return { ...record, status: 'failed' };
+    }
   }
+
+  await store.updateNotificationStatus(record.id, 'failed');
+  return { ...record, status: 'failed' };
 }
