@@ -33,6 +33,7 @@ import {
   contextHasElevatedRisk,
 } from '@/lib/riskSanity';
 import { sanitizeDhiraReplyForDisplay } from '@/lib/dhiraReplySanitize';
+import { draftEchoesUserMessage, voiceAntiEchoFallback } from '@/lib/voice/antiEcho';
 import type { ChatChannel, RiskLevel } from '@/lib/types';
 import type { EscalationResult } from '@/lib/types';
 import { languageForTurn } from '@/lib/inferLanguage';
@@ -306,8 +307,21 @@ export async function runChatTurn(params: {
       userPatternProfile: profile.userPatternProfile,
       recentSentReplies: convo.recentSentReplies,
       contextUnavailable: convo.contextUnavailable,
+      channel,
     });
     reviewed = sanityCheckMonitor(userMessage, convo.contextString, reviewed);
+
+    if (
+      channel === 'voice' &&
+      draftEchoesUserMessage(userMessage, reviewed.approved_or_rewritten_response)
+    ) {
+      reviewed = {
+        ...reviewed,
+        decision: 'REWRITE',
+        issues_found: [...(reviewed.issues_found ?? []), 'voice_echo_guard'],
+        approved_or_rewritten_response: voiceAntiEchoFallback(turnLanguage),
+      };
+    }
     logChatTiming('monitor_done', brainStarted);
 
     if (liveCriticalFailedDuringTurn(criticalFailuresAtTurnStart) && !mayUseOfflineDemoTemplates()) {

@@ -19,9 +19,36 @@ type LogTurn = {
 };
 
 type VoiceSessionPayload =
-  | { connectionType: 'websocket'; signedUrl: string; agentId?: string; uid?: string; customLlmEnabled?: boolean }
-  | { connectionType: 'webrtc'; conversationToken: string; agentId?: string; uid?: string; customLlmEnabled?: boolean }
-  | { connectionType: 'webrtc'; agentId: string; uid?: string; customLlmEnabled?: boolean };
+  | {
+      connectionType: 'websocket';
+      signedUrl: string;
+      agentId?: string;
+      uid?: string;
+      customLlmEnabled?: boolean;
+      voice?: VoiceSessionVoiceConfig;
+    }
+  | {
+      connectionType: 'webrtc';
+      conversationToken: string;
+      agentId?: string;
+      uid?: string;
+      customLlmEnabled?: boolean;
+      voice?: VoiceSessionVoiceConfig;
+    }
+  | {
+      connectionType: 'webrtc';
+      agentId: string;
+      uid?: string;
+      customLlmEnabled?: boolean;
+      voice?: VoiceSessionVoiceConfig;
+    };
+
+type VoiceSessionVoiceConfig = {
+  primaryLanguage: string;
+  secondaryLanguage: string | null;
+  elevenLabsLanguage: string;
+  firstMessage: string;
+};
 
 function formatClock() {
   return new Date().toLocaleTimeString('en-IN', {
@@ -217,6 +244,27 @@ function ElevenLabsWidgetInner({
           }
         : {};
 
+      const voiceConfig = sessionJson.voice;
+      const sessionOverrides =
+        voiceConfig?.elevenLabsLanguage && voiceConfig.firstMessage
+          ? {
+              overrides: {
+                agent: {
+                  language: voiceConfig.elevenLabsLanguage as 'en',
+                  firstMessage: voiceConfig.firstMessage,
+                },
+              },
+            }
+          : voiceConfig?.elevenLabsLanguage
+            ? {
+                overrides: {
+                  agent: {
+                    language: voiceConfig.elevenLabsLanguage as 'en',
+                  },
+                },
+              }
+            : {};
+
       try {
         micStreamRef.current = await navigator.mediaDevices.getUserMedia({
           audio: {
@@ -248,6 +296,7 @@ function ElevenLabsWidgetInner({
           signedUrl: sessionJson.signedUrl,
           connectionType: 'websocket',
           useWakeLock: true,
+          ...sessionOverrides,
           ...voiceSessionExtras,
         });
       } else if ('conversationToken' in sessionJson && sessionJson.conversationToken) {
@@ -255,6 +304,7 @@ function ElevenLabsWidgetInner({
           conversationToken: sessionJson.conversationToken,
           connectionType: 'webrtc',
           useWakeLock: true,
+          ...sessionOverrides,
           ...voiceSessionExtras,
         });
       } else if ('agentId' in sessionJson && sessionJson.agentId) {
@@ -262,6 +312,7 @@ function ElevenLabsWidgetInner({
           agentId: sessionJson.agentId,
           connectionType: 'webrtc',
           useWakeLock: true,
+          ...sessionOverrides,
           ...voiceSessionExtras,
         });
       } else {

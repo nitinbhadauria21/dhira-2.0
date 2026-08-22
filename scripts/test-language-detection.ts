@@ -68,9 +68,9 @@ if (enFromTeluguMain !== 'english') {
   console.log('OK  English when Telugu is main');
 }
 
-console.log('\n=== Voice (ElevenLabs Custom LLM uses channel app — same detection) ===');
+console.log('\n=== Voice channel (Talk to Dhira only) ===');
 const voiceTelugu = languageForTurn({
-  channel: 'app',
+  channel: 'voice',
   userMessage: NATIVE_SAMPLES.telugu!,
   profileLanguage: 'english',
   profileLanguage2: 'telugu',
@@ -79,7 +79,20 @@ if (voiceTelugu !== 'telugu') {
   console.error('FAIL voice path telugu detection', voiceTelugu);
   failed++;
 } else {
-  console.log('OK  Voice turn would use Telugu for Telugu transcript');
+  console.log('OK  Voice turn uses Telugu for Telugu transcript');
+}
+
+const appStillEnglish = languageForTurn({
+  channel: 'app',
+  userMessage: 'Hello how are you',
+  profileLanguage: 'english',
+  profileLanguage2: 'telugu',
+});
+if (appStillEnglish !== 'english') {
+  console.error('FAIL app channel should stay english for hello', appStillEnglish);
+  failed++;
+} else {
+  console.log('OK  App chat unchanged for English hello with Telugu as language 2');
 }
 
 if (failed > 0) {

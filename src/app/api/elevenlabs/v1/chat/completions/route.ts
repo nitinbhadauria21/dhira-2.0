@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
     const { result, postReply } = await runChatTurn({
       uid,
       userMessage,
-      channel: 'app',
+      channel: 'voice',
     });
 
     if (postReply) {

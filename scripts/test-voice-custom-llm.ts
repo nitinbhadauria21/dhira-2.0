@@ -87,7 +87,7 @@ check(
   check('route content-type is event-stream', (res.headers.get('content-type') ?? '').includes('text/event-stream'));
   const routeSse = await res.text();
   check('route streams non-empty Dhira reply', routeSse.includes('"content"') && routeSse.includes('data: [DONE]'));
-  check('route uses channel app brain (offline holding or reply)', routeSse.length > 80);
+  check('route uses channel voice brain (offline holding or reply)', routeSse.length > 80);
 
   console.log(`\n${passed} passed, ${failed} failed\n`);
   process.exit(failed > 0 ? 1 : 0);

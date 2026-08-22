@@ -2,6 +2,10 @@ import { getStore } from '@/lib/store';
 import type { ClaudeTurn } from '@/lib/anthropic';
 import type { ChatChannel, ChatMessageRecord, Language, RiskEventRecord } from '@/lib/types';
 import { languagePreferencesInstruction } from '@/lib/languages';
+import {
+  VOICE_DELIVERY_INSTRUCTION,
+  voiceMultilingualInstruction,
+} from '@/lib/voice/elevenLabsVoice';
 import { CRISIS_MESSAGE } from '@/lib/safetyCopy';
 
 export const ESCALATE_CRISIS_TOKEN = 'ESCALATE_CRISIS';
@@ -60,6 +64,10 @@ export function formatContextForMonitor(
   } else if (extras?.channel === 'email') {
     parts.push(
       'CURRENT CHANNEL: Email (merge with app chat for this user when their profile check-in email is set).',
+    );
+  } else if (extras?.channel === 'voice') {
+    parts.push(
+      'CURRENT CHANNEL: Talk to Dhira (live voice). Replies will be spoken aloud — keep them concise and natural for speech.',
     );
   }
   if (extras?.contextUnavailable) {
@@ -248,8 +256,15 @@ export function buildPrimaryMessageBundle(params: {
     systemParts.push(
       'CURRENT CHANNEL: Email — same person and thread as in-app chat when their profile check-in email matches. Match the language of their latest message.',
     );
+  } else if (params.channel === 'voice') {
+    systemParts.push(
+      'CURRENT CHANNEL: Talk to Dhira (live voice — spoken aloud). Same person and memory as in-app chat.',
+    );
+    systemParts.push(VOICE_DELIVERY_INSTRUCTION);
+    systemParts.push(voiceMultilingualInstruction(params.language, params.language2));
+  } else {
+    systemParts.push(languagePreferencesInstruction(params.language, params.language2));
   }
-  systemParts.push(languagePreferencesInstruction(params.language, params.language2));
 
   return {
     systemAppendix: systemParts.join('\n\n'),

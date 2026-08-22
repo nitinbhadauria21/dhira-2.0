@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getUserId } from '@/lib/auth';
+import { getStore } from '@/lib/store';
+import {
+  buildVoiceFirstMessage,
+  mapDhiraLanguageToElevenLabs,
+} from '@/lib/voice/elevenLabsVoice';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -20,6 +25,21 @@ function elevenLabsApiKey(): string | null {
   return key;
 }
 
+async function voiceSessionExtras(uid: string) {
+  const store = getStore();
+  const profile = await store.getOrCreateProfile(uid);
+  return {
+    uid,
+    customLlmEnabled: process.env.DHIRA_VOICE_CUSTOM_LLM === 'true',
+    voice: {
+      primaryLanguage: profile.language,
+      secondaryLanguage: profile.language2,
+      elevenLabsLanguage: mapDhiraLanguageToElevenLabs(profile.language),
+      firstMessage: buildVoiceFirstMessage(profile.alias, profile.language),
+    },
+  };
+}
+
 /**
  * GET /api/elevenlabs/session
  *
@@ -35,6 +55,7 @@ export async function GET() {
 
   const agentId = agentIdFromEnv();
   const apiKey = elevenLabsApiKey();
+  const extras = await voiceSessionExtras(uid);
 
   if (apiKey) {
     const signedRes = await fetch(
@@ -52,8 +73,7 @@ export async function GET() {
           agentId,
           connectionType: 'websocket' as const,
           signedUrl: body.signed_url,
-          uid,
-          customLlmEnabled: process.env.DHIRA_VOICE_CUSTOM_LLM === 'true',
+          ...extras,
         });
       }
     }
@@ -73,8 +93,7 @@ export async function GET() {
           agentId,
           connectionType: 'webrtc' as const,
           conversationToken: body.token,
-          uid,
-          customLlmEnabled: process.env.DHIRA_VOICE_CUSTOM_LLM === 'true',
+          ...extras,
         });
       }
     }
@@ -90,7 +109,6 @@ export async function GET() {
   return NextResponse.json({
     agentId,
     connectionType: 'webrtc' as const,
-    uid,
-    customLlmEnabled: process.env.DHIRA_VOICE_CUSTOM_LLM === 'true',
+    ...extras,
   });
 }
