@@ -131,6 +131,39 @@ const toRisk = (r: any): RiskEventRecord => ({
 });
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
+function ephemeralProfile(id: string): Profile {
+  const now = new Date().toISOString();
+  return {
+    id,
+    alias: 'Friend',
+    avatar: 'moon',
+    language: 'english',
+    language2: null,
+    email: null,
+    phoneE164: null,
+    preferredChannel: 'email',
+    emailOptIn: true,
+    whatsappOptIn: false,
+    telegramChatId: null,
+    telegramOptIn: false,
+    telegramConnectedAt: null,
+    timezone: 'Asia/Kolkata',
+    state: null,
+    city: null,
+    shift: 'day',
+    voicePreference: null,
+    consentCheckin: true,
+    consentMemory: true,
+    checkinFrequency: 'daily',
+    checkinWindow: '22:00-23:00',
+    lastProactiveAt: null,
+    lastWeeklyAt: null,
+    userPatternProfile: null,
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
 export class SupabaseStore implements DhiraStore {
   async getOrCreateProfile(id: string): Promise<Profile> {
     const sb = client();
@@ -181,7 +214,14 @@ export class SupabaseStore implements DhiraStore {
         ({ data: inserted, error } = await sb.from('profiles').insert(baseRow).select('*').single());
       }
     }
-    if (error) throw error;
+    if (error) {
+      const code = (error as { code?: string }).code;
+      if (code === '23503') {
+        console.error('[store] profile insert blocked — auth user missing for id', id);
+        return ephemeralProfile(id);
+      }
+      throw error;
+    }
     return toProfile(inserted);
   }
 
