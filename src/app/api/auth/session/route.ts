@@ -58,9 +58,11 @@ export async function POST(req: NextRequest) {
     const res = NextResponse.json({ userId: uid });
     attachSessionCookie(res, uid);
 
-    void syncSessionProfile(uid, { email, phone, alias, state, city, language }).catch((err) =>
-      console.error('[api/auth/session] profile sync', err)
-    );
+    try {
+      await syncSessionProfile(uid, { email, phone, alias, state, city, language });
+    } catch (err) {
+      console.error('[api/auth/session] profile sync', err);
+    }
 
     return res;
   } catch (err) {

@@ -3,6 +3,7 @@ import { after } from 'next/server';
 import { runChatTurn } from '@/lib/chatFlow';
 import { runChatTurnPostReplyEnrichment } from '@/lib/chatTurnPostReply';
 import { CRISIS_MESSAGE } from '@/lib/safetyCopy';
+import { ALL_PROFILE_LANGUAGES } from '@/lib/languages';
 import {
   authorizeElevenLabsCustomLlm,
   extractDhiraUidFromExtraBody,
@@ -11,7 +12,6 @@ import {
   latestUserMessage,
   voiceCustomLlmSecret,
 } from '@/lib/elevenlabs/customLlmAuth';
-import { getStore } from '@/lib/store';
 import { encodeAssistantReplyAsSse, sseResponse } from '@/lib/elevenlabs/openaiSse';
 
 export const runtime = 'nodejs';
@@ -59,15 +59,13 @@ export async function POST(req: NextRequest) {
 
   const userMessage = latestUserMessage(body.messages);
   if (!userMessage) {
-    return NextResponse.json({ error: 'no user message in messages[]' }, { status: 400 });
+    // ElevenLabs may ping Custom LLM before the user speaks — must not 400 or the agent drops the call.
+    const model =
+      typeof body.model === 'string' && body.model.trim() ? body.model.trim() : 'dhira';
+    return sseResponse(encodeAssistantReplyAsSse(' ', model));
   }
 
-  const store = getStore();
-  const profile = await store.getOrCreateProfile(uid);
-  const profileLanguages = [profile.language, profile.language2].filter(
-    (lang): lang is NonNullable<typeof lang> => Boolean(lang),
-  );
-  const detectedLanguageHint = extractVoiceLanguageHint(extra, profileLanguages);
+  const detectedLanguageHint = extractVoiceLanguageHint(extra, ALL_PROFILE_LANGUAGES);
 
   const model = typeof body.model === 'string' && body.model.trim() ? body.model.trim() : 'dhira';
 

@@ -247,38 +247,49 @@ function ElevenLabsWidgetInner({
         : {};
 
       const voiceConfig = sessionJson.voice;
-      const sessionOverrides = ((): {
-        overrides?: {
-          agent: {
-            language: AgentLanguageOverride;
-            firstMessage?: string;
-          };
-        };
-      } => {
-        if (!voiceConfig?.elevenLabsLanguage) return {};
-        const agent: {
-          language: AgentLanguageOverride;
-          firstMessage?: string;
-        } = {
-          language: voiceConfig.elevenLabsLanguage,
-        };
-        if (voiceConfig.firstMessage) agent.firstMessage = voiceConfig.firstMessage;
-        return { overrides: { agent } };
-      })();
+      // With Custom LLM, skip client overrides — dashboard + Dhira brain handle speech; overrides often drop calls.
+      const sessionOverrides =
+        sessionJson.customLlmEnabled || !voiceConfig?.elevenLabsLanguage
+          ? {}
+          : (() => {
+              const agent: {
+                language: AgentLanguageOverride;
+                firstMessage?: string;
+              } = {
+                language: voiceConfig.elevenLabsLanguage,
+              };
+              if (voiceConfig.firstMessage) agent.firstMessage = voiceConfig.firstMessage;
+              return { overrides: { agent } };
+            })();
 
-      try {
-        micStreamRef.current = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true,
-          },
-        });
-      } catch {
-        setStatusNote('Microphone permission is needed for Talk to Dhira.');
-        setBuddyOverlayVisible(false);
-        return;
-      }
+      const buildStartPayload = (
+        base: VoiceSessionPayload,
+        overrides: typeof sessionOverrides,
+      ) => {
+        const common = { useWakeLock: true as const, ...overrides, ...voiceSessionExtras };
+        if (base.connectionType === 'websocket' && 'signedUrl' in base) {
+          return {
+            signedUrl: base.signedUrl,
+            connectionType: 'websocket' as const,
+            ...common,
+          };
+        }
+        if (base.connectionType === 'webrtc' && 'conversationToken' in base && base.conversationToken) {
+          return {
+            conversationToken: base.conversationToken,
+            connectionType: 'webrtc' as const,
+            ...common,
+          };
+        }
+        if ('agentId' in base && base.agentId) {
+          return {
+            agentId: base.agentId,
+            connectionType: 'webrtc' as const,
+            ...common,
+          };
+        }
+        return null;
+      };
 
       if ('wakeLock' in navigator) {
         try {
@@ -292,33 +303,34 @@ function ElevenLabsWidgetInner({
         }
       }
 
-      if (sessionJson.connectionType === 'websocket' && 'signedUrl' in sessionJson) {
-        await conversation.startSession({
-          signedUrl: sessionJson.signedUrl,
-          connectionType: 'websocket',
-          useWakeLock: true,
-          ...sessionOverrides,
-          ...voiceSessionExtras,
-        });
-      } else if ('conversationToken' in sessionJson && sessionJson.conversationToken) {
-        await conversation.startSession({
-          conversationToken: sessionJson.conversationToken,
-          connectionType: 'webrtc',
-          useWakeLock: true,
-          ...sessionOverrides,
-          ...voiceSessionExtras,
-        });
-      } else if ('agentId' in sessionJson && sessionJson.agentId) {
-        await conversation.startSession({
-          agentId: sessionJson.agentId,
-          connectionType: 'webrtc',
-          useWakeLock: true,
-          ...sessionOverrides,
-          ...voiceSessionExtras,
-        });
-      } else {
+      const withOverrides = buildStartPayload(sessionJson, sessionOverrides);
+      const minimal = buildStartPayload(sessionJson, {});
+      if (!withOverrides && !minimal) {
         setStatusNote('Voice setup is incomplete on the server. Please try text chat.');
         setBuddyOverlayVisible(false);
+        return;
+      }
+
+      const tryOverrides = 'overrides' in sessionOverrides;
+      const startPayloads = [
+        ...(withOverrides ? [withOverrides] : []),
+        ...(minimal && tryOverrides ? [minimal] : []),
+      ];
+
+      let started = false;
+      for (const payload of startPayloads) {
+        try {
+          await conversation.startSession(payload);
+          started = true;
+          break;
+        } catch (attemptErr) {
+          console.warn('Dhira voice start attempt failed:', attemptErr);
+        }
+      }
+      if (!started) {
+        setStatusNote('Could not connect to voice. Check microphone permission and try again.');
+        setBuddyOverlayVisible(false);
+        openVoiceLog();
       }
     } catch (err) {
       console.error('Failed to start Dhira call:', err);

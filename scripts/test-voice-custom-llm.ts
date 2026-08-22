@@ -89,6 +89,24 @@ check(
   check('route streams non-empty Dhira reply', routeSse.includes('"content"') && routeSse.includes('data: [DONE]'));
   check('route uses channel voice brain (offline holding or reply)', routeSse.length > 80);
 
+  const emptyUserReq = new NextRequest('http://localhost/api/elevenlabs/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer test-secret-voice-parity',
+    },
+    body: JSON.stringify({
+      model: 'dhira',
+      stream: true,
+      messages: [{ role: 'assistant', content: 'Hi' }],
+      elevenlabs_extra_body: { dhira_uid: 'voice-parity-integration-user' },
+    }),
+  });
+  const emptyRes = await POST(emptyUserReq);
+  check('empty user message returns 200 SSE (no agent drop)', emptyRes.status === 200);
+  const emptySse = await emptyRes.text();
+  check('empty user message SSE completes', emptySse.includes('data: [DONE]'));
+
   console.log(`\n${passed} passed, ${failed} failed\n`);
   process.exit(failed > 0 ? 1 : 0);
 })();

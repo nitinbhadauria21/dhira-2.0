@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUserId } from '@/lib/auth';
 import { getStore } from '@/lib/store';
+import type { Language } from '@/lib/types';
 import {
   buildVoiceFirstMessage,
   resolveElevenLabsSessionLanguageOverride,
@@ -27,17 +28,32 @@ function elevenLabsApiKey(): string | null {
 
 async function voiceSessionExtras(uid: string) {
   const store = getStore();
-  const profile = await store.getOrCreateProfile(uid);
-  return {
+  const defaults = {
     uid,
     customLlmEnabled: process.env.DHIRA_VOICE_CUSTOM_LLM === 'true',
     voice: {
-      primaryLanguage: profile.language,
-      secondaryLanguage: profile.language2,
-      elevenLabsLanguage: resolveElevenLabsSessionLanguageOverride(profile.language),
-      firstMessage: buildVoiceFirstMessage(profile.alias, profile.language),
+      primaryLanguage: 'english' as const,
+      secondaryLanguage: null as Language | null,
+      elevenLabsLanguage: resolveElevenLabsSessionLanguageOverride('english'),
+      firstMessage: buildVoiceFirstMessage(undefined, 'english'),
     },
   };
+  try {
+    const profile = await store.getOrCreateProfile(uid);
+    return {
+      uid,
+      customLlmEnabled: process.env.DHIRA_VOICE_CUSTOM_LLM === 'true',
+      voice: {
+        primaryLanguage: profile.language,
+        secondaryLanguage: profile.language2,
+        elevenLabsLanguage: resolveElevenLabsSessionLanguageOverride(profile.language),
+        firstMessage: buildVoiceFirstMessage(profile.alias, profile.language),
+      },
+    };
+  } catch (err) {
+    console.error('[api/elevenlabs/session] profile load failed — using voice defaults', err);
+    return defaults;
+  }
 }
 
 /**

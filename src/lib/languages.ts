@@ -34,6 +34,12 @@ export function isLanguage(value: unknown): value is Language {
   return typeof value === 'string' && VALID_LANGUAGES.has(value);
 }
 
+/** Every language Dhira Profile supports — used for voice hint parsing without a DB read. */
+export const ALL_PROFILE_LANGUAGES: Language[] = [
+  ...PREFERRED_LANGUAGE_OPTIONS.map((o) => o.value),
+  'hinglish',
+];
+
 export function normalizeLanguage(value: unknown, fallback: Language = 'english'): Language {
   return isLanguage(value) ? value : fallback;
 }
