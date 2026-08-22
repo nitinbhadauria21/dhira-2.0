@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server';
-import { isLanguage, type Language, ALL_PROFILE_LANGUAGES } from '@/lib/languages';
+import { isLanguage, type Language } from '@/lib/languages';
 import { dhiraLanguageFromElevenLabsCode } from '@/lib/voice/elevenLabsVoice';
 
 export function isVoiceCustomLlmEnabled(): boolean {
