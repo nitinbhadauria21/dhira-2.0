@@ -34,10 +34,7 @@ async function voiceSessionExtras(uid: string) {
     voice: {
       primaryLanguage: profile.language,
       secondaryLanguage: profile.language2,
-      elevenLabsLanguage: resolveElevenLabsSessionLanguageOverride(
-        profile.language,
-        profile.language2,
-      ),
+      elevenLabsLanguage: resolveElevenLabsSessionLanguageOverride(profile.language),
       firstMessage: buildVoiceFirstMessage(profile.alias, profile.language),
     },
   };

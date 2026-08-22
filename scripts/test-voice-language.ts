@@ -23,12 +23,13 @@ check('Telugu → te', mapDhiraLanguageToElevenLabs('telugu') === 'te');
 check('English → en', mapDhiraLanguageToElevenLabs('english') === 'en');
 check('Hinglish → hi', mapDhiraLanguageToElevenLabs('hinglish') === 'hi');
 check(
-  'Bilingual Profile skips ElevenLabs language lock',
-  resolveElevenLabsSessionLanguageOverride('english', 'telugu') === null,
+  'Session language always set from Profile Language 1',
+  resolveElevenLabsSessionLanguageOverride('english') === 'en' &&
+    resolveElevenLabsSessionLanguageOverride('telugu') === 'te',
 );
 check(
-  'Single language still maps session override',
-  resolveElevenLabsSessionLanguageOverride('telugu', null) === 'te',
+  'Bilingual Profile still maps Language 1 for stable ElevenLabs session',
+  resolveElevenLabsSessionLanguageOverride('english') === 'en',
 );
 check(
   'ElevenLabs te → telugu when on Profile',

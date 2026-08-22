@@ -62,14 +62,11 @@ export function dhiraLanguageFromElevenLabsCode(
 }
 
 /**
- * When Profile has two languages, do not lock ElevenLabs STT/TTS to Language 1 only.
- * Returns null for bilingual profiles so the agent can use multilingual detection.
+ * ElevenLabs session language override — always Language 1.
+ * Both fields must be sent together (language + firstMessage); partial overrides disconnect the call.
+ * Multilingual listening for Language 2 relies on ElevenLabs agent language detection (dashboard).
  */
-export function resolveElevenLabsSessionLanguageOverride(
-  primary: Language,
-  secondary: Language | null | undefined,
-): ElevenLabsAgentLanguage | null {
-  if (secondary && secondary !== primary) return null;
+export function resolveElevenLabsSessionLanguageOverride(primary: Language): ElevenLabsAgentLanguage {
   return mapDhiraLanguageToElevenLabs(primary);
 }
 
