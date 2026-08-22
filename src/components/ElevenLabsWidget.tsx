@@ -48,7 +48,7 @@ type AgentLanguageOverride = 'en' | 'hi' | 'te' | 'ta' | 'mr' | 'ml' | 'bn' | 'g
 type VoiceSessionVoiceConfig = {
   primaryLanguage: string;
   secondaryLanguage: string | null;
-  elevenLabsLanguage: AgentLanguageOverride | null;
+  elevenLabsLanguage: AgentLanguageOverride;
   firstMessage: string;
 };
 
@@ -250,20 +250,19 @@ function ElevenLabsWidgetInner({
       const sessionOverrides = ((): {
         overrides?: {
           agent: {
-            language?: AgentLanguageOverride;
+            language: AgentLanguageOverride;
             firstMessage?: string;
           };
         };
       } => {
+        if (!voiceConfig?.elevenLabsLanguage) return {};
         const agent: {
-          language?: AgentLanguageOverride;
+          language: AgentLanguageOverride;
           firstMessage?: string;
-        } = {};
-        if (voiceConfig?.firstMessage) agent.firstMessage = voiceConfig.firstMessage;
-        if (voiceConfig?.elevenLabsLanguage) {
-          agent.language = voiceConfig.elevenLabsLanguage;
-        }
-        if (Object.keys(agent).length === 0) return {};
+        } = {
+          language: voiceConfig.elevenLabsLanguage,
+        };
+        if (voiceConfig.firstMessage) agent.firstMessage = voiceConfig.firstMessage;
         return { overrides: { agent } };
       })();
 
