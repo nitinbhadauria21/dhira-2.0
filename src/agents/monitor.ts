@@ -10,7 +10,7 @@ import { CRISIS_MESSAGE, NEUTRAL_FAILSAFE } from '@/lib/safetyCopy';
 import { isEscalateCrisisDraft } from '@/lib/conversationContext';
 import { sanityCheckMonitor } from '@/lib/riskSanity';
 import { mayUseOfflineDemoTemplates, LiveBrainUnavailableError } from '@/lib/brainPolicy';
-import type { EscalationResult, MonitorResult } from '@/lib/types';
+import type { ChatChannel, EscalationResult, MonitorResult } from '@/lib/types';
 
 export interface MonitorInput {
   userMessage: string;
@@ -20,6 +20,7 @@ export interface MonitorInput {
   userPatternProfile?: string | null;
   recentSentReplies?: string | null;
   contextUnavailable?: boolean;
+  channel?: ChatChannel;
 }
 
 function failSafeMonitor(draftReply: string): MonitorResult {
@@ -130,6 +131,11 @@ export async function reviewReply(input: MonitorInput): Promise<MonitorResult> {
   }
   if (input.userPatternProfile?.trim()) {
     parts.push(`USER PATTERN PROFILE:\n${input.userPatternProfile.trim()}`);
+  }
+  if (input.channel === 'voice') {
+    parts.push(
+      `VOICE ECHO GUARD: This reply will be spoken aloud. Do NOT approve drafts that repeat or closely paraphrase the user's last sentence. Rewrite with a brief fresh acknowledgment and one forward-moving question.`,
+    );
   }
   parts.push(`DHIRA DRAFT REPLY:\n${input.draftReply}`);
 

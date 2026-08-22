@@ -75,7 +75,9 @@ ElevenLabs forwards extra body as `elevenlabs_extra_body` on each Custom LLM req
 4. End call — open **Chat-With-Dhira** — voice turns appear without duplicates.
 5. Crisis phrase — Tele-MANAS **14416** in spoken reply and chat history.
 
-Automated smoke: `npm run test:voice-custom-llm`
+**Voice-only behavior (code):** Custom LLM calls use `channel: voice` — multilingual Profile languages and anti-echo rules apply **only** to Talk to Dhira, not text chat. The session API returns `voice.elevenLabsLanguage` + `voice.firstMessage` for invisible ElevenLabs overrides.
+
+Automated smoke: `npm run test:voice-custom-llm`, `npm run test:voice-language`
 
 ---
 

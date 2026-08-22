@@ -1,3 +1,4 @@
+import { languageDisplayName } from '@/lib/languages';
 import type { ChatChannel, Language } from '@/lib/types';
 
 /** Devanagari and common Hinglish roman cues. */
@@ -69,9 +70,32 @@ export function inferLanguageFromMessage(text: string, fallback: Language = 'hin
   return detectLanguageFromMessage(text, [fallback, 'english'], fallback);
 }
 
+/** Voice-only: explicit "speak in Telugu" / "Telugu lo" style requests. */
+function detectExplicitLanguageSwitchRequest(
+  text: string,
+  candidates: Language[],
+): Language | null {
+  const t = text.trim().toLowerCase();
+  if (!t) return null;
+  for (const lang of candidates) {
+    const name = languageDisplayName(lang).toLowerCase();
+    if (
+      t.includes(`in ${name}`) ||
+      t.includes(`speak ${name}`) ||
+      t.includes(`${name} lo`) ||
+      t.includes(`${name} mein`) ||
+      t.includes(`talk in ${name}`)
+    ) {
+      return lang;
+    }
+  }
+  return null;
+}
+
 /**
  * Language for this chat turn — detects from the message among Profile language 1 + 2.
- * Applies to app chat, voice (ElevenLabs Custom LLM), WhatsApp, Telegram, and email.
+ * Text chat / WhatsApp / Telegram / email use script detection only.
+ * Talk to Dhira (voice) adds explicit language-switch phrase detection.
  */
 export function languageForTurn(params: {
   channel: ChatChannel;
@@ -79,10 +103,15 @@ export function languageForTurn(params: {
   profileLanguage: Language;
   profileLanguage2?: Language | null;
 }): Language {
-  void params.channel;
   const candidates: Language[] = [params.profileLanguage];
   if (params.profileLanguage2 && params.profileLanguage2 !== params.profileLanguage) {
     candidates.push(params.profileLanguage2);
   }
+
+  if (params.channel === 'voice') {
+    const explicit = detectExplicitLanguageSwitchRequest(params.userMessage, candidates);
+    if (explicit) return explicit;
+  }
+
   return detectLanguageFromMessage(params.userMessage, candidates, params.profileLanguage);
 }

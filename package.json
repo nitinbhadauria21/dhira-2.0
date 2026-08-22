@@ -18,6 +18,7 @@
     "test:language-detection": "tsx scripts/test-language-detection.ts",
     "test:memory-display": "tsx scripts/test-memory-display.ts",
     "test:timeline-notebook": "tsx scripts/test-timeline-notebook.ts",
+    "test:voice-language": "tsx scripts/test-voice-language.ts",
     "configure:google-auth": "tsx scripts/configure-supabase-google-auth.ts",
     "verify:google-auth": "tsx scripts/verify-google-auth.ts",
     "ensure:supabase-auth-urls": "tsx scripts/ensure-supabase-auth-urls.ts",
