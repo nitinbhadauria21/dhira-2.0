@@ -3,7 +3,7 @@ import { getUserId } from '@/lib/auth';
 import { getStore } from '@/lib/store';
 import {
   buildVoiceFirstMessage,
-  mapDhiraLanguageToElevenLabs,
+  resolveElevenLabsSessionLanguageOverride,
 } from '@/lib/voice/elevenLabsVoice';
 
 export const runtime = 'nodejs';
@@ -34,7 +34,10 @@ async function voiceSessionExtras(uid: string) {
     voice: {
       primaryLanguage: profile.language,
       secondaryLanguage: profile.language2,
-      elevenLabsLanguage: mapDhiraLanguageToElevenLabs(profile.language),
+      elevenLabsLanguage: resolveElevenLabsSessionLanguageOverride(
+        profile.language,
+        profile.language2,
+      ),
       firstMessage: buildVoiceFirstMessage(profile.alias, profile.language),
     },
   };

@@ -6,10 +6,12 @@ import { CRISIS_MESSAGE } from '@/lib/safetyCopy';
 import {
   authorizeElevenLabsCustomLlm,
   extractDhiraUidFromExtraBody,
+  extractVoiceLanguageHint,
   isVoiceCustomLlmEnabled,
   latestUserMessage,
   voiceCustomLlmSecret,
 } from '@/lib/elevenlabs/customLlmAuth';
+import { getStore } from '@/lib/store';
 import { encodeAssistantReplyAsSse, sseResponse } from '@/lib/elevenlabs/openaiSse';
 
 export const runtime = 'nodejs';
@@ -60,6 +62,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'no user message in messages[]' }, { status: 400 });
   }
 
+  const store = getStore();
+  const profile = await store.getOrCreateProfile(uid);
+  const profileLanguages = [profile.language, profile.language2].filter(
+    (lang): lang is NonNullable<typeof lang> => Boolean(lang),
+  );
+  const detectedLanguageHint = extractVoiceLanguageHint(extra, profileLanguages);
+
   const model = typeof body.model === 'string' && body.model.trim() ? body.model.trim() : 'dhira';
 
   try {
@@ -67,6 +76,7 @@ export async function POST(req: NextRequest) {
       uid,
       userMessage,
       channel: 'voice',
+      detectedLanguageHint,
     });
 
     if (postReply) {

@@ -21,6 +21,22 @@ const SCRIPT_PATTERNS: Partial<Record<Language, RegExp>> = {
   malayalam: /[\u0D00-\u0D7F]/,
 };
 
+/** Romanized speech cues when voice STT does not emit native script (voice-only). */
+const ROMANIZED_LANGUAGE_CUES: Partial<Record<Language, RegExp>> = {
+  telugu:
+    /\b(nenu|neeku|meeru|ela|em|emi|undi|ledu|baaga|cheppu|avunu|kada|ikkada|akkada|sare|anna|amma|chey|cheyyi|unna|unnaru|bagundhi|sarele)\b/i,
+  tamil:
+    /\b(naan|neenga|epdi|enna|sollu|nalla|illai|irukku|pa|da|amma|appa|seri|sari|vanakkam)\b/i,
+  malayalam: /\b(njan|ningal|enth|entha|alle|illa|nann|sheri|sari|chetta|chechi)\b/i,
+  kannada: /\b(nanu|nimma|hege|enu|illa|ide|sari|gothu|amma|anna)\b/i,
+  marathi: /\b(mala|tumhi|kasa|kay|nahi|ahe|pan|mhanje|baba|aho)\b/i,
+  gujarati: /\b(hu|tame|kem|shu|nathi|che|bhai|ben|khabar)\b/i,
+  punjabi: /\b(main|tuhanu|ki|nahi|hai|paaji|veer|bhenji)\b/i,
+  bengali: /\b(ami|tumi|kemon|ki|na|ache|dada|didi|bhalo)\b/i,
+  odia: /\b(mu|tume|kemiti|ki|nahin|achhi|bhai|bhauja)\b/i,
+  assamese: /\b(moi|tumi|kenekoi|ki|nai|ase|dada|didi)\b/i,
+};
+
 function uniqueCandidates(candidates: Language[]): Language[] {
   const seen = new Set<Language>();
   const out: Language[] = [];
@@ -33,6 +49,10 @@ function uniqueCandidates(candidates: Language[]): Language[] {
   return out;
 }
 
+function isAmbiguousLatinTranscript(text: string): boolean {
+  return /^[a-z0-9\s.,!?'"\-–—():;/]+$/i.test(text) && text.replace(/\s/g, '').length >= 3;
+}
+
 /**
  * Pick the best-matching language from the user's Profile languages based on message text.
  * Checks native scripts first, then roman Hinglish cues, then plain Latin → English.
@@ -41,6 +61,7 @@ export function detectLanguageFromMessage(
   text: string,
   candidates: Language[],
   defaultLanguage: Language,
+  options?: { channel?: ChatChannel; detectedLanguageHint?: Language | null },
 ): Language {
   const t = text.trim();
   if (!t) return defaultLanguage;
@@ -52,13 +73,22 @@ export function detectLanguageFromMessage(
     if (pattern?.test(t)) return lang;
   }
 
+  if (options?.channel === 'voice') {
+    for (const lang of langs) {
+      const roman = ROMANIZED_LANGUAGE_CUES[lang];
+      if (roman?.test(t)) return lang;
+    }
+  }
+
   if (HINGlish_RE.test(t)) {
     if (langs.includes('hinglish')) return 'hinglish';
     if (langs.includes('hindi')) return 'hindi';
     if (langs.includes('marathi')) return 'marathi';
   }
 
-  if (/^[a-z0-9\s.,!?'"\-–—():;/]+$/i.test(t) && t.replace(/\s/g, '').length >= 3) {
+  if (isAmbiguousLatinTranscript(t)) {
+    const hint = options?.detectedLanguageHint;
+    if (hint && langs.includes(hint)) return hint;
     if (langs.includes('english')) return 'english';
   }
 
@@ -69,8 +99,6 @@ export function detectLanguageFromMessage(
 export function inferLanguageFromMessage(text: string, fallback: Language = 'hinglish'): Language {
   return detectLanguageFromMessage(text, [fallback, 'english'], fallback);
 }
-
-/** Voice-only: explicit "speak in Telugu" / "Telugu lo" style requests. */
 function detectExplicitLanguageSwitchRequest(
   text: string,
   candidates: Language[],
@@ -102,6 +130,7 @@ export function languageForTurn(params: {
   userMessage: string;
   profileLanguage: Language;
   profileLanguage2?: Language | null;
+  detectedLanguageHint?: Language | null;
 }): Language {
   const candidates: Language[] = [params.profileLanguage];
   if (params.profileLanguage2 && params.profileLanguage2 !== params.profileLanguage) {
@@ -113,5 +142,8 @@ export function languageForTurn(params: {
     if (explicit) return explicit;
   }
 
-  return detectLanguageFromMessage(params.userMessage, candidates, params.profileLanguage);
+  return detectLanguageFromMessage(params.userMessage, candidates, params.profileLanguage, {
+    channel: params.channel,
+    detectedLanguageHint: params.detectedLanguageHint,
+  });
 }

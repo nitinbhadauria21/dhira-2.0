@@ -1,6 +1,12 @@
 import { draftEchoesUserMessage, voiceAntiEchoFallback } from '@/lib/voice/antiEcho';
-import { mapDhiraLanguageToElevenLabs, buildVoiceFirstMessage } from '@/lib/voice/elevenLabsVoice';
+import {
+  mapDhiraLanguageToElevenLabs,
+  buildVoiceFirstMessage,
+  resolveElevenLabsSessionLanguageOverride,
+  dhiraLanguageFromElevenLabsCode,
+} from '@/lib/voice/elevenLabsVoice';
 import { languageForTurn } from '@/lib/inferLanguage';
+import { extractVoiceLanguageHint } from '@/lib/elevenlabs/customLlmAuth';
 
 let failed = 0;
 
@@ -16,6 +22,18 @@ console.log('\nVoice language mapping\n');
 check('Telugu → te', mapDhiraLanguageToElevenLabs('telugu') === 'te');
 check('English → en', mapDhiraLanguageToElevenLabs('english') === 'en');
 check('Hinglish → hi', mapDhiraLanguageToElevenLabs('hinglish') === 'hi');
+check(
+  'Bilingual Profile skips ElevenLabs language lock',
+  resolveElevenLabsSessionLanguageOverride('english', 'telugu') === null,
+);
+check(
+  'Single language still maps session override',
+  resolveElevenLabsSessionLanguageOverride('telugu', null) === 'te',
+);
+check(
+  'ElevenLabs te → telugu when on Profile',
+  dhiraLanguageFromElevenLabsCode('te', ['english', 'telugu']) === 'telugu',
+);
 
 console.log('\nVoice first message\n');
 check('English opener', buildVoiceFirstMessage('Hemu', 'english').includes('Hemu'));
@@ -47,6 +65,29 @@ check(
     profileLanguage: 'english',
     profileLanguage2: 'telugu',
   }) === 'telugu',
+);
+check(
+  'Voice romanized Telugu transcript',
+  languageForTurn({
+    channel: 'voice',
+    userMessage: 'nenu baaga stress lo unna',
+    profileLanguage: 'english',
+    profileLanguage2: 'telugu',
+  }) === 'telugu',
+);
+check(
+  'ElevenLabs detected language hint',
+  languageForTurn({
+    channel: 'voice',
+    userMessage: 'hello how are you',
+    profileLanguage: 'english',
+    profileLanguage2: 'telugu',
+    detectedLanguageHint: 'telugu',
+  }) === 'telugu',
+);
+check(
+  'extractVoiceLanguageHint from extra body',
+  extractVoiceLanguageHint({ detected_language: 'te' }, ['english', 'telugu']) === 'telugu',
 );
 
 console.log('\nAnti-echo guard\n');

@@ -34,7 +34,7 @@ import {
 } from '@/lib/riskSanity';
 import { sanitizeDhiraReplyForDisplay } from '@/lib/dhiraReplySanitize';
 import { draftEchoesUserMessage, voiceAntiEchoFallback } from '@/lib/voice/antiEcho';
-import type { ChatChannel, RiskLevel } from '@/lib/types';
+import type { ChatChannel, Language, RiskLevel } from '@/lib/types';
 import type { EscalationResult } from '@/lib/types';
 import { languageForTurn } from '@/lib/inferLanguage';
 import type { ChatTurnPostReplyWork } from '@/lib/chatTurnPostReply';
@@ -77,9 +77,11 @@ export async function runChatTurn(params: {
   uid: string;
   userMessage: string;
   channel?: ChatChannel;
+  /** ElevenLabs-detected language for this voice turn, when provided. */
+  detectedLanguageHint?: Language | null;
 }): Promise<ChatTurnOutcome> {
   const turnStarted = Date.now();
-  const { uid, userMessage, channel = 'app' } = params;
+  const { uid, userMessage, channel = 'app', detectedLanguageHint = null } = params;
   setBrainCallContext({ channel });
   const liveConfigured = isLiveBrainEnabled();
   const criticalFailuresAtTurnStart = getLiveBrainTelemetry().criticalFailureCount;
@@ -91,6 +93,7 @@ export async function runChatTurn(params: {
     userMessage,
     profileLanguage: profile.language,
     profileLanguage2: profile.language2,
+    detectedLanguageHint,
   });
 
   const [risk72hEvents, convo] = await Promise.all([
@@ -210,6 +213,7 @@ export async function runChatTurn(params: {
       userPatternProfile: profile.userPatternProfile,
       language: turnLanguage,
       language2: profile.language2,
+      profileLanguage: profile.language,
       contextUnavailable: convo.contextUnavailable,
       channel,
     });
