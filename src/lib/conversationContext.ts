@@ -1,7 +1,7 @@
 import { getStore } from '@/lib/store';
 import type { ClaudeTurn } from '@/lib/anthropic';
 import type { ChatChannel, ChatMessageRecord, Language, RiskEventRecord } from '@/lib/types';
-import { languagePreferencesInstruction } from '@/lib/languages';
+import { languagePreferencesInstruction, languagePromptInstruction } from '@/lib/languages';
 import {
   VOICE_DELIVERY_INSTRUCTION,
   voiceMultilingualInstruction,
@@ -225,6 +225,8 @@ export function buildPrimaryMessageBundle(params: {
   userPatternProfile?: string | null;
   language: Language;
   language2?: Language | null;
+  /** Profile Language 1 — used for voice multilingual instructions (not per-turn detection). */
+  profileLanguage?: Language;
   userMessage: string;
   contextUnavailable?: boolean;
   channel?: ChatChannel;
@@ -261,7 +263,9 @@ export function buildPrimaryMessageBundle(params: {
       'CURRENT CHANNEL: Talk to Dhira (live voice — spoken aloud). Same person and memory as in-app chat.',
     );
     systemParts.push(VOICE_DELIVERY_INSTRUCTION);
-    systemParts.push(voiceMultilingualInstruction(params.language, params.language2));
+    const profilePrimary = params.profileLanguage ?? params.language;
+    systemParts.push(voiceMultilingualInstruction(profilePrimary, params.language2));
+    systemParts.push(languagePromptInstruction(params.language));
   } else {
     systemParts.push(languagePreferencesInstruction(params.language, params.language2));
   }

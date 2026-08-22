@@ -43,10 +43,12 @@ type VoiceSessionPayload =
       voice?: VoiceSessionVoiceConfig;
     };
 
+type AgentLanguageOverride = 'en' | 'hi' | 'te' | 'ta' | 'mr' | 'ml' | 'bn' | 'gu' | 'as' | 'kn' | 'pa';
+
 type VoiceSessionVoiceConfig = {
   primaryLanguage: string;
   secondaryLanguage: string | null;
-  elevenLabsLanguage: string;
+  elevenLabsLanguage: AgentLanguageOverride | null;
   firstMessage: string;
 };
 
@@ -245,25 +247,25 @@ function ElevenLabsWidgetInner({
         : {};
 
       const voiceConfig = sessionJson.voice;
-      const sessionOverrides =
-        voiceConfig?.elevenLabsLanguage && voiceConfig.firstMessage
-          ? {
-              overrides: {
-                agent: {
-                  language: voiceConfig.elevenLabsLanguage as 'en',
-                  firstMessage: voiceConfig.firstMessage,
-                },
-              },
-            }
-          : voiceConfig?.elevenLabsLanguage
-            ? {
-                overrides: {
-                  agent: {
-                    language: voiceConfig.elevenLabsLanguage as 'en',
-                  },
-                },
-              }
-            : {};
+      const sessionOverrides = ((): {
+        overrides?: {
+          agent: {
+            language?: AgentLanguageOverride;
+            firstMessage?: string;
+          };
+        };
+      } => {
+        const agent: {
+          language?: AgentLanguageOverride;
+          firstMessage?: string;
+        } = {};
+        if (voiceConfig?.firstMessage) agent.firstMessage = voiceConfig.firstMessage;
+        if (voiceConfig?.elevenLabsLanguage) {
+          agent.language = voiceConfig.elevenLabsLanguage;
+        }
+        if (Object.keys(agent).length === 0) return {};
+        return { overrides: { agent } };
+      })();
 
       try {
         micStreamRef.current = await navigator.mediaDevices.getUserMedia({

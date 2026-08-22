@@ -34,6 +34,45 @@ export function mapDhiraLanguageToElevenLabs(lang: Language): ElevenLabsAgentLan
   return DHIRA_TO_ELEVENLABS[lang] ?? 'en';
 }
 
+/** Map ElevenLabs agent language code → Dhira Profile language when it matches candidates. */
+export function dhiraLanguageFromElevenLabsCode(
+  code: string,
+  candidates: Language[],
+): Language | null {
+  const key = code.trim().toLowerCase().slice(0, 2);
+  const preference: Partial<Record<string, Language[]>> = {
+    en: ['english'],
+    te: ['telugu'],
+    ta: ['tamil'],
+    mr: ['marathi'],
+    ml: ['malayalam'],
+    bn: ['bengali', 'odia'],
+    gu: ['gujarati'],
+    as: ['assamese'],
+    kn: ['kannada'],
+    pa: ['punjabi'],
+    hi: ['hinglish', 'hindi', 'marathi'],
+  };
+  const options = preference[key];
+  if (!options) return null;
+  for (const lang of candidates) {
+    if (options.includes(lang)) return lang;
+  }
+  return null;
+}
+
+/**
+ * When Profile has two languages, do not lock ElevenLabs STT/TTS to Language 1 only.
+ * Returns null for bilingual profiles so the agent can use multilingual detection.
+ */
+export function resolveElevenLabsSessionLanguageOverride(
+  primary: Language,
+  secondary: Language | null | undefined,
+): ElevenLabsAgentLanguage | null {
+  if (secondary && secondary !== primary) return null;
+  return mapDhiraLanguageToElevenLabs(primary);
+}
+
 /** Warm opener when a voice call connects — uses Profile alias + primary language. */
 export function buildVoiceFirstMessage(alias: string | undefined, primary: Language): string {
   const name = alias?.trim() || 'Friend';
@@ -56,7 +95,7 @@ export function voiceMultilingualInstruction(
     return `Speak in ${main} unless the user clearly uses another language in this turn.`;
   }
   const second = languageDisplayName(secondary);
-  return `The user chose ${main} and ${second} on their Profile. Match the language of each spoken turn — reply fully in ${second} (native script) when they speak ${second}, and in ${main} when they speak ${main}. Never say you cannot understand their chosen languages.`;
+  return `The user chose ${main} and ${second} on their Profile (Talk to Dhira voice). These are their only two languages — not Hindi/Hinglish unless listed. Match each spoken turn: reply fully in ${second} (native script) when they speak ${second} (including romanized ${second} if STT did not use native script), and in ${main} when they speak ${main}. Never say you cannot understand their chosen languages.`;
 }
 
 export const VOICE_DELIVERY_INSTRUCTION = `VOICE STYLE (Talk to Dhira — mandatory):
