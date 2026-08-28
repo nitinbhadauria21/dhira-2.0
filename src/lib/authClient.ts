@@ -1,6 +1,6 @@
 'use client';
 
-import { getBrowserSupabase } from './supabaseBrowser';
+import { getBrowserSupabaseAsync } from './supabaseBrowser';
 import { normalizePhoneE164, phoneAuthError } from './twilio/phone';
 import { formatPhoneOtpSendError } from './phoneOtpErrors';
 import { formatPasswordResetError } from './passwordResetErrors';
@@ -39,7 +39,7 @@ export async function signUpEmail(
   const state = location?.state?.trim() || undefined;
   const city = location?.city?.trim() || undefined;
   const language = location?.language?.trim() || undefined;
-  const sb = getBrowserSupabase();
+  const sb = await getBrowserSupabaseAsync();
   if (sb) {
     const { data, error } = await sb.auth.signUp({
       email,
@@ -68,10 +68,17 @@ export async function signUpEmail(
 }
 
 export async function signInEmail(email: string, password: string) {
-  const sb = getBrowserSupabase();
+  const sb = await getBrowserSupabaseAsync();
   if (sb) {
     const { data, error } = await sb.auth.signInWithPassword({ email, password });
-    if (error) throw new Error(error.message);
+    if (error) {
+      if (/email not confirmed|confirm your email/i.test(error.message)) {
+        throw new Error(
+          'Please confirm your email first — check your inbox for the Dhira link, then sign in again.',
+        );
+      }
+      throw new Error(error.message);
+    }
     return postJson('/api/auth/session', { accessToken: data.session?.access_token, email });
   }
   return postJson('/api/auth/signin', { email, password });
@@ -82,7 +89,7 @@ export async function requestOtp(phone: string): Promise<{ devCode?: string }> {
   const authErr = phoneAuthError(phone);
   if (authErr) throw new Error(authErr);
   const normalized = normalizePhoneE164(phone);
-  const sb = getBrowserSupabase();
+  const sb = await getBrowserSupabaseAsync();
   if (sb) {
     const { error } = await sb.auth.signInWithOtp({ phone: normalized });
     if (error) throw new Error(formatPhoneOtpSendError(error.message));
@@ -103,7 +110,7 @@ export async function verifyOtp(
   const state = location?.state?.trim() || undefined;
   const city = location?.city?.trim() || undefined;
   const language = location?.language?.trim() || undefined;
-  const sb = getBrowserSupabase();
+  const sb = await getBrowserSupabaseAsync();
   if (sb) {
     const { data, error } = await sb.auth.verifyOtp({
       phone: normalized,
@@ -137,7 +144,7 @@ export async function requestPasswordReset(email: string): Promise<void> {
   if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
     throw new Error('Please enter a valid email address.');
   }
-  const sb = getBrowserSupabase();
+  const sb = await getBrowserSupabaseAsync();
   if (!sb) throw new Error(PASSWORD_RESET_DEV_MSG);
   const { error } = await sb.auth.resetPasswordForEmail(trimmed, {
     redirectTo: passwordResetCallbackUrl(),
@@ -150,7 +157,7 @@ export async function completePasswordReset(newPassword: string): Promise<void> 
   if (newPassword.length < 8) {
     throw new Error('Please use at least 8 characters for your new password.');
   }
-  const sb = getBrowserSupabase();
+  const sb = await getBrowserSupabaseAsync();
   if (!sb) throw new Error(PASSWORD_RESET_DEV_MSG);
   const { error: updateError } = await sb.auth.updateUser({ password: newPassword });
   if (updateError) throw new Error(updateError.message);
@@ -158,7 +165,7 @@ export async function completePasswordReset(newPassword: string): Promise<void> 
 }
 
 export async function signOut() {
-  const sb = getBrowserSupabase();
+  const sb = await getBrowserSupabaseAsync();
   if (sb) await sb.auth.signOut().catch(() => {});
   await fetch('/api/auth/signout', { method: 'POST' });
 }
@@ -188,7 +195,7 @@ async function isGoogleProviderEnabled(): Promise<boolean | null> {
  * Supabase dashboard (Authentication → Providers → Google).
  */
 export async function signInWithGoogle(next = '/onboarding') {
-  const sb = getBrowserSupabase();
+  const sb = await getBrowserSupabaseAsync();
   if (!sb) {
     throw new Error(
       'Google sign-in needs Supabase connected. Add your Supabase URL and anon key, then enable Google in Supabase → Authentication → Providers.',
