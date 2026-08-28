@@ -28,6 +28,13 @@ export async function POST(req: NextRequest) {
       );
       const { data, error } = await sb.auth.signInWithPassword({ email, password });
       if (error || !data.session) {
+        const msg = error?.message ?? '';
+        if (/email not confirmed|confirm your email/i.test(msg)) {
+          return NextResponse.json(
+            { error: 'Please confirm your email first — check your inbox for the Dhira link.' },
+            { status: 401 },
+          );
+        }
         return NextResponse.json({ error: 'Wrong email or password' }, { status: 401 });
       }
       const uid = data.user.id;
