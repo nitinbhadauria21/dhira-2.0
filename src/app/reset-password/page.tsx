@@ -9,7 +9,7 @@ import BrandLockup from '@/components/BrandLockup';
 import PasswordRevealInput from '@/components/PasswordRevealInput';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { completePasswordReset } from '@/lib/authClient';
-import { getBrowserSupabase } from '@/lib/supabaseBrowser';
+import { getBrowserSupabaseAsync } from '@/lib/supabaseBrowser';
 
 function ResetPasswordContent() {
   const router = useRouter();
@@ -23,7 +23,7 @@ function ResetPasswordContent() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const sb = getBrowserSupabase();
+      const sb = await getBrowserSupabaseAsync();
       if (!sb) {
         if (!cancelled) {
           setError('Supabase is not configured. See docs/SUPABASE_PASSWORD_RESET.md.');
