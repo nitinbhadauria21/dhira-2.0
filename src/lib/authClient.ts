@@ -68,19 +68,7 @@ export async function signUpEmail(
 }
 
 export async function signInEmail(email: string, password: string) {
-  const sb = await getBrowserSupabaseAsync();
-  if (sb) {
-    const { data, error } = await sb.auth.signInWithPassword({ email, password });
-    if (error) {
-      if (/email not confirmed|confirm your email/i.test(error.message)) {
-        throw new Error(
-          'Please confirm your email first — check your inbox for the Dhira link, then sign in again.',
-        );
-      }
-      throw new Error(error.message);
-    }
-    return postJson('/api/auth/session', { accessToken: data.session?.access_token, email });
-  }
+  // Server-side sign-in — reliable, uses live Supabase env, sets dhira_session cookie.
   return postJson('/api/auth/signin', { email, password });
 }
 
@@ -173,49 +161,12 @@ export async function signOut() {
 const GOOGLE_NOT_ENABLED_MSG =
   'Google sign-in is not turned on in Supabase yet. In Supabase → Authentication → Providers → Google, turn it ON and paste your Google Client ID and secret (from Google Cloud).';
 
-async function isGoogleProviderEnabled(): Promise<boolean | null> {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
-  if (!url || !anon || anon.includes('your-')) return null;
-  try {
-    const res = await fetch(`${url}/auth/v1/settings`, {
-      headers: { apikey: anon },
-      cache: 'no-store',
-    });
-    if (!res.ok) return null;
-    const data = (await res.json()) as { external?: { google?: boolean } };
-    return data.external?.google === true;
-  } catch {
-    return null;
-  }
-}
-
 /**
- * Start Google OAuth via Supabase. Requires Google to be enabled in the
- * Supabase dashboard (Authentication → Providers → Google).
+ * Start Google OAuth via server route (PKCE cookies + live Supabase env).
  */
 export async function signInWithGoogle(next = '/onboarding') {
-  const sb = await getBrowserSupabaseAsync();
-  if (!sb) {
-    throw new Error(
-      'Google sign-in needs Supabase connected. Add your Supabase URL and anon key, then enable Google in Supabase → Authentication → Providers.',
-    );
-  }
-
-  const googleOn = await isGoogleProviderEnabled();
-  if (googleOn === false) {
+  if (typeof window === 'undefined') {
     throw new Error(GOOGLE_NOT_ENABLED_MSG);
   }
-
-  const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
-  const { error } = await sb.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo },
-  });
-  if (error) {
-    if (/not enabled|unsupported provider/i.test(error.message)) {
-      throw new Error(GOOGLE_NOT_ENABLED_MSG);
-    }
-    throw new Error(error.message);
-  }
+  window.location.assign(`/api/auth/google?next=${encodeURIComponent(next)}`);
 }

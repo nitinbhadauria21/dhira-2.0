@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
-import { createServerSupabase } from '@/lib/supabase/server';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 import { setSession } from '@/lib/auth';
-import { getStore } from '@/lib/store';
+import { getStore, isSupabaseAuthConfigured } from '@/lib/store';
 import type { Profile } from '@/lib/types';
+import type { NextRequest } from 'next/server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -14,11 +16,16 @@ function safeNextPath(raw: string | null): string {
   return raw;
 }
 
+function redirectToSignIn(requestUrl: URL, message: string) {
+  const signIn = new URL('/sign-in', requestUrl.origin);
+  signIn.searchParams.set('error', message.slice(0, 200));
+  return NextResponse.redirect(signIn);
+}
+
 /**
  * GET /auth/callback — Supabase PKCE: Google OAuth and password recovery links.
- * Exchanges ?code= for a session (PKCE cookies). Recovery stops before dhira_session.
  */
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
   const rawNext = requestUrl.searchParams.get('next');
@@ -28,35 +35,48 @@ export async function GET(request: Request) {
     requestUrl.searchParams.get('error');
 
   if (oauthError) {
-    const signIn = new URL('/sign-in', requestUrl.origin);
-    signIn.searchParams.set('error', oauthError.slice(0, 200));
-    return NextResponse.redirect(signIn);
+    return redirectToSignIn(requestUrl, oauthError);
   }
 
   if (!code) {
-    const signIn = new URL('/sign-in', requestUrl.origin);
-    signIn.searchParams.set(
-      'error',
+    return redirectToSignIn(
+      requestUrl,
       isPasswordRecovery
         ? 'Password reset link did not include a valid code. Request a new link.'
         : 'Google sign-in did not return an authorization code.',
     );
-    return NextResponse.redirect(signIn);
   }
 
-  const supabase = await createServerSupabase();
-  if (!supabase) {
-    const signIn = new URL('/sign-in', requestUrl.origin);
-    signIn.searchParams.set('error', 'Supabase is not configured for Google sign-in.');
-    return NextResponse.redirect(signIn);
+  if (!isSupabaseAuthConfigured()) {
+    return redirectToSignIn(requestUrl, 'Supabase is not configured for Google sign-in.');
   }
+
+  let cookieResponse = NextResponse.redirect(new URL('/sign-in', requestUrl.origin));
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL as string,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          cookieResponse = NextResponse.redirect(new URL('/sign-in', requestUrl.origin));
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieResponse.cookies.set(name, value, options);
+          });
+        },
+      },
+    },
+  );
 
   const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
   if (exchangeError) {
     console.error('[auth/callback] exchangeCodeForSession', exchangeError.message);
     const pkceRecovery =
-      isPasswordRecovery &&
-      /pkce|code verifier/i.test(exchangeError.message);
+      isPasswordRecovery && /pkce|code verifier/i.test(exchangeError.message);
     if (pkceRecovery) {
       const forgot = new URL('/forgot-password', requestUrl.origin);
       forgot.searchParams.set(
@@ -65,26 +85,24 @@ export async function GET(request: Request) {
       );
       return NextResponse.redirect(forgot);
     }
-    const signIn = new URL('/sign-in', requestUrl.origin);
-    signIn.searchParams.set(
-      'error',
+    return redirectToSignIn(
+      requestUrl,
       exchangeError.message ||
         (isPasswordRecovery ? 'Could not open password reset link.' : 'Could not complete Google sign-in.'),
     );
-    return NextResponse.redirect(signIn);
   }
 
   if (isPasswordRecovery) {
-    return NextResponse.redirect(new URL('/reset-password', requestUrl.origin));
+    const resetRedirect = NextResponse.redirect(new URL('/reset-password', requestUrl.origin));
+    cookieResponse.cookies.getAll().forEach((c) => resetRedirect.cookies.set(c.name, c.value));
+    return resetRedirect;
   }
 
   const next = safeNextPath(rawNext);
 
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError || !userData.user) {
-    const signIn = new URL('/sign-in', requestUrl.origin);
-    signIn.searchParams.set('error', 'Google sign-in did not return a user.');
-    return NextResponse.redirect(signIn);
+    return redirectToSignIn(requestUrl, 'Google sign-in did not return a user.');
   }
 
   const user = userData.user;
@@ -104,12 +122,18 @@ export async function GET(request: Request) {
     if (email && !existing.email?.trim()) patch.email = email;
     if (alias) patch.alias = alias.slice(0, 60);
     if (Object.keys(patch).length) await store.updateProfile(uid, patch);
-    await setSession(uid);
+
+    const jar = await cookies();
+    jar.set('dhira_session', uid, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 365,
+    });
   } catch (err) {
     console.error('[auth/callback] dhira session', err);
-    const signIn = new URL('/sign-in', requestUrl.origin);
-    signIn.searchParams.set('error', 'Could not create your DHIRA session.');
-    return NextResponse.redirect(signIn);
+    return redirectToSignIn(requestUrl, 'Could not create your DHIRA session.');
   }
 
   const redirectUrl = new URL(next, requestUrl.origin);
@@ -117,5 +141,8 @@ export async function GET(request: Request) {
   if (alias && alias !== 'Friend') {
     redirectUrl.searchParams.set('alias', alias.slice(0, 60));
   }
-  return NextResponse.redirect(redirectUrl);
+
+  const finalRedirect = NextResponse.redirect(redirectUrl);
+  cookieResponse.cookies.getAll().forEach((c) => finalRedirect.cookies.set(c.name, c.value));
+  return finalRedirect;
 }

@@ -85,9 +85,9 @@ function SignInContent() {
     try {
       await signInEmail(email.trim(), password);
       goAfterSignIn();
-      return;
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not sign in');
+    } finally {
       setLoading(false);
     }
   };
