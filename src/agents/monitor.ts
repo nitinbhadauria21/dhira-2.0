@@ -4,7 +4,7 @@ import {
   assessContextualRisk,
   shouldBlockCrisisForClassification,
 } from '@/lib/contextualRiskOffline';
-import { containsAdviceOrDiagnosis, isNotSafeAfterCheckIn } from '@/lib/guardrails';
+import { isNotSafeAfterCheckIn } from '@/lib/guardrails';
 import { localMonitor } from '@/lib/localBrain';
 import { CRISIS_MESSAGE, NEUTRAL_FAILSAFE } from '@/lib/safetyCopy';
 import { isEscalateCrisisDraft } from '@/lib/conversationContext';

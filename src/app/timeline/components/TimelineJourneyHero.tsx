@@ -3,6 +3,8 @@
 import React from 'react';
 import { BarChart2, CheckCircle, Heart, Sprout, Star } from 'lucide-react';
 import FloatingBuddy from '@/components/FloatingBuddy';
+import Icon from '@/components/ui/AppIcon';
+
 
 const MILESTONES = [
   { label: 'Check-in', icon: CheckCircle, color: '#79C2C4' },

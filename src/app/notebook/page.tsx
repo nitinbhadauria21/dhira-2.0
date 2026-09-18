@@ -14,6 +14,8 @@ import {
   startContinuousSpeechRecognition,
   type ContinuousSpeechSession,
 } from '@/lib/browserSpeechRecognition';
+import Icon from '@/components/ui/AppIcon';
+
 
 type NotebookMode = 'write' | 'speak';
 

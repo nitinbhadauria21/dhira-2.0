@@ -24,6 +24,8 @@ import { notebookDayArcChip } from '@/lib/timelineNotebook';
 import { Search, Bell, BookOpen, Plus } from 'lucide-react';
 import { MOOD_COLORS, type MoodId } from '@/lib/artifactDesign';
 import type { NotebookEntry } from '@/lib/types';
+import Icon from '@/components/ui/AppIcon';
+
 
 interface HomeWeekData {
   last7: { date: string; mood: string | null }[];

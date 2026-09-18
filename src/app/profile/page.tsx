@@ -19,6 +19,8 @@ import {
   writeStoredShift,
   type ShiftPreference,
 } from '@/lib/timeOfDay';
+import Icon from '@/components/ui/AppIcon';
+
 
 type CheckinFrequency = 'daily' | 'every-other-day' | 'weekly';
 type NotifyChannel = 'email' | 'whatsapp' | 'telegram';

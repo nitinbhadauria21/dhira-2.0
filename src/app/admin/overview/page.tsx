@@ -61,6 +61,8 @@ function StatCard({ label, value, sub, icon: Icon, accent, trend, trendUp }: Sta
 }
 
 import { MOOD_PALETTE } from '@/lib/brand';
+import Icon from '@/components/ui/AppIcon';
+
 
 const MOOD_COLORS = MOOD_PALETTE;
 

@@ -8,6 +8,8 @@ import { useTheme } from './ThemeProvider';
 import { signOut } from '@/lib/authClient';
 import BrandLockup from './BrandLockup';
 import NavTalkToDhiraButton, { isNavTalkToDhiraPath } from './NavTalkToDhiraButton';
+import Icon from '@/components/ui/AppIcon';
+
 
 
 const navItems = [

@@ -10,7 +10,7 @@ import StepContract from './StepContract';
 import { readStoredShift, writeStoredShift, type ShiftPreference } from '@/lib/timeOfDay';
 
 import type { Language } from '@/lib/languages';
-import { isLanguage, normalizeLanguage } from '@/lib/languages';
+import { isLanguage } from '@/lib/languages';
 
 export type { Language };
 
