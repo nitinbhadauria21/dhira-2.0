@@ -32,13 +32,20 @@ const nextConfig = {
       };
     }
     if (dev) {
-      config.module.rules.push({
-        test: /\.(jsx|tsx)$/,
-        exclude: [/node_modules/],
-        use: [{
-          loader: '@dhiwise/component-tagger/nextLoader',
-        }],
-      });
+      let taggerAvailable = false;
+      try {
+        require.resolve('@dhiwise/component-tagger/nextLoader');
+        taggerAvailable = true;
+      } catch (_) {}
+      if (taggerAvailable) {
+        config.module.rules.push({
+          test: /\.(jsx|tsx)$/,
+          exclude: [/node_modules/],
+          use: [{
+            loader: '@dhiwise/component-tagger/nextLoader',
+          }],
+        });
+      }
     }
     return config;
   },
