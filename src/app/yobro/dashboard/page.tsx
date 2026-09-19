@@ -149,7 +149,7 @@ export default function YoBroDashboard() {
               &ldquo;Aye bro — work was stressing you out last week. How&apos;s that situation now? Slide in whenever.&rdquo;
             </p>
             <Link
-              href="/chat-with-dhira"
+              href="/yobro/chat"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',

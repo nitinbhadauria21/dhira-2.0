@@ -216,7 +216,7 @@ export default function YoBroFeatures() {
                 marginBottom: 4,
               }}
             >
-              Same guardrails as Dhira — no shortcuts on safety
+              No shortcuts on safety — ever
             </p>
             <p
               style={{

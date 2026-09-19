@@ -62,7 +62,7 @@ export default function YoBroFooter() {
               lineHeight: 1.6,
             }}
           >
-            Your AI buddy. Same guardrails as Dhira — different vibe, same care.
+            Your AI buddy — different vibe, same care.
           </p>
         </div>
 
@@ -85,7 +85,7 @@ export default function YoBroFooter() {
             {[
               { label: 'Sign Up', href: '/sign-up' },
               { label: 'Sign In', href: '/sign-in' },
-              { label: 'Chat', href: '/chat-with-dhira' },
+              { label: 'Chat', href: '/yobro/chat' },
             ]?.map((link) => (
               <Link
                 key={link?.label}
@@ -160,7 +160,7 @@ export default function YoBroFooter() {
             color: '#3D4060',
           }}
         >
-          © 2026 YoBro · Built on Dhira · Crisis line: Tele-MANAS 14416
+          © 2026 YoBro · Crisis line: Tele-MANAS 14416
         </p>
         <p
           style={{
