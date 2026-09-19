@@ -166,8 +166,8 @@ function ProfileContent() {
         setTelegramLinkPending(true);
         setTelegramActionMessage(
           isMobile
-            ? 'In the Telegram app, tap Start on the Dhira bot, then return here.'
-            : 'If a Telegram login screen opened: scan the QR with your phone (Telegram → Settings → Devices → Link Desktop Device), then tap START on the Dhira bot. Or open Connect on your phone instead.',
+            ? 'In the Telegram app, tap Start on the YoBro bot, then return here.'
+            : 'If a Telegram login screen opened: scan the QR with your phone (Telegram → Settings → Devices → Link Desktop Device), then tap START on the YoBro bot. Or open Connect on your phone instead.',
         );
       }
     } catch {
@@ -245,8 +245,8 @@ function ProfileContent() {
   const handleSave = async () => {
     // Keep alias/language in localStorage too (used for a fast greeting fallback).
     if (typeof window !== 'undefined') {
-      localStorage.setItem('dhira-alias', profile.alias);
-      localStorage.setItem('dhira-language', profile.language);
+      localStorage.setItem('yobro-alias', profile.alias);
+      localStorage.setItem('yobro-language', profile.language);
       writeStoredShift(profile.shift);
     }
     try {
@@ -423,7 +423,7 @@ function ProfileContent() {
         <div className="mb-8 flex items-end gap-4">
           <FloatingBuddy
             src="/illustrations/dhira_settings.png"
-            alt="DHIRA holding a settings dial"
+            alt="YoBro holding a settings dial"
             width={78}
             bobAnimation="dhira-bob 5.5s ease-in-out infinite"
           />
@@ -440,7 +440,7 @@ function ProfileContent() {
                 marginTop: '6px',
               }}
             >
-              Manage your DHIRA alias, preferences, and account settings.
+              Manage your YoBro alias, preferences, and account settings.
             </p>
           </div>
         </div>
@@ -634,7 +634,7 @@ function ProfileContent() {
                         marginTop: '2px',
                       }}
                     >
-                      Your DHIRA alias
+                      Your YoBro alias
                     </p>
                   </div>
                 </div>
@@ -651,7 +651,7 @@ function ProfileContent() {
                       marginBottom: '8px',
                     }}
                   >
-                    DHIRA Alias
+                    YoBro Alias
                   </label>
                   <input
                     id="profile-alias"
@@ -682,7 +682,7 @@ function ProfileContent() {
                       marginTop: '6px',
                     }}
                   >
-                    This is how DHIRA addresses you. No real name needed.
+                    This is how YoBro addresses you. No real name needed.
                   </p>
                 </div>
 
@@ -719,7 +719,7 @@ function ProfileContent() {
                     color: 'var(--color-text-muted)',
                   }}
                 >
-                  Choose how DHIRA speaks with you. Pick a second language if you switch between two.
+                  Choose how YoBro speaks with you. Pick a second language if you switch between two.
                 </p>
 
                 <div className="flex flex-col gap-5 mb-6">
@@ -734,7 +734,7 @@ function ProfileContent() {
                       }))
                     }
                     label="Preferred language 1 - main language"
-                    hint="DHIRA uses this as your primary language for chat, voice, and proactive check-ins (including Telegram)."
+                    hint="YoBro uses this as your primary language for chat, voice, and proactive check-ins (including Telegram)."
                   />
                   <LanguageSelect
                     id="profile-language-2"
@@ -744,7 +744,7 @@ function ProfileContent() {
                     excludeValue={profile.language}
                     onChange={(language2) => setProfile((p) => ({ ...p, language2 }))}
                     label="Preferred language 2 - second language"
-                    hint="Optional. When set, DHIRA can reply in either language — whichever feels natural for you."
+                    hint="Optional. When set, YoBro can reply in either language — whichever feels natural for you."
                   />
                 </div>
 
@@ -781,7 +781,7 @@ function ProfileContent() {
                     color: 'var(--color-text-muted)',
                   }}
                 >
-                  How often should DHIRA reach out to you?
+                  How often should YoBro reach out to you?
                 </p>
 
                 <div className="flex flex-col gap-3 mb-6">
@@ -857,7 +857,7 @@ function ProfileContent() {
                         marginTop: '2px',
                       }}
                     >
-                      DHIRA greets you by your rhythm, not the clock. You set this — it is never
+                      YoBro greets you by your rhythm, not the clock. You set this — it is never
                       inferred from your activity.
                     </p>
                   </div>
@@ -928,7 +928,7 @@ function ProfileContent() {
                       color: 'var(--color-text)',
                     }}
                   >
-                    How should DHIRA reach you?
+                    How should YoBro reach you?
                   </p>
                   {/* Channel selector */}
                   <div className="flex flex-wrap gap-3">
@@ -1090,8 +1090,7 @@ function ProfileContent() {
                             }}
                           >
                             {profile.telegramConnected
-                              ? 'Connected — proactive check-ins can reach you here.'
-                              : 'Connect your Telegram chat for gentle check-ins.'}
+                              ? 'Connected — proactive check-ins can reach you here.' :'Connect your Telegram chat for gentle check-ins.'}
                           </p>
                         </div>
                         {profile.telegramConnected && (
@@ -1141,7 +1140,7 @@ function ProfileContent() {
                                 margin: 0,
                               }}
                             >
-                              Sends from Dhira to your Telegram chat — it does not open Telegram. Check the Dhira bot chat on your phone.
+                              Sends from YoBro to your Telegram chat — it does not open Telegram. Check the YoBro bot chat on your phone.
                             </p>
                             <button
                               type="button"
@@ -1196,29 +1195,29 @@ function ProfileContent() {
                     {
                       key: 'proactiveCheckins',
                       label: 'Proactive check-ins',
-                      sub: 'DHIRA reaches out first within your chosen window',
+                      sub: 'YoBro reaches out first within your chosen window',
                     },
                     {
                       key: 'memoryEnabled',
                       label: 'Memory',
-                      sub: 'DHIRA remembers what you shared last time',
+                      sub: 'YoBro remembers what you shared last time',
                     },
                     {
                       key: 'emailOptIn',
                       label: 'Email notifications',
-                      sub: 'Allow DHIRA to reach you over email',
+                      sub: 'Allow YoBro to reach you over email',
                     },
                     {
                       key: 'whatsappOptIn',
                       label: 'WhatsApp notifications',
-                      sub: 'Allow DHIRA to reach you over WhatsApp',
+                      sub: 'Allow YoBro to reach you over WhatsApp',
                     },
                     ...(profile.telegramConnected
                       ? [
                           {
                             key: 'telegramOptIn' as const,
                             label: 'Telegram notifications',
-                            sub: 'Allow DHIRA to reach you over Telegram',
+                            sub: 'Allow YoBro to reach you over Telegram',
                           },
                         ]
                       : []),

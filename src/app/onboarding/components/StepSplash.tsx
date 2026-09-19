@@ -7,7 +7,6 @@ interface Props {
   onNext: () => void;
 }
 
-/** Landscape card ratio — art is portrait; object-fit contain letterboxes so nothing is cropped. */
 const SPLASH_FRAME_ASPECT = '16 / 9';
 
 export default function StepSplash({ onNext }: Props) {
@@ -52,7 +51,7 @@ export default function StepSplash({ onNext }: Props) {
               margin: 0,
             }}
           >
-            Say as much or as little as you want. DHIRA is here to listen — quietly, patiently, without
+            Say as much or as little as you want. YoBro is here to listen — quietly, patiently, without
             judgment.
           </p>
 

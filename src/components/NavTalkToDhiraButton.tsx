@@ -4,7 +4,7 @@ import React from 'react';
 import { Mic } from 'lucide-react';
 import { useVoiceSession } from '@/hooks/useVoiceSession';
 
-/** Paths that show the compact Talk to Dhira control in the top nav (Home uses inline CTA). */
+/** Paths that show the compact Talk to YoBro control in the top nav (Home uses inline CTA). */
 export const NAV_TALK_TO_DHIRA_PATHS = [
   '/chat-with-dhira',
   '/notebook',
@@ -28,9 +28,9 @@ export default function NavTalkToDhiraButton({ compact = false }: NavTalkToDhira
   const busy = isStarting || isConnecting;
   const endCallMode = isActive && !isConnecting;
 
-  let ariaLabel = 'Talk to Dhira';
-  if (busy) ariaLabel = 'Connecting to Dhira';
-  else if (endCallMode) ariaLabel = 'End call with Dhira';
+  let ariaLabel = 'Talk to YoBro';
+  if (busy) ariaLabel = 'Connecting to YoBro';
+  else if (endCallMode) ariaLabel = 'End call with YoBro';
 
   const className = [
     'nav-talk-to-dhira',
@@ -49,7 +49,7 @@ export default function NavTalkToDhiraButton({ compact = false }: NavTalkToDhira
       aria-label={ariaLabel}
     >
       <Mic size={compact ? 15 : 16} strokeWidth={2.25} />
-      <span>Talk to Dhira</span>
+      <span>Talk to YoBro</span>
     </button>
   );
 }

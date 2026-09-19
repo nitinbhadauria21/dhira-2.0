@@ -23,7 +23,7 @@ const OPENER_CHIPS = [
   { label: 'What sat heaviest today?', seed: 'Aaj sabse zyada bhaari kya laga - ' },
   { label: 'One small thing that went right', seed: 'Ek chhoti si achhi baat aaj - ' },
   { label: 'Something I keep replaying', seed: 'Dimaag mein baar baar yeh ghoom raha hai - ' },
-  { label: "What I needed and didn't ask for", seed: 'Mujhe zaroorat thi, par maanga nahi - ' },
+  { label: "What I needed and didn\'t ask for", seed: 'Mujhe zaroorat thi, par maanga nahi - ' },
 ];
 
 const TOPIC_OPTIONS = ['work', 'family', 'friends', 'sleep', 'money', 'health', 'self', 'love'];
@@ -209,7 +209,7 @@ function NotebookContent() {
           <div className="flex items-end gap-4">
             <FloatingBuddy
               src="/illustrations/dhira_wave.png"
-              alt="DHIRA, waving hello"
+              alt="YoBro, waving hello"
               width={78}
               bobAnimation="dhira-bob 5.5s ease-in-out infinite"
             />
@@ -353,9 +353,7 @@ function NotebookContent() {
                   <p className="text-small" style={{ color: 'var(--color-text-subtle)' }}>
                     {speechAvailable
                       ? recording
-                        ? 'Take your pauses - DHIRA waits.'
-                        : 'Web Speech fills the transcript when available.'
-                      : 'Speech recognition is unavailable here, so the transcript stays editable.'}
+                        ? 'Take your pauses - YoBro waits.' :'Web Speech fills the transcript when available.' :'Speech recognition is unavailable here, so the transcript stays editable.'}
                   </p>
                 </div>
                 <div
@@ -393,7 +391,7 @@ function NotebookContent() {
                   onChange={(e) => setShareWithDhira(e.target.checked)}
                   style={{ accentColor: 'var(--color-primary)' }}
                 />
-                Let DHIRA read this
+                Let YoBro read this
               </label>
               <div className="flex items-center gap-3">
                 <button type="button" onClick={discard} className="btn-ghost px-4 py-2 text-small">
@@ -478,14 +476,14 @@ function NotebookContent() {
                   className="text-small font-semibold uppercase tracking-[0.06em]"
                   style={{ color: 'var(--color-text-subtle)', fontSize: 11 }}
                 >
-                  What DHIRA will carry forward
+                  What YoBro will carry forward
                 </span>
               </div>
               <p className="text-body italic" style={{ color: 'var(--color-text)', fontSize: 15 }}>
                 "{carryPreview}"
               </p>
               <p className="mt-3 text-small" style={{ color: 'var(--color-text-subtle)', fontSize: 12 }}>
-                {shareWithDhira ? 'One line only. Never quoted back to you word for word.' : "DHIRA won't reference this in chat."}
+                {shareWithDhira ? 'One line only. Never quoted back to you word for word.' : "YoBro won't reference this in chat."}
               </p>
             </div>
           </aside>
@@ -587,7 +585,7 @@ function EntryCard({ entry }: { entry: NotebookEntry }) {
         {preview}
       </p>
       <p className="mt-2 text-small italic" style={{ color: 'var(--color-text-subtle)', fontSize: 12 }}>
-        {entry.shareWithDhira ? '🌙 DHIRA can gently remember this.' : 'Private entry - not shared with DHIRA.'}
+        {entry.shareWithDhira ? '🌙 YoBro can gently remember this.' : 'Private entry - not shared with YoBro.'}
       </p>
     </article>
   );

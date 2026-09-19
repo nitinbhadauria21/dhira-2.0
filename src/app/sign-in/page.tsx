@@ -47,7 +47,7 @@ const labelStyle: React.CSSProperties = {
 function resolveResumePath(queryNext: string | null): string {
   if (queryNext && queryNext.startsWith('/')) return queryNext;
   if (typeof window !== 'undefined') {
-    const saved = localStorage.getItem('dhira-last-route');
+        const saved = localStorage.getItem('yobro-last-route');
     if (saved && saved.startsWith('/')) return saved;
   }
   return '/home-dashboard';
@@ -335,7 +335,7 @@ function SignInContent() {
           )}
 
           <p className="text-center mt-5" style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--color-text-muted)' }}>
-            New to DHIRA?{' '}
+            New to YoBro?{' '}
             <Link href="/sign-up" style={{ color: 'var(--color-primary)', fontWeight: 500 }}>
               Create an account
             </Link>

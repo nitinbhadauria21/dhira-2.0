@@ -109,10 +109,9 @@ export default function ChatInputBar({ onSend, disabled = false }: ChatInputBarP
           onKeyDown={handleKeyDown}
           placeholder={
             disabled
-              ? 'DHIRA is thinking...'
+              ? 'YoBro is thinking...'
               : isRecording
-                ? "Go ahead — I'm listening…"
-                : 'Type, or tap Speak to talk'
+                ? "Go ahead — I'm listening…" :'Type, or tap Speak to talk'
           }
           disabled={disabled}
           rows={1}
@@ -127,7 +126,7 @@ export default function ChatInputBar({ onSend, disabled = false }: ChatInputBarP
             overflowY: 'auto',
             caretColor: 'var(--color-primary)',
           }}
-          aria-label="Message DHIRA"
+          aria-label="Message YoBro"
         />
 
         {/* Voice button */}
@@ -203,7 +202,7 @@ export default function ChatInputBar({ onSend, disabled = false }: ChatInputBarP
           lineHeight: 1.4,
         }}
       >
-        DHIRA listens — not a therapist or crisis service.{' '}
+        YoBro listens — not a therapist or crisis service.{' '}
         <span style={{ color: 'var(--color-crisis)', fontWeight: 500 }}>Crisis? Call 14416</span>
       </p>
       <style jsx>{`

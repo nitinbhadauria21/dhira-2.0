@@ -82,7 +82,7 @@ function TermsContent() {
               textDecoration: 'none',
             }}
           >
-            Dhira
+            YoBro
           </Link>
           <h1
             className="mt-6 mb-3"
@@ -246,16 +246,16 @@ function TermsSection() {
       </div>
 
       <Para>
-        Welcome to Dhira. By creating an account or using any part of the Dhira platform ("Service"), you agree to be bound by these Terms of Use. Please read them carefully before proceeding.
+        Welcome to YoBro. By creating an account or using any part of the YoBro platform ("Service"), you agree to be bound by these Terms of Use. Please read them carefully before proceeding.
       </Para>
 
       <SectionHeading>1. Who We Are</SectionHeading>
       <Para>
-        Dhira is a private, anonymous mental-wellness companion designed for users in India. We provide a conversational AI experience to help you reflect, process emotions, and build healthy habits. Dhira is <strong>not</strong> a licensed mental-health service, therapist, or crisis intervention platform.
+        YoBro is a private, anonymous mental-wellness companion designed for users in India. We provide a conversational AI experience to help you reflect, process emotions, and build healthy habits. YoBro is <strong>not</strong> a licensed mental-health service, therapist, or crisis intervention platform.
       </Para>
 
       <SectionHeading>2. Eligibility</SectionHeading>
-      <Para>You must be at least 13 years old to use Dhira. By creating an account, you confirm that:</Para>
+      <Para>You must be at least 13 years old to use YoBro. By creating an account, you confirm that:</Para>
       <BulletList items={[
         'You are 13 years of age or older.',
         'If you are under 18, you have obtained parental or guardian consent.',
@@ -265,41 +265,41 @@ function TermsSection() {
       <SectionHeading>3. Your Account</SectionHeading>
       <SubHeading>3.1 Alias, Not Identity</SubHeading>
       <Para>
-        Dhira is designed for anonymity. You create an alias — not your real name. We do not require, and strongly discourage, sharing personally identifiable information within your conversations.
+        YoBro is designed for anonymity. You create an alias — not your real name. We do not require, and strongly discourage, sharing personally identifiable information within your conversations.
       </Para>
       <SubHeading>3.2 Account Security</SubHeading>
       <Para>
-        You are responsible for maintaining the confidentiality of your login credentials. Notify us immediately at support@dhira.app if you suspect unauthorized access to your account.
+        You are responsible for maintaining the confidentiality of your login credentials. Notify us immediately at support@yobro.app if you suspect unauthorized access to your account.
       </Para>
 
       <SectionHeading>4. Acceptable Use</SectionHeading>
-      <Para>You agree not to use Dhira to:</Para>
+      <Para>You agree not to use YoBro to:</Para>
       <BulletList items={[
         'Harass, threaten, or harm any person.',
         'Share content that is illegal, defamatory, or violates third-party rights.',
         'Attempt to reverse-engineer, scrape, or exploit the platform.',
-        'Impersonate Dhira staff or other users.',
+        'Impersonate YoBro staff or other users.',
         'Use the Service for commercial purposes without written consent.',
       ]} />
 
       <SectionHeading>5. Nature of the Service</SectionHeading>
       <Para>
-        Dhira is a <strong>listening companion</strong>, not a substitute for professional mental-health care. Conversations with Dhira are AI-generated and should not be treated as medical advice, diagnosis, or therapy. If you are experiencing a mental-health crisis, please contact a licensed professional or call Tele-MANAS at <strong>14416</strong> (free, 24×7, India).
+        YoBro is a <strong>listening companion</strong>, not a substitute for professional mental-health care. Conversations with YoBro are AI-generated and should not be treated as medical advice, diagnosis, or therapy. If you are experiencing a mental-health crisis, please contact a licensed professional or call Tele-MANAS at <strong>14416</strong> (free, 24×7, India).
       </Para>
 
       <SectionHeading>6. Intellectual Property</SectionHeading>
       <Para>
-        All content, design, and technology within Dhira is owned by or licensed to Dhira and protected by applicable intellectual property laws. You retain ownership of content you create; by submitting it, you grant Dhira a limited, non-exclusive licence to use it to provide and improve the Service.
+        All content, design, and technology within YoBro is owned by or licensed to YoBro and protected by applicable intellectual property laws. You retain ownership of content you create; by submitting it, you grant YoBro a limited, non-exclusive licence to use it to provide and improve the Service.
       </Para>
 
       <SectionHeading>7. Limitation of Liability</SectionHeading>
       <Para>
-        To the maximum extent permitted by law, Dhira and its team shall not be liable for any indirect, incidental, or consequential damages arising from your use of the Service. The Service is provided "as is" without warranties of any kind.
+        To the maximum extent permitted by law, YoBro and its team shall not be liable for any indirect, incidental, or consequential damages arising from your use of the Service. The Service is provided "as is" without warranties of any kind.
       </Para>
 
       <SectionHeading>8. Changes to These Terms</SectionHeading>
       <Para>
-        We may update these Terms from time to time. We will notify you via in-app notice or email. Continued use of Dhira after changes constitutes acceptance of the revised Terms.
+        We may update these Terms from time to time. We will notify you via in-app notice or email. Continued use of YoBro after changes constitutes acceptance of the revised Terms.
       </Para>
 
       <SectionHeading>9. Governing Law</SectionHeading>
@@ -309,7 +309,7 @@ function TermsSection() {
 
       <Divider />
       <Para>
-        Questions? Write to us at <span style={{ color: 'var(--color-primary)' }}>legal@dhira.app</span>
+        Questions? Write to us at <span style={{ color: 'var(--color-primary)' }}>legal@yobro.app</span>
       </Para>
     </div>
   );
@@ -328,15 +328,15 @@ function PrivacySection() {
       </div>
 
       <Para>
-        Your privacy is the foundation of Dhira. This policy explains what data we collect, why we collect it, and how we protect it. We believe in radical transparency — no hidden clauses, no data brokering.
+        Your privacy is the foundation of YoBro. This policy explains what data we collect, why we collect it, and how we protect it. We believe in radical transparency — no hidden clauses, no data brokering.
       </Para>
 
       <SectionHeading>1. Our Privacy Promise</SectionHeading>
       <Para>
-        Dhira is built on three non-negotiable principles:
+        YoBro is built on three non-negotiable principles:
       </Para>
       <BulletList items={[
-        '🔒 No real name required — your alias is your identity on Dhira.',
+        '🔒 No real name required — your alias is your identity on YoBro.',
         '🚫 We never sell your data to third parties, advertisers, or data brokers.',
         '🎚️ You control your data — delete it anytime, instantly and permanently.',
       ]} />
@@ -346,7 +346,7 @@ function PrivacySection() {
       <BulletList items={[
         'Your alias (chosen by you, not your real name).',
         'Email address (used only for account recovery and critical notifications).',
-        'Conversation content with Dhira (stored encrypted, accessible only to you).',
+        'Conversation content with YoBro (stored encrypted, accessible only to you).',
         'Mood check-ins and journal entries you choose to save.',
       ]} />
       <SubHeading>2.2 Information Collected Automatically</SubHeading>
@@ -360,13 +360,13 @@ function PrivacySection() {
         'Your real name, phone number, or government ID.',
         'Location data.',
         'Contacts, camera, or microphone access.',
-        'Browsing history outside Dhira.',
+        'Browsing history outside YoBro.',
       ]} />
 
       <SectionHeading>3. How We Use Your Data</SectionHeading>
       <Para>We use your data solely to:</Para>
       <BulletList items={[
-        'Provide and personalise the Dhira experience.',
+        'Provide and personalise the YoBro experience.',
         'Improve AI response quality (using anonymised, aggregated patterns only).',
         'Send you critical service notifications (never marketing without consent).',
         'Comply with legal obligations under Indian law.',
@@ -384,12 +384,12 @@ function PrivacySection() {
 
       <SectionHeading>6. Cookies & Tracking</SectionHeading>
       <Para>
-        Dhira uses only essential cookies required for authentication and session management. We do not use advertising cookies, tracking pixels, or third-party analytics that identify you personally.
+        YoBro uses only essential cookies required for authentication and session management. We do not use advertising cookies, tracking pixels, or third-party analytics that identify you personally.
       </Para>
 
       <SectionHeading>7. Third-Party Services</SectionHeading>
       <Para>
-        We use a limited set of trusted third-party services (e.g., cloud infrastructure, AI model providers). These providers are contractually bound to process your data only as directed by Dhira and never for their own purposes.
+        We use a limited set of trusted third-party services (e.g., cloud infrastructure, AI model providers). These providers are contractually bound to process your data only as directed by YoBro and never for their own purposes.
       </Para>
 
       <SectionHeading>8. Your Rights</SectionHeading>
@@ -402,12 +402,12 @@ function PrivacySection() {
         'Data portability (export your conversations).',
       ]} />
       <Para>
-        To exercise these rights, contact us at <span style={{ color: 'var(--color-primary)' }}>privacy@dhira.app</span>
+        To exercise these rights, contact us at <span style={{ color: 'var(--color-primary)' }}>privacy@yobro.app</span>
       </Para>
 
-      <SectionHeading>9. Children's Privacy</SectionHeading>
+      <SectionHeading>9. Children&apos;s Privacy</SectionHeading>
       <Para>
-        Dhira is not directed at children under 13. If we become aware that a child under 13 has provided personal data without parental consent, we will delete it promptly.
+        YoBro is not directed at children under 13. If we become aware that a child under 13 has provided personal data without parental consent, we will delete it promptly.
       </Para>
 
       <SectionHeading>10. Changes to This Policy</SectionHeading>
@@ -417,7 +417,7 @@ function PrivacySection() {
 
       <Divider />
       <Para>
-        Privacy questions? Write to <span style={{ color: 'var(--color-primary)' }}>privacy@dhira.app</span>
+        Privacy questions? Write to <span style={{ color: 'var(--color-primary)' }}>privacy@yobro.app</span>
       </Para>
     </div>
   );
@@ -452,15 +452,15 @@ function SafetySection() {
       </div>
 
       <Para>
-        Dhira is a safe space — but it is not a crisis service. These guidelines explain how we keep you safe, what Dhira can and cannot do, and what to do if you or someone you know needs urgent help.
+        YoBro is a safe space — but it is not a crisis service. These guidelines explain how we keep you safe, what YoBro can and cannot do, and what to do if you or someone you know needs urgent help.
       </Para>
 
-      <SectionHeading>1. What Dhira Is</SectionHeading>
+      <SectionHeading>1. What YoBro Is</SectionHeading>
       <Para>
-        Dhira is an AI-powered emotional companion designed to help you reflect, process feelings, and build mental wellness habits. It is available any time, speaks Hinglish, and is completely private.
+        YoBro is an AI-powered emotional companion designed to help you reflect, process feelings, and build mental wellness habits. It is available any time, speaks Hinglish, and is completely private.
       </Para>
 
-      <SectionHeading>2. What Dhira Is Not</SectionHeading>
+      <SectionHeading>2. What YoBro Is Not</SectionHeading>
       <BulletList items={[
         '❌ Not a licensed therapist or psychiatrist.',
         '❌ Not a crisis hotline or emergency service.',
@@ -471,10 +471,10 @@ function SafetySection() {
 
       <SectionHeading>3. Crisis Detection & Escalation</SectionHeading>
       <Para>
-        Dhira monitors conversations for signals of acute distress, self-harm ideation, or suicidal thoughts. When detected:
+        YoBro monitors conversations for signals of acute distress, self-harm ideation, or suicidal thoughts. When detected:
       </Para>
       <BulletList items={[
-        'Dhira will pause the conversation and surface crisis resources immediately.',
+        'YoBro will pause the conversation and surface crisis resources immediately.',
         'You will be prompted to contact Tele-MANAS (14416) or iCall (9152987821).',
         'No conversation content is shared with third parties without your explicit consent, except where required by law to prevent imminent harm.',
       ]} />
@@ -500,11 +500,11 @@ function SafetySection() {
       </div>
 
       <SectionHeading>5. Community Standards</SectionHeading>
-      <Para>To keep Dhira safe for everyone, users must not:</Para>
+      <Para>To keep YoBro safe for everyone, users must not:</Para>
       <BulletList items={[
         'Share content that glorifies self-harm, suicide, or violence.',
-        'Attempt to manipulate Dhira into providing harmful advice.',
-        'Use Dhira to harass or target other individuals.',
+        'Attempt to manipulate YoBro into providing harmful advice.',
+        'Use YoBro to harass or target other individuals.',
         'Share content involving minors in any harmful context.',
       ]} />
       <Para>
@@ -513,23 +513,23 @@ function SafetySection() {
 
       <SectionHeading>6. Reporting a Safety Concern</SectionHeading>
       <Para>
-        If you encounter content or behaviour that feels unsafe, please contact us immediately at <span style={{ color: 'var(--color-crisis)' }}>safety@dhira.app</span>. We take all reports seriously and respond within 24 hours.
+        If you encounter content or behaviour that feels unsafe, please contact us immediately at <span style={{ color: 'var(--color-crisis)' }}>safety@yobro.app</span>. We take all reports seriously and respond within 24 hours.
       </Para>
 
       <SectionHeading>7. Self-Care Reminders</SectionHeading>
       <Para>
-        Dhira encourages healthy boundaries with technology too. We recommend:
+        YoBro encourages healthy boundaries with technology too. We recommend:
       </Para>
       <BulletList items={[
         'Taking breaks from the app when you feel overwhelmed.',
-        'Supplementing Dhira with real-world support — friends, family, or a counsellor.',
+        'Supplementing YoBro with real-world support — friends, family, or a counsellor.',
         'Using the mood tracker to notice patterns over time, not just in the moment.',
-        'Reaching out to a professional if you feel your needs exceed what Dhira can offer.',
+        'Reaching out to a professional if you feel your needs exceed what YoBro can offer.',
       ]} />
 
       <Divider />
       <Para>
-        Safety concerns? Contact <span style={{ color: 'var(--color-crisis)' }}>safety@dhira.app</span> · We respond within 24 hours.
+        Safety concerns? Contact <span style={{ color: 'var(--color-crisis)' }}>safety@yobro.app</span> · We respond within 24 hours.
       </Para>
     </div>
   );

@@ -1,9 +1,9 @@
 /** Browser keys cleared when someone starts a fresh sign-up (not sign-in). */
 const NEW_ACCOUNT_KEYS = [
-  'dhira-onboarding-done',
-  'dhira-alias',
-  'dhira-language',
-  'dhira-last-route',
+  'yobro-onboarding-done',
+  'yobro-alias',
+  'yobro-language',
+  'yobro-last-route',
 ] as const;
 
 /**

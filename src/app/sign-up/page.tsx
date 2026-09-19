@@ -73,7 +73,7 @@ function SignUpContent() {
   const showEmailForm = !PHONE_OTP_AUTH_ENABLED || mode === 'email';
 
   const firstError = () => {
-    if (!alias.trim()) return 'Please choose a DHIRA alias.';
+    if (!alias.trim()) return 'Please choose a YoBro alias.';
     if (!state.trim()) return 'Please select your state.';
     if (!city.trim()) return 'Please enter your city.';
     if (showEmailForm) {
@@ -107,8 +107,8 @@ function SignUpContent() {
       });
       resetDhiraClientStateForNewAccount();
       if (typeof window !== 'undefined') {
-        localStorage.setItem('dhira-alias', alias.trim());
-        localStorage.setItem('dhira-language', language);
+        localStorage.setItem('yobro-alias', alias.trim());
+        localStorage.setItem('yobro-language', language);
       }
       router.push('/onboarding');
     } catch (e) {
@@ -144,8 +144,8 @@ function SignUpContent() {
       });
       resetDhiraClientStateForNewAccount();
       if (typeof window !== 'undefined') {
-        localStorage.setItem('dhira-alias', alias.trim());
-        localStorage.setItem('dhira-language', language);
+        localStorage.setItem('yobro-alias', alias.trim());
+        localStorage.setItem('yobro-language', language);
       }
       router.push('/onboarding');
     } catch (e) {
@@ -176,7 +176,7 @@ function SignUpContent() {
     if (!showEmailForm) {
       return otpSent ? 'Verify & create account' : 'Send verification code';
     }
-    return 'Create my DHIRA account';
+        return 'Create my YoBro account';
   };
 
   return (
@@ -286,7 +286,7 @@ function SignUpContent() {
 
           <div className="mb-4">
             <label htmlFor="signup-alias" style={labelStyle}>
-              Your DHIRA alias <RequiredMark /> <span style={{ color: 'var(--color-text-subtle)', fontWeight: 400 }}>(not your real name)</span>
+              Your YoBro alias <RequiredMark /> <span style={{ color: 'var(--color-text-subtle)', fontWeight: 400 }}>(not your real name)</span>
             </label>
             <input
               id="signup-alias"
@@ -338,7 +338,7 @@ function SignUpContent() {
               value={language}
               onChange={setLanguage}
               label="Preferred language"
-              hint="DHIRA will speak and send check-ins in this language (including Telegram)."
+              hint="YoBro will speak and send check-ins in this language (including Telegram)."
               required
             />
           </div>
@@ -453,7 +453,7 @@ function SignUpContent() {
               <Link href="/terms" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: 'var(--color-primary)', fontWeight: 500, textDecoration: 'underline' }}>
                 terms and conditions
               </Link>{' '}
-              of DHIRA? <RequiredMark />
+              of YoBro? <RequiredMark />
             </span>
           </button>
 

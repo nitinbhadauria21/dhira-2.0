@@ -7,7 +7,7 @@ interface DhiraAvatarProps {
 }
 
 /**
- * Small round DHIRA avatar — uses the designer bot_avatar cutout (ASSETS.md).
+ * Small round YOBRO avatar — uses the bot_avatar cutout.
  * `variant` kept for call-site compatibility; the PNG is the same either way.
  */
 export default function DhiraAvatar({ size = 40, variant = 'softer', pulse = false }: DhiraAvatarProps) {
@@ -19,15 +19,13 @@ export default function DhiraAvatar({ size = 40, variant = 'softer', pulse = fal
         height: size,
         boxShadow: pulse
           ? '0 0 20px rgba(239, 169, 74, 0.3)'
-          : variant === 'steadier'
-            ? '0 0 0 2px rgba(174,161,218,0.45)'
-            : '0 0 0 2px rgba(174,161,218,0.35)',
+          : variant === 'steadier' ?'0 0 0 2px rgba(174,161,218,0.45)' :'0 0 0 2px rgba(174,161,218,0.35)',
       }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/illustrations/bot_avatar.png"
-        alt="DHIRA"
+        alt="YOBRO"
         width={size}
         height={size}
         style={{

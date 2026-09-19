@@ -17,7 +17,7 @@ export default function ChatThread({ messages, isTyping }: ChatThreadProps) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/illustrations/dhira_chat_scene.png"
-            alt="DHIRA sitting with open speech bubbles, waiting to listen"
+            alt="YoBro sitting with open speech bubbles, waiting to listen"
             style={{
               width: 'min(220px, 62%)',
               height: 'auto',

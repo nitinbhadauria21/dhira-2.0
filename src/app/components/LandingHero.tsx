@@ -17,7 +17,7 @@ export default function LandingHero() {
     const interval = setInterval(() => {
       setVisible(false);
       setTimeout(() => {
-        setLineIndex((i) => (i + 1) % rotatingLines.length);
+        setLineIndex((i) => (i + 1) % rotatingLines?.length);
         setVisible(true);
       }, 400);
     }, 3500);
@@ -29,7 +29,7 @@ export default function LandingHero() {
       className="relative min-h-screen flex flex-col items-center justify-center px-6 lg:px-10 pt-24 pb-20 overflow-hidden"
       style={{ backgroundColor: 'transparent' }}
     >
-      {/* Soft glows matching Standalone S.glowA / glowB */}
+      {/* Soft glows */}
       <div
         className="absolute pointer-events-none"
         style={{
@@ -64,7 +64,7 @@ export default function LandingHero() {
         <div className="flex justify-center mb-5">
           <FloatingBuddy
             src="/illustrations/dhira_sitting_calm.png"
-            alt="DHIRA, a small calm robot buddy, sitting with a hand on its heart"
+            alt="YoBro, a small calm robot buddy, sitting with a hand on its heart"
             width={78}
             bobAnimation="dhira-bob 5.5s ease-in-out infinite"
           />
@@ -81,7 +81,7 @@ export default function LandingHero() {
             letterSpacing: '-0.02em',
           }}
         >
-          The calm that stays up
+          The bro who stays up
           <br />
           <span style={{ color: 'var(--color-primary)' }}>with you.</span>
         </h1>
@@ -104,7 +104,7 @@ export default function LandingHero() {
                 textAlign: 'left',
               }}
             >
-              &ldquo;{rotatingLines[lineIndex]}&rdquo;
+              &ldquo;{rotatingLines?.[lineIndex]}&rdquo;
             </p>
           </div>
         </div>

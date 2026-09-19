@@ -145,7 +145,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
         </div>
         <div>
           <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '18px', color: 'var(--color-text)', letterSpacing: '-0.02em' }}>
-            Dhira
+            YoBro
           </p>
           <p style={{ fontFamily: 'var(--font-ui)', fontSize: '11px', color: 'var(--color-text-subtle)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
             Admin Console

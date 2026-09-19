@@ -13,11 +13,11 @@ export default function HomeTalkToDhiraCta() {
   const busy = isStarting || isConnecting;
   const endCallMode = isActive && conversationConnected(isActive, isConnecting);
 
-  let ariaLabel = 'Talk to Dhira';
-  if (busy) ariaLabel = 'Connecting to Dhira';
-  else if (endCallMode) ariaLabel = 'End call with Dhira';
+  let ariaLabel = 'Talk to YoBro';
+  if (busy) ariaLabel = 'Connecting to YoBro';
+  else if (endCallMode) ariaLabel = 'End call with YoBro';
 
-  let title = 'Talk to Dhira';
+  let title = 'Talk to YoBro';
   if (busy) title = 'Connecting…';
   else if (endCallMode) title = 'End Call';
 
@@ -52,7 +52,7 @@ export default function HomeTalkToDhiraCta() {
           <span className="home-talk-to-dhira-cta__title">{title}</span>
           {!endCallMode && !busy ? (
             <span className="home-talk-to-dhira-cta__subtitle">
-              Tap and start speaking — I&apos;m listening.
+              Tap and start speaking — I&apos;m listening, bro.
             </span>
           ) : endCallMode ? (
             <span className="home-talk-to-dhira-cta__subtitle">Tap to end the voice session</span>

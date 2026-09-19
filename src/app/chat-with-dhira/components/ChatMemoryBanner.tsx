@@ -52,7 +52,7 @@ export default function ChatMemoryBanner() {
               marginBottom: '3px',
             }}
           >
-            DHIRA remembers · Yesterday
+            YoBro remembers · Yesterday
           </p>
           <p
             style={{

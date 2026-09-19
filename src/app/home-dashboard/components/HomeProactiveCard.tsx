@@ -21,14 +21,12 @@ export default function HomeProactiveCard() {
         headers: { 'Content-Type': 'application/json' },
         body: '{}',
       });
-      const data = await res.json();
-      if (data?.sent && data.message) {
-        setMessage(data.message);
+      const data = await res?.json();
+      if (data?.sent && data?.message) {
+        setMessage(data?.message);
       } else {
         setNote(
-          data?.reason === 'user has not consented to check-ins'
-            ? 'Proactive check-ins are turned off in your settings.'
-            : 'Could not generate a check-in right now.'
+          data?.reason === 'user has not consented to check-ins' ?'Proactive check-ins are turned off in your settings.' :'Could not generate a check-in right now.'
         );
       }
     } catch {
@@ -65,7 +63,7 @@ export default function HomeProactiveCard() {
             textTransform: 'uppercase',
           }}
         >
-          {displayMessage ? 'DHIRA checked in' : 'Proactive check-in'}
+          {displayMessage ? 'YoBro checked in' : 'Proactive check-in'}
         </p>
       </div>
 
@@ -81,7 +79,7 @@ export default function HomeProactiveCard() {
       >
         {displayMessage
           ? `\u201C${displayMessage}\u201D`
-          : 'DHIRA can reach out first, within your chosen window. Want a gentle check-in right now?'}
+          : 'YoBro can reach out first, within your chosen window. Want a gentle check-in right now?'}
       </p>
 
       {displayMessage && (
@@ -111,7 +109,7 @@ export default function HomeProactiveCard() {
             fontWeight: 500,
           }}
         >
-          Respond to DHIRA
+          Respond to YoBro
           <ArrowRight size={14} />
         </Link>
       ) : (
@@ -121,7 +119,7 @@ export default function HomeProactiveCard() {
           className="btn-ghost"
           style={{ fontSize: 13, padding: '8px 14px', alignSelf: 'flex-start' }}
         >
-          {loading ? 'DHIRA is thinking…' : 'Ask DHIRA to check in now'}
+          {loading ? 'YoBro is thinking…' : 'Ask YoBro to check in now'}
         </button>
       )}
 
