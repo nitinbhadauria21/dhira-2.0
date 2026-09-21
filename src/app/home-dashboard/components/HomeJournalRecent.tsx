@@ -57,7 +57,7 @@ export default function HomeJournalRecent({ entries }: HomeJournalRecentProps) {
               lineHeight: 1.55,
             }}
           >
-            Nothing saved yet. Your journal and memories will grow here as you talk with DHIRA.
+            Nothing saved yet. Your journal and memories will grow here as you talk with YoBro.
           </p>
         ) : null}
         {recentEntries.map((entry) => (

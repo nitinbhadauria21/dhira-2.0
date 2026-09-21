@@ -22,9 +22,7 @@ function saveShiftToProfile(shift: ShiftPreference) {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ shift }),
-  }).catch(() => {
-    // Auth pages are often anonymous; localStorage is the source of truth until login.
-  });
+  }).catch(() => {});
 }
 
 export default function AuthScenePanel({
@@ -158,7 +156,7 @@ export default function AuthScenePanel({
       <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', gap: 22 }}>
         <FloatingBuddy
           src="/illustrations/dhira_orb.png"
-          alt="DHIRA, a small robot buddy holding a glowing light"
+          alt="YoBro, a small robot buddy holding a glowing light"
           width={78}
         />
 
@@ -224,7 +222,7 @@ export default function AuthScenePanel({
               fontStyle: 'italic',
             }}
           >
-            "{isSignUp ? 'Alias only. No real name needed. DHIRA listens without judgment.' : scene.mem}"
+            &quot;{isSignUp ? 'Alias only. No real name needed. YoBro listens without judgment.' : scene.mem}&quot;
           </p>
         </div>
 
@@ -233,7 +231,7 @@ export default function AuthScenePanel({
             type="button"
             onClick={() => setPickerOpen((open) => !open)}
             aria-expanded={pickerOpen}
-            title="DHIRA follows your rhythm, not the clock"
+            title="YoBro follows your rhythm, not the clock"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -249,122 +247,57 @@ export default function AuthScenePanel({
               whiteSpace: 'nowrap',
             }}
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <circle cx="12" cy="12" r="8.5" />
-              <path d="M12 7.5V12l3 1.8" />
-            </svg>
-            {selectedShift.label}
-            <span style={{ opacity: 0.6, fontSize: 10 }}>v</span>
+            <span>{selectedShift.emoji}</span>
+            <span>{selectedShift.label}</span>
+            <span style={{ opacity: 0.6, fontSize: 10 }}>▾</span>
           </button>
 
           {pickerOpen && (
             <div
               style={{
                 position: 'absolute',
-                bottom: 'calc(100% + 8px)',
+                bottom: '110%',
                 left: 0,
-                zIndex: 5,
-                width: 250,
-                padding: 8,
-                borderRadius: 14,
-                background: 'rgba(22,20,44,0.94)',
+                background: 'rgba(30,28,50,0.92)',
                 backdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255,255,255,0.18)',
-                boxShadow: '0 14px 34px rgba(0,0,0,0.4)',
+                border: '1px solid rgba(255,255,255,0.14)',
+                borderRadius: 12,
+                padding: '6px',
+                minWidth: 180,
+                zIndex: 10,
               }}
             >
-              <p
-                style={{
-                  fontFamily: 'var(--font-ui)',
-                  fontSize: 10.5,
-                  fontWeight: 600,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  color: 'rgba(255,255,255,0.5)',
-                  padding: '4px 8px 8px',
-                }}
-              >
-                When do you usually work?
-              </p>
-              {SHIFT_OPTIONS.map((opt) => {
-                const selected = opt.key === shift;
-                return (
-                  <button
-                    key={opt.key}
-                    type="button"
-                    onClick={() => pickShift(opt.key)}
-                    style={{
-                      width: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 10,
-                      padding: '9px 10px',
-                      borderRadius: 10,
-                      border: 'none',
-                      background: selected ? 'rgba(255,255,255,0.16)' : 'transparent',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      fontFamily: 'var(--font-ui)',
-                    }}
-                  >
-                    <span
-                      aria-hidden="true"
-                      style={{
-                        width: 15,
-                        height: 15,
-                        borderRadius: '50%',
-                        flexShrink: 0,
-                        border: `1.5px solid ${selected ? '#F6C06B' : 'rgba(255,255,255,0.34)'}`,
-                        background: selected ? '#F6C06B' : 'transparent',
-                      }}
-                    />
-                    <span style={{ flex: 1 }}>
-                      <span style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#F1EEF9' }}>
-                        {opt.label}
-                      </span>
-                      <span style={{ display: 'block', fontSize: 11.5, color: 'rgba(255,255,255,0.55)' }}>
-                        {opt.hint}
-                      </span>
-                    </span>
-                  </button>
-                );
-              })}
-              <p style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'rgba(255,255,255,0.45)', padding: '8px 8px 4px', lineHeight: 1.45 }}>
-                You choose this - DHIRA never guesses it from your activity.
-              </p>
+              {SHIFT_OPTIONS.map((opt) => (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => pickShift(opt.key)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    width: '100%',
+                    padding: '9px 12px',
+                    borderRadius: 8,
+                    background: shift === opt.key ? 'rgba(255,255,255,0.12)' : 'transparent',
+                    border: 'none',
+                    color: '#FFFFFF',
+                    fontFamily: 'var(--font-ui)',
+                    fontSize: 13,
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
+                >
+                  <span>{opt.emoji}</span>
+                  <div>
+                    <div style={{ fontWeight: 500 }}>{opt.label}</div>
+                    <div style={{ fontSize: 11, opacity: 0.6 }}>{opt.sub}</div>
+                  </div>
+                </button>
+              ))}
             </div>
           )}
         </div>
-
-        {isSignUp && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 9, maxWidth: 340 }}>
-            {['Private from the first hello', 'State and city help local safety support', 'Your rhythm shapes greetings'].map((perk) => (
-              <div key={perk} style={{ display: 'flex', alignItems: 'center', gap: 9, fontFamily: 'var(--font-ui)', fontSize: 13.5, color: 'rgba(255,255,255,0.8)' }}>
-                <span style={{ width: 18, height: 18, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.16)', fontSize: 10, color: '#FFFFFF' }}>
-                  ✓
-                </span>
-                {perk}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexWrap: 'wrap', gap: 18 }}>
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontFamily: 'var(--font-ui)', fontSize: 12.5, color: 'rgba(255,255,255,0.72)' }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8FBCA4" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <rect x="4" y="10.5" width="16" height="10" rx="2.5" />
-            <path d="M8 10.5V7a4 4 0 0 1 8 0v3.5" />
-          </svg>
-          {isSignUp ? 'End-to-end private' : 'Private by design'}
-        </span>
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontFamily: 'var(--font-ui)', fontSize: 12.5, color: 'rgba(255,255,255,0.72)' }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F6C06B" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M4 14c2-6 6-9 11-9 0 5-3 9-8 10l-3 3" />
-            <path d="M4 18c1-2 2.5-3 4.5-3.5" />
-          </svg>
-          No real name needed
-        </span>
       </div>
     </aside>
   );

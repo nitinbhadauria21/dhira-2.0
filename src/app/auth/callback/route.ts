@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { setSession } from '@/lib/auth';
+
 import { getStore, isSupabaseAuthConfigured } from '@/lib/store';
 import type { Profile } from '@/lib/types';
 import type { NextRequest } from 'next/server';

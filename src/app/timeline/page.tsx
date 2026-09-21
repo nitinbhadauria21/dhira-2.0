@@ -24,6 +24,8 @@ import { notebookDayArcChip } from '@/lib/timelineNotebook';
 import { Search, Bell, BookOpen, Plus } from 'lucide-react';
 import { MOOD_COLORS, type MoodId } from '@/lib/artifactDesign';
 import type { NotebookEntry } from '@/lib/types';
+import Icon from '@/components/ui/AppIcon';
+
 
 interface HomeWeekData {
   last7: { date: string; mood: string | null }[];
@@ -216,7 +218,7 @@ function TimelineContent() {
           <TimelineConversationMovement
             day={chatDayToMovementDay(selectedChatDay)}
             title="How your conversations moved"
-            emptyCopy="When you chat with Dhira, you'll see how your mood shifted here — privately, without the full transcript."
+            emptyCopy="When you chat with YoBro, you'll see how your mood shifted here — privately, without the full transcript."
           />
           <TimelineConversationHighlights
             day={selectedChatDay}
@@ -337,8 +339,7 @@ function TimelineContent() {
             <EmptyNote
               text={
                 query
-                  ? 'No entries match that search.'
-                  : 'Your Notebook entries will appear here after your first written or spoken note.'
+                  ? 'No entries match that search.' :'Your Notebook entries will appear here after your first written or spoken note.'
               }
             />
           ) : (
@@ -416,7 +417,7 @@ function TimelineContent() {
                         fontStyle: 'italic',
                       }}
                     >
-                      🌙 Shared with DHIRA memory
+                      🌙 Shared with YoBro memory
                     </p>
                   )}
                 </div>
@@ -428,9 +429,9 @@ function TimelineContent() {
       )}
 
       {(activeTab === 'all' || activeTab === 'checkins') && (
-        <SectionCard icon={Bell} title="Check-ins DHIRA sent you">
+        <SectionCard icon={Bell} title="Check-ins YoBro sent you">
           {notifications.length === 0 ? (
-            <EmptyNote text="When DHIRA reaches out (email, WhatsApp, or Telegram), those check-ins appear here." />
+            <EmptyNote text="When YoBro reaches out (email, WhatsApp, or Telegram), those check-ins appear here." />
           ) : (
             <div className="flex flex-col gap-3">
               {notifications.map((n) => (

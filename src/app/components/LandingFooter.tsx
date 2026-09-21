@@ -25,7 +25,7 @@ export default function LandingFooter() {
                 lineHeight: 1.65,
               }}
             >
-              The calm that stays up with you. Private, anonymous, Hinglish-first.
+              Your bro who actually listens. Private, anonymous, Hinglish-first.
             </p>
           </div>
 
@@ -45,19 +45,19 @@ export default function LandingFooter() {
             <div className="flex flex-col gap-2">
               {[
                 { label: 'Home', href: '/home-dashboard' },
-                { label: 'Chat with DHIRA', href: '/chat-with-dhira' },
+                { label: 'Chat with YoBro', href: '/chat-with-dhira' },
                 { label: 'Privacy Promise', href: '/terms' },
-              ].map((l) => (
+              ]?.map((l) => (
                 <Link
-                  key={l.label}
-                  href={l.href}
+                  key={l?.label}
+                  href={l?.href}
                   style={{
                     fontFamily: 'var(--font-ui)',
                     fontSize: 14,
                     color: 'var(--color-text-muted)',
                   }}
                 >
-                  {l.label}
+                  {l?.label}
                 </Link>
               ))}
             </div>
@@ -93,7 +93,7 @@ export default function LandingFooter() {
                 }}
               >
                 If you or someone you know is in crisis: Please call Tele-MANAS at 14416 — free,
-                24×7, India-wide. DHIRA is a listening companion, not a crisis service.
+                24×7, India-wide. YoBro is a listening companion, not a crisis service.
               </p>
             </div>
           </div>
@@ -110,7 +110,7 @@ export default function LandingFooter() {
               color: 'var(--color-text-subtle)',
             }}
           >
-            © 2026 DHIRA · Made with care in India
+            © 2026 YOBRO · Made with care in India
           </p>
           <p
             style={{
@@ -119,7 +119,7 @@ export default function LandingFooter() {
               color: 'var(--color-text-subtle)',
             }}
           >
-            DHIRA is a listening companion, not a therapist or crisis service.
+            YoBro is a listening companion, not a therapist or crisis service.
           </p>
         </div>
       </div>

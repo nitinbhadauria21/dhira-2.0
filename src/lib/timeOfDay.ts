@@ -6,14 +6,7 @@
 export type ShiftPreference = 'day' | 'afternoon' | 'night' | 'rotating';
 
 export type TimeBucket =
-  | 'dawn'
-  | 'morning'
-  | 'midday'
-  | 'afternoon'
-  | 'evening'
-  | 'dusk'
-  | 'night'
-  | 'lateNight';
+  | 'dawn' |'morning' |'midday' |'afternoon' |'evening' |'dusk' |'night' |'lateNight';
 
 /** Coarser scene keys used by Sign in / Sign up left panels. */
 export type SceneKey = 'morning' | 'afternoon' | 'evening' | 'night';
@@ -32,7 +25,7 @@ export function isShiftPreference(v: unknown): v is ShiftPreference {
 export function readStoredShift(): ShiftPreference {
   if (typeof window === 'undefined') return 'day';
   try {
-    const raw = localStorage.getItem('DHIRA-shift') || localStorage.getItem('dhira-shift');
+    const raw = localStorage.getItem('YOBRO-shift') || localStorage.getItem('yobro-shift') || localStorage.getItem('DHIRA-shift') || localStorage.getItem('dhira-shift');
     if (isShiftPreference(raw)) return raw;
   } catch {
     /* ignore */
@@ -43,7 +36,7 @@ export function readStoredShift(): ShiftPreference {
 export function writeStoredShift(shift: ShiftPreference) {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem('DHIRA-shift', shift);
+        localStorage.setItem('YOBRO-shift', shift);
   } catch {
     /* ignore */
   }
@@ -115,7 +108,7 @@ const SCENES: Record<SceneKey, AuthScene> = {
     eyebrow: 'A quiet morning',
     h1: 'Welcome back.',
     h2: 'Fresh page, same you.',
-    memLabel: 'DHIRA remembers',
+    memLabel: 'YoBro remembers',
     mem: 'Yesterday felt heavy around work — how does this morning sit?',
   },
   afternoon: {

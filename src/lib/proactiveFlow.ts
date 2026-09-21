@@ -7,7 +7,7 @@ import {
   notebookThemeHint,
   type ProactiveContextHints,
 } from '@/lib/proactiveContext';
-import { languagePromptInstruction, languagePreferencesInstruction, usesHindiMix } from '@/lib/languages';
+import { languagePreferencesInstruction, usesHindiMix } from '@/lib/languages';
 import type { NotifyChannel, TopicTag } from '@/lib/types';
 
 /**

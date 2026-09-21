@@ -8,6 +8,8 @@ import { useTheme } from './ThemeProvider';
 import { signOut } from '@/lib/authClient';
 import BrandLockup from './BrandLockup';
 import NavTalkToDhiraButton, { isNavTalkToDhiraPath } from './NavTalkToDhiraButton';
+import Icon from '@/components/ui/AppIcon';
+
 
 
 const navItems = [
@@ -101,7 +103,7 @@ export default function AppNav() {
               cursor: loggingOut ? 'wait' : 'pointer',
               opacity: loggingOut ? 0.7 : 1,
             }}
-            aria-label="Log out of Dhira"
+            aria-label="Log out of YoBro"
           >
             <LogOut size={15} />
             {loggingOut ? 'Logging out…' : 'LogOut'}
@@ -207,7 +209,7 @@ export default function AppNav() {
               fontSize: '16px',
               cursor: loggingOut ? 'wait' : 'pointer',
             }}
-            aria-label="Log out of Dhira"
+            aria-label="Log out of YoBro"
           >
             <LogOut size={18} />
             {loggingOut ? 'Logging out…' : 'LogOut'}

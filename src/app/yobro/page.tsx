@@ -1,14 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import YoBroNav from './yobro/components/YoBroNav';
-import YoBroHero from './yobro/components/YoBroHero';
-import YoBroFeatures from './yobro/components/YoBroFeatures';
-import YoBroTestimonials from './yobro/components/YoBroTestimonials';
-import YoBroFooter from './yobro/components/YoBroFooter';
+import YoBroNav from './components/YoBroNav';
+import YoBroHero from './components/YoBroHero';
+import YoBroFeatures from './components/YoBroFeatures';
+import YoBroTestimonials from './components/YoBroTestimonials';
+import YoBroFooter from './components/YoBroFooter';
 
-export default function HomePage() {
+export default function YoBroLandingPage() {
   return (
     <div
       style={{
@@ -23,7 +23,7 @@ export default function HomePage() {
       <YoBroTestimonials />
       <YoBroFooter />
 
-      {/* Mockup preview nav */}
+      {/* Mockup preview nav — remove before production */}
       <div
         style={{
           position: 'fixed',
@@ -54,7 +54,7 @@ export default function HomePage() {
           🎨 Mockup Screens
         </p>
         <Link
-          href="/"
+          href="/yobro"
           style={{
             fontFamily: '"DM Sans", system-ui, sans-serif',
             fontSize: 13,

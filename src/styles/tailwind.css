@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Mukta:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Mukta:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400;1,9..40,500&display=swap');
 
 :root,
 [data-theme="day"] {
@@ -63,6 +63,67 @@
   --timeline-path-glow: rgba(148, 159, 220, 0.55);
   --timeline-node-bg: rgba(38, 42, 70, 0.95);
   --timeline-journey-card-bg: rgba(38, 42, 70, 0.72);
+}
+
+/* ─── YoBro Brand Theme ─────────────────────────────────────────────────── */
+[data-theme="yobro-day"] {
+  --color-bg: #F0F4FF;
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #E8EDFF;
+  --color-border: #D0D9FF;
+  --color-text: #1A1D3A;
+  --color-text-muted: #4A4E72;
+  --color-text-subtle: #7E82A8;
+  --color-primary: #3D52E0;
+  --color-primary-hover: #2C3EC8;
+  --color-primary-soft: #EBF0FF;
+  --color-accent: #FF6B35;
+  --color-accent-hover: #E85520;
+  --color-accent-text: #C03A10;
+  --color-lavender: #8B9FFF;
+  --color-lavender-text: #3D52E0;
+  --color-sage: #2EC4B6;
+  --color-crisis: #E53E3E;
+  --color-crisis-surface: #FFF5F5;
+  --color-glass: rgba(255, 255, 255, 0.75);
+  --radius-card: 20px;
+  --radius-control: 14px;
+  --shadow-soft: 0 8px 32px rgba(61, 82, 224, 0.12);
+  --shadow-card: 0 2px 16px rgba(61, 82, 224, 0.08);
+  --timeline-path-stroke: #3D52E0;
+  --timeline-path-glow: rgba(139, 159, 255, 0.45);
+  --timeline-node-bg: rgba(255, 255, 255, 0.95);
+  --timeline-journey-card-bg: rgba(235, 240, 255, 0.88);
+  --font-display: "Plus Jakarta Sans", "DM Sans", system-ui, sans-serif;
+  --font-ui: "DM Sans", "Manrope", system-ui, sans-serif;
+}
+
+[data-theme="yobro-night"] {
+  --color-bg: #0D0F1E;
+  --color-surface: #151829;
+  --color-surface-alt: #1E2240;
+  --color-border: #2A2F55;
+  --color-text: #E8EAFF;
+  --color-text-muted: #9BA3D4;
+  --color-text-subtle: #6B72A0;
+  --color-primary: #7B8FFF;
+  --color-primary-hover: #9AABFF;
+  --color-primary-soft: #1E2240;
+  --color-accent: #FF7A4A;
+  --color-accent-hover: #FF6B35;
+  --color-accent-text: #FF7A4A;
+  --color-lavender: #8B9FFF;
+  --color-lavender-text: #8B9FFF;
+  --color-sage: #2EC4B6;
+  --color-crisis: #FC8181;
+  --color-crisis-surface: #1A0A0A;
+  --color-glass: rgba(21, 24, 41, 0.78);
+  --shadow-soft: 0 8px 40px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 2px 20px rgba(0, 0, 0, 0.3);
+  --timeline-path-stroke: #7B8FFF;
+  --timeline-path-glow: rgba(123, 143, 255, 0.55);
+  --timeline-node-bg: rgba(30, 34, 64, 0.95);
+  --timeline-journey-card-bg: rgba(30, 34, 64, 0.75);
 }
 
 @layer base {

@@ -4,14 +4,14 @@ import Link from 'next/link';
 
 type BrandLockupProps = {
   href?: string;
-  /** DHIRA line size in px (CALMLINK is 36% of this). */
+  /** YOBRO line size in px (BROFRIEND is 36% of this). */
   size?: number;
   className?: string;
   color?: string;
 };
 
 /**
- * Two-line brand mark: DHIRA over CALMLINK (CalmLink pack).
+ * Two-line brand mark: YOBRO over BROFRIEND.
  */
 export default function BrandLockup({
   href = '/',
@@ -37,7 +37,7 @@ export default function BrandLockup({
           letterSpacing: '-0.03em',
         }}
       >
-        DHIRA
+        YOBRO
       </span>
       <span
         className="block leading-none"
@@ -50,7 +50,7 @@ export default function BrandLockup({
           opacity: 0.62,
         }}
       >
-        CALMLINK
+        BROFRIEND
       </span>
     </Link>
   );

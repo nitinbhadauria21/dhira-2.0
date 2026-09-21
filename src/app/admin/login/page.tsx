@@ -79,7 +79,7 @@ export default function AdminLoginPage() {
             className="text-h2 mb-1"
             style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}
           >
-            Dhira Admin
+            YoBro Admin
           </h1>
           <p style={{ fontFamily: 'var(--font-ui)', fontSize: '14px', color: 'var(--color-text-muted)' }}>
             Internal console · Team access only
@@ -102,7 +102,7 @@ export default function AdminLoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="team@dhira.app"
+                placeholder="team@yobro.app"
                 className="w-full px-4 py-3 outline-none transition-all duration-200"
                 style={{
                   backgroundColor: 'var(--color-surface-alt)',

@@ -209,7 +209,7 @@ export default function CrisisHandoff({ onBack }: CrisisHandoffProps) {
         >
           Tele-MANAS 14416 is free, government-backed, and available 24×7 across India.
           <br />
-          DHIRA is a listening companion — not a crisis service.
+          YoBro is a listening companion — not a crisis service.
         </p>
       </div>
     </div>

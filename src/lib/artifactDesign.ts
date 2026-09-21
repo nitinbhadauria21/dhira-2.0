@@ -1,8 +1,6 @@
 /**
- * Design tokens + copy ported from the Claude Dhira User App artifact
- * (https://claude.ai/code/artifact/95d325eb-3e38-4658-9594-843bdb030151).
- * Keep in sync with CSS variables in src/styles/tailwind.css and
- * references/Dhira-User-App-claude-artifact.html.
+ * Design tokens + copy for YoBro (rebranded from Dhira).
+ * Keep in sync with CSS variables in src/styles/tailwind.css.
  */
 
 import { PREFERRED_LANGUAGE_OPTIONS } from '@/lib/languages';
@@ -37,7 +35,7 @@ export const MOOD_EMOJI: Record<MoodId, string> = {
 
 export const MOOD_LEGEND: MoodId[] = ['calm', 'hopeful', 'stressed', 'anxious', 'overwhelmed'];
 
-/** 10-mood picker grid from the Claude artifact. */
+/** 10-mood picker grid. */
 export const MOODS_GRID: { id: MoodId; label: string; emoji: string; color: string }[] = [
   { id: 'happy', label: 'Happy', emoji: '😊', color: '#F0C46B' },
   { id: 'calm', label: 'Calm', emoji: '😌', color: '#8FBCA4' },
@@ -52,37 +50,43 @@ export const MOODS_GRID: { id: MoodId; label: string; emoji: string; color: stri
 ];
 
 export const HERO_LINES = [
-  'Aaj thoda heavy lag raha hai kya?',
-  "I'm here. Tell me more.",
+  'Bro, aaj kaisa chal raha hai?',
+  "I\'m here. Tell me what\'s up.",
   'Yeh kaafi heavy lag raha hai. Main sun raha hoon.',
-  "What's sitting with you right now?",
+  "What's on your mind, bro?",
   'That sounds heavy. Take your time.',
 ] as const;
+
+export const HERO_TAGLINE =
+  'Your bro who actually listens — no judgment, no advice, just real talk. Anytime you need it.';
+
+export const CTA_BODY =
+  'YoBro is here at 2 AM, during the commute, or whenever the weight gets heavy. No sign-up drama — just open up and talk.';
 
 export const FEATURES = [
   {
     glyph: 'ear',
-    title: 'Listens, never advises',
-    body: 'DHIRA reflects your feelings and asks one gentle question at a time. No prescriptions, no unsolicited advice — just a space to be heard.',
-    detail: '"That sounds heavy. Tell me more."',
+    title: 'Listens, never lectures',
+    body: 'YoBro reflects your feelings and asks one real question at a time. No prescriptions, no unsolicited advice — just a space to be heard.',
+    detail: '"That sounds heavy, bro. Tell me more."',
   },
   {
     glyph: 'moon',
-    title: 'Remembers gently',
-    body: 'After each chat, DHIRA keeps a quiet note of what you shared. Next time, DHIRA starts from where you left off.',
+    title: 'Remembers what matters',
+    body: 'After each chat, YoBro keeps a quiet note of what you shared. Next time, YoBro picks up right where you left off.',
     detail: '"Last time work was sitting heavy on you — how\'s that today?"',
   },
   {
     glyph: 'chat',
-    title: 'Reaches out first',
-    body: 'Within your chosen window, DHIRA checks in unprompted — because sometimes the hardest thing is starting the conversation.',
-    detail: '"Kal thoda heavy lag raha tha. Just checking in."',
+    title: 'Checks in first',
+    body: 'Within your chosen window, YoBro reaches out unprompted — because sometimes the hardest thing is starting the conversation.',
+    detail: '"Kal thoda heavy lag raha tha. Just checking in, bro."',
   },
   {
     glyph: 'shield',
     title: 'Safety built in',
-    body: 'When things feel too heavy, DHIRA steps back and connects you to real help — Tele-MANAS 14416, free and 24×7.',
-    detail: "You don't have to be alone with this.",
+    body: 'When things feel too heavy, YoBro steps back and connects you to real help — Tele-MANAS 14416, free and 24×7.',
+    detail: "You don't have to carry this alone.",
   },
 ] as const;
 
@@ -91,19 +95,19 @@ export const STEPS = [
     number: '01',
     glyph: 'person',
     title: 'Create your profile',
-    body: "Sign up and select the language you'd like to talk to DHIRA in.",
+    body: "Sign up and pick the language you\'d like to talk to YoBro in.",
   },
   {
     number: '02',
     glyph: 'clock',
     title: 'Set your check-in window',
-    body: 'Tell DHIRA when to reach out — 10 PM to 1 AM, a few times a week, in Hinglish. Your rules.',
+    body: 'Tell YoBro when to reach out — 10 PM to 1 AM, a few times a week, in Hinglish. Your rules.',
   },
   {
     number: '03',
     glyph: 'chatDots',
     title: 'Talk. Be heard.',
-    body: 'Open a chat anytime, or let DHIRA come to you. DHIRA listens, reflects, and asks one gentle question.',
+    body: 'Open a chat anytime, or let YoBro come to you. YoBro listens, reflects, and asks one real question.',
   },
   {
     number: '04',
@@ -118,7 +122,7 @@ export const TESTIMONIALS = [
     quote:
       'Pehli baar kisi ne mujhe sirf suna — bina kuch solve karne ki koshish kiye. That felt different.',
     name: 'Aarav S.',
-    meta: 'Mumbai · 3 weeks with DHIRA',
+    meta: 'Mumbai · 3 weeks with YoBro',
     moodColor: '#8FBCA4',
     mood: 'Calmer',
   },
@@ -134,7 +138,7 @@ export const TESTIMONIALS = [
     quote:
       "Mujhe pata tha ye AI hai, phir bhi laga koi sun raha hai. That's the whole point, isn't it.",
     name: 'Rohan M.',
-    meta: 'Delhi · 2 weeks with DHIRA',
+    meta: 'Delhi · 2 weeks with YoBro',
     moodColor: '#F0C46B',
     mood: 'Lighter',
   },
@@ -163,7 +167,7 @@ export const PROMISES = [
   {
     glyph: 'heart',
     title: 'A listener, not a therapist',
-    body: 'DHIRA listens and remembers. DHIRA does not diagnose, advise, or judge.',
+    body: 'YoBro listens and remembers. YoBro does not diagnose, advise, or judge.',
     span: 1 as const,
   },
 ] as const;
@@ -179,9 +183,8 @@ export const LANGUAGE_OPTIONS = PREFERRED_LANGUAGE_OPTIONS.map((opt) => ({
   value: opt.value,
   label: opt.label,
   sub:
-    opt.value === 'english'
-      ? 'Full English responses from DHIRA'
-      : `DHIRA speaks with you in ${opt.label}`,
+    opt.value === 'english' ?'Full English responses from YoBro'
+      : `YoBro speaks with you in ${opt.label}`,
 }));
 
 /** Profile language picker — dropdown uses PREFERRED_LANGUAGE_OPTIONS directly. */
@@ -189,8 +192,7 @@ export const PROFILE_LANGUAGE_OPTIONS = PREFERRED_LANGUAGE_OPTIONS.map((opt) => 
   value: opt.value,
   label: opt.label,
   sub:
-    opt.value === 'english'
-      ? 'Clear, gentle English — "How are you feeling today?"'
+    opt.value === 'english' ?'Clear, genuine English — "How are you feeling today?"'
       : `Warm, conversational ${opt.label}`,
   emoji: opt.value === 'english' ? '🌐' : '🇮🇳',
 }));
@@ -219,7 +221,7 @@ export const PROFILE_VOICE_OPTIONS = [
   },
 ];
 
-/** Demo 7-day moods from the Claude artifact (for empty accounts). */
+/** Demo 7-day moods (for empty accounts). */
 export const DEMO_WEEK_MOODS: { day: string; date: string; mood: MoodId; isToday?: boolean }[] = [
   { day: 'Sat', date: '5', mood: 'calm' },
   { day: 'Sun', date: '6', mood: 'hopeful' },
@@ -230,7 +232,7 @@ export const DEMO_WEEK_MOODS: { day: string; date: string; mood: MoodId; isToday
   { day: 'Fri', date: '11', mood: 'anxious', isToday: true },
 ];
 
-/** Demo journal previews from the Claude artifact. */
+/** Demo journal previews. */
 export const DEMO_RECENT_ENTRIES = [
   {
     date: '11 Jul',
@@ -248,51 +250,3 @@ export const DEMO_RECENT_ENTRIES = [
     mood: 'anxious' as MoodId,
   },
 ];
-
-/** Demo chat seed from the Claude artifact (Hinglish sample conversation). */
-export const ARTIFACT_CHAT_SEED = [
-  {
-    id: 'm1',
-    role: 'dhira' as const,
-    content: 'Aaj thoda heavy lag raha hai kya?',
-    timestamp: '10:38 PM',
-  },
-  {
-    id: 'm2',
-    role: 'user' as const,
-    content: 'Haan yaar, office mein bilkul mann nahi laga. Sab kuch overwhelming lag raha tha.',
-    timestamp: '10:39 PM',
-  },
-  {
-    id: 'm3',
-    role: 'dhira' as const,
-    content:
-      'Yeh kaafi heavy lag raha hai. Office mein kya hua specifically — ya bas ek general heaviness thi puri din?',
-    timestamp: '10:39 PM',
-  },
-  {
-    id: 'm4',
-    role: 'user' as const,
-    content:
-      'Meeting mein meri baat ko kisi ne seriously nahi liya. Aisa lagta hai jaise main invisible hoon wahan.',
-    timestamp: '10:41 PM',
-  },
-  {
-    id: 'm5',
-    role: 'dhira' as const,
-    content:
-      'That sounds really isolating — to speak and feel like no one received it. Invisible is a heavy word to carry. Yeh feeling pehle bhi aayi hai wahan, ya aaj kuch alag tha?',
-    timestamp: '10:41 PM',
-  },
-];
-
-export const ARTIFACT_MEMORY_LINE = "Last time, work was sitting heavy on you — how's that today?";
-
-export const ARTIFACT_CHECKIN_LINE =
-  'Kal thoda heavy lag raha tha. Just checking in — how are you sitting with it today?';
-
-export const HERO_TAGLINE =
-  'A private, anonymous companion that listens at the hardest hour — never advising, always present.';
-
-export const CTA_BODY =
-  'DHIRA is already there. Anonymous, private, and ready to listen — no sign-up friction, no real name required.';

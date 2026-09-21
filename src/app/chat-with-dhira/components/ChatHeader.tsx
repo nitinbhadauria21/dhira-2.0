@@ -49,7 +49,7 @@ export default function ChatHeader({ messageCount }: ChatHeaderProps) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/illustrations/Dhira_New_Listening_Avatar.png"
-            alt="DHIRA, listening"
+            alt="YoBro, listening"
             className="relative rounded-full"
             style={{
               width: 46,
@@ -73,7 +73,7 @@ export default function ChatHeader({ messageCount }: ChatHeaderProps) {
               letterSpacing: '-0.02em',
             }}
           >
-            DHIRA
+            YOBRO
           </p>
           <div className="flex items-center gap-1.5">
             <span className="flex h-2.5 items-end gap-0.5">

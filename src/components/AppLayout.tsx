@@ -29,7 +29,7 @@ export default function AppLayout({ children, showNav = true }: AppLayoutProps) 
     if (!showNav || !pathname) return;
     if (TRACKED_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
       try {
-        localStorage.setItem('dhira-last-route', pathname);
+        localStorage.setItem('yobro-last-route', pathname);
       } catch {
         /* ignore quota / private mode */
       }

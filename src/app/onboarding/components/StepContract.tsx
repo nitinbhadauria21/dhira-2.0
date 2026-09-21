@@ -43,7 +43,6 @@ function ConsentRow({ checked, onChange, title, body }: ConsentRowProps) {
         transition: 'all 0.2s ease',
       }}
     >
-      {/* Checkbox */}
       <div
         style={{
           width: 20,
@@ -98,15 +97,14 @@ export default function StepContract({ data, onChange, onFinish, onBack }: Props
       <OnboardingGreetingRow
         buddySrc={onboardingAssets.contractBuddy}
         buddyWidth={ONBOARDING_CONTRACT_BUDDY_WIDTH}
-        buddyAlt="DHIRA helping you choose a gentle check-in rhythm"
+        buddyAlt="YoBro helping you choose a gentle check-in rhythm"
         eyebrow="Step 2 of 2"
         title={
-          data.alias ? `${data.alias}, how often should DHIRA check in?` : 'How often should DHIRA check in?'
+          data.alias ? `${data.alias}, how often should YoBro check in?` : 'How often should YoBro check in?'
         }
-        subtitle="You can change this anytime in Settings. DHIRA will never reach out without your permission."
+        subtitle="You can change this anytime in Settings. YoBro will never reach out without your permission."
       />
 
-      {/* Frequency selector */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {frequencyOptions.map((opt) => {
           const selected = data.checkinFrequency === opt.value;
@@ -173,7 +171,6 @@ export default function StepContract({ data, onChange, onFinish, onBack }: Props
         })}
       </div>
 
-      {/* Consent section */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <p
           style={{
@@ -189,17 +186,16 @@ export default function StepContract({ data, onChange, onFinish, onBack }: Props
           checked={data.consentCheckin}
           onChange={(v) => onChange({ consentCheckin: v })}
           title="Allow proactive check-ins"
-          body="DHIRA may send a gentle nudge based on your chosen frequency. You can pause this anytime."
+          body="YoBro may send a gentle nudge based on your chosen frequency. You can pause this anytime."
         />
         <ConsentRow
           checked={data.consentMemory}
           onChange={(v) => onChange({ consentMemory: v })}
-          title="Allow DHIRA to remember"
-          body="DHIRA stores mood metadata (not your words) to personalise future check-ins. No personal data is stored."
+          title="Allow YoBro to remember"
+          body="YoBro stores mood metadata (not your words) to personalise future check-ins. No personal data is stored."
         />
       </div>
 
-      {/* Summary card */}
       <div
         style={{
           padding: '16px 18px',
@@ -229,8 +225,8 @@ export default function StepContract({ data, onChange, onFinish, onBack }: Props
             { label: languageDisplayName(data.language), icon: '💬' },
             {
               label:
-                data.checkinFrequency === 'daily' ?'Daily check-ins'
-                  : data.checkinFrequency === 'every-other-day' ?'Every other day' :'Weekly check-ins',
+                data.checkinFrequency === 'daily' ? 'Daily check-ins'
+                  : data.checkinFrequency === 'every-other-day' ? 'Every other day' : 'Weekly check-ins',
               icon: '🔔',
             },
           ].map((tag) => (
@@ -255,14 +251,13 @@ export default function StepContract({ data, onChange, onFinish, onBack }: Props
         </div>
       </div>
 
-      {/* Actions */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <button
           onClick={onFinish}
-          className="btn-accent"
-          style={{ width: '100%', justifyContent: 'center', fontSize: '16px', padding: '15px 24px' }}
+          className="btn-primary"
+          style={{ width: '100%', justifyContent: 'center', fontSize: '16px', padding: '14px 24px' }}
         >
-          Start talking to DHIRA →
+          Start talking to YoBro →
         </button>
         <button
           onClick={onBack}

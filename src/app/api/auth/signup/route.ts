@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStore, isSupabaseAuthConfigured } from '@/lib/store';
-import { hashPassword, setSession, newUserId, verifySupabaseToken } from '@/lib/auth';
+import { hashPassword, setSession, newUserId } from '@/lib/auth';
 import { normalizeEmail } from '@/lib/email/address';
 import { createClient } from '@supabase/supabase-js';
 import { isLanguage, normalizeLanguage } from '@/lib/languages';

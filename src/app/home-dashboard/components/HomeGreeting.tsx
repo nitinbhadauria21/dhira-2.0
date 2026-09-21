@@ -18,7 +18,7 @@ export default function HomeGreeting({
   shift,
   memoryLine,
 }: HomeGreetingProps) {
-  const userName = alias || 'Friend';
+  const userName = alias || 'Bro';
   const [storedShift, setStoredShift] = useState<ShiftPreference>('day');
   const memory = memoryLine?.trim() || '';
   const greeting = homeGreeting(userName, shift ?? storedShift);
@@ -33,7 +33,7 @@ export default function HomeGreeting({
         <div className="flex items-center gap-4">
           <FloatingBuddy
             src="/illustrations/dhira_sitting_hi.png"
-            alt="DHIRA, waving hello"
+            alt="YoBro, waving hello"
             width={78}
             bobAnimation="dhira-bob 5.5s ease-in-out infinite"
           />
@@ -95,7 +95,7 @@ export default function HomeGreeting({
                 marginBottom: 3,
               }}
             >
-              DHIRA remembers
+              YoBro remembers
             </p>
             <p
               style={{

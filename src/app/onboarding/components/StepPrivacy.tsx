@@ -23,10 +23,10 @@ export default function StepPrivacy({ onNext, onBack }: Props) {
       <OnboardingGreetingRow
         buddyVariant="full"
         buddySrc={onboardingAssets.promiseBuddy}
-        buddyAlt="DHIRA holding a glowing shield with a lock, promising your safety and privacy"
+        buddyAlt="YoBro holding a glowing shield with a lock, promising your safety and privacy"
         eyebrow="Our Promise"
         title="Your safety comes first."
-        subtitle="Before we begin, here is what DHIRA promises you — always."
+        subtitle="Before we begin, here is what YoBro promises you — always."
       />
 
       <div

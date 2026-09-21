@@ -2,7 +2,7 @@ import React from 'react';
 import SignUpLink from '@/components/SignUpLink';
 import { CTA_BODY } from '@/lib/artifactDesign';
 
-/** Full-bleed background for this section only — see scene_landing_cta_quiet.png */
+/** Full-bleed background for this section only */
 export const LANDING_CTA_BG = '/illustrations/scene_landing_cta_quiet.png';
 
 export default function LandingCTA() {
