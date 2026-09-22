@@ -13,12 +13,7 @@
  */
 
 export type AgentName =
-  | 'primaryAgent'
-  | 'safetyMonitor'
-  | 'escalationAgent'
-  | 'proactiveCheckin'
-  | 'moodTagging'
-  | 'memoryAgent';
+  | 'primaryAgent' |'safetyMonitor' |'escalationAgent' |'proactiveCheckin' |'moodTagging' |'memoryAgent';
 
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api';
 /** OpenRouter: SDK appends `/v1/messages` — do NOT set base to .../api/v1 (double /v1). */
@@ -80,8 +75,7 @@ export function getTemperatureFor(agent: AgentName): number {
   switch (agent) {
     case 'primaryAgent':
       return 0.7;
-    case 'safetyMonitor':
-    case 'escalationAgent':
+    case 'safetyMonitor': case'escalationAgent':
       return 0.2;
     default:
       return 0.5;
@@ -91,9 +85,7 @@ export function getTemperatureFor(agent: AgentName): number {
 /** Returns the model id that a given agent should use. */
 export function getModelFor(agent: AgentName): string {
   switch (agent) {
-    case 'escalationAgent':
-    case 'moodTagging':
-    case 'memoryAgent':
+    case 'escalationAgent': case'moodTagging': case'memoryAgent':
       return backgroundModel();
     default:
       return voiceAndSafetyModel();

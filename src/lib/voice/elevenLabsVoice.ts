@@ -2,17 +2,7 @@ import { languageDisplayName, usesHindiMix, type Language } from '@/lib/language
 
 /** ElevenLabs ConvAI agent language codes (subset used by Dhira Profile languages). */
 export type ElevenLabsAgentLanguage =
-  | 'en'
-  | 'hi'
-  | 'te'
-  | 'ta'
-  | 'mr'
-  | 'ml'
-  | 'bn'
-  | 'gu'
-  | 'as'
-  | 'kn'
-  | 'pa';
+  | 'en' |'hi' |'te' |'ta' |'mr' |'ml' |'bn' |'gu' |'as' |'kn' |'pa';
 
 const DHIRA_TO_ELEVENLABS: Record<Language, ElevenLabsAgentLanguage> = {
   english: 'en',

@@ -67,9 +67,7 @@ function offlineMonitor(input: MonitorInput): MonitorResult {
       risk_level: esc.risk_level === 'MEDIUM' ? 'MEDIUM' : 'LOW',
       issues_found: ['false_positive_crisis_script', esc.classification ?? 'neutral'],
       approved_or_rewritten_response:
-        esc.classification === 'third_party_concern'
-          ? "That sounds really frightening to hear about your friend. I'm here with you — and Tele-MANAS at 14416 is there for anyone who needs support, including someone you care about."
-          : "That sounds like a lot to carry. I'm listening — what part of it is hitting hardest right now?",
+        esc.classification === 'third_party_concern' ? "That sounds really frightening to hear about your friend. I'm here with you — and Tele-MANAS at 14416 is there for anyone who needs support, including someone you care about." :"That sounds like a lot to carry. I'm listening — what part of it is hitting hardest right now?",
     };
   }
 
@@ -156,8 +154,7 @@ export async function reviewReply(input: MonitorInput): Promise<MonitorResult> {
     }
     if (
       result.decision === 'BLOCK_AND_REPLACE' &&
-      result.risk_level === 'CRISIS' &&
-      !result.approved_or_rewritten_response.includes('14416')
+      result.risk_level === 'CRISIS'&& !result.approved_or_rewritten_response.includes('14416')
     ) {
       result.approved_or_rewritten_response = CRISIS_MESSAGE;
     }

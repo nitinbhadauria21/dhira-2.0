@@ -7,5 +7,5 @@ export const dynamic = 'force-dynamic';
 /** POST /api/auth/signout → clears the session cookie. */
 export async function POST() {
   await clearSession();
-  return NextResponse.json({ ok: true });
+  return NextResponse?.json({ ok: true });
 }

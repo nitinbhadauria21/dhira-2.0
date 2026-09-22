@@ -9,12 +9,12 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     const uid = await getUserId();
-    if (!uid) return NextResponse.json({ messages: [] }, { status: 401 });
+    if (!uid) return NextResponse?.json({ messages: [] }, { status: 401 });
     const store = getStore();
-    const messages = await store.getRecentMessages(uid, 50);
-    return NextResponse.json({ messages });
+    const messages = await store?.getRecentMessages(uid, 50);
+    return NextResponse?.json({ messages });
   } catch (err) {
     console.error('[api/messages] error', err);
-    return NextResponse.json({ messages: [] });
+    return NextResponse?.json({ messages: [] });
   }
 }

@@ -49,8 +49,7 @@ export async function POST(req: NextRequest) {
         const role =
           row.role === 'user' || row.role === 'dhira'
             ? row.role
-            : row.role === 'agent' || row.role === 'ai'
-              ? 'dhira'
+            : row.role === 'agent' || row.role === 'ai' ?'dhira'
               : null;
         const content = typeof row.content === 'string' ? row.content.trim() : '';
         if (!role || !content) return null;

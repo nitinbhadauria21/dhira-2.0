@@ -27,18 +27,18 @@ export async function GET() {
     process.env.VERCEL_GIT_COMMIT_SHA?.trim() ||
     process.env.DHIRA_GIT_SHA?.trim() ||
     'unknown';
-  return NextResponse.json({
+  return NextResponse?.json({
     host: 'cursor-local',
     siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:4028',
     liveBrain: isLiveBrainEnabled(),
     supabase: supabaseAuth,
     supabaseAuth,
     supabaseStore,
-    lastBrainError: telemetry.lastBrainError,
-    lastFallbackAt: telemetry.lastFallbackAt,
-    fallbackCount: telemetry.fallbackCount,
-    criticalFailureCount: telemetry.criticalFailureCount,
-    lastBrainUsed: telemetry.lastBrainUsed,
+    lastBrainError: telemetry?.lastBrainError,
+    lastFallbackAt: telemetry?.lastFallbackAt,
+    fallbackCount: telemetry?.fallbackCount,
+    criticalFailureCount: telemetry?.criticalFailureCount,
+    lastBrainUsed: telemetry?.lastBrainUsed,
     offlinePolicy: offlinePolicyLabel(),
     promptVersion: LIVE_PROMPT_VERSION,
     gitCommit,
@@ -61,7 +61,7 @@ export async function GET() {
       customLlmSecretConfigured: Boolean(voiceCustomLlmSecret()),
       elevenLabsApiKeyConfigured: Boolean(
         process.env.ELEVENLABS_API_KEY?.trim() &&
-          !process.env.ELEVENLABS_API_KEY.includes('your-'),
+          !process.env.ELEVENLABS_API_KEY?.includes('your-'),
       ),
       profileLanguagesApply: isVoiceCustomLlmEnabled() && Boolean(voiceCustomLlmSecret()),
     },

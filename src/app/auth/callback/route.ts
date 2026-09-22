@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
 import { getStore, isSupabaseAuthConfigured } from '@/lib/store';
@@ -42,8 +42,7 @@ export async function GET(request: NextRequest) {
     return redirectToSignIn(
       requestUrl,
       isPasswordRecovery
-        ? 'Password reset link did not include a valid code. Request a new link.'
-        : 'Google sign-in did not return an authorization code.',
+        ? 'Password reset link did not include a valid code. Request a new link.' :'Google sign-in did not return an authorization code.',
     );
   }
 
@@ -61,7 +60,7 @@ export async function GET(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
+        setAll(cookiesToSet: { name: string; value: string; options: Record<string, unknown> }[]) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
           cookieResponse = NextResponse.redirect(new URL('/sign-in', requestUrl.origin));
           cookiesToSet.forEach(({ name, value, options }) => {

@@ -30,7 +30,7 @@ async function main() {
 
   const body = {
     site_url: SITE_URL,
-    uri_allow_list: REDIRECT_URLS.join(','),
+    uri_allow_list: REDIRECT_URLS?.join(','),
   };
 
   console.log(`Updating Supabase project ${PROJECT_REF} auth URLs…`);
@@ -46,18 +46,18 @@ async function main() {
     },
   );
 
-  const text = await res.text();
-  if (!res.ok) {
-    console.error(`Supabase API error (${res.status}):`, text.slice(0, 500));
+  const text = await res?.text();
+  if (!res?.ok) {
+    console.error(`Supabase API error (${res?.status}):`, text?.slice(0, 500));
     process.exit(1);
   }
 
   console.log('Auth redirect URLs updated.');
   console.log('  site_url:', SITE_URL);
-  console.log('  uri_allow_list:', REDIRECT_URLS.join(', '));
+  console.log('  uri_allow_list:', REDIRECT_URLS?.join(', '));
 }
 
-main().catch((e) => {
+main()?.catch((e) => {
   console.error(e);
   process.exit(1);
 });

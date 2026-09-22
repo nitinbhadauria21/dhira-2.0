@@ -36,12 +36,12 @@ export default function LandingTestimonials() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {TESTIMONIALS.map((t) => (
-            <div key={t.name} className="dhira-card feature-card-hover p-6 flex flex-col gap-5">
+          {TESTIMONIALS?.map((t) => (
+            <div key={t?.name} className="dhira-card feature-card-hover p-6 flex flex-col gap-5">
               <div className="flex items-center gap-2">
                 <span
                   className="inline-block rounded-full flex-shrink-0"
-                  style={{ width: 10, height: 10, backgroundColor: t.moodColor }}
+                  style={{ width: 10, height: 10, backgroundColor: t?.moodColor }}
                 />
                 <span
                   style={{
@@ -51,7 +51,7 @@ export default function LandingTestimonials() {
                     fontWeight: 500,
                   }}
                 >
-                  Feeling: {t.mood}
+                  Feeling: {t?.mood}
                 </span>
               </div>
 
@@ -65,7 +65,7 @@ export default function LandingTestimonials() {
                   margin: 0,
                 }}
               >
-                &ldquo;{t.quote}&rdquo;
+                &ldquo;{t?.quote}&rdquo;
               </blockquote>
 
               <div
@@ -80,7 +80,7 @@ export default function LandingTestimonials() {
                     fontFamily: 'var(--font-ui)',
                   }}
                 >
-                  {t.name.charAt(0)}
+                  {t?.name?.charAt(0)}
                 </div>
                 <div>
                   <p
@@ -91,7 +91,7 @@ export default function LandingTestimonials() {
                       color: 'var(--color-text)',
                     }}
                   >
-                    {t.name}
+                    {t?.name}
                   </p>
                   <p
                     style={{
@@ -100,7 +100,7 @@ export default function LandingTestimonials() {
                       color: 'var(--color-text-subtle)',
                     }}
                   >
-                    {t.meta}
+                    {t?.meta}
                   </p>
                 </div>
               </div>

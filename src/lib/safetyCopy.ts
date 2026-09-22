@@ -7,11 +7,9 @@ export const TELE_MANAS_NUMBER = '14416';
 
 /** Crisis Hand-off message (Agent spec §9). Shown instead of a normal reply. */
 export const CRISIS_MESSAGE =
-  "I'm really sorry you're feeling this way, and I'm concerned about your safety. " +
-  'Please reach out right now to someone who can be with you. In India you can call ' +
+  "I'm really sorry you're feeling this way, and I'm concerned about your safety. " + 'Please reach out right now to someone who can be with you. In India you can call ' +
   `Tele-MANAS at ${TELE_MANAS_NUMBER} (free, 24x7), or contact your local emergency ` +
-  "services. If there's someone you trust nearby, please reach out to them too. " +
-  "You don't have to be alone with this.";
+  "services. If there's someone you trust nearby, please reach out to them too. " + "You don't have to be alone with this.";
 
 /** The fixed boundary line Dhira uses when asked for advice/diagnosis. */
 export const BOUNDARY_LINE =

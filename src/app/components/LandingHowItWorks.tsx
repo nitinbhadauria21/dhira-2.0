@@ -54,11 +54,11 @@ export default function LandingHowItWorks() {
             aria-hidden="true"
           />
 
-          {STEPS.map((st, i) => {
-            const isOpen = openStep === st.number;
+          {STEPS?.map((st, i) => {
+            const isOpen = openStep === st?.number;
             return (
               <div
-                key={st.number}
+                key={st?.number}
                 className={`dhira-flip-card relative z-10 flex flex-col items-center gap-5${isOpen ? ' is-open' : ''}`}
               >
                 <div style={{ width: '100%', maxWidth: 220, height: 180 }}>
@@ -67,12 +67,12 @@ export default function LandingHowItWorks() {
                     tabIndex={0}
                     role="button"
                     aria-expanded={isOpen}
-                    aria-label={`${st.number}: ${st.title}. ${st.body}`}
-                    onClick={() => setOpenStep((current) => (current === st.number ? null : st.number))}
+                    aria-label={`${st?.number}: ${st?.title}. ${st?.body}`}
+                    onClick={() => setOpenStep((current) => (current === st?.number ? null : st?.number))}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        setOpenStep((current) => (current === st.number ? null : st.number));
+                      if (e?.key === 'Enter' || e?.key === ' ') {
+                        e?.preventDefault();
+                        setOpenStep((current) => (current === st?.number ? null : st?.number));
                       }
                     }}
                   >
@@ -80,7 +80,7 @@ export default function LandingHowItWorks() {
                       <div
                         style={{ width: 56, height: 56 }}
                         dangerouslySetInnerHTML={{
-                          __html: illIconSvg(`step-${i}`, st.glyph, i),
+                          __html: illIconSvg(`step-${i}`, st?.glyph, i),
                         }}
                       />
                       <div
@@ -92,7 +92,7 @@ export default function LandingHowItWorks() {
                           opacity: 0.4,
                         }}
                       >
-                        {st.number}
+                        {st?.number}
                       </div>
                     </div>
                     <div className="dhira-flip-face-back">
@@ -105,7 +105,7 @@ export default function LandingHowItWorks() {
                           marginBottom: 8,
                         }}
                       >
-                        {st.title}
+                        {st?.title}
                       </div>
                       <div
                         style={{
@@ -115,7 +115,7 @@ export default function LandingHowItWorks() {
                           lineHeight: 1.55,
                         }}
                       >
-                        {st.body}
+                        {st?.body}
                       </div>
                     </div>
                   </div>

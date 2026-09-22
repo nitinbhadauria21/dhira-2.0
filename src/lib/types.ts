@@ -5,54 +5,28 @@
 
 import type { Language } from './languages';
 
-export type { Language, PreferredLanguage, LegacyLanguage } from './languages';
+export type { Language } from './languages';
 
 /** User-chosen work shift (never inferred). Matches CalmLink .dc.html. */
 export type ShiftPreference = 'day' | 'afternoon' | 'night' | 'rotating';
 
 /** Optional spoken-voice preference (schema-ready; not in Profile.dc UI). */
 export type VoicePreference =
-  | 'male_english'
-  | 'female_english'
-  | 'male_hinglish'
-  | 'female_hinglish';
+  | 'male_english' |'female_english' |'male_hinglish' |'female_hinglish';
 
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRISIS';
 
 /** Escalation Agent Step 2 labels (Agent Prompts v3 §6.3). */
 export type RiskClassification =
-  | 'genuine_risk_self'
-  | 'genuine_risk_others'
-  | 'third_party_concern'
-  | 'distress'
-  | 'venting'
-  | 'figure_of_speech'
-  | 'humour'
-  | 'media_or_hypothetical'
-  | 'neutral';
+  | 'genuine_risk_self' |'genuine_risk_others' |'third_party_concern' |'distress' |'venting' |'figure_of_speech' |'humour' |'media_or_hypothetical' |'neutral';
 
 export type ChatChannel = 'app' | 'voice' | 'whatsapp' | 'telegram' | 'email';
 
 export type MoodLabel =
-  | 'happy'
-  | 'calm'
-  | 'neutral'
-  | 'hopeful'
-  | 'stressed'
-  | 'lonely'
-  | 'angry'
-  | 'anxious'
-  | 'overwhelmed'
-  | 'sad';
+  | 'happy' |'calm' |'neutral' |'hopeful' |'stressed' |'lonely' |'angry' |'anxious' |'overwhelmed' |'sad';
 
 export type TopicTag =
-  | 'work'
-  | 'family'
-  | 'relationships'
-  | 'health'
-  | 'finances'
-  | 'self'
-  | 'other';
+  | 'work' |'family' |'relationships' |'health' |'finances' |'self' |'other';
 
 export type CheckinFrequency = 'daily' | 'every-other-day' | 'weekly';
 

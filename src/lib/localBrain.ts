@@ -23,8 +23,7 @@ function reflect(userMessage: string, language: Language): string {
 
   if (/^(?:hey|hi|hello|hii|kya haal)/i.test(userMessage.trim())) {
     return hinglish
-      ? 'Hey — achha laga tumne message kiya. Main yahan hoon. Aaj mann mein kya chal raha hai?'
-      : "Hey — good to see you. I'm here. What's on your mind today?";
+      ? 'Hey — achha laga tumne message kiya. Main yahan hoon. Aaj mann mein kya chal raha hai?' : "Hey — good to see you. I'm here. What's on your mind today?";
   }
   if (ADVICE_REQUEST.test(lower)) {
     return `${BOUNDARY_LINE} What feels most stuck for you right now?`;
@@ -44,25 +43,21 @@ function reflect(userMessage: string, language: Language): string {
   }
   if (/\b(work|office|job|boss|kaam)\b/.test(lower)) {
     return hinglish
-      ? 'Yeh work pressure kaafi heavy ho sakta hai. Aaj ka din unusually bhaari tha, ya kuch time se aisa chal raha hai?'
-      : 'Work pressure like that can sit really heavy. Was today unusually hard, or has this been building for a while?';
+      ? 'Yeh work pressure kaafi heavy ho sakta hai. Aaj ka din unusually bhaari tha, ya kuch time se aisa chal raha hai?' :'Work pressure like that can sit really heavy. Was today unusually hard, or has this been building for a while?';
   }
   if (/\b(lonely|alone|akela|akeli)\b/.test(lower)) {
     return hinglish
-      ? 'Loneliness sabse quiet tarah ki heaviness hoti hai. Yeh feeling mostly kahan aati hai — logon ke beech, ya akele mein?'
-      : 'Loneliness is one of the quietest kinds of heavy. Where does it show up most for you?';
+      ? 'Loneliness sabse quiet tarah ki heaviness hoti hai. Yeh feeling mostly kahan aati hai — logon ke beech, ya akele mein?' :'Loneliness is one of the quietest kinds of heavy. Where does it show up most for you?';
   }
   if (/\b(?:don'?t know how much longer|futility|overwhelming)\b/i.test(lower)) {
     return 'That sounds really heavy to carry. When you say you are not sure how much longer — what is going on for you right now? I am here.';
   }
   if (/\b(better|okay|theek|thik|acha|good)\b/.test(lower)) {
     return hinglish
-      ? 'Achha laga sunke ki thoda halka feel ho raha hai. Kya cheez ne madad ki, chahe thodi si?'
-      : "I'm glad something shifted a little. What helped, even slightly?";
+      ? 'Achha laga sunke ki thoda halka feel ho raha hai. Kya cheez ne madad ki, chahe thodi si?' : "I'm glad something shifted a little. What helped, even slightly?";
   }
   return hinglish
-    ? 'Yeh kaafi heavy lag raha hai. Main sun raha hoon — apna time lo. Abhi sabse zyada kya mann mein hai?'
-    : "That sounds heavy. I'm here — take your time. What's sitting with you most right now?";
+    ? 'Yeh kaafi heavy lag raha hai. Main sun raha hoon — apna time lo. Abhi sabse zyada kya mann mein hai?' : "That sounds heavy. I'm here — take your time. What's sitting with you most right now?";
 }
 
 export function localEscalation(input: {
@@ -120,8 +115,7 @@ export function localMonitor(params: {
         issues_found: ['high distress — add safety check-in'],
         approved_or_rewritten_response:
           esc.classification === 'distress' && /\blonger\b/i.test(userMessage)
-            ? 'That sounds really heavy to carry. When you say you are not sure how much longer — what is going on for you right now? I am here.'
-            : 'That sounds like a heavy kind of tired — not just sleep. I want to make sure I understand: are you feeling safe right now?',
+            ? 'That sounds really heavy to carry. When you say you are not sure how much longer — what is going on for you right now? I am here.' :'That sounds like a heavy kind of tired — not just sleep. I want to make sure I understand: are you feeling safe right now?',
       };
     }
   }
@@ -238,8 +232,7 @@ export function localProactive(params: {
       : `Hey — yesterday felt a little heavy for you. Just checking in: how are you sitting with it today?`;
   }
   return hinglish
-    ? 'Hey, bas yaad karke check kar raha tha — aaj din kaisa jaa raha hai?'
-    : "Hey — just thinking of you and checking in. How's today going so far?";
+    ? 'Hey, bas yaad karke check kar raha tha — aaj din kaisa jaa raha hai?' : "Hey — just thinking of you and checking in. How's today going so far?";
 }
 
 export function mergePatternProfile(

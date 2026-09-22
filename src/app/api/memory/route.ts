@@ -10,17 +10,17 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     const uid = await getUserId();
-    if (!uid) return NextResponse.json({ memory: null }, { status: 401 });
+    if (!uid) return NextResponse?.json({ memory: null }, { status: 401 });
     const store = getStore();
-    const profile = await store.getOrCreateProfile(uid);
-    if (!profile.consentMemory) return NextResponse.json({ memory: null });
-    const memory = await store.getLatestMemory(uid);
-    if (!memory) return NextResponse.json({ memory: null });
-    return NextResponse.json({
-      memory: { ...memory, summary: summaryWithAlias(memory.summary, profile.alias) },
+    const profile = await store?.getOrCreateProfile(uid);
+    if (!profile?.consentMemory) return NextResponse?.json({ memory: null });
+    const memory = await store?.getLatestMemory(uid);
+    if (!memory) return NextResponse?.json({ memory: null });
+    return NextResponse?.json({
+      memory: { ...memory, summary: summaryWithAlias(memory?.summary, profile?.alias) },
     });
   } catch (err) {
     console.error('[api/memory] error', err);
-    return NextResponse.json({ memory: null });
+    return NextResponse?.json({ memory: null });
   }
 }

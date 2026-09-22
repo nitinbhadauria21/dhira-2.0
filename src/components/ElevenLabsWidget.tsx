@@ -440,8 +440,7 @@ function ElevenLabsWidgetInner({
             {turns.length === 0 ? (
               <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--color-text-muted)', margin: 0 }}>
                 {isActive
-                  ? 'Listening… your words will appear here as you talk.'
-                  : 'Press Talk to Dhira to start. The transcript will show here.'}
+                  ? 'Listening… your words will appear here as you talk.' :'Press Talk to Dhira to start. The transcript will show here.'}
               </p>
             ) : (
               turns.map((t) => (

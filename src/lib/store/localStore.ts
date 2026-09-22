@@ -166,7 +166,7 @@ export class LocalStore implements DhiraStore {
   }
 
   async getLatestMood(profileId: string): Promise<MoodLogRecord | null> {
-    const moods = await this.getMoods(profileId);
+    let moods = await this.getMoods(profileId);
     return moods.length ? moods[moods.length - 1] : null;
   }
 

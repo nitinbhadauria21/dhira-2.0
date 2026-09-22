@@ -52,9 +52,7 @@ export default function LanguageSelect(props: Props) {
   const selectValue =
     allowNone && (value === null || value === undefined)
       ? ''
-      : value === 'hinglish'
-        ? 'hinglish'
-        : normalizeLanguage(value ?? 'english');
+      : value === 'hinglish' ?'hinglish' : normalizeLanguage(value ??'english');
 
   const options = PREFERRED_LANGUAGE_OPTIONS.filter((opt) => opt.value !== excludeValue);
 

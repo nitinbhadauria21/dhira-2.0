@@ -305,18 +305,18 @@ class Component extends DCLogic {
     const sk=SKY[skyKey]||SKY.night;
     const ph = s.preview==='auto' ? this.phase(hour,s.shift) : (s.preview==='offhours'?'offhours':null);
     const name='Friend';
-    const BYSKY={
-      morning:{eyebrow:'Morning · DHIRA is awake',greet:'Good morning, '+name+'.',q:'How did the night treat you?',presence:'I was here through the night. Nothing needed answering \u2014 I just stayed.'},
-      afternoon:{eyebrow:'Afternoon · DHIRA is awake',greet:'Afternoon, '+name+'.',q:'How is the day sitting so far?',presence:'Midday or 3 AM, it makes no difference to me. I am here either way.'},
-      evening:{eyebrow:'Evening · DHIRA is awake',greet:'Evening, '+name+'.',q:'What stayed with you today?',presence:'The day can end here if you want it to. I do not clock out.'},
-      night:{eyebrow:'Late night · DHIRA is awake',greet:'Still up, '+name+'?',q:'Kuch heavy lag raha hai?',presence:'This is the hour I was built for. Take as long as you need.'}
+    const BYSKY = {
+      morning:{eyebrow:'Morning · DHIRA is awake',greet:'Good morning, '+name+\'.',q:'How did the night treat you?',presence:'I was here through the night. Nothing needed answering \u2014 I just stayed.'},
+      afternoon:{eyebrow:'Afternoon · DHIRA is awake',greet:'Afternoon, '+name+\'.',q:'How is the day sitting so far?',presence:'Midday or 3 AM, it makes no difference to me. I am here either way.'},
+      evening:{eyebrow:'Evening · DHIRA is awake',greet:'Evening, '+name+\'.',q:'What stayed with you today?',presence:'The day can end here if you want it to. I do not clock out.'},
+      night:{eyebrow:'Late night · DHIRA is awake',greet:'Still up, '+name+\'?',q:'Kuch heavy lag raha hai?',presence:'This is the hour I was built for. Take as long as you need.'}
     };
-    const BYPHASE={
-      waking:{eyebrow:'Your day starts now',greet:'Good morning, '+name+'.',q:'How does the start of this one feel?',presence:'Your morning, whatever the clock says. I follow your hours, not the world\u2019s.'},
-      working:{eyebrow:'Mid-shift · DHIRA is awake',greet:'Breathing room, '+name+'?',q:'How is the shift treating you?',presence:'Two minutes is plenty. I will still be here when it gets quieter.'},
-      winding:{eyebrow:'Shift almost done',greet:'Almost through, '+name+'.',q:'What are you carrying home from today?',presence:'You can set the shift down here before you go home.'},
-      offhours:{eyebrow:'Your quiet hours',greet:'Can\u2019t switch off, '+name+'?',q:'Is your head still running on shift time?',presence:'This is meant to be your rest. If it isn\u2019t coming, we can sit with that.'},
-      rotating:{eyebrow:'Whenever you land',greet:'Welcome back, '+name+'.',q:'How is this week running you?',presence:'Your weeks move around. I don\u2019t \u2014 I am here whenever you land.'}
+    const BYPHASE = {
+      waking:{eyebrow:'Your day starts now',greet:'Good morning, '+name+\'.',q:'How does the start of this one feel?',presence:'Your morning, whatever the clock says. I follow your hours, not the world\u2019s.'},
+      working:{eyebrow:'Mid-shift · DHIRA is awake',greet:'Breathing room, '+name+\'?',q:'How is the shift treating you?',presence:'Two minutes is plenty. I will still be here when it gets quieter.'},
+      winding:{eyebrow:'Shift almost done',greet:'Almost through, '+name+\'.',q:'What are you carrying home from today?',presence:'You can set the shift down here before you go home.'},
+      offhours:{eyebrow:'Your quiet hours',greet:'Can\u2019t switch off, '+name+\'?',q:'Is your head still running on shift time?',presence:'This is meant to be your rest. If it isn\u2019t coming, we can sit with that.'},
+      rotating:{eyebrow:'Whenever you land',greet:'Welcome back, '+name+\'.',q:'How is this week running you?',presence:'Your weeks move around. I don\u2019t \u2014 I am here whenever you land.'}
     };
     const base=BYSKY[skyKey]||BYSKY.night;
     const copy = (ph && BYPHASE[ph] && s.shift!=='day') ? BYPHASE[ph] : (s.preview==='offhours'?BYPHASE.offhours:base);

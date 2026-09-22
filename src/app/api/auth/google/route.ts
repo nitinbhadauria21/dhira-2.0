@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createServerClient } from '@supabase/ssr';
 import { isSupabaseAuthConfigured } from '@/lib/store';
 
 export const runtime = 'nodejs';

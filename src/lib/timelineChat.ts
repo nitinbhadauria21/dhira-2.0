@@ -286,7 +286,7 @@ function buildDayMovement(
 ): TimelineChatDay['movement'] {
   const arc = dedupeConsecutive(sessions.flatMap((s) => s.moods));
   const { start, end } = pickKeyMoods(arc);
-  const topic = sessions.map((s) => s.topic).find(Boolean) ?? null;
+  let topic = sessions.map((s) => s.topic).find(Boolean) ?? null;
   const shiftLabel =
     arc.length > 1
       ? `${shortLabel(start)} → ${shortLabel(end)}`
@@ -365,8 +365,7 @@ export function buildTimelineChatWeek(
       moodArc.length > 0
         ? moodArc.map((m) => shortLabel(m)).join(' → ')
         : daySessions.length
-          ? '—'
-          : '';
+          ? '—' :'';
 
     const dayMessages = daySessions.flatMap((s) => s.messages);
     const highlights = pickHighlights(dayMessages);

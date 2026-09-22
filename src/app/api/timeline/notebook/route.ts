@@ -10,15 +10,15 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     const uid = await getUserId();
-    if (!uid) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+    if (!uid) return NextResponse?.json({ error: 'unauthorized' }, { status: 401 });
 
     const store = getStore();
-    const entries = await store.getNotebookEntries(uid, 100);
+    const entries = await store?.getNotebookEntries(uid, 100);
     const week = buildTimelineNotebookWeek(entries);
 
-    return NextResponse.json({ week, error: null });
+    return NextResponse?.json({ week, error: null });
   } catch (err) {
     console.error('[api/timeline/notebook] error', err);
-    return NextResponse.json({ error: 'could not load notebook timeline', week: null }, { status: 500 });
+    return NextResponse?.json({ error: 'could not load notebook timeline', week: null }, { status: 500 });
   }
 }

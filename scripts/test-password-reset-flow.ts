@@ -28,31 +28,31 @@ async function main() {
   });
 
   const testEmail = process.env.PASSWORD_RESET_TEST_EMAIL?.trim() || 'nitin.bhadauria23@gmail.com';
-  const { data, error } = await admin.auth.admin.generateLink({
+  const { data, error } = await admin?.auth?.admin?.generateLink({
     type: 'recovery',
     email: testEmail,
     options: { redirectTo: REDIRECT_TO },
   });
 
-  if (error || !data.properties?.action_link) {
+  if (error || !data?.properties?.action_link) {
     console.error('FAIL: generateLink', error?.message || 'no action_link');
     process.exit(1);
   }
 
-  const actionLink = data.properties.action_link;
+  const actionLink = data?.properties?.action_link;
   console.log('OK: Supabase generateLink (recovery)');
-  console.log('  action_link prefix:', actionLink.slice(0, 72) + '…');
+  console.log('  action_link prefix:', actionLink?.slice(0, 72) + '…');
 
-  if (!actionLink.includes('/auth/v1/verify')) {
+  if (!actionLink?.includes('/auth/v1/verify')) {
     console.error('FAIL: action_link is not a Supabase verify URL');
     process.exit(1);
   }
   console.log('OK: default-style Supabase verify link');
 
   const cbRes = await fetch(`${SITE}/auth/callback`, { redirect: 'manual' });
-  const cbLoc = cbRes.headers.get('location') || '';
-  console.log('GET /auth/callback (no code) →', cbRes.status, cbLoc.slice(0, 80));
-  if (cbRes.status === 307 && cbLoc.includes('sign-in')) {
+  const cbLoc = cbRes?.headers?.get('location') || '';
+  console.log('GET /auth/callback (no code) →', cbRes?.status, cbLoc?.slice(0, 80));
+  if (cbRes?.status === 307 && cbLoc?.includes('sign-in')) {
     console.log('OK: /auth/callback route deployed');
   } else {
     console.error('FAIL: unexpected /auth/callback response');
@@ -60,8 +60,8 @@ async function main() {
   }
 
   const resetRes = await fetch(`${SITE}/reset-password`, { redirect: 'manual' });
-  console.log('GET /reset-password →', resetRes.status);
-  if (resetRes.status !== 200 && resetRes.status !== 307) {
+  console.log('GET /reset-password →', resetRes?.status);
+  if (resetRes?.status !== 200 && resetRes?.status !== 307) {
     console.error('FAIL: /reset-password not reachable');
     process.exit(1);
   }
@@ -69,7 +69,7 @@ async function main() {
   console.log('Done — request a real reset from /forgot-password to test email delivery.');
 }
 
-main().catch((e) => {
+main()?.catch((e) => {
   console.error(e);
   process.exit(1);
 });

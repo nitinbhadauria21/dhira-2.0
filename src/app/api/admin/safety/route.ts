@@ -11,19 +11,19 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     const store = getStore();
-    const [events, stats] = await Promise.all([store.getRiskEvents(50), store.adminStats()]);
+    const [events, stats] = await Promise.all([store?.getRiskEvents(50), store?.adminStats()]);
     // Shorten the anonymous id so the console shows nothing traceable.
-    const safeEvents = events.map((e) => ({
-      id: e.id,
-      user: `anon-${e.profileId.slice(0, 6)}`,
-      riskLevel: e.riskLevel,
-      signal: e.signal,
-      handled: e.handled,
-      createdAt: e.createdAt,
+    const safeEvents = events?.map((e) => ({
+      id: e?.id,
+      user: `anon-${e?.profileId?.slice(0, 6)}`,
+      riskLevel: e?.riskLevel,
+      signal: e?.signal,
+      handled: e?.handled,
+      createdAt: e?.createdAt,
     }));
-    return NextResponse.json({ events: safeEvents, stats });
+    return NextResponse?.json({ events: safeEvents, stats });
   } catch (err) {
     console.error('[api/admin/safety] error', err);
-    return NextResponse.json({ events: [], stats: null }, { status: 200 });
+    return NextResponse?.json({ events: [], stats: null }, { status: 200 });
   }
 }

@@ -238,7 +238,7 @@ export async function handleInboundWhatsApp(params: Record<string, string>): Pro
   }
 
   try {
-    const uid = await findOrCreateProfileByPhone(phoneE164);
+    let uid = await findOrCreateProfileByPhone(phoneE164);
     const { result: turn, postReply } = await runChatTurn({ uid, userMessage: body, channel: 'whatsapp' });
     if (postReply) {
       after(() => runChatTurnPostReplyEnrichment(postReply));

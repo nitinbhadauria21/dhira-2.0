@@ -8,18 +8,18 @@ export const dynamic = 'force-dynamic';
 /** GET /api/export → all of the signed-in user's data as a JSON download. */
 export async function GET() {
   const uid = await getUserId();
-  if (!uid) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  if (!uid) return NextResponse?.json({ error: 'unauthorized' }, { status: 401 });
   try {
     const store = getStore();
     const [profile, messages, moods, memories, notifications] = await Promise.all([
-      store.getOrCreateProfile(uid),
-      store.getRecentMessages(uid, 1000),
-      store.getMoods(uid),
-      store.getMemories(uid, 1000),
-      store.getNotifications(uid, 1000),
+      store?.getOrCreateProfile(uid),
+      store?.getRecentMessages(uid, 1000),
+      store?.getMoods(uid),
+      store?.getMemories(uid, 1000),
+      store?.getNotifications(uid, 1000),
     ]);
     const payload = {
-      exportedAt: new Date().toISOString(),
+      exportedAt: new Date()?.toISOString(),
       profile,
       chatMessages: messages,
       moodLogs: moods,
@@ -34,6 +34,6 @@ export async function GET() {
     });
   } catch (err) {
     console.error('[api/export] error', err);
-    return NextResponse.json({ error: 'could not export data' }, { status: 500 });
+    return NextResponse?.json({ error: 'could not export data' }, { status: 500 });
   }
 }

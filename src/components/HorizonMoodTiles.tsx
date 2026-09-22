@@ -221,8 +221,7 @@ export default function HorizonMoodTiles({
           {selected?.isToday
             ? 'today'
             : selected?.logged
-              ? 'saved check-in'
-              : 'waiting for a check-in'}
+              ? 'saved check-in' :'waiting for a check-in'}
         </span>
       </div>
 
